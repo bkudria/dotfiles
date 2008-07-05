@@ -1,0 +1,24 @@
+#keystate_numlock = enable
+#keystate_scrolllock = enable
+#keystate_capslock = enable
+
+"keyout {left}"
+  b:7
+
+"keyout {right}"
+  b:6
+
+"dcop kicker kicker toggleShowDesktop"
+	b:8
+
+"toggle-kmail"
+	b:9
+
+"xte "keydown Control_L" "key XF86AudioLowerVolume" "keyup Control_L""
+	b:15
+
+"xte "keydown Control_L" "key XF86AudioRaiseVolume" "keyup Control_L""
+	b:13
+
+"keyout "{alt}1{alt}""
+	b:17

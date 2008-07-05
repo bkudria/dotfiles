@@ -1,0 +1,15 @@
+set bell-style none
+
+"\e[B": history-search-forward
+"\e[A": history-search-backward
+
+$if Bash
+  #do history expansion when space entered
+  Space: magic-space
+$endif
+
+set show-all-if-ambiguous on
+
+set visible-stats on
+
+$include /etc/inputrc
