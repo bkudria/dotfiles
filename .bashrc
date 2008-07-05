@@ -364,7 +364,7 @@ fi
 		export GPGKEY='209BE410'
 		export DEBFULLNAME='Benjamin Kudria'
 		export DEBEMAIL='ben@kudria.net'
-		[[ -x gem ]] && export RUBYOPT='rubygems'
+		[[ -x `qwhich gem` ]] && export RUBYOPT='rubygems'
 
 # 		[ -x /usr/bin/most ] && export PAGER=most && alias less=most
 
