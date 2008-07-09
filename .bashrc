@@ -225,8 +225,8 @@ fi
 		# Git
 		alias gb='git branch'
 		alias gba='git branch -a'
-		alias gc='git commit -v'
-		alias gca='git commit -v -a'
+		alias gc='git commit -v -m'
+		alias gca='git commit -v -a -m'
 		alias gd='git diff | kompare -o -'
 		alias gl='git pull'
 		alias gp='git push'
