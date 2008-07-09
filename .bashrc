@@ -232,6 +232,14 @@ fi
 		alias gp='git push'
 		alias gst='git status'
 
+        function status {
+            if [ -d ".svn" ]; then
+                svn status
+            else
+                git status
+            fi
+        }
+
 		[[ -x `qwhich dog` ]] && alias cat='dog'
 		alias c='cat'
 
