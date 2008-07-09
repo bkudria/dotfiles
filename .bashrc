@@ -4,7 +4,7 @@ if [[ -f /etc/bash_completion ]]; then
 	. /etc/bash.bashrc
 fi
 
-export PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.8/bin
+export PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.8/bin:/usr/lib/kde4/bin
 OS=""
 DISTRO=""
 LOCATION=""
