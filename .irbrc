@@ -80,9 +80,12 @@ end
 
 # local_methods shows methods that are only available for a given object.
 class Object
-	def local_methods
-		self.methods.sort - self.class.superclass.methods
-	end
+    # Return a list of methods defined locally for a particular object.  Useful
+    # for seeing what it does whilst losing all the guff that's implemented
+    # by its parents (eg Object).
+    def local_methods(obj = self)
+        obj.methods(false).sort
+    end
 end
 
 # Simple regular expression helper
