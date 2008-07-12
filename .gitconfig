@@ -28,3 +28,5 @@
     lc = log ORIG_HEAD.. --stat --no-merges
     llog = log --date=local
     gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
+[gui]
+	fontdiff = -family \"courier new\" -size 19 -weight normal -slant roman -underline 0 -overstrike 0
