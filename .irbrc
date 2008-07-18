@@ -108,3 +108,4 @@ end
 
 puts "Ruby #{RUBY_VERSION} #{RUBY_PLATFORM}, PID: #{$$}, #{Time.now}"
 
+at_exit { print "\n" }
