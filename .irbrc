@@ -35,7 +35,7 @@ def time(times = 1)
 	ret
 end
 
-UtilityBelt::Themes.background(:dark)
+# UtilityBelt::Themes.background(:dark)
 
 # from: http://raganwald.com/source/unfold.rb.html
 class Object
