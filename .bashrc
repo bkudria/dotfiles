@@ -172,8 +172,6 @@ fi
 
 		alias ssh='ssh -qAX'
 		alias newssh='ssh -S none'
-		alias sg='ssh greatbeyond.bsdwebsolutions.com'
-		alias stunnel='ssh -ND 1080 sartre'
 
 		alias more='less'
 		alias airnet='sudo pon sunysb'
