@@ -26,6 +26,10 @@
 
 	select = add -p
 
+	staged = diff --cached
+
+	statistics = diff --stat
+
 	lc = log ORIG_HEAD.. --stat --no-merges
 	llog = log --date=local
 	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
