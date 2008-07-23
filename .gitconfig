@@ -1,11 +1,11 @@
 [user]
-    name = Benjamin Kudria
-    email = ben@kudria.net
+	name = Benjamin Kudria
+	email = ben@kudria.net
 
 [core]
-    editor = nano
-    pager = less
-    whitespace = trailing-space,space-before-tab,indent-with-non-tab
+	editor = nano
+	pager = less
+	whitespace = trailing-space,space-before-tab,indent-with-non-tab
 
 [color]
 	diff = auto
@@ -15,18 +15,19 @@
 	ui = auto
 
 [alias]
-    push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
-    show-remotes = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do echo $i; done"
+	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
+	show-remotes = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do echo $i; done"
 
-    ci = commit
-    checkin = commit
+	ci = commit
+	checkin = commit
 
-    co = checkout
+	co = checkout
 
-    select = add -p
-    
-    lc = log ORIG_HEAD.. --stat --no-merges
-    llog = log --date=local
-    gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
+	select = add -p
+
+	lc = log ORIG_HEAD.. --stat --no-merges
+	llog = log --date=local
+	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
+	
 [gui]
 	fontdiff = -family \"courier new\" -size 19 -weight normal -slant roman -underline 0 -overstrike 0
