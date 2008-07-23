@@ -44,11 +44,11 @@ fi
 
 
 function qwhich {
-  if [[ "$DISTRO" = "CentOS" ]]; then
-    which $@ 2> /dev/null
-  else
-    which $@
-  fi
+if [[ "$DISTRO" = "CentOS" ]]; then
+	which $@ 2> /dev/null
+else
+	which $@
+fi
 }
 
 if [[ "$LOCATION" = "NYT" ]]; then
@@ -142,8 +142,8 @@ fi
 
 		alias s='sudo'
 
-        alias watchfile='tail -f'
-        [[ -x `qwhich rlwrap` ]] && alias watchfile='rlwrap tail -f'
+		alias watchfile='tail -f'
+		[[ -x `qwhich rlwrap` ]] && alias watchfile='rlwrap tail -f'
 
 		alias syslog='sudo tail -f /var/log/everything/current'
 		[[ -x `qwhich loco` ]] && alias syslog='sudo tail -f /var/log/everything/current | loco'
@@ -171,7 +171,7 @@ fi
 		alias dos2unix='recode ibmpc..lat1'
 
 		alias ssh='ssh -qAX'
-        alias newssh='ssh -S none'
+		alias newssh='ssh -S none'
 		alias sg='ssh greatbeyond.bsdwebsolutions.com'
 		alias stunnel='ssh -ND 1080 sartre'
 
@@ -232,13 +232,13 @@ fi
 		alias gp='git push'
 		alias gst='git status'
 
-        function status {
-            if [ -d ".svn" ]; then
-                svn status
-            else
-                git status
-            fi
-        }
+		function status {
+			if [ -d ".svn" ]; then
+				svn status
+			else
+				git status
+			fi
+		}
 
 		[[ -x `qwhich dog` ]] && alias cat='dog'
 		alias c='cat'
@@ -314,9 +314,9 @@ fi
 		local UC=$HOSTCOLORESCAPE # user's color
 
 		local O="${UC}(${N}"
- 		local C="${UC})${N}"
+		local C="${UC})${N}"
 
- 		local D="${UC}-${N}"
+		local D="${UC}-${N}"
 
 		[ $UID -eq "0" ] && O="${UC}[${N}"
 		[ $UID -eq "0" ] && C="${UC}]${N}"
@@ -333,10 +333,10 @@ fi
 	# Change title & prompt
 	case "$TERM" in
 	xterm*|rxvt*)
-        PROMPT_COMMAND="echo -ne \"\033]0;${USER}@${HOSTNAME}:${PWD/$HOME/~}\007\""
-        ;;
+		PROMPT_COMMAND="echo -ne \"\033]0;${USER}@${HOSTNAME}:${PWD/$HOME/~}\007\""
+		;;
 	*)
-        ;;
+		;;
 	esac
 
 	export PROMPT_COMMAND="history -a; ${PROMPT_COMMAND}"
@@ -355,13 +355,13 @@ fi
 		export PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/X11R6/lib/pkgconfig.
 		export GTK2_RC_FILES=$HOME/.gtkrc-2.0
 		export XAUTHORITY=/home/bkudria/.Xauthority
-        export HISTCONTROL=erasedups      
+		export HISTCONTROL=erasedups
 		export HISTSIZE=200000
 		export HISTFILESIZE=100000000
 		export HISTIGNORE="&:ls:&&"
 		export HISTTIMEFORMAT=%c%t
 		export EDITOR="nano"
-        export VISUAL="nano"
+		export VISUAL="nano"
 		[[ -x kate ]] && export VISUAL="kate"
 		export GREP_COLOR="38;5;$HOSTCOLORCODE"
 		export ACK_COLOR_MATCH="green"
