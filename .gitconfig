@@ -16,7 +16,6 @@
 
 [alias]
 	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
-	show-remotes = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do echo $i; done"
 
 	ci = commit
 	checkin = commit
