@@ -5,6 +5,8 @@
 [core]
 	editor = nano
 	pager = less
+	# change to tig when my copy of git is updated
+
 	whitespace = trailing-space,space-before-tab,indent-with-non-tab
 
 [color]
@@ -13,6 +15,7 @@
 	branch = auto
 	interactive = auto
 	ui = auto
+	pager = false
 
 [alias]
 	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
