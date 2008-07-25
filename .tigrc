@@ -1,0 +1,4 @@
+set show-rev-graph = yes
+set tab-size = 4
+
+bind main F5 refresh
