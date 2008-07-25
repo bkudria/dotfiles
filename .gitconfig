@@ -21,12 +21,19 @@
 	pager = false
 
 [alias]
+	log = log --date=local
+	
 	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
 
 	ci = commit
 	checkin = commit
 
-	co = checkout
+	switch = checkout
+
+	create-branch = checkout -b
+	delete-branch = branch -d
+
+	branches = branch -a
 
 	ls = ls-files
 
@@ -36,8 +43,6 @@
 
 	statistics = diff --stat
 
-	lc = log ORIG_HEAD.. --stat --no-merges
-	llog = log --date=local
 	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
 	
 [gui]
