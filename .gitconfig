@@ -2,6 +2,9 @@
 	name = Benjamin Kudria
 	email = ben@kudria.net
 
+[github]
+	user = bkudria
+
 [core]
 	editor = nano
 	pager = less
