@@ -5,7 +5,7 @@
 [core]
 	editor = nano
 	pager = less
-	# change to tig when my copy of git is updated
+	# change to tig when color.pager bug is fixed.
 
 	whitespace = trailing-space,space-before-tab,indent-with-non-tab
 
