@@ -1,3 +1,5 @@
+set t_Co=256 
+
 set nocompatible	" enable non-compatible options
 set mouse=a				" mouse support
 set nu						" line numbering
