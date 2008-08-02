@@ -409,6 +409,7 @@ fi
 # 		complete -A user          su userdel passwd
 # 		complete -A group         groupdel groupmod newgrp
 		complete -A directory     cd rmdir
+		complete -cf              sudo s
 
 		complete -f -X '!*.@(mp?(e)g|MP?(E)G|wma|avi|AVI|asf|vob|VOB|bin|dat|vcd|ps|pes|fli|viv|rm|ram|yuv|mov|MOV|qt|QT|wmv|mp3|MP3|ogg|OGG|ogm|OGM|mp4|MP4|wav|WAV|asx|ASX|mng|MNG|m4v)' mplayer
 
