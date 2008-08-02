@@ -130,6 +130,7 @@ fi
 
 		
 	# Aliases
+		alias dotfiles='curl -sS http://ben.kudria.net/install-dotfiles | bash; bashrc'
 		alias activeoptions='egrep -v "#|^ *$"'
 		alias su='su -p'
 		[[ -x `qwhich sudo` ]] && alias su='sudo -s'
