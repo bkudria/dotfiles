@@ -10,7 +10,7 @@
 	pager = less
 	# change to tig when color.pager bug is fixed.
 
-	whitespace = trailing-space,space-before-tab,indent-with-non-tab
+	whitespace = trailing-space,space-before-tab
 
 [color]
 	diff = auto
