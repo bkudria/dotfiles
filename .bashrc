@@ -392,6 +392,11 @@ fi
 			source /etc/bash_completion
 		fi
 
+        # If available, source the global bash completion directory.
+        if [[ -d /etc/bash_completion.d ]]; then
+            source /etc/bash_completion.d/*
+        fi
+
 		[[ $HOSTS_TYPE != 'none' ]] && HOSTS_COMPLETE=$(hosts -h)
 		[[ -x `qwhich snippit` ]] && SNIPPIT_COMPLETE=$(snippit list)
 
