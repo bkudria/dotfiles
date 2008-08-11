@@ -3,10 +3,10 @@
 #keystate_capslock = enable
 
 "keyout {left}"
-  b:7
+  b:6
 
 "keyout {right}"
-  b:6
+  b:7
 
 "dcop kicker kicker toggleShowDesktop"
 	b:8
