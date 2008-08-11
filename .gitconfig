@@ -44,6 +44,6 @@
 	statistics = diff --stat
 
 	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
-	
+
 [gui]
-	fontdiff = -family \"courier new\" -size 19 -weight normal -slant roman -underline 0 -overstrike 0
+	fontdiff = -family terminus -size 13 -weight normal -slant roman -underline 0 -overstrike 0
