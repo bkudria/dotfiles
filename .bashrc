@@ -128,8 +128,10 @@ fi
 			fi
 		}
 
-		
+
 	# Aliases
+		unalias which
+
 		alias dotfiles='curl -sS http://ben.kudria.net/install-dotfiles | bash; bashrc'
 		alias activeoptions='egrep -v "#|^ *$"'
 		alias su='su -p'
