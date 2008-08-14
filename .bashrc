@@ -176,6 +176,9 @@ fi
 		alias ssh='ssh -qAX'
 		alias newssh='ssh -S none'
 
+		alias scheme='rlwrap mzscheme'
+		alias runscheme='mzscheme -r'
+
 		alias more='less'
 		alias airnet='sudo pon sunysb'
 		alias hex="ruby -e 'printf(\"0x%X\n\", ARGV[0])'"
