@@ -22,3 +22,9 @@
 
 "keyout "{alt}1{alt}""
 	b:17
+
+"keyout {F6}"
+  Control + b:6
+
+"keyout {F6}"
+  Control + b:7
