@@ -28,6 +28,9 @@
 	ci = commit
 	checkin = commit
 
+	co = checkout
+	unstage = checkout
+
 	switch = checkout
 
 	create-branch = checkout -b
