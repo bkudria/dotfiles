@@ -142,6 +142,7 @@ fi
 		alias p='ping'
 		[[ -e `qwhich htop` ]] && alias top='htop'
 		alias killall=pkill
+		alias mouse='s hidd --search'
 
 		alias s='sudo'
 
