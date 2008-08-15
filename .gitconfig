@@ -43,6 +43,7 @@
 	select = add -p
 
 	staged = diff --cached
+	unstage = reset HEAD
 
 	statistics = diff --stat
 
