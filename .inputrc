@@ -8,6 +8,7 @@ set visible-stats on
 
 "\e[B": history-search-forward
 "\e[A": history-search-backward
+TAB: menu-complete
 
 $if Bash
   #do history expansion when space entered
