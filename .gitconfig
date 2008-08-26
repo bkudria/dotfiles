@@ -51,3 +51,7 @@
 
 [gui]
 	fontdiff = -family terminus -size 13 -weight normal -slant roman -underline 0 -overstrike 0
+[giggle]
+	compact-mode = false
+	main-window-maximized = true
+	main-window-geometry = 0x0+0+0
