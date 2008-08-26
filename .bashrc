@@ -17,13 +17,6 @@ if [[ "`domainname 2> /dev/null`" = "prvt.nytimes.com" ]] || [[ "`hostname -d`" 
 	LOCATION="NYT"
 fi
 
-bind "set editing-mode emacs"
-bind "set keymap emacs"
-bind "set completion-ignore-case on"
-bind "set match-hidden-files off"
-bind "set show-all-if-ambiguous on"
-bind "set visible-stats on"
-
 set -o notify
 set -o emacs
 set -o noclobber

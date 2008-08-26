@@ -1,4 +1,10 @@
 set bell-style none
+set editing-mode emacs
+set keymap emacs
+set completion-ignore-case on
+set match-hidden-files off
+set show-all-if-ambiguous on
+set visible-stats on
 
 "\e[B": history-search-forward
 "\e[A": history-search-backward
@@ -8,8 +14,5 @@ $if Bash
   Space: magic-space
 $endif
 
-set show-all-if-ambiguous on
-
-set visible-stats on
 
 $include /etc/inputrc
