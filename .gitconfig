@@ -29,7 +29,7 @@
 	checkin = commit
 
 	co = checkout
-	discard = checkout
+	discard = checkout --
 
 	switch = checkout
 
