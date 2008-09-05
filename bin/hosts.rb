@@ -14,7 +14,6 @@ end
 {
 	'laotzu'                           => 220,
 	'kudria.net'                       => nil,
-	'sartre'                           => nil,
 	'weyl.ams.sunysb.edu'              => nil,
 	'seawulf.stonybrook.edu'           => nil,
 	'sparky.ic.sunysb.edu'             => nil,
@@ -37,6 +36,7 @@ end
 @galaxy_hostnames =
 {
 	'sirius'       => 179,
+	'hortal'       => nil,
 	'sagittarius'  => nil,
 	'starzero'     => 202,
 	'centauri01'   => nil,
@@ -45,6 +45,16 @@ end
 	'tauri02'      => nil,
 	'aurigae'      => nil,
 	'aquilae'      => nil,
+	'crux'         => nil,
+}
+
+@seawulf_hostnames =
+{
+	'nagling'	=> nil,
+	'grendel'	=> nil,
+	'herot'		=> nil,
+	'wiglaf'	=> nil,
+	'wulfie'	=> nil,
 }
 
 @hostnames.merge! @galaxy_hostnames
