@@ -402,7 +402,7 @@ fi
 		complete -A command       which qwhich s sudo tsocks
 		complete -A export        export printenv
 		complete -A hostname      ssh telnet ftp ncftp ping dig nmap scp
-		[[ $HOSTS_TYPE != 'none' ]] && complete -A hostname -o default -W "${HOSTS_COMPLETE[*]}" ssh telnet ftp ncftp ping dig nmap scp p
+		[[ $HOSTS_TYPE != 'none' ]] && complete -A hostname -o default -W "${HOSTS_COMPLETE[*]}" ssh telnet ftp ncftp ping dig nmap scp p install-dotfiles
 		complete -W "${SNIPPIT_COMPLETE[*]}" snippit ks
 # 		complete -A helptopic     help
 # 		complete -A job -P '%'    fg jobs
