@@ -3,3 +3,4 @@
 cd ~
 url=http://github.com/bkudria/dotfiles/tarball/master
 wget -q -O- $url | tar --strip-components 1 -xzf-
+bashrc
