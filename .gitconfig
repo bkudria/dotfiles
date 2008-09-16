@@ -47,6 +47,8 @@
 
 	statistics = diff --stat
 
+	ignore = !echo "$@" >> .gitignore
+
 	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
 
 [gui]
