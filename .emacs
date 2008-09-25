@@ -29,14 +29,9 @@
 (setq-default tab-stop-list '(0 4 8 12 16 20 24 28 32)) ;; Set the tab-stop list to multiples of 4
 (setq-default visible-bell 1) ;; Set a visual bell, don't beep
 
-;; Enable ido-mode
-(ido-mode t)
-
-;; Enable icomplete mode - show completion matches
-(icomplete-mode 99)
-
-;; Load CUA mode
-(cua-mode)
+(ido-mode t) ;; Enable ido-mode
+(icomplete-mode 99) ;; Enable icomplete mode - show completion matches
+(cua-mode) ;; Load CUA mode
 
 ;; Add .emacs.d/elisp dir to load-path:
 (add-to-list 'load-path "~/.emacs.d/elisp")
