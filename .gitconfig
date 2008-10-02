@@ -6,7 +6,7 @@
 	user = bkudria
 
 [core]
-	editor = nano
+	editor = eamcs-client-frame
 	pager = less
 	# change to tig when color.pager bug is fixed.
 

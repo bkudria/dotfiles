@@ -205,7 +205,7 @@ fi
 		alias icfonfig='ifconfig'
 		alias ifocnfig='ifconfig'
 		alias e='$EDITOR'
-		alias nano='$EDITOR'
+		alias v='$VISUAL'
 		alias ss='sudo'
 		alias se='sudo $EDITOR'
 		alias vf='cd'
@@ -358,9 +358,8 @@ fi
 		export HISTFILESIZE=100000000
 		export HISTIGNORE="&:ls:&&"
 		export HISTTIMEFORMAT=%c%t
-		export EDITOR="nano"
-		export VISUAL="nano"
-		[[ -x kate ]] && export VISUAL="kate"
+		export VISUAL="emacs-client-frame"
+		export EDITOR="emacs-client-console"
 		export GREP_COLOR="38;5;$HOSTCOLORCODE"
 		export ACK_COLOR_MATCH="green"
 		export ACK_COLOR_FILENAME="green"
