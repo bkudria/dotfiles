@@ -277,6 +277,7 @@ fi
 		alias afind='apt-cache search'
 		alias areinstall='aptitude reinstall'
 		alias afiles='wajig listfiles'
+		alias afile='dpkg-query -S'
 
 		function aversion { dpkg -l $@ |grep ii| awk '{ print $3 }'; }
 		function acontents { dpkg-deb -c /var/cache/apt/archives/$1_`aversion $1`_*.deb; }
