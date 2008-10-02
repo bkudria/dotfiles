@@ -5,6 +5,7 @@ if [[ -f /etc/bash_completion ]]; then
 fi
 
 export PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.8/bin:/usr/lib/kde4/bin
+export TERM=xterm
 OS=""
 DISTRO=""
 LOCATION=""
@@ -435,7 +436,7 @@ fi
 		if ! [[ $TERM ]] ; then
 			eval `tset -s -Q`
 			case $TERM in
-				con*|vt100|linux|xterm)
+				con*|vt100|linux|xterm*)
 					tset -Q -e ^?
 				;;
 			esac
