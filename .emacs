@@ -1,37 +1,44 @@
-;; Delete key should delete forward
-(global-set-key [delete] 'delete-char)
+(require 'cl)
 
-;; Remap standard Alt+X to Ctrl- shortcuts
-(global-set-key "\C-x\C-m" 'execute-extended-command)
-(global-set-key "\C-c\C-m" 'execute-extended-command)
+(if (window-system)
+	(setq server-name "graphical")
+    (setq server-name "console"))
 
-;; Ctrl+W to kill word, along with Alt+Del
-(global-set-key "\C-w" 'backward-kill-word)
+(server-mode t) ; Enable server mode
 
-;; Rebind kill-region since we overrode it above:
-(global-set-key "\C-x\C-k" 'kill-region)
-(global-set-key "\C-c\C-k" 'kill-region)
+(setq custom-file "~/.emacs.d/customize") ; Change the customize-file location
+(load custom-file) ; Be sure to load the customize-file
 
-(global-set-key "\C-x\C-q" 'save-buffers-kill-emacs)
-(global-set-key "\C-c\C-q" 'save-buffers-kill-emacs)
+; Add .emacs.d/ dir to load-path:
+(add-to-list 'load-path "~/.emacs.d/")
 
-;; Hide toolbar, menubar, and scrollbar
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+(defun autocompile nil
+  "compile itself if ~/.emacs or ~/.emacs.d/init-*"
+  (interactive)
+  (require 'bytecomp)
+  (flet
+	  ((default-file (file)
+		(expand-file-name (concat default-directory file))))
+	  (if (or
+		  (string= (buffer-file-name) (default-file ".emacs"))
+		  (when (buffer-file-name)
+		    (string-match
+		     "\\.emacs\\.d/init-.*\\.el"
+		     (buffer-file-name))))
+	  (byte-compile-file (buffer-file-name)))))
+
+(add-hook 'after-save-hook 'autocompile)
+
+(let
+    (( init-files '("init-require"
+					"init-common"
+					"init-modes"
+					"init-functions"
+					"init-bindings") ))
+  (mapc 'load-library init-files))
+
+(if (window-system)
+	(load-library "init-x-windows")
+    (load-library "init-console"))
 
 
-(setq inhibit-startup-message t) ;; Get rid of the welcome message
-(setq initial-major-mode 'text-mode) ;; Set the initial mode to text mode
-(setq-default tab-width 4) ;; Set default tab width to 4
-(setq-default x-stretch-cursor t) ;; Stretch the cursor on longer characters (eg. TAB)
-(setq-default cursor-type 'hbar) ;; Set the cursor type to a horizontal bar
-(setq-default tab-stop-list '(0 4 8 12 16 20 24 28 32)) ;; Set the tab-stop list to multiples of 4
-(setq-default visible-bell 1) ;; Set a visual bell, don't beep
-
-(ido-mode t) ;; Enable ido-mode
-(icomplete-mode 99) ;; Enable icomplete mode - show completion matches
-(cua-mode) ;; Load CUA mode
-
-;; Add .emacs.d/elisp dir to load-path:
-(add-to-list 'load-path "~/.emacs.d/elisp")
