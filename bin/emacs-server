@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+emacs-not-running graphical && ksystraycmd --tooltip "Emacs" --icon /usr/share/icons/emacs-snapshot/emacs.xpm --keeprunning --hidden emacs &
+emacs-not-running console && screen -dmS emacs emacs -nw &
+sleep 5s

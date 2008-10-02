@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+TERM=xterm-256color
+emacs-not-running console && emacs-server
+emacsclient -s console -t -c "$@"
+
