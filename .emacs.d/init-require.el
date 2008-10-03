@@ -16,3 +16,7 @@
 (require 'autofit-frame) ; Autofit frames to contents
 (require 'fringe-helper)
 (require 'light-symbol-autoloads)
+(require 'color-theme)
+(require 'inf-ruby)
+(require 'ruby-electric)
+(require 'find-recursive)

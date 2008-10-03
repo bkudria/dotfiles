@@ -2,7 +2,7 @@
 (global-set-key [delete] 'delete-char)
 
 ; F5 key reverts the buffer
-(global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t)))
+(global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
 
 ; Remap standard Alt+X to Ctrl-m shortcuts
 (global-set-key "\C-x\C-m" 'execute-extended-command)
@@ -26,7 +26,7 @@
 (global-set-key "\C-f" 'isearch-forward)
 (global-set-key "\C-s" 'save-buffer)
 (global-set-key "\C-o" 'ido-find-file)
-(global-set-key "\C-p" 'ido-find-file)
+(global-set-key "\C-p" 'find-file-recursively)
 
 (global-set-key "\C-d" 'comment-or-uncomment-region)
 
