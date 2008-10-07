@@ -24,37 +24,37 @@ end
 
 @nyt_hostnames =
 {
-	'app1.prvt.nytimes.com'    => 149,
-	'dapi.prvt.nytimes.com'    => nil,
-	'cvs.prvt.nytimes.com'     => nil,
-	'ddeploy.prvt.nytimes.com' => nil,
-	'dmysql1.prvt.nytimes.com' => nil,
-	'svn.prvt.nytimes.com'		=> nil,
-	'dsvn.prvt.nytimes.com'		=> nil,
+	'app1.prvt.nytimes.com'     => 149,
+	'dapi.prvt.nytimes.com'     => nil,
+	'cvs.prvt.nytimes.com'      => nil,
+	'ddeploy.prvt.nytimes.com'  => nil,
+	'dmysql1.prvt.nytimes.com'  => nil,
+	'svn.prvt.nytimes.com'      => nil,
+	'dsvn.prvt.nytimes.com'     => nil,
 }
 
 @galaxy_hostnames =
 {
-	'sirius'       => 179,
-	'hortal'       => nil,
-	'sagittarius'  => nil,
-	'starzero'     => 202,
-	'centauri01'   => nil,
-	'centauri02'   => nil,
-	'tauri01'      => nil,
-	'tauri02'      => nil,
-	'aurigae'      => nil,
-	'aquilae'      => nil,
-	'crux'         => nil,
+	'sirius'      => 179,
+	'hortal'      => nil,
+	'sagittarius' => nil,
+	'starzero'    => 202,
+	'centauri01'  => nil,
+	'centauri02'  => nil,
+	'tauri01'     => nil,
+	'tauri02'     => nil,
+	'aurigae'     => nil,
+	'aquilae'     => nil,
+	'crux'        => nil,
 }
 
 @seawulf_hostnames =
 {
-	'nagling'	=> nil,
-	'grendel'	=> nil,
-	'herot'		=> nil,
-	'wiglaf'	=> nil,
-	'wulfie'	=> nil,
+	'nagling'      => nil,
+	'grendel'      => nil,
+	'herot'        => nil,
+	'wiglaf'       => nil,
+	'wulfie'       => nil,
 }
 
 @hostnames.merge! @galaxy_hostnames
