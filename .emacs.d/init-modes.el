@@ -1,4 +1,4 @@
-(color-theme-matrix)
+(color-theme-lite-brite)
 
 (icomplete-mode t) ; Turn on icomplete-mode
 
