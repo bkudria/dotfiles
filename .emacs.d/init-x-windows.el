@@ -1,8 +1,7 @@
 ; Set the scrollbar to the right-hand side
 (set-scroll-bar-mode 'right)
 
-(setq-default x-stretch-cursor t) ; Stretch the cursor on longer characters (eg. TAB)
-(setq-default cursor-type 'hbar) ; Set the cursor type to a horizontal bar
+(setq-default cursor-type '(bar . 1)) ; Set the cursor type to a horizontal bar
 (setq-default frame-title-format (list "%* %b" )) ; set the frame title to buffer title and status indicator
 (setq-default x-select-enable-clipboard t) ; Enable X pasting support
 (setq-default interprogram-paste-function 'x-cut-buffer-or-selection-value)
