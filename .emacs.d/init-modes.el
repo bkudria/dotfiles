@@ -18,9 +18,8 @@
 (cua-mode) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
 
-(light-symbol-mode t)
-(highlight-parentheses-mode t)
 (highlight-symbol-mode t)
+(highlight-parentheses-mode t)
 
 (setq-default dired-listing-switches "-phl")
 
@@ -39,3 +38,14 @@
 		  '(lambda ()
 			 (ruby-electric-mode)
 			 ))
+
+(setq-default ruby-indent-tabs-mode t)
+(setq-default ruby-indent-level 4)
+
+(global-whitespace-mode 1)
+(setq-default global-whitespace-mode t)
+(setq-default global-whitespace-newline-mode nil)
+(setq-default whitespace-global-modes t)
+(setq-default whitespace-line-column 100)
+(setq-default whitespace-style
+			  '(tabs spaces trailing lines-tail space-before-tab indentation empty space-after-tab space-mark tab-mark))
