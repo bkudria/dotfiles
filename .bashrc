@@ -291,7 +291,7 @@ fi
 
 	if [[ $HOSTS_TYPE != 'none' ]]; then
 		export HASHSTRING="$HOSTNAME"
-		
+
 		if [[ $OS = "SunOS" ]]; then
 			export HASHSTRING="`hostname`.`domainname`"
 		fi
@@ -299,7 +299,7 @@ fi
 		if [[ $DISTRO = "CentOS" ]]; then
 			export HASHSTRING="`hostname -f`"
 		fi
-		
+
 		export HOSTCOLORCODE=$(hosts "$HASHSTRING")
 	fi
 
@@ -392,27 +392,27 @@ fi
 			source /etc/bash_completion
 		fi
 
-        # If available, source the global bash completion directory.
-        if [[ -d /etc/bash_completion.d ]]; then
-            source /etc/bash_completion.d/*
-        fi
+		# If available, source the global bash completion directory.
+		if [[ -d /etc/bash_completion.d ]]; then
+			source /etc/bash_completion.d/*
+		fi
 
 		[[ $HOSTS_TYPE != 'none' ]] && HOSTS_COMPLETE=$(hosts -h)
 		[[ -x `qwhich snippit` ]] && SNIPPIT_COMPLETE=$(snippit list)
 
-# 		complete -A alias         alias unalias
+#		complete -A alias         alias unalias
 		complete -A command       which qwhich s sudo tsocks
 		complete -A export        export printenv
 		complete -A hostname      ssh telnet ftp ncftp ping dig nmap scp
 		[[ $HOSTS_TYPE != 'none' ]] && complete -A hostname -o default -W "${HOSTS_COMPLETE[*]}" ssh telnet ftp ncftp ping dig nmap scp p install-dotfiles
 		complete -W "${SNIPPIT_COMPLETE[*]}" snippit ks
-# 		complete -A helptopic     help
-# 		complete -A job -P '%'    fg jobs
-# 		complete -A setopt        set
-# 		complete -A shopt         shopt
+#		complete -A helptopic     help
+#		complete -A job -P '%'    fg jobs
+#		complete -A setopt        set
+#		complete -A shopt         shopt
 		complete -A signal        kill killall
-# 		complete -A user          su userdel passwd
-# 		complete -A group         groupdel groupmod newgrp
+#		complete -A user          su userdel passwd
+#		complete -A group         groupdel groupmod newgrp
 		complete -A directory     cd rmdir
 		complete -cf              sudo s
 
