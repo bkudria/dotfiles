@@ -18,8 +18,9 @@
 (cua-mode) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
 
-(highlight-symbol-mode t)
-(highlight-parentheses-mode t)
+
+(define-globalized-minor-mode global-highlight-parentheses-mode highlight-parentheses-mode highlight-parentheses-mode :group 'highlight-parentheses)
+(global-highlight-parentheses-mode t)
 
 (setq-default dired-listing-switches "-phl")
 
