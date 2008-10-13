@@ -43,10 +43,11 @@
 (setq-default ruby-indent-tabs-mode t)
 (setq-default ruby-indent-level 4)
 
+(whitespace-mode 1)
 (global-whitespace-mode 1)
 (setq-default global-whitespace-mode t)
 (setq-default global-whitespace-newline-mode nil)
 (setq-default whitespace-global-modes t)
 (setq-default whitespace-line-column 100)
 (setq-default whitespace-style
-			  '(tabs spaces trailing lines-tail space-before-tab indentation empty space-after-tab space-mark tab-mark))
+			  '(tabs spaces trailing space-before-tab indentation empty space-after-tab space-mark tab-mark))
