@@ -17,8 +17,10 @@
 (require 'color-theme)
 (require 'highlight-parentheses)
 (require 'inf-ruby)
+(require 'balanced)
 (require 'ruby-electric)
 (require 'find-recursive)
 (require 'smooth-scrolling)
+(require 'parenface)
 (require 'color-theme-lite-brite)
 
