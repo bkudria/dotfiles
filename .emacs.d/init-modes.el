@@ -2,6 +2,8 @@
 
 (icomplete-mode t) ; Turn on icomplete-mode
 
+(balanced-on) ; turn on balanced parens
+
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)
 (setq-default ido-default-buffer-method 'raise-frame)
@@ -51,3 +53,13 @@
 (setq-default whitespace-line-column 100)
 (setq-default whitespace-style
 			  '(tabs spaces trailing space-before-tab indentation empty space-after-tab space-mark tab-mark))
+
+; do some spooky shit to make the time display
+(display-time-mode t)
+(setq-default display-time-default-load-average 2)
+(setq-default  display-time-mail-file 'none)
+(setq-default  display-time-string-forms (quote ((if (and (not display-time-format) display-time-day-and-date) (format-time-string " %a %b %e " now) "") (propertize (format-time-string (or display-time-format (if display-time-24hr-format " %H:%M" "%-I:%M%p")) now) (quote help-echo) (format-time-string " %a %b %e, %Y" now)) load (if mail (concat " " (propertize display-time-mail-string (quote display) (\` (when (and display-time-use-mail-icon (display-graphic-p)) (\,@ display-time-mail-icon) (\,@ (if (and display-time-mail-face (memq (plist-get (cdr display-time-mail-icon) :type) (quote (pbm xbm)))) (let ((bg (face-attribute display-time-mail-face :background))) (if (stringp bg) (list :background bg))))))) (quote face) display-time-mail-face (quote help-echo) "You have new mail; mouse-2: Read mail" (quote mouse-face) (quote mode-line-highlight) (quote local-map) (make-mode-line-mouse-map (quote mouse-2) read-mail-command))) ""))))
+
+; make dired slightly smarter
+(setq-default directory-free-space-program "di")
+(setq-default directory-free-space-args "-Ph")
