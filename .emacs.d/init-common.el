@@ -24,3 +24,7 @@
 (setq-default sentence-end-double-space nil) ; Sentences end with one space
 
 (put 'narrow-to-region 'disabled nil)
+
+; don't scroll funny
+(setq-default mouse-wheel-progressive-speed nil)
+(setq-default mouse-wheel-scroll-amount (quote (0.03)))
