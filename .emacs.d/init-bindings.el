@@ -1,6 +1,9 @@
 ; Delete key should delete forward
 (global-set-key [delete] 'delete-char)
 
+; Backspace shouldn't untabify
+(global-set-key [backspace] 'backward-delete-char)
+
 ; F5 key reverts the buffer
 (global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
 
