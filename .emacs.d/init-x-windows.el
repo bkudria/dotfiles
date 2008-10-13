@@ -18,8 +18,10 @@
 (setq-default fit-frame-empty-width 100)
 (setq-default fit-frame-min-height 40)
 (setq-default fit-frame-min-width 60)
-(setq-default fit-frame-max-height 55)
-(setq-default fit-frame-max-width 140)
+(setq-default fit-frame-max-height nil)
+(setq-default fit-frame-max-width nil)
+(setq-default fit-frame-max-height 95)
+(setq-default fit-frame-max-width 100)
 
 (global-hl-line-mode t)
 
