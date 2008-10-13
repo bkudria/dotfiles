@@ -130,25 +130,47 @@
 
 ;;; 	 (diff-hunk-header-face ((t (:background "gray30" :foreground "white"))))
 
-;;; 	 (dired-flagged ((t (:background "indian red" :foreground "white"))))
-;;; 	 (dired-face-flagged ((t (:background "indian red" :foreground "white"))))
-;;; 	 (dired-header ((t (:foreground "medium sea green"))))
-;;; 	 (dired-face-header ((t (:foreground "medium sea green"))))
-;;; 	 (dired-mark ((t (:foreground "khaki"))))
-;;; 	 (dired-marked ((t (:background "cadet blue" :foreground "gray4"))))
-;;; 	 (dired-face-marked ((t (:background "cadet blue" :foreground "gray4"))))
-;;; 	 (dired-warning ((t (:background "indian red" :foreground "white"))))
+	 (dired-directory ((t (:foreground "#088480"))))
+	 (diredp-dir-priv ((t (:backgreound nil :foreground "#088480"))))
+	 (dired-face-directory ((t (:foreground "#088480"))))
+	 (dired-face-boring ((t (:foreground: "white"))))
+	 (dired-face-executable ((t (:foreground "#BB0B0B"))))
+	 (dired-face-flagged ((t (:foreground "red" :bold t))))
+	 (dired-header ((t (:background "#ff00ff"))))
+	 (dired-face-header ((t (:background "#ff00ff"))))
+	 (dired-mark ((t (:bold t))))
+	 (diredp-flag-mark ((t (:bold t))))
+	 (dired-marked ((t (:bold t))))
+	 (dired-face-marked ((t (:bold t))))
+	 (diredp-flag-mark-line ((t (:background "#444444" :bold t))))
+	 (dired-face-permissions ((t (:foreground "#777777"))))
+	 (diredp-other-priv ((t (:foreground: "#000000" :background "#FF0F0F" :underline t))))
+	 (dired-face-setuid ((t (:foreground "#000000" :underline t))))
+	 (dired-face-socket ((t (:foreground "#33DD0D"))))
+	 (dired-symlink ((t (:foreground "#BB0B86" :italic t))))
+	 (diredp-link-priv ((t (:background "#BB0B86" :foreground "black" :italic t))))
+	 (diredp-symlink ((t (:foreground "#BB0B86" :italic t))))
+	 (dired-face-symlink ((t (:foreground "#BB0B86" :italic t))))
+	 (dired-ignored ((t (:foreground "#555555"))))
+	 (diredp-ignored-file-name ((t (:foreground "#555555"))))
+	 (diredp-write-priv ((t (:background: "#FF5F0F"))))
+	 (dired-perm-write ((t (:foreground: "#FF5F0F"))))
+	 (dired-warning ((t (:foreground "#96BD0B" :bold t))))
+	 (diredp-compressed-file-suffix ((t (:foreground "#97B00A"))))
+	 (diredp-date-time ((t (:italic t :foreground "#666666"))))
+	 (diredp-deletion ((t (:foreground "red" :bold t))))
+	 (diredp-deletion-file-name ((t (:foreground "red" :bold t))))
+	 (diredp-dir-heading ((t (:bold t :italic t :foreground "#0E79EB"))))
+	 (diredp-display-msg ((t (:background "#00ff00"))))
+	 (diredp-exec-priv ((t (:foreground "black" :background "#D40C3B"))))
+	 (diredp-executable-tag ((t (:foreground "#D40C3B"))))
+	 (diredp-file-name ((t (:foreground "white"))))
+	 (diredp-file-suffix ((t (:foreground "#999999"))))
+	 (diredp-no-priv ((t (:background "white" :foreground "#aaaaaa"))))
+	 (diredp-rare-priv ((t (:background "#ff00ff"))))
+	 (diredp-read-priv ((t (:foreground "black" :background "#0fff77"))))
 
-;;; 	 (dired-directory ((t (:foreground "khaki"))))
-;;; 	 (dired-face-directory ((t (:foreground "khaki"))))
-;;; 	 (dired-face-executable ((t (:foreground "medium sea green"))))
-;;; 	 (dired-ignored ((t (:foreground: "#444444"))))
-;;; 	 (dired-face-boring ((t (:foreground: "#444444"))))
-;;; 	 (dired-face-permissions ((t (:foreground: "#444444"))))
-;;; 	 (dired-face-setuid ((t (:bold t :foreground "medium sea green"))))
-;;; 	 (dired-face-socket ((t (:foreground: "#444444"))))
-;;; 	 (dired-symlink ((t (:foreground "cadet blue"))))
-;;; 	 (dired-face-symlink ((t (:foreground "cadet blue"))))
+
 ;;; 	 (ediff-current-diff-face-A ((t (:background "cadet blue" :foreground "gray4"))))
 ;;; 	 (ediff-current-diff-face-Ancestor ((t (:background "IndianRed1"
 ;;; 														:foreground "light gray"))))
@@ -199,18 +221,18 @@
 
 
 	 (font-lock-builtin-face ((t (:foreground "#ff00ff"))))
-	 (font-lock-color-constant-face ((t (:foreground "#CBFF0E")))) 
+	 (font-lock-color-constant-face ((t (:foreground "#CBFF0E"))))
 	 (font-lock-comment-face ((t (:foreground "#646464" :italic t))))
 	 (font-lock-comment-delimiter-face ((t (:foreground "#555555"))))
 	 (font-lock-constant-face ((t (:foreground "#CBFF0E"))))
-	 (font-lock-doc-face ((t (:foreground "#777777")))) 
+	 (font-lock-doc-face ((t (:foreground "#777777"))))
 	 (font-lock-doc-string-face ((t (:foreground "#777777"))))
 	 (font-lock-function-name-face ((t (:foreground "#0F9FFF"))))
 	 (font-lock-keyword-face ((t (:foreground "#808080" :bold t))))
 	 (font-lock-preprocessor-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-reference-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-string-face ((t (:foreground "#FF5F0F" :italic t))))
-	 (font-lock-type-face ((t (:foreground "#ff00ff")))) 
+	 (font-lock-type-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-variable-name-face ((t (:foreground "#0FFFF7"))))
 	 (font-lock-warning-face ((t (:foreground "#FF0F0F"))))
 	 (font-lock-negation-char-face ((t (:foreground "#099191"))))
@@ -236,11 +258,11 @@
 ;;; 	 (html-helper-underline-face ((t ())))
 ;;; 	 (html-helper-strikethrough-face ((t ())))
 ;;; 	 (html-helper-link-face ((t ())))
-;;; 	 (html-helper-significant-tag-face ((t (:foreground "cadet blue")))) 
+;;; 	 (html-helper-significant-tag-face ((t (:foreground "cadet blue"))))
 
-;;; 	 (hyper-apropos-documentation ((t (:foreground "white")))) 
+;;; 	 (hyper-apropos-documentation ((t (:foreground "white"))))
 ;;; 	 (hyper-apropos-hyperlink ((t (:underline t))))
-;;; 	 (hyper-apropos-major-heading ((t (:foreground "lemon chiffon")))) 
+;;; 	 (hyper-apropos-major-heading ((t (:foreground "lemon chiffon"))))
 ;;; 	 (hyper-apropos-section-heading ((t (:foreground "khaki"))))
 ;;; 	 (hyper-apropos-apropos-heading ((t (:foreground "sandy brown"))))
 ;;; 	 (hyper-apropos-apropos-warning ((t (:background "indian red" :foreground "white"))))
@@ -275,21 +297,21 @@
 ;;; 	 (isearch-secondary ((t (:background "indian red" :foreground "lemon chiffon"))))
 ;;; 	 (isearch-fail ((t (:background "indian red" :foreground "lemon chiffon"))))
 
-	 
+
 ;;; 	 (jde-bug-breakpoint-cursor ((t (:background "cyan"))))
 ;;; 	 (jde-db-active-breakpoint-face ((t (:background "cyan"))))
 ;;; 	 (jde-db-requested-breakpoint-face ((t (:background "cyan"))))
 ;;; 	 (jde-db-spec-breakpoint-face ((t (:background "cyan"))))
 ;;; 	 (jde-java-font-lock-api-face ((t (:background "cyan"))))
 ;;; 	 (jde-java-font-lock-bold-face ((t (:bold t :foreground "dark orchid"))))
-;;; 	 (jde-java-font-lock-code-face ((t (:foreground "indian red" 
+;;; 	 (jde-java-font-lock-code-face ((t (:foreground "indian red"
 ;;; 													:background "cadet blue"))))
 ;;; 	 (jde-java-font-lock-constant-face ((t (:foreground "pale violet red"))))
 ;;; 	 (jde-java-font-lock-doc-tag-face ((t (:foreground "khaki"
 ;;; 													   :background "cadet blue"))))
 ;;; 	 (jde-java-font-lock-italic-face ((t (:slant italic :foreground "dark orchid"))))
 ;;; 	 (jde-java-font-lock-link-face ((t (:background "cyan"))))
-;;; 	 (jde-java-font-lock-modifier-face ((t (:foreground "LightSteelBlue4")))) 
+;;; 	 (jde-java-font-lock-modifier-face ((t (:foreground "LightSteelBlue4"))))
 ;;; 	 (jde-java-font-lock-number-face ((t (:foreground "khaki"))))
 ;;; 	 (jde-java-font-lock-operator-face ((t (:background "cyan"))))
 ;;; 	 (jde-java-font-lock-package-face ((t (:foreground "khaki"))))
@@ -328,8 +350,8 @@
 
 	 (mode-line ((t (:foreground "#FFBB00" :background "#4c4c4c" :overline "#999999"))))
 	 (modeline ((t (:foreground "#FFBB00" :background "#4c4c4c" :overline "#999999"))))
-	 
-	 (mode-line-inactive ((t (:foreground "#FF700" :background "#333333" :overline "#000000"))))
+
+	 (mode-line-inactive ((t (:foreground "#FF7700" :background "#333333" :overline "#000000"))))
 	 (mode-line-highlight ((t (:foreground "#4c4c4c" :background "#FFBB00"))))
 	 (modeline-buffer-id ((t (:bold t :foreground "#DBFF0E" :background nil))))
 	 (modeline-mousable ((t (:foreground "khaki" :background "dark slate blue"))))
@@ -361,7 +383,7 @@
 ;; 	 (nxml-entity-ref-delimiter ((t (:foreground "IndianRed1"))))
 ;; 	 (nxml-tag-delimiter ((t (:foreground: "#444444"))))
 ;; 	 (nxml-tag-slash ((t (:foreground: "#444444"))))
-;; 	 (nxml-element-prefix ((t (:foreground "steel blue")))) 
+;; 	 (nxml-element-prefix ((t (:foreground "steel blue"))))
 ;; 	 (nxml-element-colon ((t (:foreground "steel blue"))))
 ;; 	 (nxml-element-local-name ((t (:foreground "cadet blue"))))
 ;; 	 (nxml-attribute-prefix ((t (:foreground "sandy brown"))))
@@ -369,7 +391,7 @@
 ;; 	 (nxml-attribute-local-name ((t (:foreground "sandy brown"))))
 ;; 	 (nxml-namespace-attribute-xmlns ((t (:foreground "sandy brown"))))
 ;; 	 (nxml-namespace-attribute-colon ((t (:foreground "sandy brown"))))
-;; 	 (nxml-namespace-attribute-prefix ((t (:foreground "sandy brown")))) 
+;; 	 (nxml-namespace-attribute-prefix ((t (:foreground "sandy brown"))))
 ;; 	 (nxml-attribute-value ((t (:foreground "lemon chiffon"))))
 ;; 	 (nxml-attribute-value-delimiter ((t (:foreground "lemon chiffon"))))
 	 ;; (nxml-namespace-attribute-value ((t ())))
@@ -382,28 +404,26 @@
 	 ;; (nxml-glyph ((t ())))
 
 	 (linum ((t (:foreground "#FFBB00"))))
-	 
+
 	 (hl-line ((t (:background "#333333" :foreground nil))))
 	 (highline-face ((t (:background "#333333" :foreground nil))))
 	 (highlight-current-line-face ((t (:background "#333333" :foreground nil))))
-	 
-	 (paren-face ((t (:background nil :foreground "yellow"))))
+
+	 (paren-face ((t (:background nil :foreground "#222222" :bold ))))
 	 (hl-paren-face ((t (:background nil :foreground "yellow"))))
-	 
+
 	 (paren-face-match ((t (:background nil :foreground "#ff0000" :bold t))))
 	 (show-paren-match ((t (:background nil :foreground "#ff0000" :bold t))))
 	 (show-paren-match-face ((t (:background nil :foreground "#ff0000" :bold t))))
 	 (paren-match ((t (:background nil :foreground "purple"))))
-	 
+
 	 (paren-face-mismatch ((t (:background nil :foreground nil :underline "red" :bold t))))
 	 (show-paren-mismatch ((t (:background nil :foreground nil :underline "red" :bold t))))
 	 (show-paren-mismatch-face ((t (:background nil :foreground nil :underline "red" :bold t))))
 	 (paren-mismatch ((t (:background nil :foreground nil :underline "red" :bold t))))
-	 
+
 	 (paren-face-no-match ((t (:background nil :foreground nil :underline "red" :bold t))))
 	 (paren-no-match-face ((t (:background nil :foreground nil :underline "red" :bold t))))
-
-	 (paren-face ((t (:foreground: "#0000ff"))))
 
 	 (whitespace-empty ((t (:foreground "yellow"))))
 	 (whitespace-hspace ((t (:foreground "#444444"))))
@@ -420,7 +440,7 @@
 	 (primary-selection ((t (:background "#543B00" :foreground nil))))
 
 
-	 
+
 	;;  (svn-status-marked-face ((t (:background "cadet blue" :foreground "gray4"))))
 ;; 	 (svn-status-marked-popup-face ((t (:background "indian red" :foreground "white" :bold t))))
 ;; 	 (svn-status-update-available-face ((t (:background "indian red" :foreground "white"))))
@@ -462,10 +482,10 @@
 ;;; 	 (slime-repl-result-face ((t (:foreground "medium orchid"))))
 
 ;;; 	 (slime-inspector-topline-face ((t (:background "gray30" :foreground "white"))))
-;;; 	 (slime-inspector-label-face ((t (:foreground "indian red")))) 
+;;; 	 (slime-inspector-label-face ((t (:foreground "indian red"))))
 ;;; 	 (slime-inspector-value-face ((t (:foreground "light pink"))))
 ;;; 	 (slime-inspector-action-face ((t (:background "cyan"))))
-;;; 	 (slime-inspector-type-face ((t (:foreground "light sea green")))) 
+;;; 	 (slime-inspector-type-face ((t (:foreground "light sea green"))))
 
 ;;; 	 (slime-reader-conditional-face ((t (:foreground: "#444444"))))
 
@@ -473,7 +493,7 @@
 ;;; 	 (speedbar-directory-face ((t (:foreground "khaki"))))
 ;;; 	 (speedbar-file-face ((t (:foreground "cadet blue"))))
 ;;; 	 (speedbar-highlight-face ((t (:background "DarkGreen" :foreground "light gray" :underline t))))
-;;; 	 (speedbar-selected-face ((t (:background "cadet blue" :foreground "gray4")))) 
+;;; 	 (speedbar-selected-face ((t (:background "cadet blue" :foreground "gray4"))))
 ;;; 	 (speedbar-tag-face ((t (:foreground "khaki"))))
 
 ;;; 	 (subscript ((t ())))
@@ -490,7 +510,7 @@
 
 ;;; 	 (trailing-whitespace ((t (:background "IndianRed1" :foreground "light gray"))))
 
-	
+
 
 
 	 (whitespace-highlight-face ((t (:background "IndianRed1" :foreground "light gray"))))
