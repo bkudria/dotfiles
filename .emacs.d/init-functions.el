@@ -25,38 +25,35 @@ it)"
   (set (make-local-variable 'post-command-hook)
 	   (cons 'show-fly-err-at-point post-command-hook)))
 
-
-
-
 (defvar flymake-fringe-overlays nil)
 (make-variable-buffer-local 'flymake-fringe-overlays)
 
 (defadvice flymake-make-overlay
-		   (after
-			add-to-fringe
-			first
-		   	(beg end tooltip-text face mouse-face)
-			activate
-			compile)
-		   (push
-			(fringe-helper-insert-region
- 			 beg
-			 end
-			 (fringe-lib-load
-			  (if (eq face 'flymake-errline)
-			  	  fringe-lib-exclamation-mark
-				  fringe-lib-question-mark))
-			 'left-fringe
-			 'font-lock-warning-face)
-		    flymake-fringe-overlays))
+  (after
+   add-to-fringe
+   first
+   (beg end tooltip-text face mouse-face)
+   activate
+   compile)
+  (push
+   (fringe-helper-insert-region
+	beg
+	end
+	(fringe-lib-load
+	 (if (eq face 'flymake-errline)
+		 fringe-lib-exclamation-mark
+	   fringe-lib-question-mark))
+	'left-fringe
+	'font-lock-warning-face)
+   flymake-fringe-overlays))
 
 (defadvice flymake-delete-own-overlays
-		   (after
-		    remove-from-fringe
-			activate
-			compile)
-		   (mapc 'fringe-helper-remove flymake-fringe-overlays)
-		   (setq flymake-fringe-overlays nil))
+  (after
+   remove-from-fringe
+   activate
+   compile)
+  (mapc 'fringe-helper-remove flymake-fringe-overlays)
+  (setq flymake-fringe-overlays nil))
 
 
 
@@ -76,10 +73,10 @@ it)"
   (interactive)
   (backward-kill-sexp)
   (condition-case nil
-      (prin1 (eval (read (current-kill 0)))
-             (current-buffer))
-    (error (message "Invalid expression")
-           (insert (current-kill 0)))))
+	  (prin1 (eval (read (current-kill 0)))
+			 (current-buffer))
+	(error (message "Invalid expression")
+		   (insert (current-kill 0)))))
 
 ; Smooth scrolling
 (defun smooth-scroll (increment)
