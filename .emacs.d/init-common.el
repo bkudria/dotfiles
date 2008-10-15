@@ -24,6 +24,7 @@
 (setq-default sentence-end-double-space nil) ; Sentences end with one space
 
 (put 'narrow-to-region 'disabled nil)
+(setq enable-recursive-minibuffers t)
 
 ; don't scroll funny
 (setq-default mouse-wheel-progressive-speed nil)
