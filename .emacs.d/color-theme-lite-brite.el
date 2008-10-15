@@ -316,6 +316,9 @@
 ;;; 	 (jde-java-font-lock-operator-face ((t (:background "cyan"))))
 ;;; 	 (jde-java-font-lock-package-face ((t (:foreground "khaki"))))
 ;;; 	 (jde-java-font-lock-pre-face ((t (:background "cyan"))))
+;;; 	 (jde-java-font-lock-private-face ((t (:background "cyan"))))
+;;; 	 (jde-java-font-lock-protected-face ((t (:background "cyan"))))
+;;; 	 (jde-java-font-lock-public-face ((t (:background "cyan"))))
 ;;; 	 (jde-java-font-lock-underline-face ((t (:underline t :foreground "dark orchid"))))
 
 ;;; 	 (js2-builtin-face ((t (:foreground "sandy brown"))))
@@ -426,13 +429,13 @@
 	 (paren-no-match-face ((t (:background nil :foreground nil :underline "red" :bold t))))
 
 	 (whitespace-empty ((t (:foreground "yellow"))))
-	 (whitespace-hspace ((t (:foreground "#444444"))))
+	 (whitespace-hspace ((t (:foreground "#222222"))))
 	 (whitespace-indentation ((t (:foreground "yellow"))))
 	 (whitespace-line ((t (:background nil :foreground nil :underline "#555555"))))
-	 (whitespace-space ((t (:foreground "#444444"))))
+	 (whitespace-space ((t (:foreground "#222222"))))
 	 (whitespace-space-after-tab ((t (:foreground "yellow"))))
 	 (whitespace-space-before-tab ((t (:foreground "orange" :weight bold))))
-	 (whitespace-tab ((t (:foreground "#444444"))))
+	 (whitespace-tab ((t (:foreground "#222222"))))
 	 (whitespace-trailing ((t (:background "black" :foreground "red" :weight bold))))
 
 
