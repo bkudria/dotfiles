@@ -2,7 +2,10 @@
 
 (icomplete-mode t) ; Turn on icomplete-mode
 
-(balanced-on) ; turn on balanced parens
+; (balanced-on) ; turn on balanced pns
+
+(define-globalized-minor-mode global-paredit-mode paredit-mode paredit-mode)
+(global-paredit-mode t)
 
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)
