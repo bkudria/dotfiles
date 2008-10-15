@@ -89,3 +89,44 @@ it)"
 
 (global-set-key [(mouse-5)] '(lambda () (interactive) (smooth-scroll 1)))
 (global-set-key [(mouse-4)] '(lambda () (interactive) (smooth-scroll -1)))
+
+(defun ido-save-or-write-file ()
+  "Save the current buffer to a file, or, prompt to write it to a file with ido-write-file"
+  (interactive)
+  (if (eq buffer-file-name nil)
+	  (ido-write-file)
+	(save-buffer))
+  )
+
+(defun ido-execute ()
+  (interactive)
+  (call-interactively
+   (intern
+	(ido-completing-read
+	 "M-x "
+	 (progn
+	   (unless ido-execute-command-cache
+		 (mapatoms (lambda (s)
+					 (when (commandp s)
+					   (setq ido-execute-command-cache
+							 (cons (format "%S" s) ido-execute-command-cache))))))
+	   ido-execute-command-cache)))))
+
+(defun exit-and-ido-recentf ()
+  (ido-recentf)
+  (abort-recursive-edit))
+
+(defun ido-recentf ()
+  "Use ido to select a recently opened file from the `recentf-list'"
+  (interactive)
+  (let ((home (expand-file-name (getenv "HOME"))))
+	(find-file
+	 (ido-completing-read "Recentf open: "
+						  (mapcar (lambda (path)
+									(replace-regexp-in-string home "~" path))
+								  recentf-list)
+						  nil t)))
+  )
+
+
+
