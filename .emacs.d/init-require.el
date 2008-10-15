@@ -23,4 +23,4 @@
 (require 'smooth-scrolling)
 (require 'parenface)
 (require 'color-theme-lite-brite)
-
+(require 'tabkey2)
