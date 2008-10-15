@@ -63,6 +63,29 @@
 (setq-default  display-time-mail-file 'none)
 (setq-default  display-time-string-forms (quote ((if (and (not display-time-format) display-time-day-and-date) (format-time-string " %a %b %e " now) "") (propertize (format-time-string (or display-time-format (if display-time-24hr-format " %H:%M" "%-I:%M%p")) now) (quote help-echo) (format-time-string " %a %b %e, %Y" now)) load (if mail (concat " " (propertize display-time-mail-string (quote display) (\` (when (and display-time-use-mail-icon (display-graphic-p)) (\,@ display-time-mail-icon) (\,@ (if (and display-time-mail-face (memq (plist-get (cdr display-time-mail-icon) :type) (quote (pbm xbm)))) (let ((bg (face-attribute display-time-mail-face :background))) (if (stringp bg) (list :background bg))))))) (quote face) display-time-mail-face (quote help-echo) "You have new mail; mouse-2: Read mail" (quote mouse-face) (quote mode-line-highlight) (quote local-map) (make-mode-line-mouse-map (quote mouse-2) read-mail-command))) ""))))
 
-; make dired slightly smarter
+										; make dired slightly smarter
 (setq-default directory-free-space-program "di")
 (setq-default directory-free-space-args "-Ph")
+
+(tabkey2-mode t)
+(setq-default tabkey2-completion-functions
+			  '(("Hippe Expansion" hippie-expand)
+				("Spell check word" flyspell-correct-word-before-point)
+				("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
+				("Programmable completion" pcomplete)
+				("nXML completion" nxml-complete)
+				("Complete Emacs symbol" lisp-complete-symbol)
+				("Widget complete" widget-complete)
+				("Comint Dynamic Complete" comint-dynamic-complete)
+				("PHP completion" php-complete-function)
+				("Tags completion" complete-symbol)
+				("Predictive word" complete-word-at-point predictive-mode)
+				("Predictive abbreviations" pabbrev-expand-maybe)
+				("Dynamic word expansion" dabbrev-expand nil
+				 (setq dabbrev--last-abbrev-location nil))
+				("Ispell complete word" ispell-complete-word)
+				("Yasnippet" yas/expand)
+				("Anything" anything
+				 (commandp 'anything))))
+
+(recentf-mode t)
