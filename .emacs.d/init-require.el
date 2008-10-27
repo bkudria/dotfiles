@@ -11,6 +11,7 @@
 (require 'lacarte) ; Load the LaCarte menu access library
 (require 'ruby-flymake) ; load the flymake ruby lib
 (require 'sml-flymake) ; load the flymake sml lib
+(require 'haskell-flymake) ; load the flymake haskell lib
 (require 'flymake-shell) ; load the fly-make shell lib
 (require 'autofit-frame) ; Autofit frames to contents
 (require 'fringe-helper)
