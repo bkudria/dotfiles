@@ -1,4 +1,4 @@
 #!/usr/bin/env bash
 
-emacs-not-running graphical && emacs-server
-emacsclient -s graphical -n -c "$@"
+emacs-not-running server && emacs-server
+emacsclient -s server -n -c "$@"
