@@ -91,3 +91,5 @@
 (recentf-mode t)
 (setq-default recentf-max-saved-items 1000)
 
+; Don't open tons o' buffers
+(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
