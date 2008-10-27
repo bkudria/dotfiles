@@ -89,3 +89,5 @@
 				 (commandp 'anything))))
 
 (recentf-mode t)
+(setq-default recentf-max-saved-items 1000)
+
