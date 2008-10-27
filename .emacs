@@ -4,11 +4,8 @@
 	(setq server-name "graphical")
   (setq server-name "console"))
 
-(server-mode t) ; Enable server mode
-
 (setq custom-file "~/.emacs.d/customize") ; Change the customize-file location
 (load custom-file) ; Be sure to load the customize-file
-
 										; Add .emacs.d/ dir to load-path:
 (add-to-list 'load-path "~/.emacs.d/")
 
@@ -41,4 +38,5 @@
 	(load-library "init-x-windows")
   (load-library "init-console"))
 
+(server-mode t) ; Enable server mode
 
