@@ -20,13 +20,7 @@
 (setq-default ido-enable-flex-matching t)
 (setq-default ido-everywhere t)
 
-(predictive-mode t)
-(setq-default completion-auto-show 'menu)
-(setq-default predictive-auto-add-to-dict t)
-(setq-default predictive-auto-learn t)
-(setq-default predictive-add-to-dict-ask nil)
-
-(cua-mode) ; Load CUA mode
+(cua-mode t) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
 
 
