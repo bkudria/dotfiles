@@ -4,7 +4,13 @@
 
 ; (balanced-on) ; turn on balanced pns
 
-(define-globalized-minor-mode global-paredit-mode paredit-mode paredit-mode)
+(defun turn-on-paredit-no-errors ()
+  "Turns on paredit-mode, ignoring errors"
+  (paredit-mode t)
+  )
+
+(define-globalized-minor-mode global-paredit-mode paredit-mode turn-on-paredit-no-errors)
+
 (global-paredit-mode t)
 
 (ido-mode t) ; Turn on ido-mode
