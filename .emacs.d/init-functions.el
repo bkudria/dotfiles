@@ -104,13 +104,12 @@ it)"
    (intern
 	(ido-completing-read
 	 "M-x "
-	 (progn
-	   (unless ido-execute-command-cache
-		 (mapatoms (lambda (s)
-					 (when (commandp s)
-					   (setq ido-execute-command-cache
-							 (cons (format "%S" s) ido-execute-command-cache))))))
-	   ido-execute-command-cache)))))
+	 (let (cmd-list)
+	   (mapatoms
+		(lambda (S)
+		  (when (commandp S)
+			(setq cmd-list (cons (format "%S" S) cmd-list)))))
+	   cmd-list)))))
 
 (defun exit-and-ido-recentf ()
   (ido-recentf)
@@ -128,5 +127,6 @@ it)"
 						  nil t)))
   )
 
-
-
+; Redefine so we don't insert a space
+(defun paredit-space-for-delimiter-p (endp delimiter)
+  nil)
