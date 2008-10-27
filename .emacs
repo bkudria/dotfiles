@@ -27,12 +27,11 @@
 					"init-common"
 					"init-modes"
 					"init-functions"
-					"init-bindings") ))
+					"init-bindings"
+					"init-x-windows"
+					"init-console") ))
   (mapc 'load-library init-files))
 
-(if (window-system)
-	(load-library "init-x-windows")
-  (load-library "init-console"))
 
 (server-mode t) ; Enable server mode
 
