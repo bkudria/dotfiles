@@ -43,8 +43,6 @@
 ; Bind C-c C-a to select entire buffer
 (global-set-key (kbd "C-S-a") 'mark-whole-buffer)
 
-										; Bind C-c C-c to clear entire buffer
-										; (global-set-key "\C-c\C-c" #'(lambda () (interactive) (mark-whole-buffer) (delete-region)))
 
 (global-set-key [?\e ?\M-x] 'lacarte-execute-menu-command) ; Bind ESC M-x to the LaCarte menu command
 
