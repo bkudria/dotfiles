@@ -331,20 +331,13 @@ fi
 	}
 
 	# Change title & prompt
-	case "$TERM" in
-	xterm*|rxvt*)
-		PROMPT_COMMAND="echo -ne \"\033]0;${USER}@${HOSTNAME}:${PWD/$HOME/~}\007\""
-		;;
-	*)
-		;;
-	esac
 
-	export PROMPT_COMMAND="history -a; ${PROMPT_COMMAND}"
+	# export PROMPT_COMMAND="history -a; ${PROMPT_COMMAND}"
 
 	bash_prompt
 	unset bash_prompt
 
-
+export PROMPT_COMMAND=""
 
 # Misc
 	# Environment variables
