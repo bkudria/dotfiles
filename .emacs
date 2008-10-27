@@ -1,9 +1,5 @@
 (require 'cl)
 
-(if (window-system)
-	(setq server-name "graphical")
-  (setq server-name "console"))
-
 (setq custom-file "~/.emacs.d/customize") ; Change the customize-file location
 (load custom-file) ; Be sure to load the customize-file
 										; Add .emacs.d/ dir to load-path:
