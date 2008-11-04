@@ -75,14 +75,10 @@
 				("Programmable completion" pcomplete)
 				("nXML completion" nxml-complete)
 				("Complete Emacs symbol" lisp-complete-symbol)
-				("Widget complete" widget-complete)
-				("Comint Dynamic Complete" comint-dynamic-complete)
 				("PHP completion" php-complete-function)
-				("Tags completion" complete-symbol)
 				("Predictive word" complete-word-at-point predictive-mode)
 				("Predictive abbreviations" pabbrev-expand-maybe)
-				("Dynamic word expansion" dabbrev-expand nil
-				 (setq dabbrev--last-abbrev-location nil))
+				("Dynamic word expansion" dabbrev-expand nil (setq dabbrev--last-abbrev-location nil))
 				("Ispell complete word" ispell-complete-word)
 				("Yasnippet" yas/expand)
 				("Anything" anything
