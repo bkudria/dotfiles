@@ -27,6 +27,4 @@
 
 (setq-default indicate-empty-lines t)
 
-(global-linum-mode 1)
-
 (mouse-avoidance-mode 'animate) ; Animate the mouse away from where we are typing
