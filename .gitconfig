@@ -6,7 +6,7 @@
 	user = bkudria
 
 [core]
-	editor = eamcs-client-frame
+	editor = emacs-client-frame
 	pager = less
 	# change to tig when color.pager bug is fixed.
 
