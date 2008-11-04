@@ -32,7 +32,7 @@
 (global-set-key "\C-f" 'isearch-forward)
 (global-set-key "\C-s" 'ido-save-or-write-file)
 (global-set-key "\C-o" 'ido-find-file)
-(define-key ido-file-completion-map (kbd "C-o") 'exit-and-ido-recentf)
+(define-key ido-file-completion-map (kbd "C-o") 'ido-recentf)
 
 (global-set-key "\C-d" 'comment-or-uncomment-region)
 
