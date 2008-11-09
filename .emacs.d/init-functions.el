@@ -1,7 +1,6 @@
-;;flymake-ler(file line type text &optional full-file)
+;; flymake-ler(file line type text &optional full-file)
 (defun show-fly-err-at-point ()
-  "If the cursor is sitting on a flymake error, display the
-message in the minibuffer"
+  "If the cursor is sitting on a flymake error, display the message in the minibuffer"
   (interactive)
   (let ((line-no (line-number-at-pos)))
 	(dolist (elem flymake-err-info)
@@ -18,10 +17,7 @@ message in the minibuffer"
   (show-fly-err-at-point))
 
 (defadvice flymake-mode (before post-command-stuff activate compile)
-  "Add functionality to the post command hook so that if the
-cursor is sitting on a flymake error the error information is
-displayed in the minibuffer (rather than having to mouse over
-it)"
+  "Add functionality to the post command hook so that if the cursor is sitting on a flymake error the error information is displayed in the minibuffer (rather than having to mouse over it)"
   (set (make-local-variable 'post-command-hook)
 	   (cons 'show-fly-err-at-point post-command-hook)))
 
@@ -83,7 +79,7 @@ it)"
 	(error (message "Invalid expression")
 		   (insert (current-kill 0)))))
 
-; Smooth scrolling
+;; Smooth scrolling
 (defun smooth-scroll (increment)
   (scroll-up increment) (sit-for 0.05)
   (scroll-up increment) (sit-for 0.02)
@@ -132,7 +128,7 @@ it)"
 						  nil t)))
   )
 
-; Redefine so we don't insert a space
+;; Redefine so we don't insert a space
 (defun paredit-space-for-delimiter-p (endp delimiter)
   nil)
 

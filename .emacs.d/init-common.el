@@ -1,4 +1,4 @@
-; Hide toolbar and menubar
+;; Hide toolbar and menubar
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 
@@ -15,7 +15,7 @@
 (setq-default tab-stop-list '(0 4 8 12 16 20 24 28 32)) ; Set the tab-stop list to multiples of 4
 (setq-default visible-bell 1) ; Set a visual bell, don't beep
 (setq-default mouse-wheel-scroll-amount '(1)) ; Mouse wheel scrolls 1 line
-(setq-default idle-update-delay 0.1) 
+(setq-default idle-update-delay 0.1)
 (setq-default inhibit-startup-echo-area-message "")
 (setq-default initial-buffer-choice t)
 (setq-default initial-scratch-message "")
@@ -26,6 +26,6 @@
 (put 'narrow-to-region 'disabled nil)
 (setq enable-recursive-minibuffers t)
 
-; don't scroll funny
+;; don't scroll funny
 (setq-default mouse-wheel-progressive-speed nil)
 (setq-default mouse-wheel-scroll-amount (quote (0.03)))

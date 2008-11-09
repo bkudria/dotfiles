@@ -1,4 +1,4 @@
-; Set the scrollbar to the right-hand side
+;; Set the scrollbar to the right-hand side
 (set-scroll-bar-mode 'right)
 
 (setq-default cursor-type '(bar . 1)) ; Set the cursor type to a horizontal bar

@@ -2,7 +2,7 @@
 
 (icomplete-mode t) ; Turn on icomplete-mode
 
-; (balanced-on) ; turn on balanced pns
+;; (balanced-on) ; turn on balanced pns
 
 (defun turn-on-paredit-no-errors ()
   "Turns on paredit-mode, ignoring errors"
@@ -87,11 +87,11 @@
 (recentf-mode t)
 (setq-default recentf-max-saved-items 1000)
 
-; Don't try to tell me about new mail
+;; Don't try to tell me about new mail
 (setq-default display-time-mail-file nil)
 (setq-default display-time-mail-string "")
 (setq-default display-time-mail-function nil)
 
-; Don't open tons o' buffers
+;; Don't open tons o' buffers
 (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
 

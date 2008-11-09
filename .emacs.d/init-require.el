@@ -7,7 +7,7 @@
 (require 'buff-menu+) ; Load enhanced buffer menu lib
 (require 'dired+)
 (require 'ido) ; Load the the Ido library
-(require 'predictive)  
+(require 'predictive)
 (require 'lacarte) ; Load the LaCarte menu access library
 (require 'ruby-flymake) ; load the flymake ruby lib
 (require 'sml-flymake) ; load the flymake sml lib
