@@ -6,7 +6,7 @@
 
 (defun turn-on-paredit-no-errors ()
   "Turns on paredit-mode, ignoring errors"
-  (paredit-mode t)
+  (ignore-errors (paredit-mode t))
   )
 
 (define-globalized-minor-mode global-paredit-mode paredit-mode turn-on-paredit-no-errors)
