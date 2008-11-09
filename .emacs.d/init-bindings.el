@@ -58,3 +58,7 @@
 
 ; A better execute
 (global-set-key "\M-x" 'ido-execute)
+
+; Sane beginning-of-line behavior.
+(global-set-key "\C-a" 'sane-beginning-of-line)
+(global-set-key [home] 'sane-beginning-of-line)

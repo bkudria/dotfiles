@@ -130,3 +130,13 @@ it)"
 ; Redefine so we don't insert a space
 (defun paredit-space-for-delimiter-p (endp delimiter)
   nil)
+
+;; From http://news.slashdot.org/comments.pl?sid=1021471&cid=25675361 , modified
+(defun sane-beginning-of-line ()
+  "Moves to beginning-of-line, skipping indent"
+
+  (interactive)
+  (move-beginning-of-line 1)
+  (skip-chars-forward " \t"))
+
+
