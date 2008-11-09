@@ -8,7 +8,7 @@
 (global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
 
 ; F4 refreshes and reindents the buffer
-(global-set-key [f4] 'clean-buffer)
+(global-set-key [f4] 'clean-buffer-or-region)
 
 ; Remap standard Alt+X to Ctrl-m shortcuts
 (global-set-key "\C-x\C-m" 'execute-extended-command)
