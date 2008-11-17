@@ -69,11 +69,11 @@
 
 (tabkey2-mode t)
 (setq-default tabkey2-completion-functions
-			  '(("Hippe Expansion" hippie-expand)
-				("Spell check word" flyspell-correct-word-before-point)
+			  '(("Spell check word" flyspell-correct-word-before-point)
 				("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
 				("Programmable completion" pcomplete)
 				("nXML completion" nxml-complete)
+				("Hippe Expansion" hippie-expand (commandp 'hippie-expand))
 				("Complete Emacs symbol" lisp-complete-symbol)
 				("PHP completion" php-complete-function)
 				("Predictive word" complete-word-at-point predictive-mode)
