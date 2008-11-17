@@ -25,3 +25,4 @@
 (require 'parenface)
 (require 'color-theme-lite-brite)
 (require 'tabkey2)
+(require 'jde-hippie)
