@@ -140,4 +140,4 @@
   (move-beginning-of-line 1)
   (skip-chars-forward " \t"))
 
-
+(defalias 'qrr 'query-replace-regexp)
