@@ -14,6 +14,7 @@ end
 {
 	'laotzu'                           => 220,
 	'kudria.net'                       => nil,
+	'sc08'                             => nil,
 	'weyl.ams.sunysb.edu'              => nil,
 	'seawulf.stonybrook.edu'           => nil,
 	'sparky.ic.sunysb.edu'             => nil,
