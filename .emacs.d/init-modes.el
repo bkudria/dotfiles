@@ -95,3 +95,10 @@
 ;; Don't open tons o' buffers
 (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
 
+;; Turn on SLIME
+(slime-setup)
+
+;; Clojure + Swank
+(swank-clojure-config
+ (setq swank-clojure-binary "/home/bkudria/archive/installs/clojure-extra/sh-script/clojure"))
+

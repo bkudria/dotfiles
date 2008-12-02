@@ -26,3 +26,7 @@
 (require 'color-theme-lite-brite)
 (require 'tabkey2)
 (require 'jde-hippie)
+(require 'slime)
+(require 'clojure-auto)
+(require 'clojure-paredit)
+(require 'swank-clojure)
