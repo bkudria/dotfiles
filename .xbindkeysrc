@@ -14,10 +14,10 @@
 "toggle-kmail"
 	b:9
 
-"xte "keydown Control_L" "key XF86AudioLowerVolume" "keyup Control_L""
+"xte "key XF86AudioLowerVolume""
 	b:15
 
-"xte "keydown Control_L" "key XF86AudioRaiseVolume" "keyup Control_L""
+"xte "key XF86AudioRaiseVolume""
 	b:13
 
 "keyout "{alt}1{alt}""
