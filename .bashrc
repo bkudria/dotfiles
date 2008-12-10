@@ -122,6 +122,15 @@ fi
 			fi
 		}
 
+		function s {
+			if [ $# -gt 0 ]
+			then
+				sudo $@
+			else
+				sudo $(fc -ln -1)
+			fi
+		}
+
 
 	# Aliases
 		alias which=which
@@ -136,8 +145,6 @@ fi
 		[[ -e `qwhich htop` ]] && alias top='htop'
 		alias killall=pkill
 		alias mouse='s hidd --search'
-
-		alias s='sudo'
 
 		alias watchfile='tail -f'
 		[[ -x `qwhich rlwrap` ]] && alias watchfile='rlwrap tail -f'
