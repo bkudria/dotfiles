@@ -339,12 +339,11 @@ fi
 
 	# Change title & prompt
 
-	# export PROMPT_COMMAND="history -a; ${PROMPT_COMMAND}"
 
 	bash_prompt
 	unset bash_prompt
 
-export PROMPT_COMMAND=""
+export PROMPT_COMMAND="history -a"
 
 # Misc
 	# Environment variables
@@ -356,8 +355,8 @@ export PROMPT_COMMAND=""
 		export GTK2_RC_FILES=$HOME/.gtkrc-2.0
 		export XAUTHORITY=/home/bkudria/.Xauthority
 		export HISTCONTROL=erasedups
-		export HISTSIZE=200000
-		export HISTFILESIZE=100000000
+		export HISTSIZE=2000000
+		export HISTFILESIZE=1000000000
 		export HISTIGNORE="&:ls:&&"
 		export HISTTIMEFORMAT=%c%t
 		export VISUAL="emacs-client-frame"
