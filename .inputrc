@@ -9,6 +9,8 @@ set visible-stats on
 "\e[B": history-search-forward
 "\e[A": history-search-backward
 
+"\M-o": "\C-p\C-a\M-f "
+
 $if Bash
   #do history expansion when space entered
   Space: magic-space
