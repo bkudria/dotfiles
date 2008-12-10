@@ -8,23 +8,23 @@ class Array
 	end
 end
 
-@options = {:color => :light}
+@options = {:color => :dark}
 
 @hostnames =
 {
-	'laotzu'                           => 220,
+	'laotzu'                           => 33,
 	'kudria.net'                       => nil,
 	'weyl.ams.sunysb.edu'              => nil,
 	'seawulf.stonybrook.edu'           => nil,
 	'sparky.ic.sunysb.edu'             => nil,
-	'greatbeyond.bsdwebsolutions.com'  => 220,
+	'greatbeyond.bsdwebsolutions.com'  => nil,
 	'galaxy.ams.sunysb.edu'            => nil,
 	'olympus.ams.sunysb.edu'           => nil,
 }
 
 @nyt_hostnames =
 {
-	'app1.prvt.nytimes.com'     => 149,
+	'app1.prvt.nytimes.com'     => nil,
 	'dapi.prvt.nytimes.com'     => nil,
 	'cvs.prvt.nytimes.com'      => nil,
 	'ddeploy.prvt.nytimes.com'  => nil,
@@ -35,10 +35,10 @@ end
 
 @galaxy_hostnames =
 {
-	'sirius'      => 179,
+	'sirius'      => nil,
 	'hortal'      => nil,
 	'sagittarius' => nil,
-	'starzero'    => 202,
+	'starzero'    => nil,
 	'centauri01'  => nil,
 	'centauri02'  => nil,
 	'tauri01'     => nil,

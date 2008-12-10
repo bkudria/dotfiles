@@ -307,7 +307,7 @@ fi
 			export HASHSTRING="`hostname -f`"
 		fi
 
-		export HOSTCOLORCODE=$(hosts "$HASHSTRING")
+		export HOSTCOLORCODE=$(hosts -d "$HASHSTRING")
 	fi
 
 	export HOSTCOLORESCAPE="\[\033[38;5;${HOSTCOLORCODE}m\]"
