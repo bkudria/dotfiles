@@ -3,9 +3,8 @@ require 'wirble'
 require 'utility_belt'
 require 'what_methods'
 
-def e
-	edit(:kate)
-end
+Wirble.init
+Wirble.colorize
 
 IRB.conf[:SAVE_HISTORY] = 1000
 IRB.conf[:EVAL_HISTORY] = 1000
