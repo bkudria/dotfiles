@@ -23,7 +23,7 @@
 (require 'find-recursive)
 (require 'smooth-scrolling)
 (require 'parenface)
-(require 'color-theme-lite-brite)
+(require 'color-theme-scanner-brightly)
 (require 'tabkey2)
 (require 'jde-hippie)
 (require 'slime)

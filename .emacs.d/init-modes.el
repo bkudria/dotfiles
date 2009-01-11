@@ -1,4 +1,4 @@
-(color-theme-lite-brite)
+(color-theme-scanner-brightly)
 
 (icomplete-mode t) ; Turn on icomplete-mode
 
