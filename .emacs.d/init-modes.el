@@ -69,20 +69,18 @@
 
 (tabkey2-mode t)
 (setq-default tabkey2-completion-functions
-			  '(("Spell check word" flyspell-correct-word-before-point)
+			  '(("Yasnippet" yas/expand)
 				("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
 				("Programmable completion" pcomplete)
 				("nXML completion" nxml-complete)
 				("Hippe Expansion" hippie-expand (commandp 'hippie-expand))
 				("Complete Emacs symbol" lisp-complete-symbol)
-				("PHP completion" php-complete-function)
 				("Predictive word" complete-word-at-point predictive-mode)
 				("Predictive abbreviations" pabbrev-expand-maybe)
 				("Dynamic word expansion" dabbrev-expand nil (setq dabbrev--last-abbrev-location nil))
+				("Anything" anything (commandp 'anything))
 				("Ispell complete word" ispell-complete-word)
-				("Yasnippet" yas/expand)
-				("Anything" anything
-				 (commandp 'anything))))
+				("Spell check word" flyspell-correct-word-before-point (commandp 'flyspell-correct-word-before-point))))
 
 (recentf-mode t)
 (setq-default recentf-max-saved-items 1000)
