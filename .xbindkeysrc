@@ -8,11 +8,11 @@
 "keyout {right}"
   b:7
 
-"dcop kicker kicker toggleShowDesktop"
+"wmctrl -k on"
 	b:8
 
-"toggle-kmail"
-	b:9
+"keyout {F11}"
+	b:16
 
 "xte "key XF86AudioLowerVolume""
 	b:15
