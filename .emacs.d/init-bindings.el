@@ -4,15 +4,19 @@
 ;; Backspace shouldn't untabify
 (global-set-key [backspace] 'backward-delete-char)
 
-;; F5 key reverts the buffer
-(global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
+;; F2 to extended-execute shortcuts
+(global-set-key [f2] 'ido-execute)
+;; Reset a habit
+(global-set-key "\M-x" #'(lambda () (interactive) (message "Press F2 instead!!!")))
+
+;; F3 to switch between buffers
+(global-set-key [f3] 'ido-switch-buffer)
 
 ;; F4 refreshes and reindents the buffer
 (global-set-key [f4] 'clean-buffer-or-region)
 
-;; Remap standard Alt+X to Ctrl-m shortcuts
-(global-set-key "\C-x\C-m" 'execute-extended-command)
-(global-set-key "\C-c\C-m" 'execute-extended-command)
+;; F5 key reverts the buffer
+(global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
 
 (global-set-key "\C-w" 'kill-buffer-and-window)
 
@@ -55,9 +59,6 @@
 (global-set-key (kbd "C-SPC") 'highlight-symbol-at-point)
 
 (global-set-key (kbd "C-`") #'(lambda () (interactive) (dired (getenv "HOME"))))
-
-;; A better execute
-(global-set-key "\M-x" 'ido-execute)
 
 ;; Sane beginning-of-line behavior.
 (global-set-key "\C-a" 'sane-beginning-of-line)
