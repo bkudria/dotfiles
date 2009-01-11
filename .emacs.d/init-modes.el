@@ -57,7 +57,7 @@
 (setq-default whitespace-style
 			  '(tabs spaces trailing space-before-tab indentation empty space-after-tab space-mark tab-mark))
 
-										; do some spooky shit to make the time display
+;; do some spooky shit to make the time display
 (display-time-mode t)
 (setq-default display-time-default-load-average 2)
 (setq-default  display-time-mail-file 'none)
