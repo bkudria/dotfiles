@@ -59,12 +59,11 @@
   "clean and re-indent whole buffer"
   (interactive)
   (delete-trailing-whitespace)
-
+  (dtrt-indent-adapt)
   (if (use-region-p)
 	  (narrow-to-region (region-beginning) (region-end)))
 
   (indent-region (point-min) (point-max) nil)
-  (tabify (point-min) (point-max))
   (widen))
 
 
