@@ -98,7 +98,7 @@
   (call-interactively
    (intern
 	(ido-completing-read
-	 "M-x "
+	 ": "
 	 (let (cmd-list)
 	   (mapatoms
 		(lambda (S)
