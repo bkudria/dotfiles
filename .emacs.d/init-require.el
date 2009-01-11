@@ -4,7 +4,6 @@
   (package-initialize))
 
 (require 'dired-details)
-(require 'buff-menu+) ; Load enhanced buffer menu lib
 (require 'dired+)
 (require 'ido) ; Load the the Ido library
 (require 'predictive)
