@@ -45,8 +45,15 @@
 			 (ruby-electric-mode)
 			 ))
 
-(setq-default ruby-indent-tabs-mode t)
-(setq-default ruby-indent-level 4)
+(add-hook 'ruby-mode-hook
+		  '(lambda ()
+			 (setq-default ruby-indent-tabs-mode t)
+			 (setq-default ruby-indent-level 4)
+			 ))
+
+;; Rakefiles are Ruby too
+(add-to-list 'auto-mode-alist '("Rakefile$" . ruby-mode))
+(add-to-list 'auto-mode-alist '("\\.rake$" . ruby-mode))
 
 (whitespace-mode 1)
 (global-whitespace-mode 1)
@@ -93,10 +100,23 @@
 ;; Don't open tons o' buffers
 (define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
 
-;; Turn on SLIME
+(add-hook 'anything-before-initialize-hoo
+		  '(lambda ()
+			 (setq fit-frame-inhibit-fitting-flag t)))
+
+;; Turn on SLIME, set default lisp
 (slime-setup)
+(setq inferior-lisp-program "sbcl")
 
 ;; Clojure + Swank
-(swank-clojure-config
- (setq swank-clojure-binary "/home/bkudria/archive/installs/clojure-extra/sh-script/clojure"))
+(setq-default swank-clojure-binary "/home/bkudria/archive/installs/clojure-extra/sh-script/clojure")
+
+;; Guess indent mode for newly-opened files
+(dtrt-indent-mode 1)
+
+;; Haml and Sass modes
+(add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
+(add-to-list 'auto-mode-alist '("\\.haml.html$" . haml-mode))
+(add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
+
 
