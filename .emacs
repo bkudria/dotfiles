@@ -32,6 +32,12 @@
 					"init-console") ))
   (mapc 'load-library init-files))
 
+;; Set server host name to hostname so that non-local connections are accepted
+(setq-default server-host (substring (shell-command-to-string "hostname") 0 -1))
 
-(server-mode t) ; Enable server mode
+;; Make sure we use TCP sockets
+(setq-default server-use-tcp t)
+
+;; Start server mode
+(server-mode t)
 

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-socket="/tmp/emacs$UID/$1"
+server_file="~/.emacs.d/server/server"
 
-if [ -S $socket ]; then
+if [ -r $server_file ]; then
 	exit 1
 else
 	exit 0
