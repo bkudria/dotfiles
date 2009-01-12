@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
 killall -9 emacs
-rm ~/.emacs.d/server/server
+rm /tmp/emacs1000/server
 sleep 1s
 emacs-server
