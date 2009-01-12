@@ -210,7 +210,7 @@ fi
 		alias gpre='grep'
 		alias icfonfig='ifconfig'
 		alias ifocnfig='ifconfig'
-		alias nano=e
+		alias nano=v
 		alias e='$EDITOR'
 		alias v='$VISUAL'
 		alias ss='sudo'
