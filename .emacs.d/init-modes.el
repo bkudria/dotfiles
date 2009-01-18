@@ -142,7 +142,7 @@
 (setq-default erc-nick "bkudria")
 (setq-default erc-nick-uniquifier "_")
 (setq-default erc-nickserv-passwords '((freenode (("bkudria" . "11z12=op")))))
-(setq-default erc-port 667)
+(setq-default erc-port 6667)
 (setq-default erc-prompt-for-password nil)
 (setq-default erc-public-away-p t)
 (setq-default erc-server "irc.freenode.net")
