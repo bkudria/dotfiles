@@ -120,3 +120,34 @@
 (add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
 
 
+;; buffer menu
+(setq-default Buffer-menu-use-header-line nil)
+
+;; completion
+(setq-default completion-auto-show (quote tooltip))
+(setq-default completion-auto-show-delay 1)
+(setq-default completion-overwrite nil)
+(setq-default completion-resolve-behaviour (quote leave))
+
+(setq-default predictive-auto-complete t)
+
+;; tabkey2
+(setq-default tabkey2-completion-lighter-on t)
+(setq-default tabkey2-mode t)
+
+;; erc
+(setq-default erc-email-userid "bkudria")
+(setq-default erc-modules
+			   '(autoaway autojoin button completion fill irccontrols list match menu move-to-prompt netsplit networks noncommands readonly ring scrolltobottom services stamp spelling track truncate))
+(setq-default erc-nick "bkudria")
+(setq-default erc-nick-uniquifier "_")
+(setq-default erc-nickserv-passwords '((freenode (("bkudria" . "11z12=op")))))
+(setq-default erc-port 667)
+(setq-default erc-prompt-for-password nil)
+(setq-default erc-public-away-p t)
+(setq-default erc-server "irc.freenode.net")
+(setq-default erc-user-full-name "Benjamin Kudria")
+
+;; ido
+(setq-default ido-use-filename-at-point '(guess))
+(setq-default ido-use-url-at-point t)
