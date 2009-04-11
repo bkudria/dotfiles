@@ -12,7 +12,7 @@ end
 
 @hostnames =
 {
-	'laotzu'                           => 33,
+	'laotzu'                           => 160,
 	'kudria.net'                       => nil,
 	'weyl.ams.sunysb.edu'              => nil,
 	'seawulf.stonybrook.edu'           => nil,
