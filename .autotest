@@ -1,0 +1,8 @@
+%w{
+	emacs
+	redgreen
+	restart
+	notify
+	rcov
+	timestamp
+}.each {|ext| require "autotest/#{ext}"}
