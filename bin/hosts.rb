@@ -58,6 +58,7 @@ end
 }
 
 @hostnames.merge! @galaxy_hostnames
+@hostnames.merge! @seawulf_hostnames
 @hostnames.merge! @nyt_hostnames
 
 @lightlist = [66..66, 131..131, 143..146].flatten_ranges
