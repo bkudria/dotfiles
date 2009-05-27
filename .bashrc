@@ -4,7 +4,7 @@ if [[ -f /etc/bash_completion ]]; then
 	. /etc/profile
 fi
 
-export PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.8/bin:/usr/lib/kde4/bin
+export PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.8/bin:/usr/lib/kde4/bin:/usr/local/android/tools
 export TERM=xterm
 OS=""
 DISTRO=""
