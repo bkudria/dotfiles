@@ -1,0 +1,6 @@
+#! /bin/zsh -f
+
+alias s=sudo
+alias su='su -p'
+[[ -x `qwhich(sudo)` ]] && alias su='sudo -s'
+[[ ! -x `qwhich(sudo)` ]] && function sudo { su -p -c "$*"; }

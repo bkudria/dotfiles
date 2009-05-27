@@ -1,0 +1,11 @@
+#! /bin/zsh -f
+
+autoload -U  zen
+autoload -U  colors
+autoload -Uz vcs_info
+function precmd {
+  vcs_info
+}
+
+autoload history-search-end
+autoload history-beginning-search-menu

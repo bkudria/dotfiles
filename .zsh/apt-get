@@ -1,0 +1,31 @@
+#! /bin/zsh -f
+
+if [[ "$DISTRO" == "Debian" ]] || [[ "$DISTRO" == "Ubuntu" ]]; then
+
+		alias aptitude='s aptitude -y'
+		alias aget='aptitude install'
+		alias afix='aget -f'
+		alias aremove='aptitude remove'
+		alias apurge='aptitude purge'
+		alias aupdate='aptitude update'
+		alias aupgrade='aptitude safe-upgrade'
+		alias adistupgrade='aptitude dist-upgrade'
+		alias aconf='s dpkg-reconfigure'
+		alias ainstall='s dpkg -i'
+		alias anew='aupdate; adistupgrade'
+		alias astatus='apt-cache policy'
+		alias ainfo='apt-cache show'
+		alias adownload='aptitude download'
+		alias arefresh='s dpkg --clear-avail && s dpkg --forget-old-unavail'
+		alias afind='apt-cache search'
+		alias areinstall='aptitude reinstall'
+		alias afiles='wajig listfiles'
+		alias afile='dpkg-query -S'
+
+		function aversion { dpkg -l $@ |grep ii| awk '{ print $3 }'; }
+		function acontents { dpkg-deb -c /var/cache/apt/archives/$1_`aversion $1`_*.deb; }
+		function apin { sudo echo "$1 hold" | sudo dpkg --set-selections; }
+		function aunpin { sudo echo "$1 install" | sudo dpkg --set-selections; }
+
+		function asearch { apt-cache show `apt-cache search $@ | sed s/\ -\ .*//g` | grep -v Priority | grep -v Section | grep -v Installed-Size | grep -v Maintainer | grep -v Architecture | grep -v Version | grep -v Replaces | grep -v Depends | grep -v Suggests | grep -v Conflicts | grep -v Filename | grep -v Size | grep -v MD5sum | grep -v Source | grep -v Provides | grep -v Description ; }
+	fi

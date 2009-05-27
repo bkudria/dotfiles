@@ -1,0 +1,55 @@
+#! /bin/zsh -f
+
+colors
+
+HASHSTRING=`hostname`
+
+if [[ $DISTRO = "CentOS" ]]; then
+	HASHSTRING="`hostname -f`"
+fi
+
+HOSTCOLORCODE=$(hosts.rb -d $HASHSTRING)
+
+[ $TERM = 'eterm-color' ] && HOSTCOLORCODE=34
+
+ESCAPE=$'%{\e[%}'
+
+HOSTCOLORESCAPE=$'%{'$ESCAPE'38;5;'$HOSTCOLORCODE$'m%}'
+
+zstyle ':vcs_info:*' unstagedstr '*'
+zstyle ':vcs_info:*' stagedstr '-'
+zstyle ':vcs_info:*' actionformats '%c%u%b|%a'
+zstyle ':vcs_info:*' formats '%c%u%b'
+zstyle ':vcs_info:*' branchformat '%b:%r'
+
+zstyle ':vcs_info:*' enable git svn bzr hg
+
+
+function zsh_prompt()
+{
+	local N=$'%{'$ESCAPE'0m%}'    # unsets color to term's fg color
+
+	local UC=$HOSTCOLORESCAPE # user's color
+
+	local O="${UC}:${N}"
+	local C="${UC}:${N}"
+
+	local D="${UC}-${N}"
+
+	[ $UID -eq "0" ] && O="${UC}[${N}"
+	[ $UID -eq "0" ] && C="${UC}]${N}"
+	[ $UID -eq "0" ] && D="${UC}-${N}"
+
+
+	local HO=$HOSTCOLORESCAPE
+	local HC=$N
+
+	PROMPT="
+${UC}%~${N}: "
+	RPROMPT="${UC}%n${N}@${UC}%m${N} %(0?,,${UC}%?!${N} )${UC}${vcs_info_msg_0_}${N}"
+	PS2="${D}${O}"
+}
+
+
+vcs_info
+zsh_prompt

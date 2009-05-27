@@ -1,0 +1,41 @@
+#! /bin/zsh -f
+
+function chpwd {
+  [[ -t 1 ]] || return
+  case $TERM in
+	sun-cmd) print -Pn "\e]l%~\e\\"
+	  ;;
+	*xterm*|rxvt|(dt|k|E|e)term|eterm-color) print -Pn "\e]2;%~ | %M\a"
+;;
+esac
+}
+
+
+function qwhich {
+  if [[ "$DISTRO" = "CentOS" ]]; then
+	which $@ 2> /dev/null
+  else
+	which $@
+  fi
+}
+
+function alias_exists {
+  name=$1
+  value=$2
+  command=$3
+  [[ $command = "" ]] && command=$value
+  if [[ -x `qwhich $command` ]]; then
+	alias $name="$value"
+  fi
+}
+
+function service { sudo $RCDIR$1 $2; }
+function psg { ps aux | grep "[${1[1]}]${1[2,-1]}"; }
+
+function status {
+  if [ -d ".svn" ]; then
+	svn status
+  else
+	git status
+  fi
+}

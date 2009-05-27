@@ -1,0 +1,63 @@
+#! /bin/zsh -f
+
+alias_exists tail inotail
+alias_exists bandwidth 's bind localhost' bing
+alias_exists top htop
+
+alias activeoptions='egrep -v "#|^ *$"'
+alias g='egrep'
+alias count='grep -c'
+alias p='ping'
+alias killall=pkill
+
+alias syslog='sudo tail -f /var/log/everything/current'
+alias_exists syslog 'sudo tail -f /var/log/everything/current | loco' loco
+
+alias netstat='sudo netstat -tpav'
+alias du='ncdu .'
+alias df='di -h'
+alias ps='ps auxwww'
+alias h='history'
+alias \?='h | g $*'
+alias ps\?="psg"
+alias x='exit'
+
+alias s=sudo
+alias su='sudo -s'
+
+alias v=$VISUAL
+
+alias irb='irb --readline -r irb/completion'
+
+alias ssh='ssh -qAX'
+
+alias scheme='rlwrap mzscheme'
+alias runscheme='mzscheme -r'
+
+alias more='less'
+
+alias sml='rlwrap sml'
+alias smlnj='sml'
+
+alias uniq='sort | uniq'
+
+alias httphead="curl -I"
+
+# Security
+alias rm='rm -i'
+alias cp='nocorrect cp -i'
+alias mv='nocorrect mv -i'
+alias ln='nocorrect ln -i'
+alias mkdir='nocorrect mkdir -p'
+
+# Git
+alias gb='git branch'
+alias gba='git branch -a'
+alias gc='git commit -v -m'
+alias gca='git commit -v -a -m'
+alias gd='git diff | kompare -o -'
+alias gl='git pull'
+alias gp='git push'
+alias gst='git status'
+
+alias ls="ls $LS_OPTIONS"

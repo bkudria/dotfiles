@@ -1,0 +1,34 @@
+#! /bin/zsh -f
+
+# Directories
+setopt auto_cd
+setopt auto_pushd
+setopt pushd_ignore_dups
+setopt pushd_silent
+setopt chase_links
+
+# Completion
+setopt always_to_end
+setopt list_types
+
+# Expansion and globbing
+setopt extended_glob
+
+# History
+setopt inc_append_history
+setopt extended_history
+setopt hist_find_no_dups
+setopt share_history
+
+# I/O
+setopt aliases
+setopt correct_all
+
+# Job control
+setopt auto_continue
+setopt check_jobs
+setopt no_hup
+setopt long_list_jobs
+
+# Prompt
+setopt prompt_percent

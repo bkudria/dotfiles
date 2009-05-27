@@ -1,0 +1,24 @@
+#! /bin/zsh -f
+
+# Set the titlebar when we change directories
+chpwd()
+
+# Emacs keybindings
+bindkey -e
+
+# Keychain
+if [[ -x `qwhich keychain` ]] && [[ $UID -ne 0 ]]; then
+	eval `keychain --inherit any-once --eval -Q -q --ignore-missing identity 209BE410`
+fi
+
+# Disable annoying beep (console)
+[[ -x `qwhich setterm` ]] && setterm -blength 0
+
+# disable annoying beep (X)
+[[ -x `qwhich xset` ]] && [[ $DISPLAY != "" ]] && xset b off
+
+# No limits.
+ulimit -c unlimited
+
+# Allow less to view *.gz etc. files.
+[[ -x `qwhich lesspipe` ]] && eval `lesspipe`
