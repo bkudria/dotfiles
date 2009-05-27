@@ -18,7 +18,7 @@
 	branch = auto
 	interactive = auto
 	ui = auto
-	pager = false
+	pager = true
 
 [alias]
 	log = log --date=local
