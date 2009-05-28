@@ -13,3 +13,5 @@ bindkey "\e\eOA" history-beginning-search-menu-space-end
 
 bindkey "\C-z" undo
 bindkey " " magic-space
+
+bindkey '^i' expand-or-complete-prefix
