@@ -5,12 +5,16 @@
 (global-set-key [backspace] 'backward-delete-char)
 
 ;; F2 to extended-execute shortcuts
-(global-set-key [f2] 'ido-execute)
+(global-set-key [f2] 'smex)
+
 ;; Reset a habit
 (global-set-key "\M-x" #'(lambda () (interactive) (message "Press F2 instead!!!")))
 
 ;; F3 to switch between buffers
 (global-set-key [f3] 'ido-switch-buffer)
+
+;; C-F3 to show buffers using ibuffer
+(global-set-key (kbd "S-<f3>") 'ibuffer)
 
 ;; F4 refreshes and reindents the buffer
 (global-set-key [f4] 'clean-buffer-or-region)
@@ -19,6 +23,10 @@
 (global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
 
 (global-set-key "\C-w" 'kill-buffer-and-window)
+
+(global-set-key "\M-w" 'nuke-all-buffers)
+
+(global-set-key "\M-q" #'(lambda () (interactive) (nuke-all-buffers) (delete-frame)))
 
 ;; Rebind kill-region since we overrode it above:
 (global-set-key "\C-x\C-k" 'kill-region)
@@ -34,6 +42,9 @@
 (global-set-key "\M-g" 'goto-line)
 
 (global-set-key "\C-f" 'isearch-forward)
+(define-key isearch-mode-map [down] 'isearch-repeat-forward)
+(define-key isearch-mode-map [up] 'isearch-repeat-backward)
+
 (global-set-key "\C-s" 'ido-save-or-write-file)
 (global-set-key "\C-o" 'ido-find-file)
 (define-key ido-file-completion-map (kbd "C-o") 'ido-recentf)
@@ -47,9 +58,6 @@
 ;; Bind C-c C-a to select entire buffer
 (global-set-key (kbd "C-S-a") 'mark-whole-buffer)
 
-
-(global-set-key [?\e ?\M-x] 'lacarte-execute-menu-command) ; Bind ESC M-x to the LaCarte menu command
-
 (global-set-key "\C-c\C-e" 'flymake-goto-next-error)
 
 (global-set-key "\C-x\C-r" 'eval-and-replace)
@@ -61,5 +69,25 @@
 (global-set-key (kbd "C-`") #'(lambda () (interactive) (dired (getenv "HOME"))))
 
 ;; Sane beginning-of-line behavior.
-(global-set-key "\C-a" 'sane-beginning-of-line)
-(global-set-key [home] 'sane-beginning-of-line)
+(global-set-key "\C-a" 'dwim-home)
+(global-set-key [home] 'dwim-home)
+
+;; Use ido to find tags
+(global-set-key "\M-." 'ido-find-tag)
+
+;; Zap-back-to-char
+(global-set-key "\C-\M-z" #'(lambda (arg char) (interactive "p\ncZap to char: ") (zap-to-char (- arg) char)))
+
+;; Rebind keys for macros
+(global-set-key [f7] 'kmacro-start-macro-or-insert-counter)
+(global-set-key [f8] 'kmacro-end-or-call-macro)
+
+(define-key paredit-mode-map "\C-d" nil)
+(global-set-key "\C-d" 'comment-dwim)
+
+;; multi-term
+(global-set-key (kbd "<f9> t") 'multi-term)
+(global-set-key (kbd "<f9> n") 'multi-term-next)
+(global-set-key (kbd "<f9> p") 'multi-term-prev)
+
+(global-set-key [down-mouse-3] 'mouse-drag-drag)

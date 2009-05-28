@@ -51,10 +51,6 @@
   (mapc 'fringe-helper-remove flymake-fringe-overlays)
   (setq flymake-fringe-overlays nil))
 
-
-
-
-
 (defun clean-buffer-or-region ()
   "clean and re-indent whole buffer"
   (interactive)
@@ -65,8 +61,6 @@
 
   (indent-region (point-min) (point-max) nil)
   (widen))
-
-
 
 (defun eval-and-replace ()
   "Replace the preceding sexp with its value."
@@ -126,16 +120,15 @@
 (defun paredit-space-for-delimiter-p (endp delimiter)
   nil)
 
-;; From http://news.slashdot.org/comments.pl?sid=1021471&cid=25675361 , modified
-(defun sane-beginning-of-line ()
-  "Moves to beginning-of-line, skipping indent"
-
+(defun dwim-home ()
+  "Moves to beginning-of-line, skipping indent, unless already at start of indent, in which case move to column 0"
   (interactive)
-  (move-beginning-of-line 1)
-  (skip-chars-forward " \t"))
+  (if (= (point) (save-excursion (back-to-indentation) (point)))
+	  (beginning-of-line)
+	(back-to-indentation)))
+(put 'dwim-home 'CUA 'move)
 
 (defalias 'qrr 'query-replace-regexp)
-
 
 (defun ido-goto-symbol ()
   "Will update the imenu index and then use ido to select a symbol to navigate to"
@@ -166,3 +159,75 @@
 	(let* ((selected-symbol (ido-completing-read "Symbol? " symbol-names))
 		   (position (cdr (assoc selected-symbol name-and-pos))))
 	  (goto-char position))))
+
+
+(defun clone-current-buffer-in-new-frame ()
+  "Creates a new frame viewing the current buffer, and switches the parent frame to *scratch*"
+  (interactive)
+  (make-frame)
+  (switch-to-buffer (get-buffer "*scratch*")))
+
+
+
+(defun nuke-all-buffers ()
+  "Kill all buffers, leaving *scratch* only."
+  (interactive)
+  (dolist
+	  (buffer (buffer-list))
+	(kill-buffer buffer))
+  (delete-other-windows))
+
+
+
+(defun ido-find-tag ()
+  "Find a tag using ido"
+  (interactive)
+  (tags-completion-table)
+  (let (tag-names)
+	(mapc (lambda (x)
+			(unless (integerp x)
+			  (push (prin1-to-string x t) tag-names)))
+		  tags-completion-table)
+	(find-tag (ido-completing-read "Tag: " tag-names))))
+
+
+;; Use ido to find files in tags file
+(defun ido-find-file-in-tag-files ()
+  (interactive)
+  (save-excursion
+	(let ((enable-recursive-minibuffers t))
+	  (visit-tags-table-buffer))
+	(find-file
+	 (expand-file-name
+	  (ido-completing-read
+	   "Project file: " (tags-table-files) nil t)))))
+
+(defun find-tags-file (tag-file-name)
+  "Recursively searches each parent directory for a file named `tag-file-name' and returns the path to that file or nil if a tags file is not found. Returns nil if the buffer is not visiting a file"
+  (labels
+      ((find-tags-file-r (path)
+						 (let* ((parent (file-name-directory path))
+								(possible-tags-file (concat parent tag-file-name)))
+						   (cond
+							((file-exists-p possible-tags-file) (throw 'found-it possible-tags-file))
+							((string= (concat "/" tag-file-name) possible-tags-file) (error "no tags file found"))
+							(t (find-tags-file-r (directory-file-name parent)))))))
+
+    (if (buffer-file-name)
+        (catch 'found-it
+          (find-tags-file-r (buffer-file-name)))
+	  (error "buffer is not visiting a file"))))
+
+(defun set-tags-file-path ()
+  "calls `find-tags-file' to recursively search up the directory tree to find a file named `.tags'. If found, calls `visit-tags-table' with that path as an argument, otherwise raises an error."
+  (interactive)
+  (visit-tags-table (find-tags-file ".tags")))
+
+(defun create-tags-file ()
+  (interactive)
+  (let*
+	  ((project-dir (read-directory-name "Project directory? "))
+	   (project-tags-file (concat project-dir ".tags"))
+	   (project-files (concat project-dir "*"))
+	   (ctags-args '()))
+	(call-process "ctags-exuberant" nil nil t "-e" "-f" project-tags-file " " project-files)))

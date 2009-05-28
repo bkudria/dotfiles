@@ -5,13 +5,15 @@
 ;; (balanced-on) ; turn on balanced pns
 
 (defun turn-on-paredit-no-errors ()
-  "Turns on paredit-mode, ignoring errors"
-  (ignore-errors (paredit-mode t))
-  )
+	"Turns on paredit-mode, ignoring errors"
+	(ignore-errors (paredit-mode t))
+	)
 
 (define-globalized-minor-mode global-paredit-mode paredit-mode turn-on-paredit-no-errors)
 
 (global-paredit-mode t)
+
+
 
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)
@@ -30,26 +32,26 @@
 (setq-default dired-listing-switches "-phl")
 
 (autoload 'run-ruby "inf-ruby"
-  "Run an inferior Ruby process")
+	"Run an inferior Ruby process")
 
 (autoload 'inf-ruby-keys "inf-ruby"
-  "Set local key defs for inf-ruby in ruby-mode")
+	"Set local key defs for inf-ruby in ruby-mode")
 
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
-			 (inf-ruby-keys)
-			 ))
+			   (inf-ruby-keys)
+			   ))
 
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
-			 (ruby-electric-mode)
-			 ))
+			   (ruby-electric-mode)
+			   ))
 
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
-			 (setq-default ruby-indent-tabs-mode t)
-			 (setq-default ruby-indent-level 4)
-			 ))
+			   (setq-default ruby-indent-tabs-mode t)
+			   (setq-default ruby-indent-level 4)
+			   ))
 
 ;; Rakefiles are Ruby too
 (add-to-list 'auto-mode-alist '("Rakefile$" . ruby-mode))
@@ -76,7 +78,8 @@
 
 (tabkey2-mode t)
 (setq-default tabkey2-completion-functions
-			  '(("Yasnippet" yas/expand)
+			  '(("Tag completions" complete-tag)
+				("Yasnippet" yas/expand)
 				("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
 				("Programmable completion" pcomplete)
 				("nXML completion" nxml-complete)
@@ -102,7 +105,7 @@
 
 (add-hook 'anything-before-initialize-hoo
 		  '(lambda ()
-			 (setq fit-frame-inhibit-fitting-flag t)))
+			   (setq fit-frame-inhibit-fitting-flag t)))
 
 ;; Turn on SLIME, set default lisp
 (slime-setup)
@@ -138,7 +141,7 @@
 ;; erc
 (setq-default erc-email-userid "bkudria")
 (setq-default erc-modules
-			   '(autoaway autojoin button completion fill irccontrols list match menu move-to-prompt netsplit networks noncommands readonly ring scrolltobottom services stamp spelling track truncate))
+			  '(autoaway autojoin button completion fill irccontrols list match menu move-to-prompt netsplit networks noncommands readonly ring scrolltobottom services stamp spelling track truncate))
 (setq-default erc-nick "bkudria")
 (setq-default erc-nick-uniquifier "_")
 (setq-default erc-nickserv-passwords '((freenode (("bkudria" . "11z12=op")))))
@@ -151,3 +154,34 @@
 ;; ido
 (setq-default ido-use-filename-at-point '(guess))
 (setq-default ido-use-url-at-point t)
+
+;; define the android SDK dir
+(setq-default android-mode-sdk-dir "/usr/local/android")
+
+
+
+
+;; also sace search terms
+(setq-default savehist-additional-variables '(search-ring regexp-search-ring))
+
+;; Set savehist location
+(setq-default savehist-file "~/.emacs.d/savehist")
+
+;; Turn on savehist
+(savehist-mode t)
+
+;; Save place in files between sessions
+(setq-default save-place t)
+
+;; Display buffer size in modeline
+(size-indication-mode t)
+
+;; Make scripts executable on save
+(add-hook 'after-save-hook 'executable-make-buffer-file-executable-if-script-p)
+
+;; Smex
+(smex-initialize)
+(smex-auto-update 60)
+
+;; iBuffer
+(add-to-list 'ibuffer-never-show-predicates "^\\*")
