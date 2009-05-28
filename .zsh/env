@@ -57,6 +57,7 @@ if [[ "$OS" = "Linux" ]]; then
 fi
 
 fpath=(
-        $fpath
-        /home/bkudria/.zen/zsh/scripts
-        /home/bkudria/.zen/zsh/zle )
+		/home/bkudria/.zsh
+		$fpath
+		/home/bkudria/.zen/zsh/scripts
+		/home/bkudria/.zen/zsh/zle )
