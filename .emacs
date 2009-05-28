@@ -29,7 +29,8 @@
 					"init-functions"
 					"init-bindings"
 					"init-x-windows"
-					"init-console") ))
+					"init-console"
+					)))
   (mapc 'load-library init-files))
 
 
