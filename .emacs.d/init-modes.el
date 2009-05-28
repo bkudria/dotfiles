@@ -100,9 +100,6 @@
 (setq-default display-time-mail-string "")
 (setq-default display-time-mail-function nil)
 
-;; Don't open tons o' buffers
-(define-key dired-mode-map (kbd "RET") 'dired-find-alternate-file)
-
 (add-hook 'anything-before-initialize-hoo
 		  '(lambda ()
 			   (setq fit-frame-inhibit-fitting-flag t)))
