@@ -15,3 +15,6 @@ bindkey "\C-z" undo
 bindkey " " magic-space
 
 bindkey '^i' expand-or-complete-prefix
+
+bindkey "^[[Z" reverse-menu-complete
+bindkey "^[" send-break
