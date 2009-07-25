@@ -50,6 +50,17 @@ ${UC}%~${N}: "
 	PS2="${D}${O}"
 }
 
+if [ "$TERM" = "dumb" ]
+then
+  unsetopt zle
+  unsetopt prompt_cr
+  unsetopt prompt_subst
+  unfunction precmd
+  unfunction preexec
+  PS1='- '
+else
+  vcs_info
+  zsh_prompt
+fi
 
-vcs_info
-zsh_prompt
+
