@@ -12,7 +12,8 @@ esac
 
 
 function qwhich {
-	which $@ &> /dev/null
+    result=`which $@`
+    [[ $? == 0 ]] && echo $result
 }
 
 function alias_exists {
