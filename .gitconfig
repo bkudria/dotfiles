@@ -10,7 +10,7 @@
 	pager = less
 	# change to tig when color.pager bug is fixed.
 
-	whitespace = trailing-space,space-before-tab
+	whitespace = trailing-space,space-before-tab,cr-at-eol
 
 [color]
 	diff = auto
@@ -43,7 +43,7 @@
 	select = add -p
 
 	staged = diff --cached
-	unstage = reset HEAD
+	unstage = reset -q HEAD
 
 	statistics = diff --stat
 
@@ -51,9 +51,20 @@
 
 	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
 
+	s = svn
+	supdate = svn rebase
+	scommit = svn dcommit
+
+	unstash = stash pop
+
+    resolve = !git unstage
+
+    echo = "!echo $1; echo $1"
+
+
 [gui]
 	fontdiff = -family terminus -size 13 -weight normal -slant roman -underline 0 -overstrike 0
 [giggle]
-	compact-mode = false
+	compact-mode = true
 	main-window-maximized = true
 	main-window-geometry = 0x0+0+0

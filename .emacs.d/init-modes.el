@@ -1,13 +1,11 @@
-(color-theme-scanner-brightly)
-
 (icomplete-mode t) ; Turn on icomplete-mode
 
 ;; (balanced-on) ; turn on balanced pns
 
 (defun turn-on-paredit-no-errors ()
-	"Turns on paredit-mode, ignoring errors"
-	(ignore-errors (paredit-mode t))
-	)
+  "Turns on paredit-mode, ignoring errors"
+  (ignore-errors (paredit-mode t))
+  )
 
 (define-globalized-minor-mode global-paredit-mode paredit-mode turn-on-paredit-no-errors)
 
@@ -32,26 +30,26 @@
 (setq-default dired-listing-switches "-phl")
 
 (autoload 'run-ruby "inf-ruby"
-	"Run an inferior Ruby process")
+  "Run an inferior Ruby process")
 
 (autoload 'inf-ruby-keys "inf-ruby"
-	"Set local key defs for inf-ruby in ruby-mode")
+  "Set local key defs for inf-ruby in ruby-mode")
 
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
-			   (inf-ruby-keys)
-			   ))
+             (inf-ruby-keys)
+             ))
 
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
-			   (ruby-electric-mode)
-			   ))
+             (ruby-electric-mode)
+             ))
 
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
-			   (setq-default ruby-indent-tabs-mode t)
-			   (setq-default ruby-indent-level 4)
-			   ))
+             (setq-default ruby-indent-tabs-mode t)
+             (setq-default ruby-indent-level 4)
+             ))
 
 ;; Rakefiles are Ruby too
 (add-to-list 'auto-mode-alist '("Rakefile$" . ruby-mode))
@@ -78,19 +76,21 @@
 
 (tabkey2-mode t)
 (setq-default tabkey2-completion-functions
-			  '(("Tag completions" complete-tag)
-				("Yasnippet" yas/expand)
-				("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
-				("Programmable completion" pcomplete)
-				("nXML completion" nxml-complete)
-				("Hippe Expansion" hippie-expand (commandp 'hippie-expand))
-				("Complete Emacs symbol" lisp-complete-symbol)
-				("Predictive word" complete-word-at-point predictive-mode)
-				("Predictive abbreviations" pabbrev-expand-maybe)
-				("Dynamic word expansion" dabbrev-expand nil (setq dabbrev--last-abbrev-location nil))
-				("Anything" anything (commandp 'anything))
-				("Ispell complete word" ispell-complete-word)
-				("Spell check word" flyspell-correct-word-before-point (commandp 'flyspell-correct-word-before-point))))
+              '(
+                ("Programmable completion" pcomplete)
+                ("nXML completion" nxml-complete)
+                ("Dynamic word expansion" dabbrev-expand nil (setq dabbrev--last-abbrev-location nil))
+                ("Hippe Expansion" hippie-expand (commandp 'hippie-expand))
+                ("Tag completions" complete-tag)
+                ("Complete Emacs symbol" lisp-complete-symbol)
+                ("Predictive word" complete-word-at-point predictive-mode)
+                ("Predictive abbreviations" pabbrev-expand-maybe)
+                ("Anything" anything (commandp 'anything))
+                ("Ispell complete word" ispell-complete-word)
+                ("Symbol completions" complete-symbol)
+                ("Yasnippet" yas/expand)
+                ("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
+                ("Spell check word" flyspell-correct-word-before-point (commandp 'flyspell-correct-word-before-point))))
 
 (recentf-mode t)
 (setq-default recentf-max-saved-items 1000)
@@ -102,7 +102,7 @@
 
 (add-hook 'anything-before-initialize-hoo
 		  '(lambda ()
-			   (setq fit-frame-inhibit-fitting-flag t)))
+             (setq fit-frame-inhibit-fitting-flag t)))
 
 ;; Turn on SLIME, set default lisp
 (slime-setup)
@@ -182,3 +182,58 @@
 
 ;; iBuffer
 (add-to-list 'ibuffer-never-show-predicates "^\\*")
+
+(add-hook 'php-mode-hook
+		  '(lambda ()
+             (flymake-mode t)
+             ))
+
+(add-hook 'php-mode-hook
+		  '(lambda ()
+             (c-set-style "php")
+             ))
+
+
+;; TRAMP
+(setq-default tramp-shell-prompt-pattern "^- $")
+(setq-default tramp-verbose 10)
+
+;; Flymake Haskell
+
+(eval-after-load "flymake"
+  '(progn
+     (defun flymake-hslint-init ()
+       (let* ((temp-file   (flymake-init-create-temp-buffer-copy
+                            'flymake-create-temp-inplace))
+              (local-file  (file-relative-name
+                            temp-file
+                            (file-name-directory buffer-file-name))))
+         (list "hslint" (list local-file))))
+
+     (add-to-list 'flymake-allowed-file-name-masks
+                  '("\\.l?hs\\'" flymake-hslint-init))))
+
+
+(add-hook 'haskell-mode-hook
+		  '(lambda ()
+             (tabkey2-mode -1)
+             ))
+
+
+(c-add-style "php" '((c-basic-offset . 4)
+                     (c-comment-only-line-offset 0 . 0)
+                     (c-offsets-alist
+                     (inline-open . 0)
+                     (topmost-intro-cont . +)
+                     (statement-block-intro . +)
+                     (knr-argdecl-intro . 5)
+                     (substatement-open . +)
+                     (substatement-label . +)
+                     (label . +)
+                     (statement-case-open . +)
+                     (statement-cont . +)
+                     (arglist-intro . c-lineup-arglist-intro-after-paren)
+                     (arglist-close . c-lineup-arglist)
+                     (access-label . 0)
+                     (inher-cont . c-lineup-java-inher)
+                     (func-decl-cont . c-lineup-java-throws))))

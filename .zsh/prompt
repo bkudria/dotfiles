@@ -5,10 +5,11 @@ colors
 HASHSTRING=`hostname`
 
 if [[ $DISTRO = "CentOS" ]]; then
-	HASHSTRING="`hostname -f`"
+        HASHSTRING="`hostname -f`"
 fi
 
-HOSTCOLORCODE=$(hosts.rb -d $HASHSTRING)
+HOSTCOLORCODE=255
+`qwhich hosts.rb` && HOSTCOLORCODE=$(hosts.rb -d $HASHSTRING)
 
 [ $TERM = 'eterm-color' ] && HOSTCOLORCODE=34
 
@@ -27,27 +28,27 @@ zstyle ':vcs_info:*' enable git svn bzr hg
 
 function zsh_prompt()
 {
-	local N=$'%{'$ESCAPE'0m%}'    # unsets color to term's fg color
+        local N=$'%{'$ESCAPE'0m%}'    # unsets color to term's fg color
 
-	local UC=$HOSTCOLORESCAPE # user's color
+        local UC=$HOSTCOLORESCAPE # user's color
 
-	local O="${UC}:${N}"
-	local C="${UC}:${N}"
+        local O="${UC}:${N}"
+        local C="${UC}:${N}"
 
-	local D="${UC}-${N}"
+        local D="${UC}-${N}"
 
-	[ $UID -eq "0" ] && O="${UC}[${N}"
-	[ $UID -eq "0" ] && C="${UC}]${N}"
-	[ $UID -eq "0" ] && D="${UC}-${N}"
+        [ $UID -eq "0" ] && O="${UC}[${N}"
+        [ $UID -eq "0" ] && C="${UC}]${N}"
+        [ $UID -eq "0" ] && D="${UC}-${N}"
 
 
-	local HO=$HOSTCOLORESCAPE
-	local HC=$N
+        local HO=$HOSTCOLORESCAPE
+        local HC=$N
 
-	PROMPT="
+        PROMPT="
 ${UC}%~${N}: "
-	RPROMPT="${UC}%n${N}@${UC}%m${N} %(0?,,${UC}%?!${N} )${UC}${vcs_info_msg_0_}${N}"
-	PS2="${D}${O}"
+        RPROMPT="${UC}%n${N}@${UC}%m${N} %(0?,,${UC}%?!${N} )${UC}${vcs_info_msg_0_}${N}"
+        PS2="${D}${O}"
 }
 
 if [ "$TERM" = "dumb" ]
@@ -62,5 +63,3 @@ else
   vcs_info
   zsh_prompt
 fi
-
-

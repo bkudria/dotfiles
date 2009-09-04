@@ -12,7 +12,7 @@ end
 
 @hostnames =
 	{
-	'laotzu'                          => 32,
+	'laotzu'                          => 190,
 	'kudria.net'                      => nil,
 	'weyl.ams.sunysb.edu'             => nil,
 	'seawulf.stonybrook.edu'          => nil,
@@ -57,9 +57,15 @@ end
 	'wulfie'       => nil,
 }
 
+@younoodle_hostnames =
+	{
+	'euripides.younoodle.com'    => nil,
+}
+
 @hostnames.merge! @galaxy_hostnames
 @hostnames.merge! @seawulf_hostnames
 @hostnames.merge! @nyt_hostnames
+@hostnames.merge! @younoodle_hostnames
 
 @lightlist = [66..66, 131..131, 143..146].flatten_ranges
 @light_colors = ([20..21, 25..51, 56..57,

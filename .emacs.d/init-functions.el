@@ -129,6 +129,7 @@
 (put 'dwim-home 'CUA 'move)
 
 (defalias 'qrr 'query-replace-regexp)
+(defalias 'ar 'align-regexp)
 
 (defun clone-current-buffer-in-new-frame ()
   "Creates a new frame viewing the current buffer, and switches the parent frame to *scratch*"
@@ -155,32 +156,56 @@
 	  (ido-completing-read
 	   "Project file: " (tags-table-files) nil t)))))
 
-(defun find-tags-file (tag-file-name)
-  "Recursively searches each parent directory for a file named `tag-file-name' and returns the path to that file or nil if a tags file is not found. Returns nil if the buffer is not visiting a file"
-  (labels
-      ((find-tags-file-r (path)
-						 (let* ((parent (file-name-directory path))
-								(possible-tags-file (concat parent tag-file-name)))
-						   (cond
-							((file-exists-p possible-tags-file) (throw 'found-it possible-tags-file))
-							((string= (concat "/" tag-file-name) possible-tags-file) (error "no tags file found"))
-							(t (find-tags-file-r (directory-file-name parent)))))))
-
-    (if (buffer-file-name)
-        (catch 'found-it
-          (find-tags-file-r (buffer-file-name)))
-	  (error "buffer is not visiting a file"))))
-
-(defun set-tags-file-path ()
-  "calls `find-tags-file' to recursively search up the directory tree to find a file named `.tags'. If found, calls `visit-tags-table' with that path as an argument, otherwise raises an error."
-  (interactive)
-  (visit-tags-table (find-tags-file ".tags")))
-
 (defun create-tags-file ()
   (interactive)
-  (let*
-	  ((project-dir (read-directory-name "Project directory? "))
-	   (project-tags-file (concat project-dir ".tags"))
-	   (project-files (concat project-dir "*"))
-	   (ctags-args '()))
-	(call-process "ctags-exuberant" nil nil t "-e" "-f" project-tags-file " " project-files)))
+  (let ((olddir default-directory))
+    (cd-absolute project-base-dir)
+    (call-process "ctags-exuberant" nil nil t "-e" "-R" "-f .etags")
+    (cd-absolute olddir)
+    (visit-tags-table-buffer (concat project-base-dir "/.etags"))
+    (message "Created tags file for: %s" project-base-dir)))
+
+;; Find tag using ido
+(defun ido-find-tag ()
+  "Find a tag using ido"
+  (interactive)
+  (tags-completion-table)
+  (let (tag-names)
+	(mapc (lambda (x)
+			(unless (integerp x)
+			  (push (prin1-to-string x t) tag-names)))
+          tags-completion-table)
+	(find-tag (ido-completing-read "Tag: " tag-names))))
+
+;; Better DLVs, from: http://atomized.org/2009/05/emacs-23-easier-directory-local-variables/
+(defmacro absolute-dirname (path)
+  "Return the directory name portion of a path.
+
+If PATH is local, return it unaltered.
+If PATH is remote, return the remote diretory portion of the path."
+  `(cond ((tramp-tramp-file-p ,path)
+          (elt (tramp-dissect-file-name ,path) 3))
+         (t ,path)))
+
+(defmacro dir-locals (dir vars)
+  "Set local variables for a directory.
+
+DIR is the base diretory to set variables on.
+
+VARS is an alist of variables to set on files opened under DIR,
+in the same format as `dir-locals-set-class-variables' expects."
+  `(let ((name (intern (concat "dir-locals-"
+                               ,(md5 (expand-file-name dir)))))
+         (base-dir ,dir)
+         (base-abs-dir ,(absolute-dirname dir)))
+     (dir-locals-set-class-variables name ,vars)
+     (dir-locals-set-directory-class ,dir name nil)))
+
+
+
+(defun search-hayoo ()
+(interactive)
+(let* ((default (word-at-point))
+       (term (read-string (format "Search Hayoo (%s): " default))))
+  (let ((term (if (zerop(length term)) default term)))
+    (browse-url (format "http://holumbus.fh-wedel.de/hayoo/hayoo.html?query=%s&start" term)))))

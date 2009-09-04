@@ -29,3 +29,8 @@
 ;; don't scroll funny
 (setq-default mouse-wheel-progressive-speed nil)
 (setq-default mouse-wheel-scroll-amount '(1))
+
+;; Breaks dtrt-indent if t
+(setq-default indent-tabs-mode nil)
+
+(color-theme-lite-brite)

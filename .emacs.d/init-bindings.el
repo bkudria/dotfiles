@@ -41,9 +41,17 @@
 ;; Bind M-g to goto-line
 (global-set-key "\M-g" 'goto-line)
 
+;; Having to hit escape 3 times is silly and slow
+(global-set-key [escape] 'keyboard-escape-quit)
+
 (global-set-key "\C-f" 'isearch-forward)
 (define-key isearch-mode-map [down] 'isearch-repeat-forward)
 (define-key isearch-mode-map [up] 'isearch-repeat-backward)
+(define-key isearch-mode-map [backspace] 'isearch-del-char)
+(define-key isearch-mode-map [return] 'isearch-exit)
+(define-key isearch-mode-map [escape] 'isearch-exit)
+(define-key isearch-mode-map [backspace] 'isearch-del-char)
+(define-key isearch-mode-map (kbd "\C-r") 'isearch-query-replace-regexp)
 
 (global-set-key "\C-s" 'ido-save-or-write-file)
 (global-set-key "\C-o" 'ido-find-file)
@@ -75,6 +83,9 @@
 ;; Use ido to find tags
 (global-set-key "\M-." 'ido-find-tag)
 
+;; Jump to tag using etags-select
+(global-set-key "\C-g" 'etags-select-find-tag)
+
 ;; Zap-back-to-char
 (global-set-key "\C-\M-z" #'(lambda (arg char) (interactive "p\ncZap to char: ") (zap-to-char (- arg) char)))
 
@@ -91,3 +102,7 @@
 (global-set-key (kbd "<f9> p") 'multi-term-prev)
 
 (global-set-key [down-mouse-3] 'mouse-drag-drag)
+
+(add-hook 'haskell-mode-hook
+          '(lambda ()
+             (define-key haskell-mode-map (kbd "\C-y") 'search-hayoo)))

@@ -435,7 +435,7 @@
 
 	 (whitespace-empty ((t (:foreground "#bb8c00"))))
 	 (whitespace-hspace ((t (:foreground "#dddddd"))))
-	 (whitespace-indentation ((t (:foreground "#bb8c00"))))
+	 (whitespace-indentation ((t (:foreground "#dddddd"))))
 	 (whitespace-line ((t (:background nil :foreground nil :underline "#888888"))))
 	 (whitespace-space ((t (:foreground "#dddddd"))))
 	 (whitespace-space-after-tab ((t (:foreground "#bb8c00"))))

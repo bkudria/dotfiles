@@ -12,11 +12,7 @@ esac
 
 
 function qwhich {
-  if [[ "$DISTRO" = "CentOS" ]]; then
-	which $@ 2> /dev/null
-  else
-	which $@
-  fi
+	which $@ &> /dev/null
 }
 
 function alias_exists {
@@ -33,9 +29,11 @@ function service { sudo $RCDIR$1 $2; }
 function psg { ps aux | grep "[${1[1]}]${1[2,-1]}"; }
 
 function status {
-  if [ -d ".svn" ]; then
+    if [ -d ".svn" ]; then
 	svn status
-  else
+  elif [ -d ".git" ]; then
 	git status
+  elif [ -d ".hg" ]; then
+	hg status
   fi
 }

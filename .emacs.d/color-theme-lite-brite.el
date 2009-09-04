@@ -246,6 +246,16 @@
 
 	 (fringe ((t (:background "#333333" :foreground nil))))
 
+     (whitespace-empty ((t (:foreground "#ffff00"))))
+	 (whitespace-hspace ((t (:foreground "#222222"))))
+	 (whitespace-indentation ((t (:foreground "#222222"))))
+	 (whitespace-line ((t (:background nil :foreground nil :underline "#888888"))))
+	 (whitespace-space ((t (:foreground "#222222"))))
+	 (whitespace-space-after-tab ((t (:foreground "#bf0000"))))
+	 (whitespace-space-before-tab ((t (:foreground "#bf0000" :weight bold))))
+	 (whitespace-tab ((t (:foreground "#222222"))))
+	 (whitespace-trailing ((t (:background "black" :foreground "#bf0000" :weight bold))))
+
 ;;; 	 (header-line ((t (:box (:line-width 2
 ;;; 										 :color "gray8"
 ;;; 										 :style nil)

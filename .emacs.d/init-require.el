@@ -11,6 +11,7 @@
 (require 'ruby-flymake) ; load the flymake ruby lib
 (require 'sml-flymake) ; load the flymake sml lib
 (require 'haskell-flymake) ; load the flymake haskell lib
+(require 'inf-haskell)
 (require 'flymake-shell) ; load the fly-make shell lib
 (require 'autofit-frame) ; Autofit frames to contents
 (require 'fringe-helper)
@@ -25,6 +26,7 @@
 (require 'smooth-scrolling)
 (require 'parenface)
 (require 'color-theme-scanner-brightly)
+(require 'color-theme-lite-brite)
 (require 'tabkey2)
 (require 'dtrt-indent)
 (require 'sudo-save)
@@ -37,3 +39,7 @@
 (require 'imenu)
 (require 'ibuf-ext)
 (require 'mouse-drag)
+(require 'tramp)
+(require 'sr-speedbar)
+(require 'etags)
+(require 'php-mode)
