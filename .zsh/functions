@@ -1,5 +1,12 @@
 #! /bin/zsh -f
 
+function zsh_prompt {}
+
+function precmd {
+  vcs_info
+  zsh_prompt
+}
+
 function chpwd {
   [[ -t 1 ]] || return
   case $TERM in

@@ -2,11 +2,11 @@
 
 ZSH_CONF_DIR=~/.zsh
 ZSH_CONF_FILES=(
-	functions
+    contrib
+    functions
 	env
 	aliases
 	apt-get
-	contrib
 	prompt
 	options
 	modules

@@ -25,6 +25,8 @@ zstyle ':vcs_info:*' branchformat '%b:%r'
 
 zstyle ':vcs_info:*' enable git svn bzr hg
 
+colors
+precmd
 
 function zsh_prompt()
 {
@@ -45,10 +47,12 @@ function zsh_prompt()
         local HO=$HOSTCOLORESCAPE
         local HC=$N
 
-        PROMPT="
-${UC}%~${N}: "
-        RPROMPT="${UC}%n${N}@${UC}%m${N} %(0?,,${UC}%?!${N} )${UC}${vcs_info_msg_0_}${N}"
-        PS2="${D}${O}"
+        local PRETTY_WD=`rtab -f`
+
+        export PROMPT="
+${UC}${PRETTY_WD}${N}: "
+        export RPROMPT="${UC}%n${N}@${UC}%m${N} %(0?,,${UC}%?!${N} )${UC}${vcs_info_msg_0_}${N}"
+        export PS2="${D}${O}"
 }
 
 if [ "$TERM" = "dumb" ]
