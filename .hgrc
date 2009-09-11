@@ -1,0 +1,49 @@
+[alias]
+select = crecord
+
+[defaults]
+log    = -G
+revert = --no-backup
+shelve = --all
+push   = -r default
+
+[ui]
+username = Benjamin Kudria <ben@kudria.net>
+style    = compact
+ignore   = ~/.hgignore
+editor   = nano
+
+[extensions]
+
+[diff]
+ignorews         = True
+ignorewsamount   = True
+ignoreblanklines = True
+showfunc         = True
+git              = True
+
+[pager]
+pager = LESS='FSRX' less
+
+[extensions]
+hgk       =
+color     =
+fetch     =
+graphlog  =
+rebase    =
+record    =
+win32text =
+zeroconf  =
+pager     =
+
+autopager	= /home/bkudria/.hgext/autopager.py
+crecord     = /home/bkudria/.hgext/crecord/crecord
+cutehg		= /usr/local/lib/python2.6/dist-packages/cutehg/
+diffstat	= /usr/local/lib/python2.6/dist-packages/hgext/diffstat.py
+hgshelve	= /home/bkudria/.hgext/hgshelve/hgshelve.py
+histedit	= /home/bkudria/.hgext/histedit.py
+localbranch = /home/bkudria/.hgext/localbranch.py
+histedit    = /home/bkudria/.hgext/histedit/
+
+[alias]
+ci      = commit
