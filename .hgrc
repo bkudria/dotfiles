@@ -6,14 +6,13 @@ log    = -G
 revert = --no-backup
 shelve = --all
 push   = -r default
+addremove = --similarity 100
 
 [ui]
 username = Benjamin Kudria <ben@kudria.net>
 style    = compact
 ignore   = ~/.hgignore
 editor   = nano
-
-[extensions]
 
 [diff]
 ignorews         = True
@@ -35,6 +34,7 @@ record    =
 win32text =
 zeroconf  =
 pager     =
+purge     =
 
 autopager	= /home/bkudria/.hgext/autopager.py
 crecord     = /home/bkudria/.hgext/crecord/crecord
