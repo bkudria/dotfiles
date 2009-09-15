@@ -2,10 +2,10 @@
 select = crecord
 
 [defaults]
-log    = -G
-revert = --no-backup
-shelve = --all
-push   = -r default
+log       = -G
+revert    = --no-backup
+shelve    = --all
+push      = -r default
 addremove = --similarity 100
 
 [ui]
@@ -36,12 +36,12 @@ zeroconf  =
 pager     =
 purge     =
 
-autopager	= /home/bkudria/.hgext/autopager.py
+autopager   = /home/bkudria/.hgext/autopager.py
 crecord     = /home/bkudria/.hgext/crecord/crecord
-cutehg		= /usr/local/lib/python2.6/dist-packages/cutehg/
-diffstat	= /usr/local/lib/python2.6/dist-packages/hgext/diffstat.py
-hgshelve	= /home/bkudria/.hgext/hgshelve/hgshelve.py
-histedit	= /home/bkudria/.hgext/histedit.py
+cutehg      = /usr/local/lib/python2.6/dist-packages/cutehg/
+diffstat    = /usr/local/lib/python2.6/dist-packages/hgext/diffstat.py
+hgshelve    = /home/bkudria/.hgext/hgshelve/hgshelve.py
+histedit    = /home/bkudria/.hgext/histedit.py
 localbranch = /home/bkudria/.hgext/localbranch.py
 histedit    = /home/bkudria/.hgext/histedit/
 
