@@ -32,7 +32,7 @@ precmd
 function hg_prompt() {
     local HG_PROMPT_FORMAT='{:{node|short}}{ {status|modified|unknown}}{update}{ >{incoming|count}}{ {outgoing|count}>}'
     export HG_PROMPT=""
-    `hg prompt &> /dev/null` && export HG_PROMPT="`hg prompt $HG_PROMPT_FORMAT 2> /dev/null`"
+    hg prompt &> /dev/null && export HG_PROMPT="`hg prompt $HG_PROMPT_FORMAT 2> /dev/null`"
 }
 
 function zsh_prompt()
