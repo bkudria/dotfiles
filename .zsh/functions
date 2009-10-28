@@ -1,9 +1,11 @@
 #! /bin/zsh -f
 
 function zsh_prompt {}
+function hg_prompt {}
 
 function precmd {
   vcs_info
+  hg_prompt
   zsh_prompt
 }
 
@@ -13,13 +15,13 @@ function chpwd {
 	sun-cmd) print -Pn "\e]l%~\e\\"
 	  ;;
 	*xterm*|rxvt|(dt|k|E|e)term|eterm-color) print -Pn "\e]2;%~ | %M\a"
-;;
-esac
+      ;;
+  esac
 }
 
 
 function qwhich {
-    result=`which $@`
+    result=`which $@ 2> /dev/null`
     [[ $? == 0 ]] && echo $result
 }
 
@@ -33,7 +35,7 @@ function alias_exists {
   fi
 }
 
-function service { sudo $RCDIR$1 $2; }
+#function service { sudo $RCDIR$1 $2; }
 function psg { ps aux | grep "[${1[1]}]${1[2,-1]}"; }
 
 function status {
@@ -45,3 +47,18 @@ function status {
 	hg status
   fi
 }
+
+function chromeapp {
+  google-chrome --enable-user-scripts --enable-extensions --bookmark-menu --app="$*" &
+}
+
+function gmail      {chromeapp "http://mail.google.com/a/kudria.net" }
+function greader    {chromeapp "http://google.com/reader" }
+function gcal       {chromeapp "http://calendar.google.com/a/kudria.net" }
+function gwave      {chromeapp "http://wave.google.com/wave" }
+function ganalytics {chromeapp "http://analytics.google.com" }
+function rmilk      {chromeapp "http://rememberthemilk.com" }
+function tumblrdash {chromeapp "http://tumblr.com/dashboard" }
+function twitter    {chromeapp "http://twitter.com" }
+function simplenote {chromeapp "http://simple-note.appspot.com" }
+#function           {chromeapp "http://" }

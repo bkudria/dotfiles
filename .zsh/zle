@@ -19,4 +19,5 @@ bindkey '^i' expand-or-complete-prefix
 bindkey "^[[Z" reverse-menu-complete
 bindkey "^[" send-break
 
-bindkey "^[e" backward-kill-word # 
+bindkey "^[e" backward-kill-word
+bindkey "^[w" backward-kill-word
