@@ -1,12 +1,9 @@
 #! /bin/zsh -f
 
-function zsh_prompt {}
-function hg_prompt {}
-
 function precmd {
-  (( ${+functions[vcs_info]} )) && vcs_info
-  hg_prompt
-  zsh_prompt
+  (( ${+functions[vcs_info]} ))   && vcs_info
+  (( ${+functions[hg_prompt]} ))  && hg_prompt
+  (( ${+functions[zsh_prompt]} )) && zsh_prompt
 }
 
 function chpwd {
@@ -62,3 +59,32 @@ function tumblrdash {chromeapp "http://tumblr.com/dashboard" }
 function twitter    {chromeapp "http://twitter.com" }
 function simplenote {chromeapp "http://simple-note.appspot.com" }
 #function           {chromeapp "http://" }
+
+# wrapper around autoload, from http://ft.bewatermyfriend.org/comp/zsh/zshrc.real.html
+function zrcautoload() {
+  setopt local_options
+  setopt extended_glob
+  local fdir ffile
+  local -i ffound
+  ffile=${1}
+  (( found = 0 ))
+  for fdir in ${fpath} ; do
+    [[ -e ${fdir}/${ffile} ]] && (( ffound = 1 )) && break
+  done
+  if (( ffound == 0 )) ; then
+    zprintf 2 "  zrcautoload: cannot find %s\n" ${ffile}
+    return 1
+  fi
+  zprintf 3 "  zrcautoload: loading %s\n" ${ffile}
+  autoload -U ${ffile} || return 1
+  return 0
+}
+
+function zprintf() {
+    local -i level; local format
+    level=$1 ; format=$2; shift; shift
+
+    (( ZSHRC_VERBOSE < level )) && return 0
+
+    printf '[%2d] '${format} ${level} "$@"
+}

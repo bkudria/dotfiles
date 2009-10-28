@@ -2,8 +2,8 @@
 
 ZSH_CONF_DIR=~/.zsh
 ZSH_CONF_FILES=(
-    contrib
     functions
+    contrib
 	env
 	aliases
 	apt-get
