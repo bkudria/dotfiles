@@ -4,7 +4,7 @@ function zsh_prompt {}
 function hg_prompt {}
 
 function precmd {
-  vcs_info
+  (( ${+functions[vcs_info]} )) && vcs_info
   hg_prompt
   zsh_prompt
 }

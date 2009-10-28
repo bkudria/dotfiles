@@ -70,6 +70,6 @@ then
   unfunction preexec
   PS1='- '
 else
-  vcs_info
+  (( ${+functions[vcs_info]} )) && vcs_info
   zsh_prompt
 fi
