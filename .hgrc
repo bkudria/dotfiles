@@ -7,6 +7,7 @@ revert    = --no-backup
 shelve    = --all
 push      = -r default
 addremove = --similarity 100
+pull      = --update
 
 [ui]
 username = Benjamin Kudria <ben@kudria.net>
@@ -27,7 +28,7 @@ pager = LESS='FSRX' less
 [extensions]
 hgk       =
 color     =
-fetch     =
+mq        =
 graphlog  =
 rebase    =
 record    =
@@ -44,6 +45,14 @@ hgshelve    = /home/bkudria/.hgext/hgshelve/hgshelve.py
 histedit    = /home/bkudria/.hgext/histedit.py
 localbranch = /home/bkudria/.hgext/localbranch.py
 histedit    = /home/bkudria/.hgext/histedit/
+prompt      = /home/bkudria/.hgext/hg-prompt/prompt.py
 
 [alias]
 ci      = commit
+
+[hgview]
+fileaddedcolor    = #006600
+filedeletedcolor  = #660000
+filemodifiedcolor = #996600
+fileremovedcolor  = #6633500
+users             = ~/.hgusers
