@@ -22,7 +22,7 @@ bindkey "^[" send-break
 bindkey "^[e" backward-kill-word
 bindkey "^[w" backward-kill-word
 
-bindkey "^[H" beginning-of-line
-bindkey "^[F" end-of-line
+bindkey "^[[H" beginning-of-line
+bindkey "^[[F" end-of-line
 
-bindkey "^[3~" delete-char-or-list
+bindkey "^[[3~" delete-char-or-list
