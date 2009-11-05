@@ -12,7 +12,7 @@ end
 
 @hostnames =
 	{
-	'laotzu'                          => 190,
+	'laotzu'                          => 34,
 	'kudria.net'                      => nil,
 	'weyl.ams.sunysb.edu'             => nil,
 	'seawulf.stonybrook.edu'          => nil,
@@ -59,7 +59,9 @@ end
 
 @younoodle_hostnames =
 	{
-	'euripides.younoodle.com'    => nil,
+	'dev.younoodle.org'     => nil,
+    'web3.sf.younoodle.org' => nil,
+    'web4.sf.younoodle.org' => nil,
 }
 
 @hostnames.merge! @galaxy_hostnames
