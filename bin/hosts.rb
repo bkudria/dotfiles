@@ -2,13 +2,17 @@
 
 require 'optparse'
 
+srand "benkudria".split('').inject(1) {|a, c| a*c[0]}
+
 class Array
 	def flatten_ranges
 		self.map {|r| r.to_a}.flatten
 	end
-end
 
-srand "benkudria".split('').inject(1) {|a, c| a*c[0]}
+	def shuffle
+		self.sort {rand}
+	end
+end
 
 @options = {:color => :dark}
 
