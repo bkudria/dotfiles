@@ -7,7 +7,7 @@ if [[ $DISTRO = "CentOS" ]]; then
 fi
 
 HOSTCOLORCODE=255
-`qwhich hosts.rb > /dev/null` && HOSTCOLORCODE=$(hosts.rb -l $HASHSTRING)
+`qwhich hosts.rb > /dev/null` && HOSTCOLORCODE=$(hosts.rb -d $HASHSTRING)
 
 [ $TERM = 'eterm-color' ] && HOSTCOLORCODE=34
 

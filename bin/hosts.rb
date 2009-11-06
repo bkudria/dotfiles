@@ -60,8 +60,8 @@ end
 @younoodle_hostnames =
 	{
 	'dev.younoodle.org'     => nil,
-    'web3.sf.younoodle.org' => nil,
-    'web4.sf.younoodle.org' => nil,
+    'web3.sf.younoodle.com' => nil,
+    'web4.sf.younoodle.com' => nil,
 }
 
 @hostnames.merge! @galaxy_hostnames
