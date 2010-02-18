@@ -446,3 +446,10 @@ export PROMPT_COMMAND="history -a"
 			. ~/.bashrc.local
 		fi
 
+
+# -- start rip config -- #
+RIPDIR=/home/bkudria/.rip
+RUBYLIB="$RUBYLIB:$RIPDIR/active/lib"
+PATH="$PATH:$RIPDIR/active/bin"
+export RIPDIR RUBYLIB PATH
+# -- end rip config -- #

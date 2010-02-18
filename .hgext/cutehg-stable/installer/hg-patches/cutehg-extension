@@ -1,0 +1,14 @@
+Regisering cutehg extension in the mercurial.ini file.
+
+diff -r 4f13ed6ee544 -r 177ed49630b8 contrib/win32/mercurial.ini
+--- a/contrib/win32/mercurial.ini	Thu Apr 23 15:40:10 2009 -0500
++++ b/contrib/win32/mercurial.ini	Fri Apr 24 15:21:28 2009 +0200
+@@ -24,6 +24,8 @@
+ ; provides built-in Python hooks to perform line ending conversions.
+ ; This is normally much faster than running an external program.
+ hgext.win32text =
++; CuteHg is an extension to mercurial which displays graphical dialogs for some hg commands
++hgext.cutehg =
+ 
+ 
+ [encode]

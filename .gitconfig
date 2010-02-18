@@ -4,13 +4,17 @@
 
 [github]
 	user = bkudria
+	token = 43cefc58c5ff6fdb90dffc731df10723
 
 [core]
-	editor = emacs-client-frame
+	editor = nano
 	pager = less
 	# change to tig when color.pager bug is fixed.
 
 	whitespace = trailing-space,space-before-tab,cr-at-eol
+
+[clean]
+    requireForce = false
 
 [color]
 	diff = auto
@@ -61,9 +65,15 @@
 
     echo = "!echo $1; echo $1"
 
+	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+
+    top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
+
 
 [gui]
-	fontdiff = -family terminus -size 13 -weight normal -slant roman -underline 0 -overstrike 0
+	fontdiff = -family terminus -size 10 -weight normal -slant roman -underline 0 -overstrike 0
+	fontui = -family terminus -size 10 -weight bold -slant roman -underline 0 -overstrike 0
+	diffcontext = 3
 [giggle]
 	compact-mode = true
 	main-window-maximized = true

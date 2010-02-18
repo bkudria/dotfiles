@@ -1,0 +1,104 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "windows.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (U.S.) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif //_WIN32
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""windows.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// REGISTRY
+//
+
+IDR_LIBRARY             REGISTRY                "Library.rgs"
+IDR_MENU                REGISTRY                "Menu.rgs"
+IDR_OVERLAY             REGISTRY                "Overlay.rgs"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_CONFIGURE           PNG                     "..\\..\\cutehg\\icons\\configure.png"
+IDB_DIALOG_CANCEL       PNG                     "..\\..\\cutehg\\icons\\dialog-cancel.png"
+IDB_DIALOG_OK           PNG                     "..\\..\\cutehg\\icons\\dialog-ok.png"
+IDB_DOCUMENT_REVERT     PNG                     "..\\..\\cutehg\\icons\\document-revert.png"
+IDB_EDIT_FIND           PNG                     "..\\..\\cutehg\\icons\\edit-find.png"
+IDB_EDIT_UNDO           PNG                     "..\\..\\cutehg\\icons\\edit-undo.png"
+IDB_GO_DOWN             PNG                     "..\\..\\cutehg\\icons\\go-down.png"
+IDB_GO_DOWN_SEARCH      PNG                     "..\\..\\cutehg\\icons\\go-down-search.png"
+IDB_GO_UP               PNG                     "..\\..\\cutehg\\icons\\go-up.png"
+IDB_GO_UP_SEARCH        PNG                     "..\\..\\cutehg\\icons\\go-up-search.png"
+IDB_IM_STATUS_MESSAGE_EDIT PNG                     "..\\..\\cutehg\\icons\\im-status-message-edit.png"
+IDB_NETWORK_CONNECT     PNG                     "..\\..\\cutehg\\icons\\network-connect.png"
+IDB_SVN_ADD             PNG                     "..\\..\\cutehg\\icons\\svn_add.png"
+IDB_SVN_BRANCH          PNG                     "..\\..\\cutehg\\icons\\svn_branch.png"
+IDB_SVN_MERGE           PNG                     "..\\..\\cutehg\\icons\\svn_merge.png"
+IDB_SVN_REMOVE          PNG                     "..\\..\\cutehg\\icons\\svn_remove.png"
+IDB_SVN_STATUS          PNG                     "..\\..\\cutehg\\icons\\svn_status.png"
+IDB_SVN_SWITCH          PNG                     "..\\..\\cutehg\\icons\\svn_switch.png"
+IDB_TEXT_X_GENERIC      PNG                     "..\\..\\cutehg\\icons\\text-x-generic.png"
+IDB_VCS_ADD             PNG                     "..\\..\\cutehg\\icons\\vcs_add.png"
+IDB_VCS_COMMIT          PNG                     "..\\..\\cutehg\\icons\\vcs_commit.png"
+IDB_VCS_DIFF            PNG                     "..\\..\\cutehg\\icons\\vcs_diff.png"
+IDB_VCS_REMOVE          PNG                     "..\\..\\cutehg\\icons\\vcs_remove.png"
+IDB_VCS_STATUS          PNG                     "..\\..\\cutehg\\icons\\vcs_status.png"
+IDB_VCS_UPDATE          PNG                     "..\\..\\cutehg\\icons\\vcs_update.png"
+IDB_VIEW_REFRESH        PNG                     "..\\..\\cutehg\\icons\\view-refresh.png"
+#endif    // English (U.S.) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

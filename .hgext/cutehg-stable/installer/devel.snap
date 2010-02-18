@@ -1,0 +1,19 @@
+[cutehg-crew]
+root = .
+revision = tip
+path.default = http://bitbucket.org/bfrog/cutehg-crew/
+
+[hg-main]
+root = hg-main
+revision = tip
+path.default = http://selenic.com/repo/hg/
+
+#[hgforest]
+#root = hgforest-crew
+#revision = tip
+#path.default = http://bitbucket.org/pmezard/hgforest-crew/
+
+#[cutehg-crew]
+#root = cutehg-crew
+#revision = tip
+#path.default = http://bitbucket.org/bfrog/cutehg-crew/

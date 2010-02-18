@@ -2,7 +2,7 @@
 
 require 'optparse'
 
-srand "benkudria".split('').inject(1) {|a, c| a*c[0]}
+srand "benkudria".split('').inject(1) {|a, c| a*?c.ord}
 
 class Array
 	def flatten_ranges
@@ -65,9 +65,10 @@ end
 
 @younoodle_hostnames =
 	{
-	'dev.younoodle.org'     => nil,
-    'web3.sf.younoodle.com' => nil,
-    'web4.sf.younoodle.com' => nil,
+	'dev.younoodle.org'      => nil,
+    'jobs1.sf.younoodle.com' => nil,
+    'web3.sf.younoodle.com'  => nil,
+    'web4.sf.younoodle.com'  => nil,
 }
 
 @hostnames.merge! @galaxy_hostnames

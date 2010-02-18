@@ -60,6 +60,7 @@
 	  (narrow-to-region (region-beginning) (region-end)))
 
   (indent-region (point-min) (point-max) nil)
+  (align (point-min) (point-max))
   (widen))
 
 (defun eval-and-replace ()

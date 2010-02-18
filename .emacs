@@ -37,3 +37,5 @@
 
 (server-mode t) ; Enable server mode
 
+
+(put 'set-goal-column 'disabled nil)

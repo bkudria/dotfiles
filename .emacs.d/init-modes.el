@@ -9,9 +9,7 @@
 
 (define-globalized-minor-mode global-paredit-mode paredit-mode turn-on-paredit-no-errors)
 
-(global-paredit-mode t)
-
-
+(autopair-global-mode t)
 
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)
@@ -64,15 +62,26 @@
 (setq-default whitespace-style
 			  '(tabs spaces trailing space-before-tab indentation empty space-after-tab space-mark tab-mark))
 
-;; do some spooky shit to make the time display
-(display-time-mode t)
-(setq-default display-time-default-load-average 2)
-(setq-default  display-time-mail-file 'none)
-(setq-default  display-time-string-forms (quote ((if (and (not display-time-format) display-time-day-and-date) (format-time-string " %a %b %e " now) "") (propertize (format-time-string (or display-time-format (if display-time-24hr-format " %H:%M" "%-I:%M%p")) now) (quote help-echo) (format-time-string " %a %b %e, %Y" now)) load (if mail (concat " " (propertize display-time-mail-string (quote display) (\` (when (and display-time-use-mail-icon (display-graphic-p)) (\,@ display-time-mail-icon) (\,@ (if (and display-time-mail-face (memq (plist-get (cdr display-time-mail-icon) :type) (quote (pbm xbm)))) (let ((bg (face-attribute display-time-mail-face :background))) (if (stringp bg) (list :background bg))))))) (quote face) display-time-mail-face (quote help-echo) "You have new mail; mouse-2: Read mail" (quote mouse-face) (quote mode-line-highlight) (quote local-map) (make-mode-line-mouse-map (quote mouse-2) read-mail-command))) ""))))
-
-										; make dired slightly smarter
+;; make dired slightly smarter
 (setq-default directory-free-space-program "di")
 (setq-default directory-free-space-args "-Ph")
+
+(eval-after-load "dired"
+       ;; don't remove `other-window', the caller expects it to be there
+       '(defun dired-up-directory (&optional other-window)
+          "Run Dired on parent directory of current directory."
+          (interactive "P")
+          (let* ((dir (dired-current-directory))
+     	    (orig (current-buffer))
+     	    (up (file-name-directory (directory-file-name dir))))
+            (or (dired-goto-file (directory-file-name dir))
+     	   ;; Only try dired-goto-subdir if buffer has more than one dir.
+     	   (and (cdr dired-subdir-alist)
+     		(dired-goto-subdir up))
+     	   (progn
+     	     (kill-buffer orig)
+     	     (dired up)
+     	     (dired-goto-file dir))))))
 
 (tabkey2-mode t)
 (setq-default tabkey2-completion-functions
@@ -237,3 +246,19 @@
                      (access-label . 0)
                      (inher-cont . c-lineup-java-inher)
                      (func-decl-cont . c-lineup-java-throws))))
+
+
+(defun flymake-erlang-init ()
+  (let* ((temp-file (flymake-init-create-temp-buffer-copy
+                     'flymake-create-temp-inplace))
+         (local-file (file-relative-name temp-file
+                                         (file-name-directory buffer-file-name))))
+    (list "~/bin/flymake-erlang.erl" (list local-file))))
+
+(add-to-list 'flymake-allowed-file-name-masks '("\\.erl\\'" flymake-erlang-init))
+
+
+(add-hook 'erlang-mode-hook
+		  '(lambda ()
+             (flymake-mode t)
+             ))

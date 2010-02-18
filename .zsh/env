@@ -7,7 +7,7 @@ SAVEHIST=1000000
 export RIPDIR=$HOME/.rip
 export RUBYLIB=$RUBYLIB:$RIPDIR/active/lib
 
-PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.8/bin:/usr/lib/kde4/bin:/usr/local/android/tools://usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
+PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.9.1/bin:/usr/lib/kde4/bin:/usr/local/android/tools://usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
 
 OS=`uname`
 

@@ -228,7 +228,7 @@
 	 (font-lock-doc-face ((t (:foreground "#777777"))))
 	 (font-lock-doc-string-face ((t (:foreground "#777777"))))
 	 (font-lock-function-name-face ((t (:foreground "#0F9FFF"))))
-	 (font-lock-keyword-face ((t (:foreground "#808080" :bold t))))
+	 (font-lock-keyword-face ((t (:foreground "#0faf3f" :bold t))))
 	 (font-lock-preprocessor-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-reference-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-string-face ((t (:foreground "#FF5F0F" :italic t))))

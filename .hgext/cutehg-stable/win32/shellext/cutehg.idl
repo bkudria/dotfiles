@@ -1,0 +1,102 @@
+// CuteHg - Qt4 Dialog Extension of Mercurial
+// Copyright (C) 2009 Stefan Rusek 
+// 
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 2 of the License, or
+// (at your option) any later version.
+// 
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+// 
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+import "oaidl.idl";
+import "ocidl.idl";
+import "shobjidl.idl";
+
+[
+    object,
+    oleautomation,
+    uuid(44EC053B-400F-11D0-9DCD-00A0C90391D3)
+]
+interface IRegistrar : IUnknown
+{
+    HRESULT AddReplacement(
+        [in] LPCOLESTR Key,
+        [in] LPCOLESTR item);
+
+    HRESULT ClearReplacements();
+
+    HRESULT ResourceRegisterSz(
+        [in] LPCOLESTR resFileName,
+        [in] LPCOLESTR szID,
+        [in] LPCOLESTR szType);
+
+    HRESULT ResourceUnregisterSz(
+        [in] LPCOLESTR resFileName,
+        [in] LPCOLESTR szID,
+        [in] LPCOLESTR szType);
+
+    HRESULT FileRegister(
+        [in] LPCOLESTR fileName);
+
+    HRESULT FileUnregister(
+        [in] LPCOLESTR fileName);
+
+    HRESULT StringRegister(
+        [in] LPCOLESTR data);
+
+    HRESULT StringUnregister(
+        [in] LPCOLESTR data);
+
+    HRESULT ResourceRegister(
+        [in] LPCOLESTR resFileName,
+        [in] UINT nID,
+        [in] LPCOLESTR szType);
+
+    HRESULT ResourceUnregister(
+        [in] LPCOLESTR resFileName,
+        [in] UINT nID,
+        [in] LPCOLESTR szType);
+}
+
+[uuid(0c6c4200-c589-11d0-999a-00c04fd655e1)]
+interface IShellIconOverlayIdentifier: IUnknown
+{
+    HRESULT IsMemberOf([in] LPCWSTR pwszPath, [in] DWORD dwAttrib);
+    HRESULT GetOverlayInfo([in, out, max_is(cchMax)] LPWSTR pwszIconFile, [in] int cchMax, [out] int *pIndex, [out] DWORD *pdwFlags);
+    HRESULT GetPriority([out, retval] int *pIPriority);
+};
+
+[uuid(09EF33DD-2E18-45e2-9850-F52ADE4B53D2)]
+interface ITest: IUnknown
+{
+    HRESULT Test([in] int a, [in] LPCWSTR pwszMessage, [out] int* pa, [out] LPWSTR* pOut);
+};
+
+[uuid(E586C961-E79B-479d-A08B-43557742195C)]
+library CuteHgLib
+{
+    importlib("stdole2.tlb");
+
+    [uuid(46DDFEF5-1CE5-4d03-92C2-64A89029C0F4)]
+    coclass CuteHgMenu {
+        [default] interface IShellExtInit;
+        interface IContextMenu;
+        interface ITest;
+    };
+
+#define ICON(name, id) [uuid(id)] coclass CuteHgIcon##name { [default] interface IShellIconOverlayIdentifier; };
+
+    ICON(Added,       90F32C0B-0000-427f-9094-1BBD31254BBD)
+    ICON(Ignored,     90F32C0B-0001-427f-9094-1BBD31254BBD)
+    ICON(Modified,    90F32C0B-0002-427f-9094-1BBD31254BBD)
+    ICON(Normal,      90F32C0B-0003-427f-9094-1BBD31254BBD)
+    ICON(Unversioned, 90F32C0B-0004-427f-9094-1BBD31254BBD)
+
+};
+

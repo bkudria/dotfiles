@@ -1,0 +1,15 @@
+Disables inclusion of locale files in the installer.
+Only a temporary solution until the locales can be built automatically.
+
+diff -r 67e59a9886d5 -r f9f43d991545 contrib/win32/mercurial.iss
+--- a/contrib/win32/mercurial.iss	Thu Mar 26 19:01:06 2009 +0900
++++ b/contrib/win32/mercurial.iss	Fri Apr 24 11:46:29 2009 +0200
+@@ -42,7 +42,7 @@
+ Source: dist\w9xpopen.exe; DestDir: {app}
+ Source: dist\add_path.exe; DestDir: {app}
+ Source: doc\*.html; DestDir: {app}\Docs
+-Source: locale\*.*; DestDir: {app}\locale; Flags: recursesubdirs createallsubdirs
++;Source: locale\*.*; DestDir: {app}\locale; Flags: recursesubdirs createallsubdirs
+ Source: templates\*.*; DestDir: {app}\Templates; Flags: recursesubdirs createallsubdirs
+ Source: CONTRIBUTORS; DestDir: {app}; DestName: Contributors.txt
+ Source: COPYING; DestDir: {app}; DestName: Copying.txt

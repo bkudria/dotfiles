@@ -9,8 +9,6 @@
 (setq-default mouse-autoselect-window 0.5) ; select the window the pointer is in after 0.5 sec
 (setq-default scalable-fonts-allowed t) ; allow scalable fonts
 
-(display-battery-mode t) ; Display battery and temp in modeline
-
 (add-hook 'after-make-frame-functions 'fit-frame)
 (add-hook 'temp-buffer-show-hook 'fit-frame-if-one-window 'append)
 
@@ -18,7 +16,7 @@
 (setq-default fit-frame-empty-width 75)
 (setq-default fit-frame-min-height 40)
 (setq-default fit-frame-min-width 105)
-(setq-default fit-frame-max-height 100)
+(setq-default fit-frame-max-height 80)
 (setq-default fit-frame-max-width 130)
 
 (global-hl-line-mode t)
@@ -27,4 +25,5 @@
 
 (mouse-avoidance-mode 'animate) ; Animate the mouse away from where we are typing
 
-(add-hook 'after-make-frame-functions 'color-theme-lite-brite)
+(add-hook 'after-make-frame-functions 'color-theme-scanner-brightly)
+

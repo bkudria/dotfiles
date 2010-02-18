@@ -70,7 +70,7 @@
 
 (global-set-key "\C-x\C-r" 'eval-and-replace)
 
-(global-set-key (kbd "RET") 'newline-and-indent)
+(global-set-key (kbd "RET") 'align-newline-and-indent)
 
 (global-set-key (kbd "C-SPC") 'highlight-symbol-at-point)
 
@@ -93,9 +93,6 @@
 (global-set-key [f7] 'kmacro-start-macro-or-insert-counter)
 (global-set-key [f8] 'kmacro-end-or-call-macro)
 
-(define-key paredit-mode-map "\C-d" nil)
-(global-set-key "\C-d" 'comment-dwim)
-
 ;; multi-term
 (global-set-key (kbd "<f9> t") 'multi-term)
 (global-set-key (kbd "<f9> n") 'multi-term-next)
@@ -106,3 +103,7 @@
 (add-hook 'haskell-mode-hook
           '(lambda ()
              (define-key haskell-mode-map (kbd "\C-y") 'search-hayoo)))
+
+(global-set-key "\C-x\C-d" 'ido-dired)
+
+(define-key dired-mode-map [backspace] 'dired-up-directory)

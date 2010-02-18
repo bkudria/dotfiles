@@ -33,4 +33,4 @@
 ;; Breaks dtrt-indent if t
 (setq-default indent-tabs-mode nil)
 
-(color-theme-lite-brite)
+(color-theme-scanner-brightly)

@@ -26,7 +26,6 @@
 (require 'smooth-scrolling)
 (require 'parenface)
 (require 'color-theme-scanner-brightly)
-(require 'color-theme-lite-brite)
 (require 'tabkey2)
 (require 'dtrt-indent)
 (require 'sudo-save)
@@ -43,3 +42,5 @@
 (require 'sr-speedbar)
 (require 'etags)
 (require 'php-mode)
+(require 'dired+)
+(require 'autopair)

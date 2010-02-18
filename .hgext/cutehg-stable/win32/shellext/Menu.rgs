@@ -1,0 +1,76 @@
+HKCR
+{
+	CuteHg.Menu.1 = s 'CuteHg Menu Class'
+	{
+		CLSID = s '{46DDFEF5-1CE5-4d03-92C2-64A89029C0F4}'
+	}
+	CuteHg.Menu = s 'CuteHg Menu Class'
+	{
+		CLSID = s '{46DDFEF5-1CE5-4d03-92C2-64A89029C0F4}'
+		CurVer = s 'CuteHg.Menu.1'
+	}
+	NoRemove CLSID
+	{
+		ForceRemove {46DDFEF5-1CE5-4d03-92C2-64A89029C0F4} = s 'CuteHg Menu Class'
+		{
+			ProgID = s 'CuteHd.Menu.1'
+			VersionIndependentProgID = s 'CuteHg.Menu'
+			ForceRemove 'Programmable'
+			InprocServer32 = s '%MODULE%'
+			{
+				val ThreadingModel = s 'Apartment'
+			}
+		}
+	}
+	NoRemove *
+	{
+		NoRemove shellex
+		{
+			NoRemove ContextMenuHandlers
+			{
+				ForceRemove TA_CuteHgMenu = s '{46DDFEF5-1CE5-4d03-92C2-64A89029C0F4}'
+				{
+				}
+			}
+		}
+	}
+	NoRemove Folder
+	{
+		NoRemove shellex
+		{
+			NoRemove ContextMenuHandlers
+			{
+				ForceRemove TA_CuteHgMenu = s '{46DDFEF5-1CE5-4d03-92C2-64A89029C0F4}'
+				{
+				}
+			}
+		}
+	}
+	NoRemove Directory
+	{
+		NoRemove shellex
+		{
+			NoRemove ContextMenuHandlers
+			{
+				ForceRemove TA_CuteHgMenu = s '{46DDFEF5-1CE5-4d03-92C2-64A89029C0F4}'
+				{
+				}
+			}
+		}
+	}
+	NoRemove Directory
+	{
+		NoRemove Background
+		{
+			NoRemove shellex
+			{
+				NoRemove ContextMenuHandlers
+				{
+					ForceRemove TA_CuteHgMenu = s '{46DDFEF5-1CE5-4d03-92C2-64A89029C0F4}'
+					{
+					}
+				}
+			}
+		}
+	}
+}

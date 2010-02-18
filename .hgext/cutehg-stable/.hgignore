@@ -1,0 +1,20 @@
+syntax: glob
+*.cache
+cutehg/views/ui_*.py
+cutehg/dialogs/ui_*.py
+shellext/_ReSharper*
+shellext/cutehg_*
+shellext/dlldata.c
+shellext/resource.h
+*icons_rc.py
+*.pyc
+*~
+*.swp
+*.orig
+*.pyo
+*.user
+*.suo
+*.ncb
+*.aps
+build
+dist

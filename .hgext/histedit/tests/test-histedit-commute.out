@@ -1,0 +1,235 @@
+% help text
+hg histedit Interactive history editing.
+
+Inspired by git rebase --interactive.
+
+
+hg histedit <parent>
+
+options:
+
+ -c --continue  continue an edit already in progress
+ -k --keep      strip old nodes after edit is complete
+    --abort     abort an edit in progress
+ -o --outgoing  changesets not found in destination
+ -f --force     force outgoing even for unrelated repositories
+
+use "hg -v help histedit" to show global options
+% log before edit
+@  changeset:   5:652413bf663e
+|  tag:         tip
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     f
+|
+o  changeset:   4:e860deea161a
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     e
+|
+o  changeset:   3:055a42cdd887
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     d
+|
+o  changeset:   2:177f92b77385
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     c
+|
+o  changeset:   1:d2ae7f538514
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     b
+|
+o  changeset:   0:cb9a9f314b8b
+   user:        test
+   date:        Thu Jan 01 00:00:00 1970 +0000
+   summary:     a
+
+% show the edit commands offered
+pick 177f92b77385 c
+pick 055a42cdd887 d
+pick e860deea161a e
+pick 652413bf663e f
+
+# Edit history between 313737663932 and 652413bf663e
+#
+# Commands:
+#  p, pick = use commit
+#  e, edit = use commit, but stop for amending
+#  f, fold = use commit, but fold into previous commit
+#  d, drop = remove commit from history
+#
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+% edit the history
+0 files updated, 0 files merged, 3 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+adding branch
+adding changesets
+adding manifests
+adding file changes
+added 3 changesets with 3 changes to 3 files
+% log after edit
+@  changeset:   5:853c68da763f
+|  tag:         tip
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     d
+|
+o  changeset:   4:26f6a030ae82
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     f
+|
+o  changeset:   3:b069cc29fb22
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     e
+|
+o  changeset:   2:177f92b77385
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     c
+|
+o  changeset:   1:d2ae7f538514
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     b
+|
+o  changeset:   0:cb9a9f314b8b
+   user:        test
+   date:        Thu Jan 01 00:00:00 1970 +0000
+   summary:     a
+
+% put things back
+0 files updated, 0 files merged, 3 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+adding branch
+adding changesets
+adding manifests
+adding file changes
+added 3 changesets with 3 changes to 3 files
+@  changeset:   5:652413bf663e
+|  tag:         tip
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     f
+|
+o  changeset:   4:e860deea161a
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     e
+|
+o  changeset:   3:055a42cdd887
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     d
+|
+o  changeset:   2:177f92b77385
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     c
+|
+o  changeset:   1:d2ae7f538514
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     b
+|
+o  changeset:   0:cb9a9f314b8b
+   user:        test
+   date:        Thu Jan 01 00:00:00 1970 +0000
+   summary:     a
+
+% slightly different this time
+0 files updated, 0 files merged, 4 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+adding branch
+adding changesets
+adding manifests
+adding file changes
+added 4 changesets with 4 changes to 4 files
+@  changeset:   5:99a62755c625
+|  tag:         tip
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     c
+|
+o  changeset:   4:7c6fdd608667
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     e
+|
+o  changeset:   3:c4f52e213402
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     f
+|
+o  changeset:   2:bfe4a5a76b37
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     d
+|
+o  changeset:   1:d2ae7f538514
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     b
+|
+o  changeset:   0:cb9a9f314b8b
+   user:        test
+   date:        Thu Jan 01 00:00:00 1970 +0000
+   summary:     a
+
+% keep prevents stripping dead revs
+0 files updated, 0 files merged, 2 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+0 files updated, 0 files merged, 0 files removed, 0 files unresolved
+@  changeset:   7:99e266581538
+|  tag:         tip
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     e
+|
+o  changeset:   6:5ad36efb0653
+|  parent:      3:c4f52e213402
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     c
+|
+| o  changeset:   5:99a62755c625
+| |  user:        test
+| |  date:        Thu Jan 01 00:00:00 1970 +0000
+| |  summary:     c
+| |
+| o  changeset:   4:7c6fdd608667
+|/   user:        test
+|    date:        Thu Jan 01 00:00:00 1970 +0000
+|    summary:     e
+|
+o  changeset:   3:c4f52e213402
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     f
+|
+o  changeset:   2:bfe4a5a76b37
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     d
+|
+o  changeset:   1:d2ae7f538514
+|  user:        test
+|  date:        Thu Jan 01 00:00:00 1970 +0000
+|  summary:     b
+|
+o  changeset:   0:cb9a9f314b8b
+   user:        test
+   date:        Thu Jan 01 00:00:00 1970 +0000
+   summary:     a
+

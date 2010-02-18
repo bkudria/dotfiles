@@ -1,0 +1,139 @@
+<ui version="4.0" >
+ <class>UpdateDialog</class>
+ <widget class="QDialog" name="UpdateDialog" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>627</width>
+    <height>436</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Mercurial Update</string>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout" >
+   <item>
+    <widget class="QWidget" native="1" name="buttonContainer" >
+     <property name="sizePolicy" >
+      <sizepolicy vsizetype="Maximum" hsizetype="Preferred" >
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout" >
+      <item>
+       <spacer name="horizontalSpacer" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>40</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="cancelButton" >
+        <property name="toolTip" >
+         <string>Cancel updating.
+
+Esc for a shortcut.</string>
+        </property>
+        <property name="text" >
+         <string>Close</string>
+        </property>
+        <property name="shortcut" >
+         <string>Esc</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <spacer name="horizontalSpacer_2" >
+        <property name="orientation" >
+         <enum>Qt::Horizontal</enum>
+        </property>
+        <property name="sizeType" >
+         <enum>QSizePolicy::Minimum</enum>
+        </property>
+        <property name="sizeHint" stdset="0" >
+         <size>
+          <width>15</width>
+          <height>20</height>
+         </size>
+        </property>
+       </spacer>
+      </item>
+      <item>
+       <widget class="QPushButton" name="updateButton" >
+        <property name="toolTip" >
+         <string>Update to the selected revision.
+
+Use Ctrl+Enter as a shortcut. </string>
+        </property>
+        <property name="text" >
+         <string>Update</string>
+        </property>
+        <property name="shortcut" >
+         <string>Ctrl+Return</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+  <action name="actionUpdate" >
+   <property name="text" >
+    <string>Update</string>
+   </property>
+  </action>
+  <action name="actionCancel" >
+   <property name="text" >
+    <string>Cancel</string>
+   </property>
+  </action>
+  <action name="actionFind" >
+   <property name="text" >
+    <string>Find</string>
+   </property>
+  </action>
+ </widget>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>updateButton</sender>
+   <signal>clicked()</signal>
+   <receiver>actionUpdate</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>236</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>actionCancel</receiver>
+   <slot>trigger()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>314</x>
+     <y>264</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

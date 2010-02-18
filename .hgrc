@@ -20,7 +20,7 @@ ignorews         = True
 ignorewsamount   = True
 ignoreblanklines = True
 showfunc         = True
-git              = True
+
 
 [pager]
 pager = LESS='FSRX' less
@@ -46,6 +46,10 @@ histedit    = /home/bkudria/.hgext/histedit.py
 localbranch = /home/bkudria/.hgext/localbranch.py
 histedit    = /home/bkudria/.hgext/histedit/
 prompt      = /home/bkudria/.hgext/hg-prompt/prompt.py
+
+[reviewboard]
+server = https://thor.younoodle.org/reviews
+user   = bk
 
 [alias]
 ci      = commit

@@ -1,8 +1,9 @@
 #! /bin/zsh -f
 
 function precmd {
+  HG_PROMPT=""
   (( ${+functions[vcs_info]} ))   && vcs_info
-  (( ${+functions[hg_prompt]} ))  && hg_prompt
+  #hg root &> /dev/null && (( ${+functions[hg_prompt]} ))  && hg_prompt
   (( ${+functions[zsh_prompt]} )) && zsh_prompt
 }
 
@@ -46,7 +47,7 @@ function status {
 }
 
 function chromeapp {
-  google-chrome --enable-user-scripts --enable-extensions --bookmark-menu --app="$*" &
+  google-chrome --enable-user-scripts --enable-extensions --enable-extension-timeline-api --bookmark-menu --app="$*"  &> /dev/null &
 }
 
 function gmail      {chromeapp "http://mail.google.com/a/kudria.net" }

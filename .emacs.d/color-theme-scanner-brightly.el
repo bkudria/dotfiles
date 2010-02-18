@@ -44,6 +44,7 @@
 (defun color-theme-scanner-brightly ()
   "Color theme by Benjamin Kudria <ben@kudria.net>."
   (interactive)
+  (message "Loaded color theme")
   (setq-default hl-paren-colors '("#bb6400" "#afbb00" "#4bbb00" "#00bb19" "#00bb7d" "#0096bb" "#0032bb" "#3200bb" "#9600bb" "#bb007d" "#bb0019" "#bb0000"))
   (color-theme-install
    `(color-theme-scanner-brightly
@@ -221,19 +222,19 @@
 
 
 	 (font-lock-builtin-face ((t (:foreground "#ff00ff"))))
-	 (font-lock-color-constant-face ((t (:foreground "#CBFF0E"))))
+	 (font-lock-color-constant-face ((t (:foreground "#00FF11"))))
 	 (font-lock-comment-face ((t (:foreground "#9b9b9b" :italic t))))
 	 (font-lock-comment-delimiter-face ((t (:foreground "#555555"))))
-	 (font-lock-constant-face ((t (:foreground "#98bb0a"))))
+	 (font-lock-constant-face ((t (:foreground "#00c80d"))))
 	 (font-lock-doc-face ((t (:foreground "#777777"))))
 	 (font-lock-doc-string-face ((t (:foreground "#777777"))))
 	 (font-lock-function-name-face ((t (:foreground "#0b75bb"))))
-	 (font-lock-keyword-face ((t (:foreground "#808080" :bold t))))
+	 (font-lock-keyword-face ((t (:foreground "#404040" :bold t))))
 	 (font-lock-preprocessor-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-reference-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-string-face ((t (:foreground "#BB450B" :italic t))))
 	 (font-lock-type-face ((t (:foreground "#ff00ff"))))
-	 (font-lock-variable-name-face ((t (:foreground "#0BBBB5"))))
+	 (font-lock-variable-name-face ((t (:foreground "#00bec8"))))
 	 (font-lock-warning-face ((t (:foreground "#bb0b0b"))))
 	 (font-lock-negation-char-face ((t (:foreground "#099191"))))
 	 (font-lock-other-type-face ((t (:foreground "#808080" :italic t))))
@@ -244,7 +245,7 @@
 	 (font-lock-regexp-grouping-backslash ((t (:foreground "#0bbb0b"))))
 	 (font-lock-special-comment-face ((t (:foreground "#0bbb0b"))))
 
-	 (fringe ((t (:background "#eeeeee" :foreground nil))))
+	 (fringe ((t (:background "#ffffff" :foreground "#000000"))))
 
 ;;;		 (header-line ((t (:box (:line-width 2
 ;;;											 :color "gray8"
@@ -355,8 +356,8 @@
 
 	 (minibuffer-prompt ((t (:foreground "#00494D" :bold t))))
 
-	 (mode-line ((t (:foreground "#00494D" :background "#dddddd" :overline "#999999"))))
-	 (modeline ((t (:foreground "#00494D" :background "#dddddd" :overline "#999999"))))
+	 (mode-line ((t (:foreground "#00494D" :background "#ffffff" :overline "#dddddd"))))
+	 (modeline ((t (:foreground "#00494D" :background "#ffffff" :overline "#dddddd"))))
 
 	 (mode-line-inactive ((t (:foreground "#00494D" :background "#dddddd" :overline "white"))))
 	 (mode-line-highlight ((t (:foreground "#434343" :background "#aaaaaa"))))
