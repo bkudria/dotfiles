@@ -2,7 +2,7 @@
 
 require 'optparse'
 
-srand "benkudria".split('').inject(1) {|a, c| a*(c.respond_to? :ord ? c.ord : c[0])}
+srand "benkudria".split('').inject(1) {|a, c| a*(c.respond_to?(:ord) ? c.ord : c[0])}
 
 class Array
 	def flatten_ranges
@@ -91,7 +91,7 @@ end
                       166..168, 196..198, 202..204, 208..209].flatten_ranges.shuffle
 
 def hash_chars(string)
-	string.split('').inject{|sum, char| (sum.to_i ^ (char.respond_to? :ord ? char.ord : char[0])) % 131 }
+	string.split('').inject{|sum, char| (sum.to_i ^ (char.respond_to?(:ord) ? char.ord : char[0])) % 131 }
 end
 
 def hostname_to_color(hostname)
