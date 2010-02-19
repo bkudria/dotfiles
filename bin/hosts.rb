@@ -2,7 +2,7 @@
 
 require 'optparse'
 
-srand "benkudria".split('').inject(1) {|a, c| a*?c.ord}
+srand "benkudria".split('').inject(1) {|a, c| a*(c.respond_to :ord ? c.ord : c[0])}
 
 class Array
 	def flatten_ranges
