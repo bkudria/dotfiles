@@ -19,6 +19,7 @@ end
 @hostnames =
 	{
 	'laotzu'                          => 34,
+	'heidegger'                       => 38,
 	'kudria.net'                      => nil,
 	'weyl.ams.sunysb.edu'             => nil,
 	'seawulf.stonybrook.edu'          => nil,
