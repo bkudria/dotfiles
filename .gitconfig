@@ -13,6 +13,9 @@
 
 	whitespace = trailing-space,space-before-tab,cr-at-eol
 
+[push]
+    default = matching
+
 [clean]
     requireForce = false
 

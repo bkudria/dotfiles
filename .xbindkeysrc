@@ -1,30 +1,8 @@
-#keystate_numlock = enable
-#keystate_scrolllock = enable
-#keystate_capslock = enable
-
-"keyout {left}"
-  b:6
-
-"keyout {right}"
-  b:7
-
-"wmctrl -k on"
+"xte "keydown Alt_L" "key space" "keyup Alt_L""
 	b:8
 
-"keyout {F11}"
+"xte "key XF86Close""
 	b:16
 
-"xte "key XF86AudioLowerVolume""
-	b:15
-
-"xte "key XF86AudioRaiseVolume""
-	b:13
-
-"keyout "{alt}1{alt}""
+"xte "key XF86Close""
 	b:17
-
-"keyout {F6}"
-  Control + b:6
-
-"keyout {F6}"
-  Control + b:7

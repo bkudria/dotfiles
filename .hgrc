@@ -16,11 +16,7 @@ ignore   = ~/.hgignore
 editor   = nano
 
 [diff]
-ignorews         = True
-ignorewsamount   = True
-ignoreblanklines = True
 showfunc         = True
-
 
 [pager]
 pager = LESS='FSRX' less
@@ -40,16 +36,11 @@ purge     =
 autopager   = /home/bkudria/.hgext/autopager.py
 crecord     = /home/bkudria/.hgext/crecord/crecord
 cutehg      = /usr/local/lib/python2.6/dist-packages/cutehg/
-diffstat    = /usr/local/lib/python2.6/dist-packages/hgext/diffstat.py
 hgshelve    = /home/bkudria/.hgext/hgshelve/hgshelve.py
 histedit    = /home/bkudria/.hgext/histedit.py
 localbranch = /home/bkudria/.hgext/localbranch.py
 histedit    = /home/bkudria/.hgext/histedit/
 prompt      = /home/bkudria/.hgext/hg-prompt/prompt.py
-
-[reviewboard]
-server = https://thor.younoodle.org/reviews
-user   = bk
 
 [alias]
 ci      = commit

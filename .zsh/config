@@ -8,7 +8,7 @@ bindkey -e
 
 # Keychain
 if [[ -x `qwhich keychain` ]] && [[ $UID -ne 0 ]]; then
-	eval `keychain --inherit any-once --eval -Q -q --ignore-missing identity 209BE410`
+	eval `keychain --inherit any-once --eval -Q -q --ignore-missing younoodle_key identity 209BE410`
 fi
 
 # Disable annoying beep (console)
