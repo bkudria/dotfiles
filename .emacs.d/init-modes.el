@@ -7,8 +7,6 @@
   (ignore-errors (paredit-mode t))
   )
 
-(define-globalized-minor-mode global-paredit-mode paredit-mode turn-on-paredit-no-errors)
-
 (autopair-global-mode t)
 
 (ido-mode t) ; Turn on ido-mode
@@ -16,7 +14,12 @@
 (setq-default ido-default-buffer-method 'raise-frame)
 (setq-default ido-default-file-method 'raise-frame)
 (setq-default ido-enable-flex-matching t)
-(setq-default ido-everywhere t)
+( ido-everywhere t)
+(setq-default ido-decorations (quote ("(" ")" " | " " | ..." "[" "]" " [None]" " [Matched]" " [Not readable]" " [Too big]")))
+(setq-default ido-max-prospects 20)
+(setq-default ido-max-window-height 0.4)
+(setq-default ido-rotate-file-list-default t)
+
 
 (cua-mode t) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
@@ -123,6 +126,18 @@
 ;; Guess indent mode for newly-opened files
 (dtrt-indent-mode 1)
 
+(setq-default dtrt-indent-max-merge-deviation 20.0)
+(setq-default dtrt-indent-max-offset 16)
+(setq-default dtrt-indent-max-relevant-lines 2000)
+(setq-default dtrt-indent-min-hard-tab-superiority 200.0)
+(setq-default dtrt-indent-min-indent-superiority 80.0)
+(setq-default dtrt-indent-min-offset 2)
+(setq-default dtrt-indent-min-quality 20.0)
+(setq-default dtrt-indent-min-soft-tab-superiority 200.0)
+(setq-default dtrt-indent-require-confirmation-flag nil)
+(setq-default dtrt-indent-verbosity 1)
+
+
 ;; Haml and Sass modes
 (add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
 (add-to-list 'auto-mode-alist '("\\.haml.html$" . haml-mode))
@@ -188,6 +203,10 @@
 ;; Smex
 (smex-initialize)
 (smex-auto-update 60)
+(setq-default smex-history-length 20)
+(setq-default smex-prompt-string ": ")
+(setq-default smex-save-file "~/.emacs.d/smex.save")
+
 
 ;; iBuffer
 (add-to-list 'ibuffer-never-show-predicates "^\\*")
@@ -227,7 +246,8 @@
 		  '(lambda ()
              (tabkey2-mode -1)
              ))
-
+(setq-default haskell-program-name "ghci")
+(setq-default hs-lint-replace-with-suggestions t)
 
 (c-add-style "php" '((c-basic-offset . 4)
                      (c-comment-only-line-offset 0 . 0)
@@ -262,7 +282,3 @@
 		  '(lambda ()
              (flymake-mode t)
              ))
-
-
-(add-to-list 'ac-dictionary-directories "/usr/share/emacs-snapshot/site-lisp/misc/auto-complete/ac-dict")
-(ac-config-default)

@@ -23,7 +23,7 @@
 
 (setq-default indicate-empty-lines t)
 
-(mouse-avoidance-mode 'animate) ; Animate the mouse away from where we are typing
-
 (add-hook 'after-make-frame-functions 'color-theme-scanner-brightly)
+
+(setq font-use-system-font t)
 

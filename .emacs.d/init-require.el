@@ -7,8 +7,6 @@
 (setq-default autotest-use-ui t)
 
 (require 'mode-compile)
-(require 'auto-complete-config)
-(require 'rsense)
 (require 'ido) ; Load the the Ido library
 (require 'predictive)
 (require 'ruby-flymake) ; load the flymake ruby lib
