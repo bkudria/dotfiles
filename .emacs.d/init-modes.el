@@ -14,11 +14,12 @@
 (setq-default ido-default-buffer-method 'raise-frame)
 (setq-default ido-default-file-method 'raise-frame)
 (setq-default ido-enable-flex-matching t)
-( ido-everywhere t)
+(setq-default ido-everywhere t)
 (setq-default ido-decorations (quote ("(" ")" " | " " | ..." "[" "]" " [None]" " [Matched]" " [Not readable]" " [Too big]")))
 (setq-default ido-max-prospects 20)
 (setq-default ido-max-window-height 0.4)
 (setq-default ido-rotate-file-list-default t)
+(setq-default ido-max-directory-size 1000000)
 
 
 (cua-mode t) ; Load CUA mode
