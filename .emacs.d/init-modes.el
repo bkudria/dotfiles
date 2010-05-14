@@ -262,3 +262,7 @@
 		  '(lambda ()
              (flymake-mode t)
              ))
+
+
+(add-to-list 'ac-dictionary-directories "/usr/share/emacs-snapshot/site-lisp/misc/auto-complete/ac-dict")
+(ac-config-default)
