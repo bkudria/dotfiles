@@ -11,12 +11,15 @@
 from mercurial.i18n import _
 from mercurial import cmdutil, commands, extensions, hg, mdiff, patch
 from mercurial import util
-import cStringIO, errno, os, re, tempfile
+import cStringIO
+import errno
+import os
+import tempfile
 
-from crpatch import parsepatch, filterpatch
-from chunk_selector import chunkselector
+import crpatch
+import chunk_selector
 
-def dorecord(ui, repo, committer, *pats, **opts):
+def dorecord(ui, repo, commitfunc, *pats, **opts):
     if not ui.interactive:
         raise util.Abort(_('running non-interactively, use commit instead'))
 
@@ -48,11 +51,15 @@ def dorecord(ui, repo, committer, *pats, **opts):
 
         # 1. filter patch, so we have intending-to apply subset of it
         if changes is not None:
-            chunks = filterpatch(opts, parsepatch(changes, fp), chunkselector)
+            chunks = crpatch.filterpatch(opts,
+                                         crpatch.parsepatch(changes, fp),
+                                         chunk_selector.chunkselector)
         else:
             chgs = repo.status(match=match)[:3]
-            chunks = filterpatch(opts, parsepatch(chgs, fp))
-            
+            chunks = crpatch.filterpatch(opts,
+                                         crpatch.parsepatch(chgs, fp),
+                                         chunk_selector.chunkselector)
+
         del fp
 
         contenders = {}
@@ -98,6 +105,14 @@ def dorecord(ui, repo, committer, *pats, **opts):
             dopatch = fp.tell()
             fp.seek(0)
 
+            # 2.5 optionally review / modify patch in text editor
+            if opts['crecord_reviewpatch']:
+                patchtext = fp.read()
+                reviewedpatch = ui.edit(patchtext, "")
+                fp.truncate(0)
+                fp.write(reviewedpatch)
+                fp.seek(0)
+
             # 3a. apply filtered patch to clean repo  (clean)
             if backups:
                 hg.revert(repo, repo.dirstate.parents()[0], backups.has_key)
@@ -124,7 +139,7 @@ def dorecord(ui, repo, committer, *pats, **opts):
             cwd = os.getcwd()
             os.chdir(repo.root)
             try:
-                committer(ui, repo, newfiles, opts)
+                commitfunc(ui, repo, *newfiles, **opts)
             finally:
                 os.chdir(cwd)
 
@@ -156,9 +171,7 @@ def crecord(ui, repo, *pats, **opts):
     those you would like to apply to the commit.
 
     '''
-    def record_committer(ui, repo, pats, opts):
-        commands.commit(ui, repo, *pats, **opts)
-    dorecord(ui, repo, record_committer, *pats, **opts)
+    dorecord(ui, repo, commands.commit, *pats, **opts)
 
 
 def qcrecord(ui, repo, patch, *pats, **opts):
@@ -172,9 +185,9 @@ def qcrecord(ui, repo, patch, *pats, **opts):
     except KeyError:
         raise util.Abort(_("'mq' extension not loaded"))
 
-    def qrecord_committer(ui, repo, pats, opts):
+    def committomq(ui, repo, *pats, **opts):
         mq.new(ui, repo, patch, *pats, **opts)
 
     opts = opts.copy()
     opts['force'] = True    # always 'qnew -f'
-    dorecord(ui, repo, qrecord_committer, *pats, **opts)
+    dorecord(ui, repo, committomq, *pats, **opts)

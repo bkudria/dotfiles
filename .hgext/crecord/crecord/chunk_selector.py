@@ -1,11 +1,23 @@
-from mercurial.i18n import gettext, _
-from mercurial import cmdutil, commands, extensions, hg, mdiff
-from mercurial import util, encoding
-import copy, cStringIO, errno, operator, os, re, tempfile
+from mercurial.i18n import _
+from mercurial import util
 
+# accomodate older versions where encoding module doesn't yet exist
+from mercurial import demandimport
+demandimport.ignore.append('mercurial.encoding')
+try:
+    import mercurial.encoding as encoding
+except ImportError:
+    encoding = util
 
+import os
+import re
+import sys
+import fcntl
+import struct
+import termios
 import signal
 import locale
+
 from crpatch import Patch, header, hunk, HunkLine
 
 # os.name is one of: 'posix', 'nt', 'dos', 'os2', 'mac', or 'ce'
@@ -15,7 +27,8 @@ else:
     # I have no idea if wcurses works with crecord...
     import wcurses as curses
 
-import curses.textpad
+#from curses import textpad 
+import textpad # customized textpad
 
 try:
     curses
@@ -25,6 +38,23 @@ except NameError:
 
 # deal with unicode correctly
 locale.setlocale(locale.LC_ALL, '')
+code = locale.getpreferredencoding()
+
+orig_stdout = sys.__stdout__ # used by gethw()
+
+def gethw():
+    """
+    Magically get the current height and width of the window (without initscr)
+
+    This is a rip-off of a rip-off - taken from the bpython code.  It is
+    useful / necessary because otherwise curses.initscr() must be called, 
+    which can leave the terminal in a nasty state after exiting.
+
+    """
+    h, w = struct.unpack(
+        "hhhh", fcntl.ioctl(orig_stdout, termios.TIOCGWINSZ, "\000"*8))[0:2]
+    return h, w
+
 
 def chunkselector(opts, headerList):
     """
@@ -32,8 +62,6 @@ def chunkselector(opts, headerList):
     of the chosen chunks.
 
     """
-    stdscr = curses.initscr()
-    curses.start_color()
 
     chunkSelector = CursesChunkSelector(headerList)
     curses.wrapper(chunkSelector.main, opts)
@@ -371,7 +399,7 @@ class CursesChunkSelector(object):
         width = self.xScreenSize
         # turn tabs into spaces
         inStr = inStr.expandtabs(4)
-        strLen = len(unicode(encoding.fromlocal(inStr), 'utf-8'))
+        strLen = len(unicode(encoding.fromlocal(inStr), code))
         numSpaces = (width - ((strLen + xStart) % width) - 1)
         return inStr + " " * numSpaces + "\n"
 
@@ -398,6 +426,9 @@ class CursesChunkSelector(object):
         """
         # preprocess the text, converting tabs to spaces
         text = text.expandtabs(4)
+        # Strip \n, and convert control characters to ^[char] representation
+        text = re.sub(r'[\x00-\x08\x0a-\x1f]',
+                lambda m:'^'+chr(ord(m.group())+64), text.strip('\n'))
 
         if pair is not None:
             colorPair = pair
@@ -588,7 +619,7 @@ class CursesChunkSelector(object):
 
         # print out lines of the chunk preceeding changed-lines
         for line in hunk.before:
-            lineStr = " "*(self.hunkLineIndentNumChars + len(checkBox)) + line.strip("\n")
+            lineStr = " "*(self.hunkLineIndentNumChars + len(checkBox)) + line
             outStr += self.printString(self.chunkpad, lineStr, toWin=toWin)
 
         return outStr
@@ -602,7 +633,7 @@ class CursesChunkSelector(object):
         # a bit superfluous, but to avoid hard-coding indent amount
         checkBox = self.getStatusPrefixString(hunk)
         for line in hunk.after:
-            lineStr = " "*(indentNumChars + len(checkBox)) + line.strip("\n")
+            lineStr = " "*(indentNumChars + len(checkBox)) + line
             outStr += self.printString(self.chunkpad, lineStr, toWin=toWin)
 
         return outStr
@@ -719,17 +750,13 @@ class CursesChunkSelector(object):
         "Handle window resizing"
         try:
             curses.endwin()
-            self.stdscr = curses.initscr()
-            self.yScreenSize, self.xScreenSize = self.stdscr.getmaxyx()
-
-            self.statuswin = curses.newwin(self.numStatusLines,self.xScreenSize,0,0)
+            self.yScreenSize, self.xScreenSize = gethw()
+            self.statuswin.resize(self.numStatusLines,self.xScreenSize)
+            self.numPadLines = self.getNumLinesDisplayed(ignoreFolding=True) + 1
+            self.chunkpad = curses.newpad(self.numPadLines, self.xScreenSize)
+            # TODO: try to resize commit message window if possible
         except curses.error:
             pass
-            # TODO: make resizing to a smaller width work (also for help screen)
-            # re-calculate an upper-bound on the number of lines in the pad
-            #self.numPadLines = self.getNumLinesDisplayed()
-            #self.chunkpad = curses.newpad(self.numPadLines, self.xScreenSize)
-            #self.updateScreen()
 
     def getColorPair(self, fgColor=None, bgColor=None, name=None, attrList=None):
         """
@@ -799,6 +826,7 @@ The following are valid keystrokes:
                       F : fold / unfold parent item and all of its ancestors
                       m : edit / resume editing the commit message
                       c : commit selected changes
+                      r : review/edit and commit selected changes
                       q : quit without committing (no changes will be made)
                       ? : help (what you're currently reading)"""
 
@@ -811,7 +839,10 @@ The following are valid keystrokes:
         except curses.error:
             pass
         helpwin.refresh()
-        self.stdscr.getch()
+        try:
+            helpwin.getkey()
+        except curses.error:
+            pass
 
     def commitMessageWindow(self):
         "Create a temporary commit message editing window on the screen."
@@ -831,23 +862,32 @@ The following are valid keystrokes:
         self.printString(statusline, statusLineText, pairName="legend")
         statusline.refresh()
         helpwin = curses.newwin(self.yScreenSize-1,0,1,0)
-        reversedCommentText = self.commentText[::-1]
-        for char in reversedCommentText:
-            curses.ungetch(ord(char))
-        t = curses.textpad.Textbox(helpwin)
+        t = textpad.Textbox(helpwin)
         curses.raw()
-        self.commentText = t.edit(keyFilter).rstrip(" \n")
+        self.commentText = t.edit(keyFilter, self.commentText).rstrip(" \n")
         curses.cbreak()
 
-    def confirmCommit(self):
+    def confirmCommit(self, review=False):
         "Ask for 'Y' to be pressed to confirm commit. Return True if confirmed."
-        confirmText = "Are you sure you want to commit the selected changes [yN]? "
+        if review:
+            confirmText = \
+"""If you answer yes to the following, the your currently chosen patch chunks
+will be loaded into an editor.  You may modify the patch from the editor, and
+save the changes if you wish to change the patch.  Otherwise, you can just
+close the editor without saving to accept the current patch as-is.
+
+Are you sure you want to review/edit and commit the selected changes [yN]? """
+        else:
+            confirmText = "Are you sure you want to commit the selected changes [yN]? "
 
         confirmWin = curses.newwin(self.yScreenSize,0,0,0)
         try:
-            self.printString(confirmWin, confirmText, pairName="selected")
+            lines = confirmText.split("\n")
+            for line in lines:
+                self.printString(confirmWin, line, pairName="selected")
         except curses.error:
             pass
+        self.stdscr.refresh()
         confirmWin.refresh()
         try:
             response = chr(self.stdscr.getch())
@@ -876,6 +916,7 @@ The following are valid keystrokes:
         self.initColorPair(curses.COLOR_WHITE, curses.COLOR_BLUE, name="legend")
         # newwin([height, width,] begin_y, begin_x)
         self.statuswin = curses.newwin(self.numStatusLines,0,0,0)
+        self.statuswin.keypad(1) # interpret arrow-key, etc. ESC sequences
 
         # figure out how much space to allocate for the chunk-pad which is
         # used for displaying the patch
@@ -889,45 +930,52 @@ The following are valid keystrokes:
 
         # initialize selecteItemEndLine (initial start-line is 0)
         self.selectedItemEndLine = self.getNumLinesDisplayed(self.currentSelectedItem, recurseChildren=False)
+        
+        # option which enables/disables patch-review (in editor) step
+        opts['crecord_reviewpatch'] = False 
 
         try:
             self.commentText = opts['message']
         except KeyError:
             pass
 
-
-        #import rpdb2; rpdb2.start_embedded_debugger("secret")
-        #import rpdb2; rpdb2.setbreak()
-
         while True:
             self.updateScreen()
-            self.lastKeyPressed = keyPressed = stdscr.getch()
-            if keyPressed in [ord("k"), curses.KEY_UP]:
+            try:
+                keyPressed = self.statuswin.getkey()
+            except curses.error:
+                keyPressed = "FOOBAR"
+
+            if keyPressed in ["k", "KEY_UP"]:
                 self.upArrowEvent()
-            if keyPressed in [ord("K"), curses.KEY_PPAGE]:
+            if keyPressed in ["K", "KEY_PPAGE"]:
                 self.upArrowShiftEvent()
-            elif keyPressed in [ord("j"), curses.KEY_DOWN]:
+            elif keyPressed in ["j", "KEY_DOWN"]:
                 self.downArrowEvent()
-            elif keyPressed in [ord("J"), curses.KEY_NPAGE]:
+            elif keyPressed in ["J", "KEY_NPAGE"]:
                 self.downArrowShiftEvent()
-            elif keyPressed in [ord("l"), curses.KEY_RIGHT]:
+            elif keyPressed in ["l", "KEY_RIGHT"]:
                 self.rightArrowEvent()
-            elif keyPressed in [ord("h"), curses.KEY_LEFT]:
+            elif keyPressed in ["h", "KEY_LEFT"]:
                 self.leftArrowEvent()
-            elif keyPressed in [ord("q")]:
+            elif keyPressed in ["q"]:
                 raise util.Abort(_('user quit'))
-            elif keyPressed in [ord("c")]:
+            elif keyPressed in ["c"]:
                 if self.confirmCommit():
                     break
-            elif keyPressed in [ord(' ')]:
+            elif keyPressed in ["r"]:
+                if self.confirmCommit(review=True):
+                    opts['crecord_reviewpatch'] = True
+                    break
+            elif keyPressed in [' ']:
                 self.toggleApply()
-            elif keyPressed in [ord("f")]:
+            elif keyPressed in ["f"]:
                 self.toggleFolded()
-            elif keyPressed in [ord("F")]:
+            elif keyPressed in ["F"]:
                 self.toggleFolded(foldParent=True)
-            elif keyPressed in [ord("?")]:
+            elif keyPressed in ["?"]:
                 self.helpWindow()
-            elif keyPressed in [ord("m")]:
+            elif keyPressed in ["m"]:
                 self.commitMessageWindow()
 
         if self.commentText != "":
