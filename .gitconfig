@@ -27,6 +27,9 @@
 	ui = auto
 	pager = true
 
+[branch]
+	autosetuprebase = always
+
 [alias]
 	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
 
