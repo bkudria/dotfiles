@@ -8,6 +8,8 @@
   )
 
 (autopair-global-mode t)
+(setq-default autopair-autowrap t)
+(setq autopair-autowrap t)
 
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)
@@ -64,7 +66,7 @@
 (setq-default whitespace-global-modes t)
 (setq-default whitespace-line-column 100)
 (setq-default whitespace-style
-			  '(tabs spaces trailing space-before-tab indentation empty space-after-tab space-mark tab-mark))
+			  '(tabs spaces trailing space-before-tab indentation empty space-mark tab-mark))
 
 ;; make dired slightly smarter
 (setq-default directory-free-space-program "di")
@@ -137,7 +139,7 @@
 (setq-default dtrt-indent-min-soft-tab-superiority 200.0)
 (setq-default dtrt-indent-require-confirmation-flag nil)
 (setq-default dtrt-indent-verbosity 1)
-
+(setq-default dtrt-indent-hook-mapping-list (cons '(haml-mode ruby ruby-indent-level) dtrt-indent-hook-mapping-list))
 
 ;; Haml and Sass modes
 (add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))

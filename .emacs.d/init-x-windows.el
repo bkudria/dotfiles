@@ -12,11 +12,11 @@
 (add-hook 'after-make-frame-functions 'fit-frame)
 (add-hook 'temp-buffer-show-hook 'fit-frame-if-one-window 'append)
 
-(setq-default fit-frame-empty-height 40) ; Set default frame resize options
-(setq-default fit-frame-empty-width 75)
+(setq-default fit-frame-empty-height 80) ; Set default frame resize options
+(setq-default fit-frame-empty-width 85)
 (setq-default fit-frame-min-height 40)
 (setq-default fit-frame-min-width 105)
-(setq-default fit-frame-max-height 80)
+(setq-default fit-frame-max-height 170)
 (setq-default fit-frame-max-width 130)
 
 (global-hl-line-mode t)

@@ -9,8 +9,8 @@
 
 (setq inhibit-startup-message t) ; Get rid of the welcome message
 (setq initial-major-mode 'text-mode) ; Set the initial mode to text mode
-(setq default-major-mode 'text-mode) ; Set the default mode to text mode
-(setq-default tab-width 4) ; Set default tab width to 4
+(setq major-mode 'text-mode) ; Set the default mode to text mode
+(setq-default tab-width 2) ; Set default tab width to 2
 (setq-default standard-indent 4) ; Set the indent-size to 4
 (setq-default tab-stop-list '(0 4 8 12 16 20 24 28 32)) ; Set the tab-stop list to multiples of 4
 (setq-default visible-bell 1) ; Set a visual bell, don't beep
