@@ -18,3 +18,6 @@ ZSH_CONF_FILES=(
 for conf_file in $ZSH_CONF_FILES; do
 	source $ZSH_CONF_DIR/$conf_file;
 done
+
+
+[[ -s $HOME/.rvm/scripts/rvm ]] && source $HOME/.rvm/scripts/rvm
