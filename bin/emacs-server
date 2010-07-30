@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
+cd ~
 emacs-not-running server && emacs --daemon -l ~/.emacs
 until [ -S /tmp/emacs1000/server ]; do echo -n; done

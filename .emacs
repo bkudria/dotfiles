@@ -27,7 +27,7 @@
 					"init-common"
 					"init-modes"
 					"init-functions"
-                    "init-projects"
+					"init-projects"
 					"init-bindings"
 					"init-x-windows"
 					"init-console"

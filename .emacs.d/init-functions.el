@@ -210,3 +210,13 @@ in the same format as `dir-locals-set-class-variables' expects."
        (term (read-string (format "Search Hayoo (%s): " default))))
   (let ((term (if (zerop(length term)) default term)))
     (browse-url (format "http://holumbus.fh-wedel.de/hayoo/hayoo.html?query=%s&start" term)))))
+
+
+(defun toggle-fullscreen (&optional f)
+	(interactive)
+	(let ((current-value (frame-parameter nil 'fullscreen)))
+		(set-frame-parameter nil 'fullscreen
+												 (if (equal 'fullboth current-value)
+														 (if (boundp 'old-fullscreen) old-fullscreen nil)
+													 (progn (setq old-fullscreen current-value)
+																	'fullboth)))))

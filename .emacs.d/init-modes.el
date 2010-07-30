@@ -89,24 +89,6 @@
      	     (dired up)
      	     (dired-goto-file dir))))))
 
-(tabkey2-mode t)
-(setq-default tabkey2-completion-functions
-              '(
-                ("Programmable completion" pcomplete)
-                ("nXML completion" nxml-complete)
-                ("Dynamic word expansion" dabbrev-expand nil (setq dabbrev--last-abbrev-location nil))
-                ("Hippe Expansion" hippie-expand (commandp 'hippie-expand))
-                ("Tag completions" complete-tag)
-                ("Complete Emacs symbol" lisp-complete-symbol)
-                ("Predictive word" complete-word-at-point predictive-mode)
-                ("Predictive abbreviations" pabbrev-expand-maybe)
-                ("Anything" anything (commandp 'anything))
-                ("Ispell complete word" ispell-complete-word)
-                ("Symbol completions" complete-symbol)
-                ("Yasnippet" yas/expand)
-                ("Semantic Smart Completion" senator-complete-symbol senator-minor-mode)
-                ("Spell check word" flyspell-correct-word-before-point (commandp 'flyspell-correct-word-before-point))))
-
 (recentf-mode t)
 (setq-default recentf-max-saved-items 1000)
 
@@ -118,13 +100,6 @@
 (add-hook 'anything-before-initialize-hoo
 		  '(lambda ()
              (setq fit-frame-inhibit-fitting-flag t)))
-
-;; Turn on SLIME, set default lisp
-(slime-setup)
-(setq inferior-lisp-program "sbcl")
-
-;; Clojure + Swank
-(setq-default swank-clojure-binary "/home/bkudria/archive/installs/clojure-extra/sh-script/clojure")
 
 ;; Guess indent mode for newly-opened files
 (dtrt-indent-mode 1)
@@ -139,13 +114,15 @@
 (setq-default dtrt-indent-min-soft-tab-superiority 200.0)
 (setq-default dtrt-indent-require-confirmation-flag nil)
 (setq-default dtrt-indent-verbosity 1)
-(setq-default dtrt-indent-hook-mapping-list (cons '(haml-mode ruby ruby-indent-level) dtrt-indent-hook-mapping-list))
 
 ;; Haml and Sass modes
-(add-to-list 'auto-mode-alist '("\\.haml$" . haml-mode))
+(add-to-list 'auto-mode-alist '("\\.haml$"      . haml-mode))
 (add-to-list 'auto-mode-alist '("\\.haml.html$" . haml-mode))
-(add-to-list 'auto-mode-alist '("\\.sass$" . sass-mode))
+(add-to-list 'auto-mode-alist '("\\.sass$"      . sass-mode))
 
+(add-hook 'haml-mode-hook
+		  '(lambda ()
+             (setq indent-tabs-mode t)))
 
 ;; buffer menu
 (setq-default Buffer-menu-use-header-line nil)
@@ -157,10 +134,6 @@
 (setq-default completion-resolve-behaviour (quote leave))
 
 (setq-default predictive-auto-complete t)
-
-;; tabkey2
-(setq-default tabkey2-completion-lighter-on t)
-(setq-default tabkey2-mode t)
 
 ;; erc
 (setq-default erc-email-userid "bkudria")
@@ -245,10 +218,6 @@
                   '("\\.l?hs\\'" flymake-hslint-init))))
 
 
-(add-hook 'haskell-mode-hook
-		  '(lambda ()
-             (tabkey2-mode -1)
-             ))
 (setq-default haskell-program-name "ghci")
 (setq-default hs-lint-replace-with-suggestions t)
 
@@ -285,3 +254,6 @@
 		  '(lambda ()
              (flymake-mode t)
              ))
+
+(smart-tabs-advice ruby-indent-line ruby-indent-level)
+(setq ruby-indent-tabs-mode t)

@@ -86,6 +86,8 @@
 ;; Jump to tag using etags-select
 (global-set-key "\C-g" 'etags-select-find-tag)
 
+(global-set-key (kbd "<f10>") 'magit-status)
+
 ;; Zap-back-to-char
 (global-set-key "\C-\M-z" #'(lambda (arg char) (interactive "p\ncZap to char: ") (zap-to-char (- arg) char)))
 
@@ -107,3 +109,5 @@
 (global-set-key "\C-x\C-d" 'ido-dired)
 
 (define-key dired-mode-map [backspace] 'dired-up-directory)
+
+(global-set-key [f11] 'toggle-fullscreen)
