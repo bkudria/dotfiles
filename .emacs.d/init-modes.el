@@ -49,6 +49,11 @@
              (ruby-electric-mode)
              ))
 
+(add-hook 'ruby-electric-mode-hook
+		  '(lambda ()
+             (ruby-electric-expand-delimiters-list '(124))
+             ))
+
 (add-hook 'ruby-mode-hook
 		  '(lambda ()
              (setq-default ruby-indent-tabs-mode t)
@@ -122,7 +127,10 @@
 
 (add-hook 'haml-mode-hook
 		  '(lambda ()
-             (setq indent-tabs-mode t)))
+             (setq indent-tabs-mode t)
+			 (haml-backspace-backdents-nesting t)
+			 (haml-indent-offset 1)))
+
 
 ;; buffer menu
 (setq-default Buffer-menu-use-header-line nil)
@@ -255,5 +263,14 @@
              (flymake-mode t)
              ))
 
-(smart-tabs-advice ruby-indent-line ruby-indent-level)
+(global-smart-tab-mode t)
+
+(add-hook 'smart-tab-mode-hook
+		  '(lambda ()
+             (smart-tabs-advice ruby-indent-line ruby-indent-level)
+			 (smart-tab-using-hippie-expand t)
+             ))
+
 (setq ruby-indent-tabs-mode t)
+
+(tab-always-indent nil)
