@@ -1,6 +1,12 @@
+
 */*.elc
 */*.git
 */*.hg
+.evolution
+.gimp-2.6
+.keychain
+.mozilla
+.openoffice.org
 /.VirtualBox
 /.adobe
 /.bash_history
@@ -27,3 +33,4 @@
 /.wallpapers
 /.wine
 /Dropbox
+work
