@@ -87,6 +87,7 @@
 (global-set-key "\C-g" 'etags-select-find-tag)
 
 (global-set-key (kbd "<f10>") 'magit-status)
+(define-key magit-mode-map (kbd "\C-w") 'kill-buffer-and-window)
 
 ;; Zap-back-to-char
 (global-set-key "\C-\M-z" #'(lambda (arg char) (interactive "p\ncZap to char: ") (zap-to-char (- arg) char)))
