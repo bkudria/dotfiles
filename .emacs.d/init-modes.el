@@ -265,12 +265,10 @@
 
 (global-smart-tab-mode t)
 
-(add-hook 'smart-tab-mode-hook
+(add-hook 'global-smart-tab-mode-hook
 		  '(lambda ()
              (smart-tabs-advice ruby-indent-line ruby-indent-level)
 			 (smart-tab-using-hippie-expand t)
              ))
 
 (setq ruby-indent-tabs-mode t)
-
-(tab-always-indent nil)
