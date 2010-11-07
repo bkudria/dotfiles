@@ -7,7 +7,7 @@ SAVEHIST=1000000
 export RIPDIR=$HOME/.rip
 export RUBYLIB=$RUBYLIB:$RIPDIR/active/lib
 
-PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:/var/lib/gems/1.9.1/bin:/usr/lib/kde4/bin:/usr/local/android/tools://usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
+PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:`gem env gemdir`/bin:/usr/lib/kde4/bin:/usr/local/android/tools:/usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
 
 OS=`uname`
 
@@ -36,9 +36,6 @@ DEBEMAIL='ben@kudria.net'
 LESS="iRwm"
 MOST_SWITCHES=""
 CLASSPATH="$CLASSPATH:/usr/share/java/junit.jar:/usr/share/java/ant.jar"
-
-GEM_HOME='/home/bkudria/.gem/'
-GEM_PATH='/home/bkudria/.gem:/usr/lib/ruby1.9.1/gems/1.9.1'
 
 RSENSE_HOME='/usr/lib/rsense'
 
