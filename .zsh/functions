@@ -53,13 +53,14 @@ function chromeapp {
 function gmail      {chromeapp "http://mail.google.com/a/kudria.net" }
 function greader    {chromeapp "http://google.com/reader" }
 function gcal       {chromeapp "http://calendar.google.com/a/kudria.net" }
-function gwave      {chromeapp "http://wave.google.com/wave" }
 function ganalytics {chromeapp "http://analytics.google.com" }
 function rmilk      {chromeapp "http://rememberthemilk.com" }
 function tumblrdash {chromeapp "http://tumblr.com/dashboard" }
 function twitter    {chromeapp "http://twitter.com" }
 function simplenote {chromeapp "http://simple-note.appspot.com" }
+function seesmic    {chromeapp "http://seesmic.com/web" }
 #function           {chromeapp "http://" }
+
 
 # wrapper around autoload, from http://ft.bewatermyfriend.org/comp/zsh/zshrc.real.html
 function zrcautoload() {
