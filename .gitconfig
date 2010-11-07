@@ -30,6 +30,12 @@
 [branch]
 	autosetuprebase = always
 
+[format]
+	pretty = '%Cred%h%Creset %s -%C(yellow)%d%Creset [%C(blue)%an%Creset, %Cgreen%cr%Creset]'
+
+[log]
+	date = relative
+
 [alias]
 	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
 
@@ -69,6 +75,6 @@
 
 	echo = "!echo $1; echo $1"
 
-	lg = log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr)%Creset' --abbrev-commit --date=relative
+	lg = log --graph --all --abbrev-commit
 
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
