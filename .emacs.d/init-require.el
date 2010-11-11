@@ -47,3 +47,4 @@
 (require 'smart-tab)
 (require 'smarttabs)
 (require 'magit)
+(require 'org-install)

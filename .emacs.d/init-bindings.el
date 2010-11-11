@@ -112,3 +112,7 @@
 (define-key dired-mode-map [backspace] 'dired-up-directory)
 
 (global-set-key [f11] 'toggle-fullscreen)
+
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key [f11] 'org-capture)
+(global-set-key [f12] 'org-iswitchb)
