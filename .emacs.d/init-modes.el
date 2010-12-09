@@ -26,9 +26,6 @@
 ; Org mode
 (setq org-completion-use-ido t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
-(setq org-log-done t)
-(setq org-default-notes-file (concat org-directory "/inbox.org"))
-
 
 (cua-mode t) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
@@ -278,3 +275,5 @@
              ))
 
 (setq ruby-indent-tabs-mode t)
+
+(setq rinari-tags-file-name "TAGS")

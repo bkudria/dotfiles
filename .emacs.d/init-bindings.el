@@ -114,5 +114,23 @@
 (global-set-key [f11] 'toggle-fullscreen)
 
 (global-set-key "\C-cl" 'org-store-link)
-(global-set-key [f11] 'org-capture)
 (global-set-key [f12] 'org-iswitchb)
+
+;; Rinari, Sane
+(define-prefix-command 'rinari-sane-map)
+(global-set-key (kbd "<f11>") 'rinari-sane-map)
+
+(define-key rinari-sane-map (kbd "f c") 'rinari-find-controller)
+(define-key rinari-sane-map (kbd "f f") 'rinari-find-file-in-project)
+(define-key rinari-sane-map (kbd "f h") 'rinari-find-helper)
+(define-key rinari-sane-map (kbd "f i") 'rinari-find-migration)
+(define-key rinari-sane-map (kbd "f j") 'rinari-find-javascript)
+(define-key rinari-sane-map (kbd "f l") 'rinari-find-lib)
+(define-key rinari-sane-map (kbd "f m") 'rinari-find-model)
+(define-key rinari-sane-map (kbd "f s") 'rinari-find-rspec)
+(define-key rinari-sane-map (kbd "f t") 'rinari-find-test)
+(define-key rinari-sane-map (kbd "f v") 'rinari-find-view)
+(define-key rinari-sane-map (kbd "<f11>") 'rinari-find-by-context)
+(define-key rinari-sane-map (kbd "c") 'rinari-console)
+(define-key rinari-sane-map (kbd "g") 'rinari-rgrep)
+(define-key rinari-sane-map (kbd "t") 'rinari-test)
