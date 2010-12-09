@@ -20,6 +20,7 @@
 /.emacs.d/auto-save-list
 /.emacs.d/elpa
 /.fontconfig
+/.fonts
 /.gconf
 /.gem
 /.hgext
