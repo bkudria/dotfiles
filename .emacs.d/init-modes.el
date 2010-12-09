@@ -54,7 +54,7 @@
 
 (add-hook 'ruby-electric-mode-hook
 		  '(lambda ()
-             (ruby-electric-expand-delimiters-list '(124))
+             (ruby-electric-expand-delimiters-list '(96 124))
              ))
 
 (add-hook 'ruby-mode-hook
