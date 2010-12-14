@@ -3,3 +3,4 @@ Xft.hinting: on
 Xft.hintstyle: medium
 Emacs.font: Consolas-8
 Emacs.FontBackend: xft
+
