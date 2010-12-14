@@ -26,10 +26,8 @@
 (setq-default org-completion-use-ido t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
 
-
 (cua-mode t) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
-
 
 (define-globalized-minor-mode global-highlight-parentheses-mode highlight-parentheses-mode highlight-parentheses-mode :group 'highlight-parentheses)
 (global-highlight-parentheses-mode t)
