@@ -47,7 +47,7 @@ function status {
 }
 
 function chromeapp {
-  google-chrome --enable-user-scripts --enable-extensions --enable-extension-timeline-api --bookmark-menu --app="$*"  &> /dev/null &
+  google-chrome --enable-default-apps --app="$*"  &> /dev/null &
 }
 
 function gmail      {chromeapp "http://mail.google.com/a/kudria.net" }
