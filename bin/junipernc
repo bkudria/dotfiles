@@ -1,0 +1,452 @@
+#!/bin/sh
+#
+# Simple control script for Juniper Network Connect VPN clients
+#
+# Copyright 2008-2009 Paul D. Smith <paul@mad-scientist.net>
+# Version 1.7   (19 Dec 2009)
+#
+# This script is free software; you can redistribute it and/or modify it under
+# the terms of the GNU General Public License as published by the Free
+# Software Foundation; either version 3 of the License, or (at your option)
+# any later version.
+#
+# This script is distributed in the hope that it will be useful, but WITHOUT
+# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+# FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for
+# more details.
+#
+# Requires that 'zenity' or 'kdialog' be installed.
+# Need 32bit sun-java6-jdk and sun-java6-plugin (or equivalent) for GUI mode.
+#
+# Default realm: view page source and look for:
+#    <input ... name="realm" value="XXXX">
+# and use "XXXX" (no quotes) as the realm value.
+#
+# Incorporates ideas from:
+#
+# Marcin Depinski <marcin@onetime.com>
+#       - Support multiple VPN servers
+# Paulo Aleixo Campos <paulo.aleixo.campos@ericsson.com>
+#       - Support kdialog/KDE
+# Fancois Boulier <francois.boulier@lifl.fr>
+#       - Add --no-check-certificate to wget
+
+_vpntitle='Network Connect VPN'
+_profile=default
+
+_jpath="$HOME/.juniper_networks"
+_ncpath="$_jpath/network_connect"
+_jarfile="$_jpath/ncLinuxApp.jar"
+
+_vpnup="$_jpath/ncsvc.running"
+
+_wget='wget --no-check-certificate -q -O'
+
+_gui=true
+
+# Find a program on PATH
+_foundprog=
+findprog () {
+    _foundprog=`which $1`
+    return $?
+}
+
+# If we don't have zenity or kdialog, give up.  We could rewrite to fall
+# back to echo etc.  Someday, maybe.
+_zenity=false
+_kdialog=true
+if findprog zenity; then
+    _zenity=true
+elif findprog kdialog; then
+    _kdialog=true
+else
+    echo "This script requires either 'zenity' (for Gnome) or 'kdialog' (for KDE).
+Please use your package manager to install one."
+    exit 1
+fi
+
+# See if we have gksudo or kdesudo
+_sudo=
+if findprog gksudo; then
+    _sudo=gksudo
+elif findprog kdesudo; then
+    _sudo=kdesudo
+else
+    _sudo=sudo
+fi
+
+_errlog="${TMPDIR:-/tmp}/junipernc.$$"
+
+# Default config values
+HOST=
+: ${USER:=`id -u -n`}
+REALM='RSA'
+
+die () {
+    _loginfo=''
+    [ -s "$_errlog" ] && _loginfo="
+
+Check the error log file '$_errlog' for more information."
+    if $_gui; then
+        if $_zenity; then
+            zenity --title="$_vpntitle" --error --text="$*$_loginfo"
+        else
+            kdialog --error "$*$_loginfo" --title="$_vpntitle"
+        fi
+    else
+        echo "$*$_loginfo"
+    fi
+    exit 1
+}
+
+msg () {
+    if $_gui; then
+        if $_zenity; then
+            zenity --title="$_vpntitle" --info --text="$*"
+        else
+            kdialog --title="$_vpntitle" --msgbox "$*"
+        fi
+    else
+        echo "$*"
+    fi
+}
+
+query () {
+    if $_zenity; then
+        zenity --title="$_vpntitle" --question --text="$*"
+    else
+        kdialog  --title "$_vpntitle" --yesno "$*"
+    fi
+}
+
+input () {
+    if $_zenity; then
+        zenity --title="$_vpntitle" --entry --text="$1" --entry-text="$2"
+    else
+        kdialog  --title "$_vpntitle" --inputbox "$1" "$2"
+    fi
+}
+
+password () {
+    if $_zenity; then
+        zenity --title="$_vpntitle" --entry --text="$1" --hide-text
+    else
+        kdialog  --title "$_vpntitle" --password "$1"
+    fi
+}
+
+getdir () {
+    if $_zenity; then
+        zenity --title "$*" --file-selection --directory
+    else
+        kdialog  --title "$*" --getexistingdirectory
+    fi
+}
+
+log () {
+    echo "$*" >> "$_errlog"
+}
+
+uninstall_nc () {
+    query 'Are you sure you want to uninstall Juniper Network Connect?' \
+        || exit 0
+
+    rm -f "$_vpncfg" "$CERT" && rm -rf "$_jpath" && exit 0
+
+    die 'Uninstall has failed!'
+}
+
+
+# Set up the Juniper app, if it's not done yet.
+setup () {
+    _svc="$_ncpath/ncsvc"
+    # If ncsvc is not available, unpack it
+    if [ ! -f "$_svc" ]; then
+	findprog jar || die "This program requires the program 'jar'.
+Use your package manager to install it."
+
+        (cd "$_ncpath" && jar xf "$_jarfile" && [ -f "$_svc" ]) >> "$_errlog" 2>&1 \
+            || die "Could not unpack Juniper Network Connect!"
+    fi
+
+    # If the ownership or permissions are not correct, fix them
+    if [ `stat -c '%u:%g:%a' "$_svc"` != 0:0:6711 ]; then
+        msg "Initial setup requires administrator privileges.  Please enter your password."
+        (   $_sudo chown 0:0 "$_svc" || exit 1
+	    $_sudo chmod 06711 "$_svc" || exit 1
+	) >> "$_errlog" 2>&1 \
+            || die "Failed to set permissions on '$_svc'!"
+        $_sudo ldd "$_svc" | grep -i 'not found' >> "$_errlog" 2>&1 \
+	    && die "Missing libraries: use your package manager to install them."
+    fi
+}
+
+# Allow the user to customize the system
+config () {
+    # Get a hostname--needs to be valid
+    err=''
+    while true; do
+        HOST=`input "${err}Enter the Network Connect server:" "$HOST"` \
+            || exit 1
+
+        # Some folks enter the HTTP part; remove it.
+        case $HOST in
+            http://*)   HOST=${HOST#http://} ;;
+            https://*)  HOST=${HOST#https://} ;;
+        esac
+        HOST=${HOST%%/*}
+
+        # If it's a hostname, make sure we can look it up.
+        case $HOST in
+            *[^.0-9]*)
+                host "$HOST" >/dev/null 2>&1 && break
+                err="Cannot resolve hostname $HOST.  Please try again.
+
+" ;;
+        esac
+    done
+
+    USER=`input 'Enter the VPN account username' "$USER"` \
+        || exit 1
+
+    # See if we can find the REALM from the homepage
+    if findprog wget; then
+        REALM=$( ($_wget - "https://$HOST" || $_wget - "http://$HOST") \
+                    | sed -n 's/.*<input\( [^>]*name="realm" [^>]*\)>.*/\1/p' \
+                    | sed -n 's/.* value="\([^"]*\)".*/\1/p')
+    fi
+
+    REALM=`input 'Enter the VPN service realm' "$REALM"` \
+        || exit 1
+
+    cat > "$_vpncfg" <<EOF
+HOST="$HOST"
+USER="$USER"
+CERT="$CERT"
+REALM="$REALM"
+EOF
+}
+
+# Get the server certificate
+getcert () {
+    _certdir="$_ncpath"
+    _clean=false
+
+    findprog jar || die "This program requires the program 'jar'.
+Use your package manager to install it."
+
+    if [ ! -x "$_certdir/getx509certificate.sh" ]; then
+        _certdir="/tmp/.juniper_temp.$$"
+        mkdir -p "$_certdir"
+        ( cd "$_certdir" && jar xf "$_jarfile" ) \
+            || die "Could not unpack certificate retrieval tool!"
+        _clean=true
+    fi
+
+    (cd "$_certdir" \
+        && /bin/bash ./getx509certificate.sh "$HOST" "$CERT" >>"$_errlog" 2>&1 \
+        && chmod 400 "$CERT"
+    ) || die "Could not retrieve server certificate from $HOST!"
+
+    $_clean && rm -rf "$_certdir"
+}
+
+JAVA=
+test_java () {
+    dir=$1
+    [ -n "$dir" ] || return 1
+
+    # If we have a file, change to its directory
+    [ -d "$dir" ] || dir=${dir%/*}
+    [ -d "$dir" ] || return 1
+
+    # If it's not fully-qualified, make it so
+    case $dir in
+        /*) : all set ;;
+        *)  dir=$(cd "$dir" && /bin/pwd -P) ;;
+    esac
+
+    # Now see if we can find a JDK_HOME from this path
+    while [ -n "$dir" ] && [ ! -x "$dir/bin/java" ]; do
+        dir=${dir%/*}
+    done
+
+    [ -z "$dir" ] && return 1
+
+    # Found it
+    JDK_HOME=$dir
+    export JDK_HOME
+    JAVA="$JDK_HOME/bin/java"
+}
+
+setup_java () {
+    bitsize=$1
+    oldjava=
+
+    if [ -n "$JAVA" ] && [ -x "$JAVA" ]; then
+        jbit=`file -L -b "$JAVA" | sed -n 's/.*ELF \([0-9]*\).*/\1/'p`
+        [ "$jbit" = "$bitsize" ] && return 0
+
+        # Wrong size!  Ignore it.
+        msg "The Network Connect GUI needs a $bitsize-bit Java
+Ignoring $jbit-bit Java from \$JAVA ($JAVA)"
+        oldjava=$JAVA
+        JAVA=
+    fi
+
+    if test_java "$JDK_HOME"; then
+        jbit=`file -L -b "$JAVA" | sed -n 's/.*ELF \([0-9]*\).*/\1/'p`
+        [ "$jbit" = "$bitsize" ] && return 0
+
+        # Wrong size!  Ignore it.
+        msg "The Network Connect GUI needs a $bitsize-bit Java
+Ignoring $jbit-bit Java in $JDK_HOME"
+        JDK_HOME=
+    fi
+
+    # Can we find a Java on the PATH, that we haven't tested?
+    if findprog java && [ "$oldjava" != "$_foundprog" ]; then
+        JAVA=$_foundprog
+        jbit=`file -L -b "$JAVA" | sed -n 's/.*ELF \([0-9]*\).*/\1/'p`
+        [ "$jbit" = "$bitsize" ] && return 0
+
+        # Wrong size!  Ignore it.
+        msg "The Network Connect GUI needs a $bitsize-bit Java
+Ignoring $jbit-bit Java from \$PATH ($JAVA)"
+    fi
+
+    # OK, we can't find anything so far.  Ask the user
+    while true; do
+        jdir=$( cd /usr/lib/jvm;
+                getdir "Select $bitsize-bit Java home directory" ) \
+            || die "Cannot locate valid $bitsize-bit Java.
+Please install it with your package manager."
+
+        if test_java "$jdir"; then
+            jbit=`file -L -b "$JAVA" | sed -n 's/.*ELF \([0-9]*\).*/\1/'p`
+            [ "$jbit" = "$bitsize" ] && return 0
+
+            # Wrong size!  Ignore it.
+            msg "The Network Connect GUI needs a $bitsize-bit Java
+Ignoring $jbit-bit Java in $jdir"
+            JDK_HOME=
+        fi
+    done
+}
+
+# --------------- MAIN
+
+# We _don't_ want to be root!
+[ `id -u` -eq 0 ] && die "This script should NOT be run with sudo.
+Please run it directly."
+
+rm -rf "$_errlog"
+touch "$_errlog"
+
+[ -f "$_jarfile" ] \
+    || die "Juniper Network Connect is not installed!"
+
+# See if the user wants to use the GUI
+log "Run as: $0 $*"
+case $1 in
+    -profile)   _profile=$2; shift 2 ;;
+    -gui)       _gui=true; shift ;;
+    -nogui)     _gui=false; shift ;;
+    -uninstall) uninstall_nc ;;
+esac
+case $DISPLAY in
+    '') _gui=false ;;
+esac
+
+case $1 in
+    '') : ok ;;
+    *)  die "Invalid arguments: $*" ;;
+esac
+
+_vpncfg="$HOME/.vpn.$_profile.cfg"
+CERT="$HOME/.vpn.$_profile.crt"
+
+# Backward-compat
+if [ ! -f "$_vpncfg" ] && [ -f "$HOME/.vpn.cfg" ]; then
+    grep -v '^CERT=' "$HOME/.vpn.cfg" > "$_vpncfg" \
+        && rm -f "$HOME/.vpn.cfg"
+fi
+
+# Read the custom file if it exists
+if [ -f "$_vpncfg" ]; then
+    log "Reading $_vpncfg..."
+    . "$_vpncfg"
+fi
+
+if [ ! -f "$CERT" ] && [ -f "$HOME/.vpn.crt" ]; then
+    mv "$HOME/.vpn.crt" "$CERT"
+    echo "CERT=\"$CERT\"" >> "$_vpncfg"
+fi
+
+$_gui || _sudo=sudo
+
+rm -f "$_vpnup"
+
+# Make sure the service is set up
+setup
+
+# If anything's missing, call the config function
+case ":$HOST:$USER:$CERT:$REALM:" in
+    *::*) config ;;
+esac
+
+[ -f "$CERT" ] || getcert
+
+# Determine the bit size we need for the ncui shared library.
+bitsize=`file -L -b "$_ncpath/libncui.so" | sed -n 's/.*ELF \([0-9]*\).*/\1/'p`
+
+# Set the JDK_HOME value as needed
+cJAVA=$JAVA
+cJDK_HOME=$JDK_HOME
+setup_java "$bitsize"
+
+[ -n "$JAVA" ] && [ "$cJAVA" != "$JAVA" ] \
+    && echo "JAVA=$JAVA" >> "$_vpncfg"
+[ -n "$JDK_HOME" ] && [ "$cJDK_HOME" != "$JDK_HOME" ] \
+    && echo "JDK_HOME=$JDK_HOME" >> "$_vpncfg"
+
+# If we get here there's nothing useful in the error log, so delete it.
+rm -f "$_errlog"
+
+# Connect to the remote server and bring up the VPN
+# This loop runs forever or until the user quits.
+while true; do
+    password=`password 'Enter your PIN + SecurID Code'` \
+        || exit 0
+    case $password in
+        '') die 'Invalid passphrase' ;;
+    esac
+
+    touch "$_vpnup"
+
+    ok=true
+    if $_gui; then
+        "$JAVA" -jar "$_ncpath/NC.jar" -h "$HOST" -u "$USER" -p "$password" -f "$CERT" -r "$REALM" \
+            || ok=false
+
+    else
+        "$_ncpath/ncsvc" -h "$HOST" -u "$USER" -p "$password" -r "$REALM" -f "$CERT" \
+            || ok=false
+    fi
+
+    rm -f "$_vpnup"
+
+    if $ok; then
+        status='VPN has exited successfully.'
+    else
+        status='VPN has failed!'
+    fi
+
+    query "$status
+
+Would you like to restart the VPN connection?" \
+        || exit 0
+done
+
+# Should never get here
+exit 1
