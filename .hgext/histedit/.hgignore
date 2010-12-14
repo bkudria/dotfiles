@@ -1,5 +1,0 @@
-syntax:glob
-tests/*.err
-*~
-*.pyc
-tests/editedhistory
