@@ -6,7 +6,6 @@
 ;; Define this so autotest-update is defined when requireing autotest below
 (setq-default autotest-use-ui t)
 
-(require 'mode-compile)
 (require 'ido) ; Load the the Ido library
 (require 'predictive)
 (require 'ruby-flymake) ; load the flymake ruby lib
@@ -48,3 +47,4 @@
 (require 'smarttabs)
 (require 'magit)
 (require 'org-install)
+(require 'coffee-mode)

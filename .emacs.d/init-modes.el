@@ -9,7 +9,6 @@
 
 (autopair-global-mode t)
 (setq-default autopair-autowrap t)
-(setq autopair-autowrap t)
 
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)
@@ -24,8 +23,9 @@
 (setq-default ido-max-directory-size 1000000)
 
 ; Org mode
-(setq org-completion-use-ido t)
+(setq-default org-completion-use-ido t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+
 
 (cua-mode t) ; Load CUA mode
 (auto-compression-mode 1) ; Allow opening compressed files
@@ -229,6 +229,11 @@
                   '("\\.l?hs\\'" flymake-hslint-init))))
 
 
+(add-hook 'haskell-mode-hook
+		  '(lambda ()
+             (tabkey2-mode -1)
+             ))
+
 (setq-default haskell-program-name "ghci")
 (setq-default hs-lint-replace-with-suggestions t)
 
@@ -277,3 +282,4 @@
 (setq ruby-indent-tabs-mode t)
 
 (setq rinari-tags-file-name "TAGS")
+
