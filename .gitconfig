@@ -29,6 +29,7 @@
 
 [branch]
 	autosetuprebase = always
+  autosetupmerge  = true
 
 [format]
 	pretty = '%Cred%h%Creset %s -%C(yellow)%d%Creset [%C(blue)%an%Creset, %Cgreen%cr%Creset]'
@@ -46,6 +47,8 @@
 	discard = checkout --
 
 	switch = checkout
+
+	pick = cherry-pick
 
 	create-branch = checkout -b
 	delete-branch = branch -d

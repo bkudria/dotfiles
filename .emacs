@@ -2,7 +2,7 @@
 
 (setq custom-file "~/.emacs.d/customize") ; Change the customize-file location
 (load custom-file) ; Be sure to load the customize-file
-										; Add . emacs.d/ dir to load-path:
+;; Add . emacs.d/ dir to load-path:
 (add-to-list 'load-path "~/.emacs.d/")
 
 (defun autocompile nil
@@ -39,3 +39,14 @@
 
 
 (put 'set-goal-column 'disabled nil)
+
+
+;;; This was installed by package-install.el.
+;;; This provides support for the package system and
+;;; interfacing with ELPA, the package archive.
+;;; Move this code earlier if you want to reference
+;;; packages in your .emacs.
+(when
+    (load
+     (expand-file-name "~/.emacs.d/elpa/package.el"))
+  (package-initialize))

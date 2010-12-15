@@ -7,11 +7,11 @@
 (setq-default autotest-use-ui t)
 
 (require 'ido) ; Load the the Ido library
-(require 'predictive)
+;;(require 'predictive)
 (require 'ruby-flymake) ; load the flymake ruby lib
 (require 'sml-flymake) ; load the flymake sml lib
 (require 'haskell-flymake) ; load the flymake haskell lib
-(require 'inf-haskell)
+;;(require 'inf-haskell)
 (require 'flymake-shell) ; load the fly-make shell lib
 (require 'autofit-frame) ; Autofit frames to contents
 (require 'fringe-helper)
