@@ -19,63 +19,9 @@ end
 @hostnames =
 	{
 	'laotzu'                          => 34,
-	'heidegger'                       => 38,
+	'kierkegaard'                     => 166,
 	'kudria.net'                      => nil,
-	'weyl.ams.sunysb.edu'             => nil,
-	'seawulf.stonybrook.edu'          => nil,
-	'sparky.ic.sunysb.edu'            => nil,
-	'greatbeyond.bsdwebsolutions.com' => nil,
-	'galaxy.ams.sunysb.edu'           => nil,
-	'olympus.ams.sunysb.edu'          => nil,
 }
-
-@nyt_hostnames =
-	{
-	'app1.prvt.nytimes.com'    => nil,
-	'dapi.prvt.nytimes.com'    => nil,
-	'cvs.prvt.nytimes.com'     => nil,
-	'ddeploy.prvt.nytimes.com' => nil,
-	'dmysql1.prvt.nytimes.com' => nil,
-	'svn.prvt.nytimes.com'     => nil,
-	'dsvn.prvt.nytimes.com'    => nil,
-}
-
-@galaxy_hostnames =
-	{
-	'sirius'      => nil,
-	'hortal'      => nil,
-	'sagittarius' => nil,
-	'starzero'    => nil,
-	'centauri01'  => nil,
-	'centauri02'  => nil,
-	'tauri01'     => nil,
-	'tauri02'     => nil,
-	'aurigae'     => nil,
-	'aquilae'     => nil,
-	'crux'        => nil,
-}
-
-@seawulf_hostnames =
-	{
-	'nagling'      => nil,
-	'grendel'      => nil,
-	'herot'        => nil,
-	'wiglaf'       => nil,
-	'wulfie'       => nil,
-}
-
-@younoodle_hostnames =
-	{
-	'dev.younoodle.org'      => nil,
-    'jobs1.sf.younoodle.com' => nil,
-    'web3.sf.younoodle.com'  => nil,
-    'web4.sf.younoodle.com'  => nil,
-}
-
-@hostnames.merge! @galaxy_hostnames
-@hostnames.merge! @seawulf_hostnames
-@hostnames.merge! @nyt_hostnames
-@hostnames.merge! @younoodle_hostnames
 
 @lightlist = [66..66, 131..131, 143..146].flatten_ranges
 @light_colors = ([20..21, 25..51, 56..57,
