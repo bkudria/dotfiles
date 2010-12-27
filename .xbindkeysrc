@@ -6,3 +6,9 @@
 
 "xte "key XF86Close""
 	b:17
+
+"xte "keydown Super_L" "key l" "keyup Super_L""
+	b:6
+
+"xte "keydown Super_L" "key l" "keyup Super_L""
+	b:7
