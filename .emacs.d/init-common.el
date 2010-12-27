@@ -31,6 +31,6 @@
 (setq-default mouse-wheel-scroll-amount '(1))
 
 ;; Breaks dtrt-indent if t
-(setq-default indent-tabs-mode t)
+(setq-default indent-tabs-mode nil)
 
 (color-theme-scanner-brightly)

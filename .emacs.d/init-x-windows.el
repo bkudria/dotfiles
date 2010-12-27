@@ -1,5 +1,5 @@
-;; Set the scrollbar to the right-hand side
-(set-scroll-bar-mode 'right)
+;; Disable the scroll bar
+(scroll-bar-mode -1)
 
 (setq-default cursor-type '(bar . 2)) ; Set the cursor type to a vertical bar
 (setq-default frame-title-format (list "%* %b" )) ; set the frame title to buffer title and status indicator
@@ -21,7 +21,8 @@
 
 (global-hl-line-mode t)
 
-(setq-default indicate-empty-lines t)
+;; Disable empty-line indicator
+(setq-default indicate-empty-lines nil)
 
 (add-hook 'after-make-frame-functions 'color-theme-scanner-brightly)
 

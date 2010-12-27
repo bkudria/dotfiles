@@ -7,8 +7,8 @@
   (ignore-errors (paredit-mode t))
   )
 
-(autopair-global-mode t)
-(setq-default autopair-autowrap t)
+;;(autopair-global-mode t)
+;;(setq-default autopair-autowrap t)
 
 (ido-mode t) ; Turn on ido-mode
 (setq-default ido-create-new-buffer 'always)

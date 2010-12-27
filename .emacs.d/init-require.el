@@ -42,7 +42,7 @@
 (require 'etags)
 (require 'php-mode)
 (require 'dired+)
-(require 'autopair)
+;; (require 'autopair)
 (require 'smart-tab)
 (require 'smarttabs)
 (require 'magit)
