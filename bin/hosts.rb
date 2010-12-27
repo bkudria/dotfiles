@@ -19,7 +19,7 @@ end
 @hostnames =
 	{
 	'laotzu'                          => 34,
-	'kierkegaard'                     => 166,
+	'kierkegaard'                     => 33,
 	'kudria.net'                      => nil,
 }
 
