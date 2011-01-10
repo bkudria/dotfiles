@@ -34,3 +34,5 @@
 (setq-default indent-tabs-mode nil)
 
 (color-theme-scanner-brightly)
+
+(defalias 'yes-or-no-p 'y-or-n-p)

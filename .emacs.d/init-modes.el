@@ -1,14 +1,15 @@
 ;; Modes
 (cua-mode t)
-(autopair-mode t)
 (savehist-mode t)
 (icomplete-mode t)
 (smooth-scroll-mode t)
 (size-indication-mode t)
+(autopair-global-mode t)
 (auto-compression-mode 1)
 
 ;; Variables
 (setq-default save-place t)
+(setq-default autopair-autowrap t)
 ;; Don't try to tell me about new mail
 (setq-default display-time-mail-file nil)
 (setq-default display-time-mail-string "")
@@ -56,7 +57,7 @@
 
 (add-hook 'ruby-electric-mode-hook
           '(lambda ()
-             (ruby-electric-expand-delimiters-list '(96 124))
+             (setq-default ruby-electric-expand-delimiters-list '(96 124))
              ))
 
 (add-hook 'ruby-mode-hook

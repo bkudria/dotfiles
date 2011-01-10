@@ -24,7 +24,9 @@
 ;; Disable empty-line indicator
 (setq-default indicate-empty-lines nil)
 
-(add-hook 'after-make-frame-functions 'color-theme-scanner-brightly)
+(add-hook 'after-make-frame-functions (lambda () (color-theme-scanner-brightly)))
 
 (setq font-use-system-font t)
+
+(color-theme-scanner-brightly)
 

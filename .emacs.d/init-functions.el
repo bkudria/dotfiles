@@ -77,8 +77,8 @@
 (defun smooth-scroll (increment)
   (scroll-up increment))
 
-(global-set-key [(mouse-5)] '(lambda () (interactive) (smooth-scroll 1)))
-(global-set-key [(mouse-4)] '(lambda () (interactive) (smooth-scroll -1)))
+(global-set-key [(mouse-5)] '(lambda () (interactive) (smooth-scroll 2)))
+(global-set-key [(mouse-4)] '(lambda () (interactive) (smooth-scroll -2)))
 
 (defun ido-imenu ()
   "Update the imenu index and then use ido to select a symbol to navigate to . 
@@ -143,10 +143,6 @@ Symbols matching the text at point are put first in the completion list      . "
             (setq cmd-list (cons (format "%S" S) cmd-list)))))
        cmd-list)))))
 
-(defun exit-and-ido-recentf ()
-  (ido-recentf)
-  (abort-recursive-edit))
-
 
 ;; Redefine so we don't insert a space
 (defun paredit-space-for-delimiter-p (endp delimiter)
@@ -188,14 +184,6 @@ Symbols matching the text at point are put first in the completion list      . "
       (ido-completing-read
        "Project file: " (tags-table-files) nil t)))))
 
-(defun create-tags-file ()
-  (interactive)
-  (let ((olddir default-directory))
-    (cd-absolute project-base-dir)
-    (call-process "ctags-exuberant" nil nil t "-e" "-R" "-f .etags")
-    (cd-absolute olddir)
-    (visit-tags-table-buffer (concat project-base-dir "/.etags"))
-    (message "Created tags file for: %s" project-base-dir)))
 
 ;; Find tag using ido
 (defun ido-find-tag ()

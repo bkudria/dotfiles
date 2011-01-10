@@ -12,6 +12,9 @@
           emacs-textmate
           fit-frame
           flymake-ruby
+          flymake-fringe-icons
+          git-blame
+          git-modeline
           haml-mode
           haskell-mode
           highlight-parentheses
@@ -24,6 +27,7 @@
           org-mode
           php-mode-improved
           rinari
+          ruby-block
           rvm
           sass-mode
           scala-mode
