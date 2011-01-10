@@ -1,5 +1,5 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-emacs-not-running server && emacs-server
-emacsclient -s server -e "(find-file \"$@\")"
-emacsclient -s server -n -c
+emacsclient --alternative-editor "" server -n -c
+
+
