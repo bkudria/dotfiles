@@ -10,6 +10,7 @@
           el-get
           elunit
           emacs-textmate
+          ensime
           fit-frame
           flymake-ruby
           flymake-fringe-icons

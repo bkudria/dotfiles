@@ -28,5 +28,5 @@
 
 (setq font-use-system-font t)
 
-(color-theme-scanner-brightly)
+(color-theme-lite-brite)
 

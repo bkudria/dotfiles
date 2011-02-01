@@ -2,7 +2,7 @@
     (( requirements
        '(
          color-theme
-         color-theme-scanner-brightly
+         color-theme-lite-brite
          recentf
          uniquify
          el-get

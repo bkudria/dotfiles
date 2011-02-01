@@ -33,6 +33,6 @@
 ;; Breaks dtrt-indent if t
 (setq-default indent-tabs-mode nil)
 
-(color-theme-scanner-brightly)
+(color-theme-lite-brite)
 
 (defalias 'yes-or-no-p 'y-or-n-p)

@@ -49,7 +49,7 @@
    `(color-theme-lite-brite
 	 ;; Frame parameters
 	 ((foreground-color . "#e2e2e2")
-	  (background-color . "black")
+	  (background-color . "#1a1a1a")
 	  (mouse-color		. "#ff00ff")
 	  (cursor-color		. "white")
 	  (border-color		. "#ff00ff")
@@ -244,17 +244,17 @@
 	 (font-lock-regexp-grouping-backslash ((t (:foreground "#0FFF0F"))))
 	 (font-lock-special-comment-face ((t (:foreground "#0FFF0F"))))
 
-	 (fringe ((t (:background "#333333" :foreground nil))))
+	 (fringe ((t (:background "#1a1a1a" :foreground nil))))
 
      (whitespace-empty ((t (:foreground "#ffff00"))))
-	 (whitespace-hspace ((t (:foreground "#222222"))))
-	 (whitespace-indentation ((t (:foreground "#222222"))))
+	 (whitespace-hspace ((t (:foreground "#2d2d2d"))))
+	 (whitespace-indentation ((t (:foreground "#2d2d2d"))))
 	 (whitespace-line ((t (:background nil :foreground nil :underline "#888888"))))
-	 (whitespace-space ((t (:foreground "#222222"))))
+	 (whitespace-space ((t (:foreground "#2d2d2d"))))
 	 (whitespace-space-after-tab ((t (:foreground "#bf0000"))))
 	 (whitespace-space-before-tab ((t (:foreground "#bf0000" :weight bold))))
-	 (whitespace-tab ((t (:foreground "#222222"))))
-	 (whitespace-trailing ((t (:background "black" :foreground "#bf0000" :weight bold))))
+	 (whitespace-tab ((t (:foreground "#2d2d2d"))))
+	 (whitespace-trailing ((t (:foreground "#bf0000" :weight bold))))
 
 ;;; 	 (header-line ((t (:box (:line-width 2
 ;;; 										 :color "gray8"
@@ -280,7 +280,7 @@
 
 	 (highlight ((t (:background "#2a2a2a" :foreground nil))))
 
-	 (highline-face ((t (:background "gray30" :foreground "white"))))
+	 (highline-face ((t (:background "gray30"))))
 	 (highline-vertical-face ((t (:background "gray30" :foreground "white"))))
 
 ;;; 	 (Info-title-1-face ((t (:foreground "IndianRed1"))))
@@ -359,14 +359,14 @@
 
 ;;; 	 (menu ((t (:background "light gray" :foreground "gray4"))))
 
-	 (minibuffer-prompt ((t (:foreground "#FFBB00" :bold t))))
+	 (minibuffer-prompt ((t (:foreground "#00583F" :bold t))))
 
-	 (mode-line ((t (:foreground "#FFBB00" :background "#4c4c4c" :overline "#999999"))))
-	 (modeline ((t (:foreground "#FFBB00" :background "#4c4c4c" :overline "#999999"))))
+	 (mode-line ((t (:foreground "#00583F" :background "#181818" :overline "#333333"))))
+	 (modeline ((t (:foreground "#00583F" :background "#181818" :overline "#333333"))))
 
 	 (mode-line-inactive ((t (:foreground "#FF7700" :background "#333333" :overline "#000000"))))
-	 (mode-line-highlight ((t (:foreground "#4c4c4c" :background "#FFBB00"))))
-	 (modeline-buffer-id ((t (:bold t :foreground "#DBFF0E" :background nil))))
+	 (mode-line-highlight ((t (:foreground "#4c4c4c" :background "#00583F"))))
+	 (modeline-buffer-id ((t (:bold t :foreground "#009966" :background nil))))
 	 (modeline-mousable ((t (:foreground "khaki" :background "dark slate blue"))))
 	 (modeline-mousable-minor-mode ((t (:foreground "khaki" :background "dark slate blue"))))
 	 (mouse ((t (:foreground "khaki" :background "gray4"))))
@@ -416,9 +416,9 @@
 	 ;; (nxml-hash ((t ())))
 	 ;; (nxml-glyph ((t ())))
 
-	 (linum ((t (:foreground "#FFBB00"))))
+	 (linum ((t (:foreground "#00583F"))))
 
-	 (hl-line ((t (:background "#333333" :foreground nil))))
+	 (hl-line ((t (:background "#222222" :foreground nil))))
 	 (highline-face ((t (:background "#333333" :foreground nil))))
 	 (highlight-current-line-face ((t (:background "#333333" :foreground nil))))
 
@@ -450,7 +450,7 @@
 
 
 
-	 (primary-selection ((t (:background "#543B00" :foreground nil))))
+	 (primary-selection ((t (:background "#00583F" :foreground nil))))
 
 
 
@@ -466,7 +466,7 @@
 ;; 	 (svn-status-blame-rev-number-face ((t (:background "cadet blue" :foreground "gray4"))))
 
 
-	 (region ((t (:background "#543B00" :foreground nil))))
+	 (region ((t (:background "#002016" :foreground nil))))
 	 (rng-error ((t (:foreground: "red" :bold t))))
 
 
@@ -482,6 +482,10 @@
 
 	 (show-tabs-space-face ((t (:background "IndianRed1" :foreground "light gray"))))
 	 (show-tabs-tab-face ((t (:background "IndianRed1" :foreground "light gray"))))
+
+   (magit-diff-add ((((class color) (background dark)) (:foreground "green"))))
+   (magit-item-highlight ((((class color) (background dark)) (:background "#222222"))))
+ 
 
 ;;; 	 (slime-error-face ((t (:background "indian red" :foreground "white" :bold t))))
 ;;; 	 (slime-warning-face ((t (:background "indian red" :foreground "white"))))

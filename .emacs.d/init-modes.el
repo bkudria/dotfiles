@@ -10,6 +10,12 @@
 ;; Variables
 (setq-default save-place t)
 (setq-default autopair-autowrap t)
+(setq-default git-state-modeline-decoration 'git-state-decoration-small-dot)
+(setq-default magit-log-cutoff-length 500)
+(setq-default ruby-block-highlight-toggle t)
+(setq-default ruby-electric-expand-delimiters-list '(96 124))
+(setq-default smart-tab-disabled-major-modes '(term-mode org-mode))
+
 ;; Don't try to tell me about new mail
 (setq-default display-time-mail-file nil)
 (setq-default display-time-mail-string "")
@@ -46,6 +52,7 @@
 ;; Org mode
 (setq-default org-completion-use-ido t)
 (add-to-list 'auto-mode-alist '("\\.org$" . org-mode))
+(add-to-list 'auto-mode-alist '("^/home/bkudria/org/" . org-mode))
 
 
 

@@ -1,4 +1,4 @@
-"xte "keydown Alt_L" "key space" "keyup Alt_L""
+"xte "keydown Super_L" "key space" "keyup Super_L""
 	b:8
 
 "xte "key XF86Close""

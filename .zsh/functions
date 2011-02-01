@@ -52,7 +52,7 @@ function chromeapp {
 }
 
 function gmail      {chromeapp "http://mail.google.com/a/kudria.net" }
-function greader    {chromeapp "http://google.com/reader" }
+#function greader    {chromeapp "http://google.com/reader" }
 function gcal       {chromeapp "http://calendar.google.com/a/kudria.net" }
 function ganalytics {chromeapp "http://analytics.google.com" }
 function rmilk      {chromeapp "http://rememberthemilk.com" }

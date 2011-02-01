@@ -113,8 +113,15 @@
 
 (global-set-key [f11] 'toggle-fullscreen)
 
-(global-set-key "\C-cl" 'org-store-link)
-(global-set-key [f12] 'org-iswitchb)
+
+;; Org Keybindings
+(define-prefix-command 'org-custom-map)
+(global-set-key (kbd "<f12>") 'org-custom-map)
+
+(define-key org-custom-map (kbd "l") 'org-store-link)
+(define-key org-custom-map (kbd "<f3>") 'org-iswitchb)
+(define-key org-custom-map (kbd "o") #'(lambda () (interactive) (ido-find-file-in-dir "~/org")))
+
 
 ;; Rinari, Sane
 (define-prefix-command 'rinari-sane-map)
