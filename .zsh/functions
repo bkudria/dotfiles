@@ -17,6 +17,12 @@ function chpwd {
   esac
 }
 
+expand-or-complete-prefix-with-dots() {
+  echo -n '...'
+  zle expand-or-complete-prefix
+  zle redisplay
+}
+
 
 function qwhich {
     result=`which $@ 2> /dev/null`

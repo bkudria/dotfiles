@@ -14,7 +14,8 @@ bindkey "\e\eOA" history-beginning-search-menu-space-end
 bindkey "\C-z" undo
 bindkey " " magic-space
 
-bindkey '^i' expand-or-complete-prefix
+zle -N expand-or-complete-prefix-with-dots
+bindkey '^I' expand-or-complete-prefix-with-dots
 
 bindkey "^[[Z" reverse-menu-complete
 bindkey "^[" send-break
