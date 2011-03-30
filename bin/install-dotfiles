@@ -9,6 +9,6 @@ if [ $hostname ]; then
 	wget -q -O- $url | ssh $hostname "tar --strip-components 1 -xzf-"
 else
 	wget -q -O- $url | tar --strip-components 1 -xzf-
-	~/.bashrc
+	~/.zshrc
 fi
 
