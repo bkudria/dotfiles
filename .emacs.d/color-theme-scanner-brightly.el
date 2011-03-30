@@ -50,10 +50,10 @@
    `(color-theme-scanner-brightly
 	 ;; Frame parameters
 	 ((foreground-color . "#1d1d1d")
-	  (background-color . "white")
+	  (background-color . "#eaeaeb")
 	  (mouse-color		. "#ff00ff")
 	  (cursor-color		. "black")
-	  (border-color		. "#ff00ff")
+	  (border-color		. "#eaeaeb")
 	  (background-mode	. light))
 	 ;; Face variables
 	 ((Man-overstrike-face . font-lock-variable-name-face)
@@ -221,11 +221,11 @@
 ;;;		 (font-latex-warning-face ((t (:background "indian red" :foreground "white"))))
 
 
-	 (font-lock-builtin-face ((t (:foreground "#ff00ff"))))
-	 (font-lock-color-constant-face ((t (:foreground "#00FF11"))))
+	 (font-lock-builtin-face ((t (:foreground "#ea11eb"))))
+	 (font-lock-color-constant-face ((t (:foreground "#22bb33"))))
 	 (font-lock-comment-face ((t (:foreground "#9b9b9b" :italic t))))
 	 (font-lock-comment-delimiter-face ((t (:foreground "#555555"))))
-	 (font-lock-constant-face ((t (:foreground "#00c80d"))))
+	 (font-lock-constant-face ((t (:foreground "#119922"))))
 	 (font-lock-doc-face ((t (:foreground "#777777"))))
 	 (font-lock-doc-string-face ((t (:foreground "#777777"))))
 	 (font-lock-function-name-face ((t (:foreground "#0b75bb"))))
@@ -234,7 +234,7 @@
 	 (font-lock-reference-face ((t (:foreground "#ff00ff"))))
 	 (font-lock-string-face ((t (:foreground "#BB450B" :italic t))))
 	 (font-lock-type-face ((t (:foreground "#ff00ff"))))
-	 (font-lock-variable-name-face ((t (:foreground "#00bec8"))))
+	 (font-lock-variable-name-face ((t (:foreground "#2299a2"))))
 	 (font-lock-warning-face ((t (:foreground "#bb0b0b"))))
 	 (font-lock-negation-char-face ((t (:foreground "#099191"))))
 	 (font-lock-other-type-face ((t (:foreground "#808080" :italic t))))
@@ -245,7 +245,7 @@
 	 (font-lock-regexp-grouping-backslash ((t (:foreground "#0bbb0b"))))
 	 (font-lock-special-comment-face ((t (:foreground "#0bbb0b"))))
 
-	 (fringe ((t (:background "#ffffff" :foreground "#000000"))))
+	 (fringe ((t (:background "#eaeaeb" :foreground "#000000"))))
 
 ;;;		 (header-line ((t (:box (:line-width 2
 ;;;											 :color "gray8"
