@@ -16,7 +16,7 @@ zstyle ':completion:*' cache-path ~/.zsh/cache
 
 zstyle ':completion:*:*:kill:*:processes' list-colors '=(#b) #([0-9]#)*=0=01;31'
 
-zstyle :compinstall filename '/home/bkudria/.zsh/completion'
+zstyle :compinstall filename "$HOME/.zsh/completion"
 
 
 hosts=${(z)"$(hosts.rb -h)"}

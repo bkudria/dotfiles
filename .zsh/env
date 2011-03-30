@@ -7,7 +7,7 @@ SAVEHIST=1000000
 export RIPDIR=$HOME/.rip
 export RUBYLIB=$RUBYLIB:$RIPDIR/active/lib
 
-PATH=$PATH:/home/bkudria/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:`gem env gemdir`/bin:/usr/lib/kde4/bin:/usr/local/android/tools:/usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
+PATH=$PATH:$HOME/bin:/usr/local/bin:/sbin:/usr/sbin:/usr/local/games:`gem env gemdir`/bin:/usr/lib/kde4/bin:/usr/local/android/tools:/usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
 
 OS=`uname`
 
@@ -19,7 +19,7 @@ PKG_CONFIG_PATH="/usr/lib"
 KDE_NO_IPV6=true
 PKG_CONFIG_PATH=$PKG_CONFIG_PATH:/usr/X11R6/lib/pkgconfig.
 GTK2_RC_FILES=$HOME/.gtkrc-2.0
-XAUTHORITY=/home/bkudria/.Xauthority
+XAUTHORITY=$HOME/.Xauthority
 VISUAL="emacs-client-frame"
 EDITOR="emacs-client-frame"
 GREP_COLOR="38;5;$HOSTCOLORCODE"
@@ -62,7 +62,7 @@ if [[ "$OS" = "Linux" ]]; then
 fi
 
 fpath=(
-		/home/bkudria/.zsh
+		$HOME/.zsh
 		$fpath
-		/home/bkudria/.zen/zsh/scripts
-		/home/bkudria/.zen/zsh/zle )
+		$HOME/.zen/zsh/scripts
+		$HOME/.zen/zsh/zle )
