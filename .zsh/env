@@ -4,10 +4,8 @@ HISTFILE=~/.zsh/histfile
 HISTSIZE=1000
 SAVEHIST=1000000
 
-export RIPDIR=$HOME/.rip
-export RUBYLIB=$RUBYLIB:$RIPDIR/active/lib
 
-PATH=$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/X11/bin:/usr/sbin:/sbin:/bin:/usr/local/games:`gem env gemdir`/bin:/usr/lib/kde4/bin:/usr/local/android/tools:/usr/local/appengine/bin:/usr/local/jruby/bin:$RIPDIR/active/bin
+PATH=$HOME/bin:/usr/local/sbin:/usr/local/bin:/usr/bin:/usr/X11/bin:/usr/sbin:/sbin:/bin
 
 OS=`uname`
 
@@ -45,16 +43,11 @@ LS_COLORS="$LS_COLORS*.JPG=01;35:*.GIF=01;35:*.jpeg=01;35:*.pcx=01;35:*.png=01;3
 
 ZLS_COLORS=$LS_COLORS
 
-LS_OPTIONS="-p -l -h"
+LS_OPTIONS="-G -p -l -h"
 
 # Distro/OS specific setters
 if [[ "$DISTRO" == "Debian" ]] || [[ "$DISTRO" == "Ubuntu" ]]; then
 		RCDIR="/etc/init.d/"
-fi
-
-if [ "$OS" = "FreeBSD" ]; then
-		LS_OPTIONS="$LS_OPTIONS -G"
-		RCDIR="/usr/local/etc/rc.d/ /etc/rc.d/"
 fi
 
 if [[ "$OS" = "Linux" ]]; then

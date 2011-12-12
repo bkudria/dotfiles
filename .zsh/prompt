@@ -9,7 +9,7 @@ fi
 HOSTCOLORCODE=255
 `qwhich hosts.rb > /dev/null` && HOSTCOLORCODE=$(hosts.rb -d $HASHSTRING)
 
-[ $TERM = 'eterm-color' ] && HOSTCOLORCODE=34
+[[ $TERM = 'eterm-color' ]] && HOSTCOLORCODE=34
 
 ESCAPE=$'%{\e[%}'
 
@@ -21,7 +21,7 @@ zstyle ':vcs_info:*' get-revision true
 zstyle ':vcs_info:*' unstagedstr '*'
 zstyle ':vcs_info:*' stagedstr '-'
 zstyle ':vcs_info:*' actionformats '%b%c%u|%a'
-zstyle ':vcs_info:*' formats '%b%c%u'
+zstyle ':vcs_info:*' formats '%b [%c] %u'
 zstyle ':vcs_info:*' branchformat '%b'
 
 zstyle ':vcs_info:*' enable svn bzr hg git
@@ -62,7 +62,7 @@ ${UC}${PRETTY_WD}${N}» "
         export PS2="${D}${O}"
 }
 
-if [ "$TERM" = "dumb" ]
+if [[ "$TERM" = "dumb" ]]
 then
   unsetopt zle
   unsetopt prompt_cr
