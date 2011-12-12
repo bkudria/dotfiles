@@ -36,3 +36,7 @@
 (color-theme-scanner-brightly)
 
 (defalias 'yes-or-no-p 'y-or-n-p)
+
+;; _ and - Aren't word delimeters
+(modify-syntax-entry ?- "w")
+(modify-syntax-entry ?_ "w")

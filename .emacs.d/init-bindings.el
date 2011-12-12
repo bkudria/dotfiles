@@ -1,6 +1,9 @@
 ;; Delete key should delete forward
 (global-set-key [delete] 'delete-char)
 
+;; Delete key should delete forward
+(global-set-key [kp-delete] 'delete-char)
+
 ;; Backspace shouldn't untabify
 (global-set-key [backspace] 'backward-delete-char)
 
@@ -14,7 +17,7 @@
 (global-set-key [f3] 'ido-switch-buffer)
 
 ;; C-F3 to show buffers using ibuffer
-(global-set-key (kbd "S-<f3>") 'ibuffer)
+(global-set-key (kbd "s-<f3>") 'ibuffer)
 
 ;; F4 refreshes and reindents the buffer
 (global-set-key [f4] 'clean-buffer-or-region)
@@ -23,6 +26,7 @@
 (global-set-key [f5] #'(lambda () (interactive) (revert-buffer nil t) (fit-frame)))
 
 (global-set-key "\C-w" 'kill-buffer-and-window)
+(global-set-key (kbd "s-w") 'kill-buffer-and-window)
 
 (global-set-key "\M-w" 'nuke-all-buffers)
 
@@ -40,11 +44,15 @@
 
 ;; Bind M-g to goto-line
 (global-set-key "\M-g" 'goto-line)
+(global-set-key (kbd "s-g") 'goto-line)
+
 
 ;; Having to hit escape 3 times is silly and slow
 (global-set-key [escape] 'keyboard-escape-quit)
 
 (global-set-key "\C-f" 'isearch-forward)
+(global-set-key (kbd "s-f") 'isearch-forward)
+
 (define-key isearch-mode-map [down] 'isearch-repeat-forward)
 (define-key isearch-mode-map [up] 'isearch-repeat-backward)
 (define-key isearch-mode-map [backspace] 'isearch-del-char)
@@ -54,8 +62,10 @@
 (define-key isearch-mode-map (kbd "\C-r") 'isearch-query-replace-regexp)
 
 (global-set-key "\C-s" 'ido-save-or-write-file)
+(global-set-key (kbd "s-s") 'ido-save-or-write-file)
+
 (global-set-key "\C-o" 'ido-find-file)
-(define-key ido-file-completion-map (kbd "C-o") 'ido-recentf)
+(global-set-key (kbd "s-o") 'ido-find-file)
 
 (global-set-key "\C-d" 'comment-or-uncomment-region)
 
@@ -73,12 +83,17 @@
 (global-set-key (kbd "RET") 'align-newline-and-indent)
 
 (global-set-key (kbd "C-SPC") 'highlight-symbol-at-point)
+(global-set-key (kbd "s-SPC") 'highlight-symbol-at-point)
 
 (global-set-key (kbd "C-`") #'(lambda () (interactive) (dired (getenv "HOME"))))
 
 ;; Sane beginning-of-line behavior.
 (global-set-key "\C-a" 'dwim-home)
 (global-set-key [home] 'dwim-home)
+
+;; Sane end-of-line behavior.
+(global-set-key "\C-e" 'end-of-line)
+(global-set-key [end]  'end-of-line)
 
 ;; Use ido to find tags
 (global-set-key "\M-." 'ido-find-tag)
@@ -141,3 +156,5 @@
 (define-key rinari-sane-map (kbd "c") 'rinari-console)
 (define-key rinari-sane-map (kbd "g") 'rinari-rgrep)
 (define-key rinari-sane-map (kbd "t") 'rinari-test)
+
+

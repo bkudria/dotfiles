@@ -57,20 +57,21 @@
 
 
 ;; Ruby Mode
+
 (add-hook 'ruby-mode-hook
           '(lambda ()
-             (ruby-electric-mode)
+             (ruby-electric-mode t)
+             (setq-default ruby-indent-tabs-mode nil)
+             (setq-default indent-tabs-mode nil)
+             (setq-default ruby-indent-level 2)
+             ;; _ and - Aren't word delimeters
+             (modify-syntax-entry ?- "w")
+             (modify-syntax-entry ?_ "w")
              ))
 
 (add-hook 'ruby-electric-mode-hook
           '(lambda ()
              (setq-default ruby-electric-expand-delimiters-list '(96 124))
-             ))
-
-(add-hook 'ruby-mode-hook
-          '(lambda ()
-             (setq-default ruby-indent-tabs-mode t)
-             (setq-default ruby-indent-level 2)
              ))
 
 ;; Rakefiles are Ruby too
@@ -117,7 +118,7 @@
 (setq-default whitespace-global-modes t)
 (setq-default whitespace-line-column 100)
 (setq-default whitespace-style
-              '(tabs spaces trailing space-before-tab indentation empty space-mark tab-mark))
+              '(tabs spaces trailing space-before-tab space-before-tab::tab indentation indentation::space empty space-mark tab-mark newline))
 
 
 

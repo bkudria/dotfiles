@@ -3,6 +3,7 @@
 
 ;; Add . emacs.d/ dir to load-path:
 (add-to-list 'load-path "~/.emacs.d/")
+(add-to-list 'load-path "~/.emacs.d/emacs-color-theme-solarized/")
 (add-to-list 'load-path "~/.emacs.d/el-get/el-get")
 
 

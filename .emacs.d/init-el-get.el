@@ -3,14 +3,14 @@
  (let ((el-get-recipes
         '(
           ack
-          autofit-frame
+;;          autofit-frame
           autopair
           coffee-mode
           dtrt-indent
           el-get
           elunit
           emacs-textmate
-          ensime
+;;          ensime
           fit-frame
           flymake-ruby
           flymake-fringe-icons
@@ -24,7 +24,7 @@
           lua-mode
           magit
           markdown-mode
-          notify
+;;          notify
           org-mode
           php-mode-improved
           rinari
