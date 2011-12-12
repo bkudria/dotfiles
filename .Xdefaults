@@ -1,5 +1,5 @@
 XTerm*termName: xterm-256color
 Xft.hinting: on
 Xft.hintstyle: medium
-Emacs.font: Consolas-8
+Emacs.font: Consolas-9
 Emacs.FontBackend: xft
