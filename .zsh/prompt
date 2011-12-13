@@ -6,10 +6,12 @@ if [[ $DISTRO = "CentOS" ]]; then
         HASHSTRING="`hostname -f`"
 fi
 
-HOSTCOLORCODE=255
-`qwhich hosts.rb > /dev/null` && HOSTCOLORCODE=$(hosts.rb -d $HASHSTRING)
+RANDOM=`echo $HASHSTRING | cksum | cut -d' ' -f1`
+COLORS=(18 20 22 24 27 28 30 33 34 36 39 40 52 54 57 58 63 64 69 70 88 90 93 94 99 100 124 125 129 130 135 136 160 161 165 166 171 172 196 197 201 202 207 208)
+COLORSIZE=${#COLORS[*]}
 
-[[ $TERM = 'eterm-color' ]] && HOSTCOLORCODE=34
+HOSTCOLORCODE=255
+HOSTCOLORCODE=$COLORS[($RANDOM % $COLORSIZE + 1)]
 
 ESCAPE=$'%{\e[%}'
 
@@ -28,12 +30,6 @@ zstyle ':vcs_info:*' enable svn bzr hg git
 
 colors
 precmd
-
-function hg_prompt() {
-    local HG_PROMPT_FORMAT='{:{node|short}}{ {status|modified|unknown}}{update}{ >{incoming|count}}{ {outgoing|count}>}'
-    export HG_PROMPT=""
-    hg prompt &> /dev/null && export HG_PROMPT="`hg prompt $HG_PROMPT_FORMAT 2> /dev/null`"
-}
 
 function zsh_prompt()
 {
