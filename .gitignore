@@ -32,7 +32,7 @@
 /.pulse
 /.rvm
 /.thumbnails
-/.vim
+/.vim/bundle
 /.wallpapers
 /.wine
 /Dropbox
