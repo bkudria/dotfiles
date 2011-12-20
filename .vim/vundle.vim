@@ -16,5 +16,6 @@ Bundle 'tpope/vim-fugitive'
 Bundle 'tpope/vim-rails'
 Bundle 'tpope/vim-endwise'
 Bundle 'tpope/vim-surround'
+Bundle 'nelstrom/vim-textobj-rubyblock'
 
 filetype plugin indent on
