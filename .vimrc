@@ -1,12 +1,23 @@
 set nocompatible
+set nohidden
+set autoread
 set showcmd
 set showmatch
 set exrc
 set secure
-set relativenumber
 set cursorline
+set laststatus=2
 set shortmess+=I
 set guioptions-=m
+if exists("&relativenumber")
+  set relativenumber
+else
+  set number
+endif
+
+set wildmenu
+set wildmode=longest,full
+set wildchar=<Tab>
 
 set encoding=utf-8
 set guifont=Consolas:h13
@@ -27,4 +38,8 @@ set incsearch
 set ignorecase
 set smartcase
 
-source .vim/vundle.vim
+source ~/.vim/vundle.vim
+source ~/.vim/keys.vim
+
+cd ~
+autocmd! bufwritepost .vimrc source ~/.vimrc
