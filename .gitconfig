@@ -28,8 +28,7 @@
 	pager = true
 
 [branch]
-	autosetuprebase = always
-  autosetupmerge  = true
+	autosetupmerge  = true
 
 [format]
 	pretty = '%Cred%h%Creset %s -%C(yellow)%d%Creset [%C(blue)%an%Creset, %Cgreen%cr%Creset]'
