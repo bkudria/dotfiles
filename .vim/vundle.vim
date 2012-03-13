@@ -13,10 +13,18 @@ Bundle 'tpope/vim-fugitive',
 Bundle 'tpope/vim-rails',
 Bundle 'tpope/vim-endwise',
 Bundle 'tpope/vim-surround',
+Bundle 'tpope/vim-repeat'
+Bundle 'Raimondi/delimitMate',
+Bundle 'godlygeek/tabular'
+Bundle 'mutewinter/vim-indent-guides'
+Bundle 'mileszs/ack.vim'
 Bundle 'kana/vim-textobj-user',
 Bundle 'nelstrom/vim-textobj-rubyblock',
 Bundle 'wincent/Command-T',
 let g:CommandTScanDotDirectories=1
+let g:CommandTMatchWindowReverse=1
+
+Bundle 'jeffkreeftmeijer/vim-numbertoggle'
 
 "Color Scheme"
 Bundle 'altercation/vim-colors-solarized'

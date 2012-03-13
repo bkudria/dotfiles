@@ -1,5 +1,4 @@
 set nocompatible
-set nohidden
 set autoread
 set showcmd
 set showmatch
@@ -8,7 +7,11 @@ set secure
 set cursorline
 set laststatus=2
 set shortmess+=I
+
 set guioptions-=m
+set guioptions-=r
+set guioptions-=T
+
 if exists("&relativenumber")
   set relativenumber
 else
@@ -25,7 +28,6 @@ set guifont=Consolas:h13
 syntax enable
 filetype plugin indent on
 
-
 "" Whitespace
 set nowrap
 set tabstop=2 shiftwidth=2
@@ -40,6 +42,7 @@ set smartcase
 
 source ~/.vim/vundle.vim
 source ~/.vim/keys.vim
+source ~/.vim/commands.vim
 
 cd ~
 autocmd! bufwritepost .vimrc source ~/.vimrc
