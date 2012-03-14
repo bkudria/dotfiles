@@ -12,11 +12,16 @@ set guioptions-=m
 set guioptions-=r
 set guioptions-=T
 
+set list
+set listchars=tab:\|\ ,trail:·
+
 if exists("&relativenumber")
   set relativenumber
 else
   set number
 endif
+
+set completeopt=menu,preview,longest
 
 set wildmenu
 set wildmode=longest,full
@@ -40,9 +45,10 @@ set incsearch
 set ignorecase
 set smartcase
 
+autocmd BufWritePost * stopinsert " Leave insert mode on save
+
 source ~/.vim/vundle.vim
 source ~/.vim/keys.vim
 source ~/.vim/commands.vim
 
 cd ~
-autocmd! bufwritepost .vimrc source ~/.vimrc

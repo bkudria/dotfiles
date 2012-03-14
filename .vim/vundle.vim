@@ -16,7 +16,6 @@ Bundle 'tpope/vim-surround',
 Bundle 'tpope/vim-repeat'
 Bundle 'Raimondi/delimitMate',
 Bundle 'godlygeek/tabular'
-Bundle 'mutewinter/vim-indent-guides'
 Bundle 'mileszs/ack.vim'
 Bundle 'kana/vim-textobj-user',
 Bundle 'nelstrom/vim-textobj-rubyblock',
@@ -25,6 +24,9 @@ let g:CommandTScanDotDirectories=1
 let g:CommandTMatchWindowReverse=1
 
 Bundle 'jeffkreeftmeijer/vim-numbertoggle'
+Bundle 'grep.vim'
+Bundle 'ervandew/supertab'
+let g:SuperTabDefaultCompletionType = "context"
 
 "Color Scheme"
 Bundle 'altercation/vim-colors-solarized'

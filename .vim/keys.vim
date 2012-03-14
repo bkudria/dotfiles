@@ -10,6 +10,9 @@ map <leader>f :CommandT<cr>
 if has("gui_macvim")
   macmenu &File.Open\.\.\. key=<nop>
   map <D-o> :CommandT<CR>
+
+  macmenu &File.Close key=<nop>
+  map <D-w> :bdelete<cr>
 endif
 
 nnoremap ; :
@@ -26,6 +29,6 @@ map <C-h> <C-w>h
 map <C-j> <C-w>j
 map <C-k> <C-w>k
 map <C-l> <C-w>l
-map <C-w><C-w> :only<cr>
+map <C-w>1 :only<cr>
 
 map ~ :cd ~<cr>
