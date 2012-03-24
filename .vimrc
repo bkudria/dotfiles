@@ -32,6 +32,7 @@ set guifont=Consolas:h13
 
 syntax enable
 filetype plugin indent on
+set ofu=syntaxcomplete#Complete
 
 "" Whitespace
 set nowrap

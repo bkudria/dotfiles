@@ -19,9 +19,11 @@ nnoremap ; :
 
 map <F1> :FufHelp<cr>
 map <F2> :
-map <F3> :FufBuffer<cr>
+map <F3> :CommandTBuffer<cr>
+map <F4> :ScratchOpen<cr>
 nnoremap <leader><leader> <c-^>
-map <F10> :Gstatus
+map <F10> :Gstatus<cr>
+map <F11>g :Rgrep<cr>
 
 nnoremap \ :noh<cr>
 
