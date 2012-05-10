@@ -46,10 +46,16 @@ set incsearch
 set ignorecase
 set smartcase
 
-autocmd BufWritePost * stopinsert " Leave insert mode on save
+autocmd BufWritePost * stopinsert   " Leave insert mode on save
 
 source ~/.vim/vundle.vim
 source ~/.vim/keys.vim
 source ~/.vim/commands.vim
 
 cd ~
+
+" Regenerate ctags on write, if we can
+autocmd BufWritePost *
+      \ if exists('b:git_dir') && executable(b:git_dir.'/hooks/ctags') |
+      \   call system('"'.b:git_dir.'/hooks/ctags" &') |
+      \ endif

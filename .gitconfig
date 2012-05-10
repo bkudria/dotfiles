@@ -80,4 +80,7 @@
 	lg = log --graph --all --abbrev-commit
 
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
+	ctags = !.git/hooks/ctags
 
+[init]
+	templatedir = ~/.git_template
