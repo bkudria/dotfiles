@@ -7,6 +7,7 @@ set secure
 set cursorline
 set laststatus=2
 set shortmess+=I
+set hidden
 
 set guioptions-=m
 set guioptions-=r
@@ -14,6 +15,8 @@ set guioptions-=T
 
 set list
 set listchars=tab:\|\ ,trail:·
+
+set clipboard=unnamed
 
 if exists("&relativenumber")
   set relativenumber

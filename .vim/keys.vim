@@ -20,15 +20,24 @@ endif
 
 nnoremap ; :
 
-map <F1> :FufHelp<cr>
-map <F2> :
-map <F3> :CtrlPMixed<cr>
-map <F4> :ScratchOpen<cr>
 nnoremap <leader><leader> <c-^>
+
+map <F1> :h<space>
+map <F2> :
+map <F3> :CtrlPBuffer<cr>
+map <F4> :Scratch<cr>
+map <F5> :e!<cr>
+
 map <F10> :Gstatus<cr>
 map <F11>g :Rgrep<cr>
-map <F11>t :CtrlPTag<cr>
-map <F11>bt :CtrlPBufTag<cr>
+map <F11>t :CtrlPBufTag<cr>
+
+map <F11>m  :Rmodel<space>
+map <F11>mm :Rmodel<cr>
+map <F11>c  :Rcontroller<space>
+map <F11>cc :Rcontroller<cr>
+map <F11>v  :Rview<space>
+map <F11>vv :Rview<cr>
 
 map gt <c-]>
 
