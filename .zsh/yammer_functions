@@ -1,0 +1,15 @@
+#! /bin/zsh -f
+
+function wf {
+  if [ -d ~/Code/workfeed ]; then
+    cd ~/Code/workfeed
+  elif [ -d /opt/workfeed/current ]; then
+    cd /opt/workfeed/current
+  else
+    echo "Can't find workfeed"
+  fi
+}
+
+function railsc {
+  wf && bundle exec rails c
+}

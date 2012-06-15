@@ -97,3 +97,5 @@ function zprintf() {
 
     printf '[%2d] '${format} ${level} "$@"
 }
+
+source ~/.zsh/yammer_functions
