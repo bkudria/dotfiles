@@ -2,6 +2,12 @@
 
 function wgadmin {
   sudo -su wgadmin
-  function shopt() {}
-  source ~wgadmin/.bashrc
 }
+
+function wf {
+  cd /opt/workfeed/current
+  export PATH="/opt/ruby-enterprise/bin:$PATH:$HOME/bin:/usr/sbin:/sbin"
+  export RAILS_ENV=production
+}
+
+function rc { bundle exec rails c }
