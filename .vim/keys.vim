@@ -32,12 +32,12 @@ map <F10> :Gstatus<cr>
 map <F11>g :Rgrep<cr>
 map <F11>t :CtrlPBufTag<cr>
 
-map <F11>m  :Rmodel<space>
-map <F11>mm :Rmodel<cr>
-map <F11>c  :Rcontroller<space>
-map <F11>cc :Rcontroller<cr>
-map <F11>v  :Rview<space>
-map <F11>vv :Rview<cr>
+map <M-m>  :Rmodel<space>
+map <M-m>m :Rmodel<cr>
+map <M-c>  :Rcontroller<space>
+map <M-c>c :Rcontroller<cr>
+map <M-v>  :Rview<space>
+map <M-v>v :Rview<cr>
 
 map gt <c-]>
 
