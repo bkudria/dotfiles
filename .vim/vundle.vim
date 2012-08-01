@@ -18,6 +18,10 @@ Bundle 'tpope/vim-endwise',
 Bundle 'tpope/vim-surround',
 Bundle 'tpope/vim-repeat'
 Bundle 'Raimondi/delimitMate',
+Bundle 'spiiph/vim-space'
+Bundle 'majutsushi/tagbar'
+Bundle 'gregsexton/gitv'
+Bundle 'comba/vim-ruby-refactoring'
 Bundle 'godlygeek/tabular'
 Bundle 'mileszs/ack.vim'
 Bundle 'kana/vim-textobj-user',
