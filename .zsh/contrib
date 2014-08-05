@@ -1,7 +1,0 @@
-#! /bin/zsh -f
-
-zrcautoload zen
-zrcautoload colors
-zrcautoload vcs_info
-zrcautoload history-search-end
-zrcautoload history-beginning-search-menu
