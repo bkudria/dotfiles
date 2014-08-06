@@ -4,17 +4,19 @@
 
 [github]
 	user = bkudria
-	token = 43cefc58c5ff6fdb90dffc731df10723
+
+[branch]
+	autosetuprebase = always
 
 [core]
-	editor = nano
-	pager = less
-	# change to tig when color.pager bug is fixed.
+	editor = mvim --remote-wait-silent
+	pager = tig
 
 	whitespace = trailing-space,space-before-tab,cr-at-eol
+	excludesfile = /Users/bkudria/.gitignore_global
 
 [push]
-	default = matching
+	default = upstream
 
 [clean]
 	requireForce = false
@@ -25,10 +27,11 @@
 	branch = auto
 	interactive = auto
 	ui = auto
-	pager = true
+	pager = false
 
-[branch]
-	autosetupmerge  = true
+[diff]
+	mnemonicprefix = true
+	algorithm      = minimal
 
 [format]
 	pretty = '%Cred%h%Creset %s -%C(yellow)%d%Creset [%C(blue)%an%Creset, %Cgreen%cr%Creset]'
@@ -37,50 +40,33 @@
 	date = relative
 
 [alias]
-	push-all = "!for i in $(git config --list | grep -E ^remote\\..+\\.url | sed 's/^remote\\.\\(.*\\)\\.url=.*/\\1/'); do git push $i master; done"
+	discard = checkout HEAD --
 
-	ci = commit
-	checkin = commit
-
-	co = checkout
-	discard = checkout --
-
-	switch = checkout
-
-	pick = cherry-pick
-
-	create-branch = checkout -b
 	delete-branch = branch -d
 
 	branches = branch -a
 
 	ls = ls-files
 
-	select = add -p
-
 	staged = diff --cached
 	unstage = reset -q HEAD
 
-	statistics = diff --stat
-
-	ignore = !echo "$@" >> .gitignore
-
-	gitkconflict = !gitk --left-right HEAD...MERGE_HEAD
-
-	s = svn
-	supdate = svn rebase
-	scommit = svn dcommit
-
 	unstash = stash pop
-
-	resolve = !git unstage
-
-	echo = "!echo $1; echo $1"
-
-	lg = log --graph --all --abbrev-commit
 
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
 	ctags = !.git/hooks/ctags
 
+	s = status -s
+        d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
+        go = checkout
+
+	sync = fetch --all
+
+	push-all = !git remote | xargs -L 1 git push
+
 [init]
 	templatedir = ~/.git_template
+[help]
+	autocorrect = 1
+[git-up "bundler"]
+	check = true

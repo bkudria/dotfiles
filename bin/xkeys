@@ -1,6 +1,0 @@
-#!/bin/sh
-
-xmodmap ~/.xmodmaprc 2> /dev/null
-killall xbindkeys
-xbindkeys &
-sudo sh -c 'echo 2 > /sys/module/hid_apple/parameters/fnmode'

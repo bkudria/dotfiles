@@ -1,4 +1,6 @@
 #!/bin/sh
-rm -f .git/tags
-ctags --tag-relative -Rf.git/tags --exclude=.git --languages=-javascript,sql
-
+set -e
+PATH="/usr/local/bin:$PATH"
+trap "rm -f .git/tags.$$" EXIT
+ctags -Rf.git/tags.$$ --options=`stat -f '%N' ~/.ctags-options`
+mv .git/tags.$$ .git/tags

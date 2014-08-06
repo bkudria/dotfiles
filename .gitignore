@@ -32,6 +32,7 @@
 /.neocomplete
 /.pulse
 /.rvm
+/.rbenv
 /.ssh
 /.thumbnails
 /.vim/bundle
