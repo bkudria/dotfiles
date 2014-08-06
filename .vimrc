@@ -1,9 +1,4 @@
 set nocompatible
-set autoread
-set showcmd
-set showmatch
-set exrc
-set secure
 set cursorline
 set laststatus=2
 set shortmess+=I
@@ -24,41 +19,53 @@ else
   set number
 endif
 
-set completeopt=menu,preview,longest
-
-set wildmenu
 set wildmode=longest,full
 set wildchar=<Tab>
 
 set encoding=utf-8
-set guifont=Consolas:h13
-
-syntax enable
-filetype plugin indent on
-set ofu=syntaxcomplete#Complete
+set guifont=Source_Code_Pro_Medium:h14
 
 "" Whitespace
 set nowrap
-set tabstop=2 shiftwidth=2
-set expandtab
-set backspace=indent,eol,start
 
 "" Searching
 set hlsearch
-set incsearch
 set ignorecase
 set smartcase
+set gdefault
+
+set iskeyword+=!
+set cmdheight=2
+set scrolloff=20
+set shortmess=aOsTWI
+
+augroup MyAutoCmd
+  autocmd!
+augroup END
 
 autocmd BufWritePost * stopinsert   " Leave insert mode on save
 
-source ~/.vim/vundle.vim
-source ~/.vim/keys.vim
-source ~/.vim/commands.vim
-
-cd ~
-
+set tags=.git/tags,./.git/tags
 " Regenerate ctags on write, if we can
 autocmd BufWritePost *
       \ if exists('b:git_dir') && executable(b:git_dir.'/hooks/ctags') |
       \   call system('"'.b:git_dir.'/hooks/ctags" &') |
       \ endif
+
+
+source ~/.vim/packages.vim
+source ~/.vim/keys.vim
+source ~/.vim/functions.vim
+source ~/.vim/operators.vim
+
+cd ~
+
+" backup to ~/.tmp
+set backup
+set backupdir=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set backupskip=/tmp/*,/private/tmp/*
+set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
+set writebackup
+
+
+
