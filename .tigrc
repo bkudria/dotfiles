@@ -1,14 +1,11 @@
-set show-rev-graph  = yes
 set tab-size        = 4
-set show-date       = relative
-set read-git-colors = yes
-set line-graphics   = 'utf-8'
+set line-graphics   = utf-8
 set mouse           = yes
 set mouse-scroll    = 1
 
-bind generic   F5 refresh
 bind generic   E  @mvim --remote-wait %(file)
 bind main      R  !git rebase -i %(commit)~1
+bind generic   <F5> refresh
 
 bind status    C  !git commit -m "%(prompt Message: )"
 bind stage     C  !git commit -m "%(prompt Message: )"
