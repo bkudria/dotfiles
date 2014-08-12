@@ -1,6 +1,14 @@
 #!/bin/sh
 set -e
+echo `pwd`
 PATH="/usr/local/bin:$PATH"
 trap "rm -f .git/tags.$$" EXIT
-ctags -Rf.git/tags.$$ --options=`stat -f '%N' ~/.ctags-options`
+if [ -f .coffee ] && [ -x `which coffeetags` ]; then
+  ctags='coffeetags'
+  options='--tag-relative'
+else
+  ctags='ctags'
+  options="--options=`stat -f '%N' ~/.ctags-options`"
+fi
+$ctags -Rf.git/tags.$$ $options
 mv .git/tags.$$ .git/tags
