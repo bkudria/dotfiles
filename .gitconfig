@@ -5,9 +5,6 @@
 [github]
 	user = bkudria
 
-[branch]
-	autosetuprebase = always
-
 [core]
 	editor = mvim --remote-wait-silent
 	pager = tig
@@ -68,5 +65,9 @@
 	templatedir = ~/.git_template
 [help]
 	autocorrect = 1
+
 [git-up "bundler"]
 	check = true
+
+[include]
+	path = ~/.gitconfigs/palantir.gitconfig
