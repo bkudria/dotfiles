@@ -3,7 +3,7 @@ filetype off
 if has('vim_starting')
   set rtp+=~/.vim/bundle/neobundle.vim/
 end
-call neobundle#rc(expand('~/.vim/bundle/'))
+call neobundle#begin(expand('~/.vim/bundle'))
 
 NeoBundleFetch 'Shougo/neobundle.vim'
 
@@ -20,11 +20,17 @@ let g:ctrlp_max_height          = 25
 let g:ctrlp_max_files           = 0
 let g:ctrlp_open_new_file       = 'r'
 let g:ctrlp_clear_cache_on_exit = 0
-let g:ctrlp_max_depth           = 10
-let g:ctrlp_max_files           = 50000
+let g:ctrlp_max_depth           = 20
+let g:ctrlp_max_files           = 200000
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|public\/images\|public\/system\|data\|log\|tmp$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|public\/images\|public\/system\|data\|log\|tmp\|node_modules$',
   \ 'file': '\.exe$\|\.so$\|\.dat$\|\.gitkeep$'
+  \ }
+let g:ctrlp_user_command = {
+  \ 'types': {
+    \ 1: ['.git', 'cd %s && git ls-files'],
+    \ },
+  \ 'fallback': 'find %s -type f'
   \ }
 let g:ctrlp_open_func = { 'dirs': 'CtrlPCWD'}
 function! CtrlPCWD(action, line)
@@ -128,7 +134,7 @@ let Grep_Xargs_Options = '-0 -P 10'
 let Grep_Default_Options = '-S -m 1000'
 let Grep_Skip_Dirs = '.git log'
 let Grep_Path = '/usr/local/bin/ag'
-let Grep_Default_Filelist = '*.rb *.erb *.html *.css *.c *.h *.m'
+let Grep_Default_Filelist = '*.coffee'
 
 NeoBundle 'ervandew/supertab'
 let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
@@ -184,10 +190,6 @@ NeoBundle 'msanders/cocoa.vim'
 
 "Color Scheme"
 NeoBundle 'altercation/vim-colors-solarized'
-syntax enable
-set background=dark
-colorscheme solarized
-hi! link SignColumn Background
 
 NeoBundle 'kien/rainbow_parentheses.vim'
 au VimEnter * RainbowParenthesesToggle
@@ -196,9 +198,6 @@ au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
 
 NeoBundle 'rizzatti/funcoo.vim'
-
-NeoBundle 'kakkyz81/evervim'
-let g:evervim_devtoken=readfile(fnamemodify('~/.evernote_token', ':p'), '', 1)[0]
 
 NeoBundle 'justinmk/vim-sneak'
 
@@ -210,4 +209,11 @@ let g:tube_terminal = "iterm"
 NeoBundle 'Xuyuanp/git-nerdtree'
 NeoBundle 'dhruvasagar/vim-vinegar'
 
+NeoBundle 'kchmck/vim-coffee-script'
+
+NeoBundle 'tfnico/vim-gradle'
+NeoBundle 'vim-scripts/groovy.vim'
+
+call neobundle#end()
 filetype plugin indent on
+NeoBundleCheck

@@ -69,3 +69,7 @@ set writebackup
 
 
 
+syntax enable
+set background=dark
+colorscheme solarized
+hi! link SignColumn Background
