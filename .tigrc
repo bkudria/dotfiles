@@ -11,4 +11,4 @@ bind status    C    @git commit -qm "%(prompt Message: )"
 bind stage     C    @git commit -qm "%(prompt Message: )"
 
 bind stash     D    @git stash drop %(stash)
-bind stash     P    @git stash drop %(stash)
+bind stash     P    @git stash pop %(stash)
