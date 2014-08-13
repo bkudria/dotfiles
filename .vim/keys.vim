@@ -129,6 +129,8 @@ map <C-w>1 :only<cr>
 
 map ~ :cd ~<cr>
 
+map ; :
+
 map <C-space> *N
 
 nnoremap R cl

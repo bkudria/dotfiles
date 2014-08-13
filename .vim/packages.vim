@@ -214,6 +214,11 @@ NeoBundle 'kchmck/vim-coffee-script'
 NeoBundle 'tfnico/vim-gradle'
 NeoBundle 'vim-scripts/groovy.vim'
 
+NeoBundle 'Yggdroot/indentLine'
+let g:indentLine_char = '│'
+let g:indentLine_color_gui = '#073642'
+let g:indentLine_noConcealCursor = 1
+
 call neobundle#end()
 filetype plugin indent on
 NeoBundleCheck
