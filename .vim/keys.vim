@@ -96,6 +96,8 @@ map <leader>gcc :Gcommit<cr>
 map <leader>gcm :Gcommit -m ""<Left>
 map <leader>gpl :Git pull<cr>
 map <leader>gps :Git push<cr>
+map <leader>gm :CtrlPModified<CR>
+map <leader>gb :CtrlPBranch<CR>
 
 map <leader>f :Rgrep<cr>
 map <leader>h :h<cr>:CtrlPTag<cr>

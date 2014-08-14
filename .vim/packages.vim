@@ -219,6 +219,18 @@ let g:indentLine_char = '│'
 let g:indentLine_color_gui = '#073642'
 let g:indentLine_noConcealCursor = 1
 
+NeoBundle 'flomotlik/vim-livereload', {
+      \ 'build' : {
+      \     'mac'  : 'rake',
+      \     'unix' : 'rake',
+      \    },
+      \ }
+
+" NeoBundle 'amiorin/ctrlp-z.git'
+" NeoBundle 'phalkunz/ctrlp-related'
+
+NeoBundle 'jasoncodes/ctrlp-modified.vim'
+
 call neobundle#end()
 filetype plugin indent on
 NeoBundleCheck
