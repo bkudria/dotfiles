@@ -4,7 +4,7 @@ set mouse           = yes
 set mouse-scroll    = 1
 
 bind generic   <F5> refresh
-bind generic   E    @mvim --remote-wait %(file)
+bind generic   E    @mvim --remote %(file)
 bind main      R    !git rebase -i %(commit)~1
 
 bind status    C    @git commit -qm "%(prompt Message: )"
