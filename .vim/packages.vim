@@ -14,21 +14,21 @@ NeoBundle 'Shougo/vimproc', {
       \    },
       \ }
 
-NeoBundle 'kien/ctrlp.vim'
+NeoBundle 'ctrlpvim/ctrlp.vim'
 NeoBundle 'iurifq/ctrlp-rails.vim', {'depends' : 'kien/ctrlp.vim' }
-let g:ctrlp_max_height          = 25
+let g:ctrlp_max_height          = 40
 let g:ctrlp_max_files           = 0
 let g:ctrlp_open_new_file       = 'r'
 let g:ctrlp_clear_cache_on_exit = 0
-let g:ctrlp_max_depth           = 20
-let g:ctrlp_max_files           = 200000
+let g:ctrlp_max_depth           = 30
+let g:ctrlp_max_files           = 400000
 let g:ctrlp_custom_ignore = {
-  \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|public\/images\|public\/system\|data\|log\|tmp\|node_modules$',
+  \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|public\/images\|public\/system\|data\|log\|tmp\|node_modules\|.coffee$',
   \ 'file': '\.exe$\|\.so$\|\.dat$\|\.gitkeep$'
   \ }
 let g:ctrlp_user_command = {
   \ 'types': {
-    \ 1: ['.git', 'cd %s && git ls-files'],
+    \ 1: ['.git', 'cd %s && git ls-files -cmo --exclude-standard | sort | uniq'],
     \ },
   \ 'fallback': 'find %s -type f'
   \ }
@@ -116,8 +116,10 @@ NeoBundle 'vim-scripts/argtextobj.vim'
 NeoBundle 'kana/vim-textobj-indent'
 NeoBundle 'Julian/vim-textobj-brace'
 NeoBundle 'kana/vim-textobj-syntax'
+NeoBundle 'killphi/vim-textobj-signify-hunk'
+NeoBundle 'kana/vim-textobj-lastpat'
+NeoBundle 'Julian/vim-textobj-variable-segment'
 
-NeoBundle 'bkad/CamelCaseMotion'
 NeoBundle 'mattn/webapi-vim'
 NeoBundle 'mattn/gist-vim'
 let g:gist_clip_command     = 'pbcopy'
@@ -136,6 +138,11 @@ let Grep_Skip_Dirs = '.git log'
 let Grep_Path = '/usr/local/bin/ag'
 let Grep_Default_Filelist = '*.coffee'
 
+NeoBundle 'Shougo/echodoc.vim'
+let g:echodoc_enable_at_startup = 1
+
+let g:EclimCompletionMethod = 'omnifunc'
+
 NeoBundle 'ervandew/supertab'
 let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
 
@@ -151,12 +158,13 @@ let g:neocomplete#enable_refresh_always             = 1
 let g:neocomplete#enable_auto_select                = 0
 let g:neocomplete#force_overwrite_completefunc      = 1
 
-
 set completeopt-=menuone
+set completeopt-=preview
 set ofu=syntaxcomplete#Complete
 autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd FileType ruby,eruby    setlocal omnifunc=rubycomplete#Complete
+autocmd FileType java          setlocal omnifunc=eclim#java#complete#CodeComplete
 
 if !exists('g:neocomplete#sources')
   let g:neocomplete#sources = {}
@@ -182,6 +190,9 @@ if !exists('g:neocomplete#force_omni_input_patterns')
   let g:neocomplete#force_omni_input_patterns = {}
 endif
 let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
+let g:neocomplete#force_omni_input_patterns.java = '\k\.\k*'
+
+NeoBundle 'aaronjensen/vim-recentcomplete'
 
 NeoBundle 'terryma/vim-multiple-cursors'
 
@@ -191,11 +202,24 @@ NeoBundle 'msanders/cocoa.vim'
 "Color Scheme"
 NeoBundle 'altercation/vim-colors-solarized'
 
-NeoBundle 'kien/rainbow_parentheses.vim'
+NeoBundle 'eapache/rainbow_parentheses.vim'
+let g:rbpt_max = 20
+let g:bold_parentheses = 1
 au VimEnter * RainbowParenthesesToggle
 au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
+
+let g:rbpt_colorpairs = [
+    \ ['yellow',      '#b58900'],
+    \ ['brown',       '#cb4b16'],
+    \ ['red',         '#dc322f'],
+    \ ['magenta',     '#d33682'],
+    \ ['darkmagenta', '#6c71c4'],
+    \ ['blue',        '#268bd2'],
+    \ ['cyan',        '#2aa198'],
+    \ ['green',       '#859900'],
+    \ ]
 
 NeoBundle 'rizzatti/funcoo.vim'
 
@@ -210,6 +234,12 @@ NeoBundle 'Xuyuanp/git-nerdtree'
 NeoBundle 'dhruvasagar/vim-vinegar'
 
 NeoBundle 'kchmck/vim-coffee-script'
+NeoBundle 'geekjuice/vim-mocha'
+
+NeoBundle 'mustache/vim-mustache-handlebars'
+
+NeoBundle 'hail2u/vim-css3-syntax'
+NeoBundle 'groenewege/vim-less'
 
 NeoBundle 'tfnico/vim-gradle'
 NeoBundle 'vim-scripts/groovy.vim'
@@ -226,10 +256,31 @@ NeoBundle 'flomotlik/vim-livereload', {
       \    },
       \ }
 
-" NeoBundle 'amiorin/ctrlp-z.git'
-" NeoBundle 'phalkunz/ctrlp-related'
+NeoBundle 'airblade/vim-rooter'
+let g:rooter_patterns = ['.git/', 'build.gradle']
 
-NeoBundle 'jasoncodes/ctrlp-modified.vim'
+NeoBundle 'jaxbot/semantic-highlight.vim'
+let g:semanticGUIColors = [
+      \ '#b58900',
+      \ '#cb4b16',
+      \ '#dc322f',
+      \ '#d33682',
+      \ '#6c71c4',
+      \ '#268bd2',
+      \ '#2aa198',
+      \ '#859900'
+      \ ]
+
+NeoBundle 'bkudria/ctrlp-related'
+
+NeoBundle 'haya14busa/incsearch.vim'
+let g:incsearch#auto_nohlsearch = 1
+
+NeoBundle 'junkblocker/patchreview-vim'
+
+NeoBundle 'gregsexton/MatchTag'
+
+NeoBundle 'Wolfy87/vim-expand'
 
 call neobundle#end()
 filetype plugin indent on

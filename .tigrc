@@ -2,13 +2,21 @@ set tab-size        = 4
 set line-graphics   = utf-8
 set mouse           = yes
 set mouse-scroll    = 1
+set refresh-mode    = auto
+set show-changes    = true
+
+set main-view-author = email-user
 
 bind generic   <F5> refresh
-bind generic   E    @mvim --remote %(file)
+bind generic   E    @mvim --remote +%(lineno) %(file)
 bind main      R    !git rebase -i %(commit)~1
 
 bind status    C    @git commit -qm "%(prompt Message: )"
 bind stage     C    @git commit -qm "%(prompt Message: )"
 
+bind status    N    @git add -N %(file)
+bind generic   +    !git commit --amend
+
 bind stash     D    @git stash drop %(stash)
 bind stash     P    @git stash pop %(stash)
+

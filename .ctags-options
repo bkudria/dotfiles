@@ -1,4 +1,5 @@
 --exclude=.git
+--exclude=node_modules
 --extra=+f
 --fields=+ilSz
 --tag-relative

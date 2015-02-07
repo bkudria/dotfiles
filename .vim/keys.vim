@@ -17,7 +17,7 @@ if has("gui_macvim") && has("gui_running")
 
   macmenu &File.Save key=<nop>
   nmap <D-s> :write<CR>
-  imap <expr> <D-s> pumvisible() ? "<CR><ESC><D-s>" : "<ESC><D-s>"
+  imap <expr> <D-s> pumvisible() ? neocomplete#close_popup() . "<ESC><D-s>" : "<ESC><D-s>"
 
   macmenu &File.Close key=<nop>
   nmap <D-w> :CommandW<cr>
@@ -50,6 +50,19 @@ imap <C-Down> <C-o><C-Down>
 vmap <C-Up> [egv
 vmap <C-Down> ]egv
 
+" re-indent single lines
+nmap <C-Left> mp<al`p
+nmap <C-Right> mp>al`p
+" re-indent in insert mode
+imap <C-Left> <C-o>mp<C-o><al<C-o>`p
+imap <C-Right> <C-o>mp<C-o>>al<C-o>`p
+" Reindent multiple lines
+vmap <C-Left> <
+vmap <C-Right> >
+
+nmap << <ai
+nmap >> >ai
+
 " Ctrl-j/k deletes blank line below/above, and Alt-j/k inserts.
 nnoremap <silent><D-Up>     m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
 nnoremap <silent><D-S-Up>   m`:silent +g/\m^\s*$/d<CR>``:noh<CR>
@@ -59,13 +72,25 @@ nnoremap <silent><D-S-Down> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 map <F1> <leader>h
 map <F2> :CtrlPBuffer<cr>
 map <F3> :CtrlPMRUFiles<cr>
-map <F4> :CtrlPTag<cr>
+map <F4> :CtrlPBranch<cr>
 map <F5> :e!<cr>
+map <F6> :SemanticHighlightToggle<cr>
 
 nmap gt g<c-]>
 map <M-LeftMouse> <LeftMouse>gt
 
 map - <Plug>(operator-replace)
+
+map /  <Plug>(incsearch-forward)
+map ?  <Plug>(incsearch-backward)
+map g/ <Plug>(incsearch-stay)
+
+map n  <Plug>(incsearch-nohl-n)
+map N  <Plug>(incsearch-nohl-N)
+map *  <Plug>(incsearch-nohl-*)
+map #  <Plug>(incsearch-nohl-#)
+map g* <Plug>(incsearch-nohl-g*)
+map g# <Plug>(incsearch-nohl-g#)
 
 nmap K i<cr><esc>
 nmap L i<cr><esc>[e
@@ -73,11 +98,14 @@ nmap L i<cr><esc>[e
 nnoremap P :put!<cr>==
 
 map <leader>a   :Tabularize /
-map <leader>a:  :Tabularize /: \zs<cr>
+map <leader>a:  :Tabularize /:<cr>
 map <leader>a,  :Tabularize /,\zs<cr>
 map <leader>a=  :Tabularize /=<cr>
 map <leader>a=> :Tabularize /=><cr>
 
+map <leader>bd  :e .<cr>
+
+map <leader>cc :ccl<cr>
 map <leader>cd :CtrlPDir ~<cr>
 
 let g:blockle_mapping = '<Leader>bt'
@@ -96,15 +124,21 @@ map <leader>gcc :Gcommit<cr>
 map <leader>gcm :Gcommit -m ""<Left>
 map <leader>gpl :Git pull<cr>
 map <leader>gps :Git push<cr>
-map <leader>gm :CtrlPModified<CR>
-map <leader>gb :CtrlPBranch<CR>
+map <leader>gom :CtrlPModified<CR>
+map <leader>gob :CtrlPBranch<CR>
+map <leader>gbl :Gblame<CR>
+map <leader>gts :SignifyToggleGit<cr>
+nmap <leader>gj <plug>(signify-next-hunk)
+nmap <leader>gk <plug>(signify-prev-hunk)
 
-map <leader>f :Rgrep<cr>
+map <leader>f :Rgrep <c-r>* *.<c-r>=expand('%:e')<cr><cr>
+map <leader>ff :Rgrep<cr>
 map <leader>h :h<cr>:CtrlPTag<cr>
 
 map <leader>l <Plug>(operator-duplicate)
 
-map <leader>ra :A<cr>
+nmap <silent> // :CtrlPRelated<cr>
+
 map <leader>rr :R<cr>
 map <leader>rm :CtrlPModels<cr>
 map <leader>rc :CtrlPControllers<cr>
@@ -113,11 +147,9 @@ map <leader>rw :CtrlP app/workers<cr>
 map <leader>r. :.Rake<cr>
 map <leader>r* :Rake<cr>
 
-map <leader>t :Tube
+map <leader>t :TagbarToggle<cr>
 
 nnoremap <leader><leader> <c-^>
-nnoremap <leader>.  :A<CR>
-nnoremap .<leader>  :A<CR>
 
 nnoremap == gg=G''
 
@@ -130,8 +162,6 @@ map <C-l> <C-w>l
 map <C-w>1 :only<cr>
 
 map ~ :cd ~<cr>
-
-map ; :
 
 map <C-space> *N
 

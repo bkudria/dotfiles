@@ -30,36 +30,16 @@
 	mnemonicprefix = true
 	algorithm      = minimal
 
-[format]
-	pretty = '%Cred%h%Creset %s -%C(yellow)%d%Creset [%C(blue)%an%Creset, %Cgreen%cr%Creset]'
-
 [log]
 	date = relative
 
 [alias]
 	discard = checkout HEAD --
 
-	delete-branch = branch -d
-
-	branches = branch -a
-
 	ls = ls-files
-
-	staged = diff --cached
-	unstage = reset -q HEAD
-
-	unstash = stash pop
 
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
 	ctags = !.git/hooks/ctags
-
-	s = status -s
-        d = !"git diff-index --quiet HEAD -- || clear; git --no-pager diff --patch-with-stat"
-        go = checkout
-
-	sync = fetch --all
-
-	push-all = !git remote | xargs -L 1 git push
 
 [init]
 	templatedir = ~/.git_template

@@ -1,0 +1,6 @@
+.coffee
+coffeelint.json
+node_modules
+client_dist
+.CFUserTextEncoding
+.DS_Store

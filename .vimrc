@@ -8,8 +8,10 @@ set guioptions-=m
 set guioptions-=r
 set guioptions-=T
 
+set guicursor+=a:blinkon0
+
 set list
-set listchars=tab:\|\ ,trail:·
+set listchars=tab:\»\ ,trail:·
 
 set clipboard=unnamed
 
@@ -39,6 +41,8 @@ set cmdheight=2
 set scrolloff=20
 set shortmess=aOsTWI
 
+syntax enable
+
 augroup MyAutoCmd
   autocmd!
 augroup END
@@ -54,8 +58,8 @@ autocmd BufWritePost *
 
 
 source ~/.vim/packages.vim
-source ~/.vim/keys.vim
 source ~/.vim/functions.vim
+source ~/.vim/keys.vim
 source ~/.vim/operators.vim
 
 cd ~
@@ -67,9 +71,10 @@ set backupskip=/tmp/*,/private/tmp/*
 set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set writebackup
 
-
-
-syntax enable
 set background=dark
 colorscheme solarized
+
 hi! link SignColumn Background
+hi! link NonText Background
+hi! link SpecialKey Conceal
+hi! link MatchParen DiffChange
