@@ -2,6 +2,7 @@
 */*.git
 */*.hg
 .Trash
+.cpan
 .evolution
 .gimp-2.6
 .gradle
@@ -13,14 +14,8 @@
 .vagrant.d
 .vim/eclim
 .zcompcache
-.zcompdump
+.zcompdump*
 .zhistory
-.zlogin
-.zlogout
-.zprezto
-.zprofile
-.zshenv
-.zshrc
 /.ICEauthority
 /.VirtualBox
 /.Xauthority
