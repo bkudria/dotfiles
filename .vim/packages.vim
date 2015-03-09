@@ -134,7 +134,7 @@ NeoBundle 'jeffkreeftmeijer/vim-numbertoggle'
 NeoBundle 'grep.vim'
 let Grep_Xargs_Options = '-0 -P 10'
 let Grep_Default_Options = '-S -m 1000'
-let Grep_Skip_Dirs = '.git log'
+let Grep_Skip_Dirs = '.git log node_modules .coffee'
 let Grep_Path = '/usr/local/bin/ag'
 let Grep_Default_Filelist = '*.coffee'
 
@@ -280,7 +280,17 @@ NeoBundle 'junkblocker/patchreview-vim'
 
 NeoBundle 'gregsexton/MatchTag'
 
-NeoBundle 'Wolfy87/vim-expand'
+NeoBundle 'vasconcelloslf/vim-interestingwords'
+let g:interestingWordsGUIColors = [
+      \ '#b58900',
+      \ '#cb4b16',
+      \ '#dc322f',
+      \ '#d33682',
+      \ '#6c71c4',
+      \ '#268bd2',
+      \ '#2aa198',
+      \ '#859900'
+      \ ]
 
 call neobundle#end()
 filetype plugin indent on

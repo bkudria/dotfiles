@@ -98,14 +98,18 @@ nmap L i<cr><esc>[e
 nnoremap P :put!<cr>==
 
 map <leader>a   :Tabularize /
-map <leader>a:  :Tabularize /:<cr>
+nmap <leader>a:  vaI:Tabularize /^[^:]*\zs:/l1<cr>
+vmap <leader>a:  :Tabularize /^[^:]*\zs:/l1<cr>
 map <leader>a,  :Tabularize /,\zs<cr>
 map <leader>a=  :Tabularize /=<cr>
 map <leader>a=> :Tabularize /=><cr>
+map <leader>a-> :Tabularize /-><cr>
 
 map <leader>bd  :e .<cr>
 
-map <leader>cc :ccl<cr>
+map <leader>c <plug>(operator-coffee-compile)
+
+map <leader>cl :ccl<cr>
 map <leader>cd :CtrlPDir ~<cr>
 
 let g:blockle_mapping = '<Leader>bt'
@@ -163,6 +167,7 @@ map <C-w>1 :only<cr>
 
 map ~ :cd ~<cr>
 
-map <C-space> *N
+nnoremap <silent> <C-space> :call InterestingWords('n')<cr>
+nnoremap <silent> <esc>     :call UncolorAllWords()<cr>
 
 nnoremap R cl
