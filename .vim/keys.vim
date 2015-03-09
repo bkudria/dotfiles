@@ -157,8 +157,6 @@ nnoremap <leader><leader> <c-^>
 
 nnoremap == gg=G''
 
-nnoremap \ :noh<cr><esc>
-
 map <C-h> <C-w>h
 map <C-j> <C-w>j
 map <C-k> <C-w>k
@@ -168,6 +166,8 @@ map <C-w>1 :only<cr>
 map ~ :cd ~<cr>
 
 nnoremap <silent> <C-space> :call InterestingWords('n')<cr>
-nnoremap <silent> <esc>     :call UncolorAllWords()<cr>
+nnoremap <silent> \         :call UncolorAllWords()<cr>
+nnoremap <silent> n         :call WordNavigation(1)<cr>
+nnoremap <silent> N         :call WordNavigation(0)<cr>
 
 nnoremap R cl
