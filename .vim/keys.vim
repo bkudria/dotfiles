@@ -6,10 +6,13 @@ map <down>  <nop>
 map <left>  <nop>
 map <right> <nop>
 
-nmap <D-left> ^
+" nmap <D-left> ^
 imap <D-left> <esc>I
-nmap <D-right> $
+" nmap <D-right> $
 imap <D-right> <esc>A
+
+nmap <D-Left> :bp<cr>
+nmap <D-Right> :bn<cr>
 
 if has("gui_macvim") && has("gui_running")
   macmenu &File.Open\.\.\. key=<nop>

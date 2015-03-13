@@ -1,21 +1,17 @@
 filetype off
 
 if has('vim_starting')
+  if &compatible
+    set nocompatible
+  endif
   set rtp+=~/.vim/bundle/neobundle.vim/
 end
 call neobundle#begin(expand('~/.vim/bundle'))
 
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-NeoBundle 'Shougo/vimproc', {
-      \ 'build' : {
-      \     'mac'  : 'make -f make_mac.mak',
-      \     'unix' : 'make -f make_unix.mak',
-      \    },
-      \ }
-
 NeoBundle 'ctrlpvim/ctrlp.vim'
-NeoBundle 'iurifq/ctrlp-rails.vim', {'depends' : 'kien/ctrlp.vim' }
+NeoBundle 'iurifq/ctrlp-rails.vim', {'depends' : 'ctrlpvim/ctrlp.vim' }
 let g:ctrlp_max_height          = 40
 let g:ctrlp_max_files           = 0
 let g:ctrlp_open_new_file       = 'r'
@@ -39,8 +35,6 @@ endfunction
 
 NeoBundle 'aaronjensen/vim-command-w', {'depends' : 'vim-scripts/bufkill.vim'}
 
-NeoBundle 'fisadev/vim-ctrlp-cmdpalette'
-
 NeoBundle 'scrooloose/syntastic'
 let g:syntastic_check_on_open        = 1
 let g:syntastic_aggregate_errors     = 1
@@ -49,16 +43,80 @@ let g:syntastic_error_symbol         = 'x'
 let g:syntastic_warning_symbol       = '!'
 let g:syntastic_style_error_symbol   = '>'
 let g:syntastic_style_warning_symbol = '~'
+let g:syntastic_stl_format           = '%E{>:%fe (%e)}%B{, }%W{~:%fw (%w)}'
+
 if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
 
+NeoBundle 'bling/vim-bufferline'
+let g:bufferline_echo = 0
+let g:bufferline_show_bufnr = 0
+let g:bufferline_inactive_highlight = 'airline_c'
+let g:bufferline_active_highlight = 'airline_c_red'
+let g:bufferline_active_buffer_left = ''
+let g:bufferline_active_buffer_right = ''
+let g:bufferline_separator = ' '
+let g:bufferline_rotate = 1
+let g:bufferline_fixed_index = 1
+
 NeoBundle 'bling/vim-airline'
 set noshowmode
-let g:airline_theme                             = 'solarized'
-let g:airline_powerline_fonts                   = 1
-let g:airline_symbols                           = {'readonly': '', 'linenr': '', 'modified': '!', }
-let g:airline#extensions#hunks#non_zero_only    = 0
+let g:airline_extensions = [
+      \ 'branch',
+      \ 'quickfix',
+      \ 'ctrlp',
+      \ 'eclim',
+      \ 'syntastic',
+      \ 'bufferline',
+      \ 'whitespace'
+      \ ]
+
+let g:airline_mode_map = {
+      \ '__' : '-',
+      \ 'n'  : 'N',
+      \ 'i'  : 'I',
+      \ 'R'  : 'R',
+      \ 'c'  : 'C',
+      \ 'v'  : 'V ',
+      \ 'V'  : 'LV',
+      \ '' : 'BV',
+      \ 's'  : 'S',
+      \ 'S'  : 'LS',
+      \ '' : 'BS',
+      \ }
+
+function! AirlineInit()
+  call airline#parts#define_raw('linenr', '%2.5l')
+  call airline#parts#define_accent('linenr', 'bold')
+  call airline#parts#define_raw('colnr',  '%-2.3v')
+
+  let g:airline_section_a = airline#section#create(['mode'])
+  let g:airline_section_b = airline#section#create(['branch'])
+  let g:airline_section_c = airline#section#create(['file'])
+
+  let g:airline_section_x = airline#section#create(['readonly'])
+  let g:airline_section_y = airline#section#create(['filetype'])
+  let g:airline_section_z = airline#section#create(['linenr', ':', 'colnr'])
+
+endfunction
+autocmd User AirlineAfterInit call AirlineInit()
+
+let g:airline_theme           = 'solarized'
+let g:airline_powerline_fonts = 1
+let g:airline_symbols         = {'readonly': '', 'linenr': '', 'modified': '!', }
+
+let g:airline#extensions#whitespace#trailing_format = 'whtspc:%s'
+let g:airline#extensions#bufferline#overwrite_variables = 0
+
+let g:airline#extensions#branch#format = 'CustomBranchName'
+function! CustomBranchName(name)
+  if a:name == 'master'
+    return '-'
+  else
+    return fnamemodify(a:name, ':t')
+  endif
+endfunction
 
 NeoBundle 'mhinz/vim-signify'
 let g:signify_sign_overwrite         = 0
@@ -248,13 +306,6 @@ NeoBundle 'Yggdroot/indentLine'
 let g:indentLine_char = '│'
 let g:indentLine_color_gui = '#073642'
 let g:indentLine_noConcealCursor = 1
-
-NeoBundle 'flomotlik/vim-livereload', {
-      \ 'build' : {
-      \     'mac'  : 'rake',
-      \     'unix' : 'rake',
-      \    },
-      \ }
 
 NeoBundle 'airblade/vim-rooter'
 let g:rooter_patterns = ['.git/', 'build.gradle']

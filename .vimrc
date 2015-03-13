@@ -37,7 +37,7 @@ set smartcase
 set gdefault
 
 set iskeyword+=!
-set cmdheight=2
+set cmdheight=1
 set scrolloff=20
 set shortmess=aOsTWI
 
