@@ -33,4 +33,7 @@ function! MotionText(motion_wiseness)
   let return_value = @"
   let @" = old_value
   return return_value
+
 endfunction
+
+call operator#user#define_ex_command('coffee-compile', 'CoffeeCompile')

@@ -74,7 +74,9 @@ set writebackup
 set background=dark
 colorscheme solarized
 
-hi! link SignColumn Background
-hi! link NonText Background
-hi! link SpecialKey Conceal
-hi! link MatchParen DiffChange
+hi! link SignColumn   Background
+hi! link NonText      Background
+hi! link SpecialKey   Conceal
+hi! link MatchParen   DiffChange
+hi! link LineNr       Conceal
+hi! link CursorLineNr Background

@@ -7,7 +7,7 @@
 
 [core]
 	editor = mvim --remote-wait-silent
-	pager = tig
+	pager = less
 
 	whitespace = trailing-space,space-before-tab,cr-at-eol
 	excludesfile = /Users/bkudria/.gitignore_global
