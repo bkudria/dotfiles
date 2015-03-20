@@ -1,6 +1,5 @@
 #!/bin/sh
 set -e
-echo `pwd`
 PATH="/usr/local/bin:$PATH"
 trap "rm -f .git/tags.$$" EXIT
 if [ -f .coffee ] && [ -x `which coffeetags` ]; then
