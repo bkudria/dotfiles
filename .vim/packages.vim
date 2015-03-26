@@ -18,6 +18,7 @@ let g:ctrlp_open_new_file       = 'r'
 let g:ctrlp_clear_cache_on_exit = 0
 let g:ctrlp_max_depth           = 30
 let g:ctrlp_max_files           = 400000
+let g:ctrlp_open_single_match   = ['related', 'tags']
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|public\/images\|public\/system\|data\|log\|tmp\|node_modules\|.coffee$',
   \ 'file': '\.exe$\|\.so$\|\.dat$\|\.gitkeep$'
@@ -49,18 +50,16 @@ if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
 
-NeoBundle 'bling/vim-bufferline'
-let g:bufferline_echo = 0
-let g:bufferline_show_bufnr = 0
-let g:bufferline_inactive_highlight = 'airline_c'
-let g:bufferline_active_highlight = 'airline_c_red'
-let g:bufferline_active_buffer_left = ''
-let g:bufferline_active_buffer_right = ''
-let g:bufferline_separator = ' '
-let g:bufferline_rotate = 1
-let g:bufferline_fixed_index = 1
+NeoBundle 'mhinz/vim-signify'
+let g:signify_sign_overwrite         = 0
+let g:signify_vcs_list               = [ 'git' ]
+let g:signify_sign_add               = '+'
+let g:signify_sign_change            = '±'
+let g:signify_sign_delete            = '_'
+let g:signify_sign_delete_first_line = '‾'
 
 NeoBundle 'bling/vim-airline'
+set laststatus=2
 set noshowmode
 let g:airline_extensions = [
       \ 'branch',
@@ -68,7 +67,7 @@ let g:airline_extensions = [
       \ 'ctrlp',
       \ 'eclim',
       \ 'syntastic',
-      \ 'bufferline',
+      \ 'tabline',
       \ 'whitespace'
       \ ]
 
@@ -87,18 +86,9 @@ let g:airline_mode_map = {
       \ }
 
 function! AirlineInit()
-  call airline#parts#define_raw('linenr', '%2.5l')
-  call airline#parts#define_accent('linenr', 'bold')
-  call airline#parts#define_raw('colnr',  '%-2.3v')
-
   let g:airline_section_a = airline#section#create(['mode'])
   let g:airline_section_b = airline#section#create(['branch'])
   let g:airline_section_c = airline#section#create(['file'])
-
-  let g:airline_section_x = airline#section#create(['readonly'])
-  let g:airline_section_y = airline#section#create(['filetype'])
-  let g:airline_section_z = airline#section#create(['linenr', ':', 'colnr'])
-
 endfunction
 autocmd User AirlineAfterInit call AirlineInit()
 
@@ -107,24 +97,13 @@ let g:airline_powerline_fonts = 1
 let g:airline_symbols         = {'readonly': '', 'linenr': '', 'modified': '!', }
 
 let g:airline#extensions#whitespace#trailing_format = 'whtspc:%s'
-let g:airline#extensions#bufferline#overwrite_variables = 0
 
-let g:airline#extensions#branch#format = 'CustomBranchName'
-function! CustomBranchName(name)
-  if a:name == 'master'
-    return '-'
-  else
-    return fnamemodify(a:name, ':t')
-  endif
-endfunction
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#show_tab_type   = 0
+let g:airline#extensions#tabline#left_sep        = ''
+let g:airline#extensions#tabline#left_alt_sep    = ''
 
-NeoBundle 'mhinz/vim-signify'
-let g:signify_sign_overwrite         = 0
-let g:signify_vcs_list               = [ 'git' ]
-let g:signify_sign_add               = '+'
-let g:signify_sign_change            = '±'
-let g:signify_sign_delete            = '_'
-let g:signify_sign_delete_first_line = '‾'
+let g:airline#extensions#tabline#formatter = 'custom'
 
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'gregsexton/gitv'
@@ -171,12 +150,27 @@ NeoBundle 'coderifous/textobj-word-column.vim'
 NeoBundle 'bootleq/vim-textobj-rubysymbol'
 NeoBundle 'RyanMcG/vim-textobj-dash'
 NeoBundle 'vim-scripts/argtextobj.vim'
-NeoBundle 'kana/vim-textobj-indent'
+NeoBundle 'michaeljsmith/vim-indent-object'
 NeoBundle 'Julian/vim-textobj-brace'
 NeoBundle 'kana/vim-textobj-syntax'
 NeoBundle 'killphi/vim-textobj-signify-hunk'
 NeoBundle 'kana/vim-textobj-lastpat'
 NeoBundle 'Julian/vim-textobj-variable-segment'
+
+NeoBundle 'terryma/vim-expand-region'
+let g:expand_region_text_objects = {
+      \ 'iw'  :0,
+      \ 'i"'  :0,
+      \ 'i''' :0,
+      \ 'i]'  :1,
+      \ 'ib'  :1,
+      \ 'iB'  :1,
+      \ 'a]'  :1,
+      \ 'ab'  :1,
+      \ 'aB'  :1,
+      \ 'ii'  :0,
+      \ 'ai'  :0
+      \ }
 
 NeoBundle 'mattn/webapi-vim'
 NeoBundle 'mattn/gist-vim'
@@ -201,9 +195,6 @@ let g:echodoc_enable_at_startup = 1
 
 let g:EclimCompletionMethod = 'omnifunc'
 
-NeoBundle 'ervandew/supertab'
-let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
-
 NeoBundle 'Shougo/neocomplete.vim'
 let g:acp_enableAtStartup                           = 0
 let g:neocomplete#enable_at_startup                 = 1
@@ -227,7 +218,7 @@ autocmd FileType java          setlocal omnifunc=eclim#java#complete#CodeComplet
 if !exists('g:neocomplete#sources')
   let g:neocomplete#sources = {}
 endif
-let g:neocomplete#sources._ = ['buffer', 'tag', 'syntax']
+let g:neocomplete#sources._ = ['neosnippet', 'buffer', 'tag', 'syntax']
 
 if !exists('g:neocomplete#keyword_patterns')
   let g:neocomplete#keyword_patterns = {}
@@ -249,6 +240,15 @@ if !exists('g:neocomplete#force_omni_input_patterns')
 endif
 let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplete#force_omni_input_patterns.java = '\k\.\k*'
+
+NeoBundle 'Shougo/neosnippet'
+let g:neosnippet#disable_runtime_snippets = {
+      \   '_' : 1,
+      \ }
+let g:neosnippet#snippets_directory = '~/.vim/snippets/'
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
 
 NeoBundle 'aaronjensen/vim-recentcomplete'
 
@@ -288,7 +288,6 @@ NeoBundle 'thinca/vim-localrc'
 NeoBundle 'gcmt/tube.vim'
 let g:tube_terminal = "iterm"
 
-NeoBundle 'Xuyuanp/git-nerdtree'
 NeoBundle 'dhruvasagar/vim-vinegar'
 
 NeoBundle 'kchmck/vim-coffee-script'
@@ -342,6 +341,8 @@ let g:interestingWordsGUIColors = [
       \ '#2aa198',
       \ '#859900'
       \ ]
+
+NeoBundle 'chrisbra/NrrwRgn'
 
 call neobundle#end()
 filetype plugin indent on

@@ -6,13 +6,18 @@ map <down>  <nop>
 map <left>  <nop>
 map <right> <nop>
 
-" nmap <D-left> ^
-imap <D-left> <esc>I
-" nmap <D-right> $
-imap <D-right> <esc>A
-
-nmap <D-Left> :bp<cr>
+nmap <D-Left>  :bp<cr>
 nmap <D-Right> :bn<cr>
+
+nmap <D-1> <Plug>AirlineSelectTab1
+nmap <D-2> <Plug>AirlineSelectTab2
+nmap <D-3> <Plug>AirlineSelectTab3
+nmap <D-4> <Plug>AirlineSelectTab4
+nmap <D-5> <Plug>AirlineSelectTab5
+nmap <D-6> <Plug>AirlineSelectTab6
+nmap <D-7> <Plug>AirlineSelectTab7
+nmap <D-8> <Plug>AirlineSelectTab8
+nmap <D-9> <Plug>AirlineSelectTab9
 
 if has("gui_macvim") && has("gui_running")
   macmenu &File.Open\.\.\. key=<nop>
@@ -32,13 +37,11 @@ endif
 inoremap <Space> <C-g>u<Space>
 
 inoremap <expr> <ESC>  pumvisible() ? neocomplete#cancel_popup() : "\<ESC>"
-imap <expr> <D-CR> pumvisible() ? "\<Tab>" . neocomplete#close_popup() : "\<C-g>u<CR>"
-imap <expr> <D-1>  pumvisible() ? repeat("\<Tab>", 1) . neocomplete#close_popup() : ""
-imap <expr> <D-2>  pumvisible() ? repeat("\<Tab>", 2) . neocomplete#close_popup() : ""
-imap <expr> <D-3>  pumvisible() ? repeat("\<Tab>", 3) . neocomplete#close_popup() : ""
-imap <expr> <D-4>  pumvisible() ? repeat("\<Tab>", 4) . neocomplete#close_popup() : ""
-imap <expr> <D-5>  pumvisible() ? repeat("\<Tab>", 5) . neocomplete#close_popup() : ""
-imap <expr> <D-6>  pumvisible() ? repeat("\<Tab>", 6) . neocomplete#close_popup() : ""
+
+imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ? "\<C-n>" : "\<TAB>")
+vmap <TAB> <Plug>(neosnippet_expand_target)
+imap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
+smap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
 
 inoremap <expr> <up>   pumvisible() ? neocomplete#cancel_popup() . "\<up>"   : "\<up>"
 inoremap <expr> <down> pumvisible() ? neocomplete#cancel_popup() . "\<down>" : "\<down>"
@@ -115,6 +118,8 @@ map <leader>c <plug>(operator-coffee-compile)
 map <leader>cl :ccl<cr>
 map <leader>cd :CtrlPDir ~<cr>
 
+map <leader>cr :CopyRelativeFilePath<cr>
+
 let g:blockle_mapping = '<Leader>bt'
 
 map <leader>d   <Plug>(operator-dash)
@@ -154,7 +159,8 @@ map <leader>rw :CtrlP app/workers<cr>
 map <leader>r. :.Rake<cr>
 map <leader>r* :Rake<cr>
 
-map <leader>t :TagbarToggle<cr>
+nmap <leader>t :BrowseOrJumpTag 0<cr>
+vmap <leader>t :BrowseOrJumpTag 1<cr>
 
 nnoremap <leader><leader> <c-^>
 
