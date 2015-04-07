@@ -1,8 +1,9 @@
 --exclude=.git
+--exclude=.coffee
 --exclude=node_modules
---extra=+f
---fields=+ilSz
---tag-relative
+--fields=fKlsSzt
+--sort=foldcase
+--tag-relative=yes
 
 --langdef=js
 --langmap=js:.js
@@ -32,7 +33,8 @@
 --regex-coffee=/(^|=[ \t])*class ([A-Za-z_][A-Za-z0-9_]+\.)*([A-Za-z_][A-Za-z0-9_]+)( extends ([A-Za-z][A-Za-z0-9_.]*)+)?$/\3/c,class/
 --regex-coffee=/^[ \t]*(module\.)?(exports\.)?(([A-Za-z][A-Za-z0-9_.]*)+)[ \t]*=.*[-=]>.*$/\3/f,function/
 --regex-coffee=/^[ \t]*(module\.)?(exports\.)?@?(([A-Za-z0-9_.]*)+)[ \t]*:.*[-=]>.*$/\3/m,method/
---regex-coffee=/^[ \t]*(([A-Za-z_$][A-Za-z0-9_.]*)+)[ \t]*=[^->\n]*$/\1/v,variable/
+--regex-coffee=/^[ \t]*(([A-Za-z_$][A-Za-z0-9_.]*)+)[ \t]*=[^->\n(require)]*$/\1/v,variable/
+--regex-coffee=/^(([A-Za-z_$][A-Za-z0-9_.]*)+)[ \t]*= require[ \(]/\1/i,import/
 --regex-coffee=/^[ \t]*@(([A-Za-z][A-Za-z0-9_.]*)+):[^->\n]*$/\1/f,static field/
 --regex-coffee=/^[ \t]*@(([A-Za-z][A-Za-z0-9_.]*)+)[ \t]*=[^->\n]*$/\1/f,field/
 --regex-coffee=/^[ \t]*(@|this\.)([a-zA-Z_$][0-9a-zA-Z_$]*).*$/\2/e,export/
@@ -48,5 +50,6 @@
 --regex-coffee=/((constructor|initialize):[ \t]*\()@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?(,[ \t]*@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?){7}/\8/f,field/
 --regex-coffee=/((constructor|initialize):[ \t]*\()@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?(,[ \t]*@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?){8}/\8/f,field/
 --regex-coffee=/((constructor|initialize):[ \t]*\()@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?(,[ \t]*@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?){9}/\8/f,field/
+--coffee-kinds=-i
 
 --languages=ruby,js,markdown,coffee,html,java,perl,php,python,sh,vim

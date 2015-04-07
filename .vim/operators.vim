@@ -1,6 +1,8 @@
 call operator#user#define('exec', 'ExecuteOperator')
 function! ExecuteOperator(motion_wiseness)
-  execute MotionText(a:motion_wiseness)
+  let txt = MotionText(a:motion_wiseness)
+  let txt = substitute(txt, "[\<C-M>\<C-@>]$", '', '')
+  execute txt
 endfunction
 
 call operator#user#define('echo', 'EchoOperator')
@@ -33,7 +35,12 @@ function! MotionText(motion_wiseness)
   let return_value = @"
   let @" = old_value
   return return_value
-
 endfunction
 
 call operator#user#define_ex_command('coffee-compile', 'CoffeeCompile')
+
+call operator#user#define('open', 'OpenOperator')
+function! OpenOperator(motion_wiseness)
+  echo MotionText(a:motion_wiseness)
+  
+endfunction

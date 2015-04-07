@@ -25,7 +25,7 @@ let g:ctrlp_custom_ignore = {
   \ }
 let g:ctrlp_user_command = {
   \ 'types': {
-    \ 1: ['.git', 'cd %s && git ls-files -cmo --exclude-standard | sort | uniq'],
+    \ 1: ['.git', 'cd %s && git ls-files -cmo --exclude-standard | ( [ -f .ctrlp_ignore ] && grep -vf .ctrlp_ignore || cat ) | sort | uniq'],
     \ },
   \ 'fallback': 'find %s -type f'
   \ }
@@ -307,7 +307,9 @@ let g:indentLine_color_gui = '#073642'
 let g:indentLine_noConcealCursor = 1
 
 NeoBundle 'airblade/vim-rooter'
-let g:rooter_patterns = ['.git/', 'build.gradle']
+let g:rooter_disable_map  = 1
+let g:rooter_silent_chdir = 1
+let g:rooter_patterns     = ['.git/', 'build.gradle']
 
 NeoBundle 'jaxbot/semantic-highlight.vim'
 let g:semanticGUIColors = [
@@ -342,7 +344,12 @@ let g:interestingWordsGUIColors = [
       \ '#859900'
       \ ]
 
-NeoBundle 'chrisbra/NrrwRgn'
+NeoBundle 'ryanss/vim-hackernews'
+
+NeoBundle 'embear/vim-localvimrc'
+let g:localvimrc_name             = ['.vimrc.local']
+let g:localvimrc_persistent       = 1
+let g:localvimrc_persistence_file = "$HOME/tmp/localvimrc_persistent"
 
 call neobundle#end()
 filetype plugin indent on

@@ -78,7 +78,7 @@ nnoremap <silent><D-S-Down> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 map <F1> <leader>h
 map <F2> :CtrlPBuffer<cr>
 map <F3> :CtrlPMRUFiles<cr>
-map <F4> :CtrlPBranch<cr>
+map <F4> :CtrlPTag<cr>
 map <F5> :e!<cr>
 map <F6> :SemanticHighlightToggle<cr>
 
@@ -148,6 +148,8 @@ map <leader>ff :Rgrep<cr>
 map <leader>h :h<cr>:CtrlPTag<cr>
 
 map <leader>l <Plug>(operator-duplicate)
+
+map <leader>o <Plug>(operator-open)
 
 nmap <silent> // :CtrlPRelated<cr>
 
