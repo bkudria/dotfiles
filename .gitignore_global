@@ -6,3 +6,4 @@ client_dist
 .vimrc.local
 .CFUserTextEncoding
 .DS_Store
+.ctags.local
