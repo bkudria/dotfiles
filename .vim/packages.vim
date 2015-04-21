@@ -42,13 +42,15 @@ NeoBundle 'aaronjensen/vim-command-w', {'depends' : 'vim-scripts/bufkill.vim'}
 NeoBundle 'fisadev/vim-ctrlp-cmdpalette'
 
 NeoBundle 'scrooloose/syntastic'
-let g:syntastic_check_on_open        = 1
-let g:syntastic_aggregate_errors     = 1
-let g:syntastic_ruby_checkers        = ['mri']
-let g:syntastic_error_symbol         = 'x'
-let g:syntastic_warning_symbol       = '!'
-let g:syntastic_style_error_symbol   = '>'
-let g:syntastic_style_warning_symbol = '~'
+let g:syntastic_check_on_open         = 1
+let g:syntastic_aggregate_errors      = 1
+let g:syntastic_enable_elixir_checker = 1
+let g:syntastic_ruby_checkers         = ['mri']
+let g:syntastic_elixir_checkers       = ['elixir']
+let g:syntastic_error_symbol          = 'x'
+let g:syntastic_warning_symbol        = '!'
+let g:syntastic_style_error_symbol    = '>'
+let g:syntastic_style_warning_symbol  = '~'
 if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
@@ -95,6 +97,9 @@ cabbrev s <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'S' : 's')<CR>
 NeoBundle 'tpope/vim-rbenv'
 
 NeoBundle 'Raimondi/delimitMate'
+au FileType elixir let b:delimitMate_nesting_quotes = ['"']
+
+
 NeoBundle 'spiiph/vim-space'
 NeoBundle 'majutsushi/tagbar'
 let g:tagbar_compact   = 1
@@ -191,8 +196,6 @@ if !exists('g:neocomplete#force_omni_input_patterns')
 endif
 let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplete#force_omni_input_patterns.java = '\k\.\k*'
-
-NeoBundle 'aaronjensen/vim-recentcomplete'
 
 NeoBundle 'terryma/vim-multiple-cursors'
 
@@ -291,6 +294,9 @@ let g:interestingWordsGUIColors = [
       \ '#2aa198',
       \ '#859900'
       \ ]
+
+NeoBundle 'elixir-lang/vim-elixir'
+NeoBundle 'mattreduce/vim-mix'
 
 call neobundle#end()
 filetype plugin indent on
