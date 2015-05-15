@@ -7,3 +7,4 @@ client_dist
 .CFUserTextEncoding
 .DS_Store
 .ctags.local
+.ctags.ignore
