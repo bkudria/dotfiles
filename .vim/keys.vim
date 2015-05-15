@@ -28,7 +28,7 @@ if has("gui_macvim") && has("gui_running")
   imap <expr> <D-s> pumvisible() ? neocomplete#close_popup() . "<ESC><D-s>" : "<ESC><D-s>"
 
   macmenu &File.Close key=<nop>
-  nmap <D-w> :CommandW<cr>
+  nmap <D-w> :Sayonara<cr>
 
   macmenu &Edit.Find.Find\.\.\. key=<nop>
   map <D-f> /
@@ -118,7 +118,8 @@ map <leader>c <plug>(operator-coffee-compile)
 map <leader>cl :ccl<cr>
 map <leader>cd :CtrlPDir ~<cr>
 
-map <leader>cr :CopyRelativeFilePath<cr>
+map %% :CopyRelativeFilePath<cr>
+map <leader>%% :CopyAbsoluteFilePath<cr>
 
 let g:blockle_mapping = '<Leader>bt'
 
@@ -161,8 +162,8 @@ map <leader>rw :CtrlP app/workers<cr>
 map <leader>r. :.Rake<cr>
 map <leader>r* :Rake<cr>
 
-nmap <leader>t :BrowseOrJumpTag 0<cr>
-vmap <leader>t :BrowseOrJumpTag 1<cr>
+nmap <leader>t <Plug>(operator-jumptag)
+vmap <leader>t :BrowseOrJumpTag Vselection()<cr>
 
 nnoremap <leader><leader> <c-^>
 

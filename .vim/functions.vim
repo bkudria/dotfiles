@@ -38,26 +38,23 @@ endfun
 
 command! -nargs=1 -complete=custom,GitRemoteBranches ReviewBranch call ReviewBranch(<q-args>)
 
-function! CopyFullFilePath()
+function! CopyAbsoluteFilePath()
   let @*=expand('%:p')
+  echom "Copied: " . @*
 endfun
-command! CopyFullFilePath call CopyFullFilePath()
+command! CopyAbsoluteFilePath call CopyAbsoluteFilePath()
 
 function! CopyRelativeFilePath()
   let @*=expand('%')
+  echom "Copied: " . @*
 endfun
 command! CopyRelativeFilePath call CopyRelativeFilePath()
 
-function! BrowseOrJumpTag(isvis)
-  if a:isvis == 1
-    let query = Vselection()
-  else
-    let query = Cword()
-  endif
-
+function! BrowseOrJumpTag(query)
+  echom "query is: '".a:query."'"
   try
     let default_input_save = get(g:, 'ctrlp_default_input', '')
-    let g:ctrlp_default_input = query
+    let g:ctrlp_default_input = a:query
     CtrlPTag
   finally
     if exists('default_input_save')
