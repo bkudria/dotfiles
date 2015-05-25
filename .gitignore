@@ -2,20 +2,30 @@
 */*.git
 */*.hg
 .Trash
+.coffee_history
 .cpan
 .evolution
+.fasd
 .gimp-2.6
 .gradle
+.iterm2_shell_integration.zsh
+.ivy2
 .keychain
+.lesshst
 .mozilla
 .node-gyp
 .npm
+.npmrc
 .openoffice.org
+.pgcli*
+.psql_history
 .vagrant.d
 .vim/eclim
+.viminfo
 .zcompcache
 .zcompdump*
 .zhistory
+.zsh-histfile
 /.ICEauthority
 /.VirtualBox
 /.Xauthority
@@ -29,6 +39,7 @@
 /.config
 /.dropbox
 /.dropbox-dist
+/.eclim
 /.emacs.d/auto-save-list
 /.emacs.d/elpa
 /.fontconfig
@@ -48,7 +59,6 @@
 /.vim/bundle
 /.wallpapers
 /.wine
-/tmp
 /Applications
 /Code
 /Desktop
@@ -60,3 +70,6 @@
 /Music
 /Pictures
 /Public
+/VirtualBox\ VMs
+/tmp
+coffeelint.json

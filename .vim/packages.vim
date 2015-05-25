@@ -1,34 +1,31 @@
 filetype off
 
 if has('vim_starting')
+  if &compatible
+    set nocompatible
+  endif
   set rtp+=~/.vim/bundle/neobundle.vim/
 end
 call neobundle#begin(expand('~/.vim/bundle'))
 
 NeoBundleFetch 'Shougo/neobundle.vim'
 
-NeoBundle 'Shougo/vimproc', {
-      \ 'build' : {
-      \     'mac'  : 'make -f make_mac.mak',
-      \     'unix' : 'make -f make_unix.mak',
-      \    },
-      \ }
-
 NeoBundle 'ctrlpvim/ctrlp.vim'
-NeoBundle 'iurifq/ctrlp-rails.vim', {'depends' : 'kien/ctrlp.vim' }
+NeoBundle 'iurifq/ctrlp-rails.vim', {'depends' : 'ctrlpvim/ctrlp.vim' }
 let g:ctrlp_max_height          = 40
 let g:ctrlp_max_files           = 0
 let g:ctrlp_open_new_file       = 'r'
 let g:ctrlp_clear_cache_on_exit = 0
 let g:ctrlp_max_depth           = 30
 let g:ctrlp_max_files           = 400000
+let g:ctrlp_open_single_match   = ['related', 'tags']
 let g:ctrlp_custom_ignore = {
   \ 'dir':  '\.git$\|\.hg$\|\.svn$\|\.yardoc\|public\/images\|public\/system\|data\|log\|tmp\|node_modules\|.coffee$',
   \ 'file': '\.exe$\|\.so$\|\.dat$\|\.gitkeep$'
   \ }
 let g:ctrlp_user_command = {
   \ 'types': {
-    \ 1: ['.git', 'cd %s && git ls-files -cmo --exclude-standard | sort | uniq'],
+    \ 1: ['.git', 'cd %s && git ls-files -cmo --exclude-standard | ( [ -f .ctrlp_ignore ] && grep -vf .ctrlp_ignore || cat ) | sort | uniq'],
     \ },
   \ 'fallback': 'find %s -type f'
   \ }
@@ -38,8 +35,6 @@ function! CtrlPCWD(action, line)
 endfunction
 
 NeoBundle 'aaronjensen/vim-command-w', {'depends' : 'vim-scripts/bufkill.vim'}
-
-NeoBundle 'fisadev/vim-ctrlp-cmdpalette'
 
 NeoBundle 'scrooloose/syntastic'
 let g:syntastic_check_on_open         = 1
@@ -51,16 +46,10 @@ let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
 let g:syntastic_style_error_symbol    = '>'
 let g:syntastic_style_warning_symbol  = '~'
+
 if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
-
-NeoBundle 'bling/vim-airline'
-set noshowmode
-let g:airline_theme                             = 'solarized'
-let g:airline_powerline_fonts                   = 1
-let g:airline_symbols                           = {'readonly': '', 'linenr': '', 'modified': '!', }
-let g:airline#extensions#hunks#non_zero_only    = 0
 
 NeoBundle 'mhinz/vim-signify'
 let g:signify_sign_overwrite         = 0
@@ -69,6 +58,56 @@ let g:signify_sign_add               = '+'
 let g:signify_sign_change            = '±'
 let g:signify_sign_delete            = '_'
 let g:signify_sign_delete_first_line = '‾'
+
+NeoBundle 'bling/vim-airline'
+set laststatus=2
+set noshowmode
+let g:airline_extensions = [
+      \ 'branch',
+      \ 'quickfix',
+      \ 'ctrlp',
+      \ 'syntastic',
+      \ 'tabline',
+      \ 'whitespace'
+      \ ]
+
+if exists("airline#extensions#eclim#init")
+  g:airline_extensions += ['eclim']
+endif
+
+let g:airline_mode_map = {
+      \ '__' : '-',
+      \ 'n'  : 'N',
+      \ 'i'  : 'I',
+      \ 'R'  : 'R',
+      \ 'c'  : 'C',
+      \ 'v'  : 'V ',
+      \ 'V'  : 'LV',
+      \ '' : 'BV',
+      \ 's'  : 'S',
+      \ 'S'  : 'LS',
+      \ '' : 'BS',
+      \ }
+
+function! AirlineInit()
+  let g:airline_section_a = airline#section#create(['mode'])
+  let g:airline_section_b = airline#section#create(['branch'])
+  let g:airline_section_c = airline#section#create(['file'])
+endfunction
+autocmd User AirlineAfterInit call AirlineInit()
+
+let g:airline_theme           = 'solarized'
+let g:airline_powerline_fonts = 1
+let g:airline_symbols         = {'readonly': '', 'linenr': '', 'modified': '!', }
+
+let g:airline#extensions#whitespace#trailing_format = 'whtspc:%s'
+
+let g:airline#extensions#tabline#buffer_idx_mode = 1
+let g:airline#extensions#tabline#show_tab_type   = 0
+let g:airline#extensions#tabline#left_sep        = ''
+let g:airline#extensions#tabline#left_alt_sep    = ''
+
+let g:airline#extensions#tabline#formatter = 'custom'
 
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'gregsexton/gitv'
@@ -118,12 +157,27 @@ NeoBundle 'coderifous/textobj-word-column.vim'
 NeoBundle 'bootleq/vim-textobj-rubysymbol'
 NeoBundle 'RyanMcG/vim-textobj-dash'
 NeoBundle 'vim-scripts/argtextobj.vim'
-NeoBundle 'kana/vim-textobj-indent'
+NeoBundle 'michaeljsmith/vim-indent-object'
 NeoBundle 'Julian/vim-textobj-brace'
 NeoBundle 'kana/vim-textobj-syntax'
 NeoBundle 'killphi/vim-textobj-signify-hunk'
 NeoBundle 'kana/vim-textobj-lastpat'
 NeoBundle 'Julian/vim-textobj-variable-segment'
+
+NeoBundle 'terryma/vim-expand-region'
+let g:expand_region_text_objects = {
+      \ 'iw'  :0,
+      \ 'i"'  :0,
+      \ 'i''' :0,
+      \ 'i]'  :1,
+      \ 'ib'  :1,
+      \ 'iB'  :1,
+      \ 'a]'  :1,
+      \ 'ab'  :1,
+      \ 'aB'  :1,
+      \ 'ii'  :0,
+      \ 'ai'  :0
+      \ }
 
 NeoBundle 'mattn/webapi-vim'
 NeoBundle 'mattn/gist-vim'
@@ -148,9 +202,6 @@ let g:echodoc_enable_at_startup = 1
 
 let g:EclimCompletionMethod = 'omnifunc'
 
-NeoBundle 'ervandew/supertab'
-let g:SuperTabDefaultCompletionType = "<c-x><c-u>"
-
 NeoBundle 'Shougo/neocomplete.vim'
 let g:acp_enableAtStartup                           = 0
 let g:neocomplete#enable_at_startup                 = 1
@@ -174,7 +225,7 @@ autocmd FileType java          setlocal omnifunc=eclim#java#complete#CodeComplet
 if !exists('g:neocomplete#sources')
   let g:neocomplete#sources = {}
 endif
-let g:neocomplete#sources._ = ['buffer', 'tag', 'syntax']
+let g:neocomplete#sources._ = ['neosnippet', 'buffer', 'tag', 'syntax']
 
 if !exists('g:neocomplete#keyword_patterns')
   let g:neocomplete#keyword_patterns = {}
@@ -196,6 +247,15 @@ if !exists('g:neocomplete#force_omni_input_patterns')
 endif
 let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplete#force_omni_input_patterns.java = '\k\.\k*'
+
+NeoBundle 'Shougo/neosnippet'
+let g:neosnippet#disable_runtime_snippets = {
+      \   '_' : 1,
+      \ }
+let g:neosnippet#snippets_directory = '~/.vim/snippets/'
+if has('conceal')
+  set conceallevel=2 concealcursor=i
+endif
 
 NeoBundle 'terryma/vim-multiple-cursors'
 
@@ -233,7 +293,6 @@ NeoBundle 'thinca/vim-localrc'
 NeoBundle 'gcmt/tube.vim'
 let g:tube_terminal = "iterm"
 
-NeoBundle 'Xuyuanp/git-nerdtree'
 NeoBundle 'dhruvasagar/vim-vinegar'
 
 NeoBundle 'kchmck/vim-coffee-script'
@@ -252,15 +311,10 @@ let g:indentLine_char = '│'
 let g:indentLine_color_gui = '#073642'
 let g:indentLine_noConcealCursor = 1
 
-NeoBundle 'flomotlik/vim-livereload', {
-      \ 'build' : {
-      \     'mac'  : 'rake',
-      \     'unix' : 'rake',
-      \    },
-      \ }
-
 NeoBundle 'airblade/vim-rooter'
-let g:rooter_patterns = ['.git/', 'build.gradle']
+let g:rooter_disable_map  = 1
+let g:rooter_silent_chdir = 1
+let g:rooter_patterns     = ['.git/', 'build.gradle']
 
 NeoBundle 'jaxbot/semantic-highlight.vim'
 let g:semanticGUIColors = [
@@ -297,6 +351,12 @@ let g:interestingWordsGUIColors = [
 
 NeoBundle 'elixir-lang/vim-elixir'
 NeoBundle 'mattreduce/vim-mix'
+NeoBundle 'ryanss/vim-hackernews'
+
+NeoBundle 'embear/vim-localvimrc'
+let g:localvimrc_name             = ['.vimrc.local']
+let g:localvimrc_persistent       = 1
+let g:localvimrc_persistence_file = "$HOME/tmp/localvimrc_persistent"
 
 call neobundle#end()
 filetype plugin indent on

@@ -9,7 +9,7 @@ function! Vselection()
 endfunction
 
 function! Cword()
-  expand('<cword>')
+  return expand('<cword>')
 endfunction
 
 function! SignifyToggleGit()
@@ -47,3 +47,23 @@ function! CopyRelativeFilePath()
   let @*=expand('%')
 endfun
 command! CopyRelativeFilePath call CopyRelativeFilePath()
+
+function! BrowseOrJumpTag(isvis)
+  if a:isvis == 1
+    let query = Vselection()
+  else
+    let query = Cword()
+  endif
+
+  try
+    let default_input_save = get(g:, 'ctrlp_default_input', '')
+    let g:ctrlp_default_input = query
+    CtrlPTag
+  finally
+    if exists('default_input_save')
+      let g:ctrlp_default_input = default_input_save
+    endif
+  endtry
+endfunction
+
+command! -range -nargs=1 BrowseOrJumpTag call BrowseOrJumpTag(<q-args>)

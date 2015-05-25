@@ -2,5 +2,8 @@
 coffeelint.json
 node_modules
 client_dist
+.ctrlp_ignore
+.vimrc.local
 .CFUserTextEncoding
 .DS_Store
+.ctags.local

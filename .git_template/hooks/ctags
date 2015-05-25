@@ -1,14 +1,23 @@
 #!/bin/sh
+
 set -e
-echo `pwd`
+
 PATH="/usr/local/bin:$PATH"
-trap "rm -f .git/tags.$$" EXIT
-if [ -f .coffee ] && [ -x `which coffeetags` ]; then
-  ctags='coffeetags'
-  options='--tag-relative'
-else
-  ctags='ctags'
-  options="--options=`stat -f '%N' ~/.ctags-options`"
+
+tagsfile=".git/tags.$$"
+
+trap "rm -f $tagsfile" EXIT
+
+exclude_options="--exclude=.git --exclude=@`stat -f '%N' .gitignore` --exclude=@`stat -f '%N' ~/.gitignore_global`"
+common_options="--fields=fKlsSzt --sort=foldcase --tag-relative=yes $exclude_options"
+
+global_options="--options=`stat -f '%N' ~/.ctags` $common_options"
+
+ctags -Rf$tagsfile $global_options
+
+if [ -f .ctags.local ]; then
+  local_options="--options=`stat -f '%N' .ctags.local` $common_options"
+  ctags -aRf$tagsfile $local_options
 fi
-$ctags -Rf.git/tags.$$ $options
-mv .git/tags.$$ .git/tags
+
+mv $tagsfile .git/tags

@@ -37,7 +37,7 @@ set smartcase
 set gdefault
 
 set iskeyword+=!
-set cmdheight=2
+set cmdheight=1
 set scrolloff=20
 set shortmess=aOsTWI
 
@@ -77,6 +77,11 @@ colorscheme solarized
 hi! link SignColumn   Background
 hi! link NonText      Background
 hi! link SpecialKey   Conceal
-hi! link MatchParen   DiffChange
 hi! link LineNr       Conceal
 hi! link CursorLineNr Background
+
+hi! MatchParen guibg='#073642' guifg='#b58900'
+
+hi! DiffAdd    guibg='#002b36'
+hi! DiffChange guibg='#002b36'
+hi! DiffDelete guibg='#002b36'
