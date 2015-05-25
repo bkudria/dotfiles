@@ -42,5 +42,10 @@ call operator#user#define_ex_command('coffee-compile', 'CoffeeCompile')
 call operator#user#define('open', 'OpenOperator')
 function! OpenOperator(motion_wiseness)
   echo MotionText(a:motion_wiseness)
-  
+endfunction
+
+call operator#user#define('jumptag', 'JumpTagOperator')
+function! JumpTagOperator(motion_wiseness)
+  echom MotionText(a:motion_wiseness)
+  call BrowseOrJumpTag(MotionText(a:motion_wiseness))
 endfunction

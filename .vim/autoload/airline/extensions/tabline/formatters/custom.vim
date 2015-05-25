@@ -8,6 +8,9 @@ endfunction
 
 function! s:sfname(bufnr)
   let pure_filename   = fnamemodify(bufname(a:bufnr), ':t:r')
+  if pure_filename == ""
+    return "[no name]"
+  endif
   let parts_pattern   = '[a-z][A-Z]\@=\zs\|-\|_'
   let filename_parts  = split(pure_filename, parts_pattern)
   let leading_letters = map(filename_parts[:-2], 'strpart(v:val, 0, 1)')

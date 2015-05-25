@@ -34,7 +34,7 @@ function! CtrlPCWD(action, line)
   call ctrlp#dir#accept('t', a:line)
 endfunction
 
-NeoBundle 'aaronjensen/vim-command-w', {'depends' : 'vim-scripts/bufkill.vim'}
+NeoBundle 'mhinz/vim-sayonara'
 
 NeoBundle 'scrooloose/syntastic'
 let g:syntastic_check_on_open         = 1
