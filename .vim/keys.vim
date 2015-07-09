@@ -1,5 +1,5 @@
-let mapleader=","
-let g:mapleader=","
+let mapleader="\<space>"
+let g:mapleader="\<space>"
 
 map <up>    <nop>
 map <down>  <nop>
@@ -66,8 +66,8 @@ imap <C-Right> <C-o>mp<C-o>>al<C-o>`p
 vmap <C-Left> <
 vmap <C-Right> >
 
-nmap << <ai
-nmap >> >ai
+nmap << <ii
+nmap >> >ii
 
 " Ctrl-j/k deletes blank line below/above, and Alt-j/k inserts.
 nnoremap <silent><D-Up>     m`:silent -g/\m^\s*$/d<CR>``:noh<CR>
@@ -163,7 +163,7 @@ map <leader>r. :.Rake<cr>
 map <leader>r* :Rake<cr>
 
 nmap <leader>t <Plug>(operator-jumptag)
-vmap <leader>t :BrowseOrJumpTag Vselection()<cr>
+vmap <leader>t :BrowseOrJumpTag <c-r>=Vselection()<cr>
 
 nnoremap <leader><leader> <c-^>
 
