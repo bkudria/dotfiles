@@ -358,6 +358,9 @@ let g:localvimrc_name             = ['.vimrc.local']
 let g:localvimrc_persistent       = 1
 let g:localvimrc_persistence_file = "$HOME/tmp/localvimrc_persistent"
 
+NeoBundle 'JazzCore/ctrlp-cmatcher', {'build': {'mac': 'CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments ./install.sh'}}
+let g:ctrlp_match_func = {'match' : 'matcher#cmatch'}
+
 call neobundle#end()
 filetype plugin indent on
 NeoBundleCheck
