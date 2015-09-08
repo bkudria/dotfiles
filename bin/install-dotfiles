@@ -6,10 +6,9 @@ url=http://github.com/bkudria/dotfiles/tarball/master
 
 hostname=$1
 if [ $hostname ]; then
-	wget -q -O- $url | ssh $hostname "tar --strip-components 1 -xzf-"
+	curl $url | ssh $hostname "tar --strip-components 1 -xzf-"
 else
-	wget -q -O- $url | tar --strip-components 1 -xzf-
-	~/.zshrc
+	curl $url | tar --strip-components 1 -xzf-
 fi
 
 # Homebrew
