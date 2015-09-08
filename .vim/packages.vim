@@ -65,7 +65,7 @@ let g:airline_extensions = [
       \ 'branch',
       \ 'quickfix',
       \ 'ctrlp',
-      \ 'eclim',
+      " \ 'eclim',
       \ 'syntastic',
       \ 'tabline',
       \ 'whitespace'
@@ -193,7 +193,7 @@ let Grep_Default_Filelist = '*.coffee'
 NeoBundle 'Shougo/echodoc.vim'
 let g:echodoc_enable_at_startup = 1
 
-let g:EclimCompletionMethod = 'omnifunc'
+" let g:EclimCompletionMethod = 'omnifunc'
 
 NeoBundle 'Shougo/neocomplete.vim'
 let g:acp_enableAtStartup                           = 0
@@ -250,7 +250,7 @@ if has('conceal')
   set conceallevel=2 concealcursor=i
 endif
 
-NeoBundle 'aaronjensen/vim-recentcomplete'
+" NeoBundle 'aaronjensen/vim-recentcomplete'
 
 NeoBundle 'terryma/vim-multiple-cursors'
 
