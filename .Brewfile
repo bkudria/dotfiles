@@ -24,6 +24,7 @@ cask 'shortcat'
 cask 'textexpander'
 cask 'vox'
 cask 'vox-preferences-pane'
+cask 'xscreensaver'
 
 tap 'caskroom/homebrew-fonts'
 cask 'font-glober'
