@@ -6,9 +6,14 @@ url=http://github.com/bkudria/dotfiles/tarball/master
 
 hostname=$1
 if [ $hostname ]; then
-	wget -q -O- $url | ssh $hostname "tar --strip-components 1 -xzf-"
+	curl -L $url | ssh $hostname "tar --strip-components 1 -xzf-"
 else
-	wget -q -O- $url | tar --strip-components 1 -xzf-
-	~/.zshrc
+	curl -L $url | tar --strip-components 1 -xzf-
 fi
 
+# Homebrew
+
+ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+
+brew tap homebrew/bundle
+brew bundle --global
