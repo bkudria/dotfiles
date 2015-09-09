@@ -65,7 +65,6 @@ let g:airline_extensions = [
       \ 'branch',
       \ 'quickfix',
       \ 'ctrlp',
-      " \ 'eclim',
       \ 'syntastic',
       \ 'tabline',
       \ 'whitespace'
