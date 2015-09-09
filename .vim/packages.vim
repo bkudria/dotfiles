@@ -37,14 +37,15 @@ endfunction
 NeoBundle 'mhinz/vim-sayonara'
 
 NeoBundle 'scrooloose/syntastic'
-let g:syntastic_check_on_open        = 1
-let g:syntastic_aggregate_errors     = 1
-let g:syntastic_ruby_checkers        = ['mri']
-let g:syntastic_error_symbol         = 'x'
-let g:syntastic_warning_symbol       = '!'
-let g:syntastic_style_error_symbol   = '>'
-let g:syntastic_style_warning_symbol = '~'
-let g:syntastic_stl_format           = '%E{>:%fe (%e)}%B{, }%W{~:%fw (%w)}'
+let g:syntastic_check_on_open         = 1
+let g:syntastic_aggregate_errors      = 1
+let g:syntastic_enable_elixir_checker = 1
+let g:syntastic_ruby_checkers         = ['mri']
+let g:syntastic_elixir_checkers       = ['elixir']
+let g:syntastic_error_symbol          = 'x'
+let g:syntastic_warning_symbol        = '!'
+let g:syntastic_style_error_symbol    = '>'
+let g:syntastic_style_warning_symbol  = '~'
 
 if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
@@ -69,6 +70,10 @@ let g:airline_extensions = [
       \ 'tabline',
       \ 'whitespace'
       \ ]
+
+if exists("airline#extensions#eclim#init")
+  g:airline_extensions += ['eclim']
+endif
 
 let g:airline_mode_map = {
       \ '__' : '-',
@@ -131,6 +136,9 @@ cabbrev s <c-r>=(getcmdtype()==':' && getcmdpos()==1 ? 'S' : 's')<CR>
 NeoBundle 'tpope/vim-rbenv'
 
 NeoBundle 'Raimondi/delimitMate'
+au FileType elixir let b:delimitMate_nesting_quotes = ['"']
+
+
 NeoBundle 'spiiph/vim-space'
 NeoBundle 'majutsushi/tagbar'
 let g:tagbar_compact   = 1
@@ -343,6 +351,8 @@ let g:interestingWordsGUIColors = [
       \ '#859900'
       \ ]
 
+NeoBundle 'elixir-lang/vim-elixir'
+NeoBundle 'mattreduce/vim-mix'
 NeoBundle 'ryanss/vim-hackernews'
 
 NeoBundle 'embear/vim-localvimrc'
@@ -350,8 +360,12 @@ let g:localvimrc_name             = ['.vimrc.local']
 let g:localvimrc_persistent       = 1
 let g:localvimrc_persistence_file = "$HOME/tmp/localvimrc_persistent"
 
-NeoBundle 'JazzCore/ctrlp-cmatcher', {'build': {'mac': 'CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments ./install.sh'}}
-let g:ctrlp_match_func = {'match' : 'matcher#cmatch'}
+" NeoBundle 'JazzCore/ctrlp-cmatcher', {'build': {'mac': 'CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments ./install.sh'}}
+" let g:ctrlp_match_func = {'match' : 'matcher#cmatch'}
+
+" NeoBundle 'bkudria/vim-hardy'
+NeoBundle 'sophacles/vim-processing'
+
 
 call neobundle#end()
 filetype plugin indent on

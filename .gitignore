@@ -18,6 +18,7 @@
 .npmrc
 .openoffice.org
 .pgcli*
+.platformio
 .psql_history
 .vagrant.d
 .vim/eclim
