@@ -1,9 +1,10 @@
-# Insert your preferred key mappings here.
-map <m-o> Vomnibar.activateTabSelection
-map % copyCurrentUrl
+unmap ?
+map <a-?> showHelp
+map <m-o> Vomnibar.activateTabSelection
+map t Vomnibar.activateTabSelection
+map ; Vomnibar.activate
+map : Vomnibar.activateInNewTab
+map % copyCurrentUrl
 map h previousTab
 map l nextTab
-map f LinkHints.activateModeToOpenInNewTab
-map t Vomnibar.activateTabSelection
-map ; Vomnibar.activate
-map : Vomnibar.activateInNewTab
+map f LinkHints.activateModeToOpenInNewTab
