@@ -53,3 +53,7 @@ zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 export EDITOR='mvim --remote-wait'
 export VISUAL='mvim --remote-wait'
+
+if (( $+commands[docker-machine] )); then
+  eval "$(docker-machine env dev)"
+fi
