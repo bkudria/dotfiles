@@ -50,4 +50,4 @@
 	check = true
 
 [include]
-	path = ~/.gitconfigs/palantir.gitconfig
+	path = ~/.gitconfigs/cloverhealth.gitconfig
