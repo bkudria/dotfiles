@@ -42,6 +42,9 @@ let g:syntastic_aggregate_errors      = 1
 let g:syntastic_enable_elixir_checker = 1
 let g:syntastic_ruby_checkers         = ['mri']
 let g:syntastic_elixir_checkers       = ['elixir']
+let g:syntastic_python_python_exec    = '/usr/local/bin/python3'
+let g:syntastic_python_checkers       = ['python', 'pylint', 'pyflakes', 'pep8']
+let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
 let g:syntastic_style_error_symbol    = '>'
@@ -195,10 +198,16 @@ let Grep_Xargs_Options = '-0 -P 10'
 let Grep_Default_Options = '-S -m 1000'
 let Grep_Skip_Dirs = '.git log node_modules .coffee'
 let Grep_Path = '/usr/local/bin/ag'
-let Grep_Default_Filelist = '*.coffee'
+let Grep_Default_Filelist = '*'
 
 NeoBundle 'Shougo/echodoc.vim'
 let g:echodoc_enable_at_startup = 1
+
+NeoBundle 'pantsbuild/vim-pants'
+NeoBundle 'edma2/vim-pants'
+NeoBundle 'davidhalter/jedi-vim'
+let g:jedi#completions_enabled = 0
+let g:jedi#auto_vim_configuration = 0
 
 " let g:EclimCompletionMethod = 'omnifunc'
 
@@ -221,6 +230,7 @@ autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
 autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd FileType ruby,eruby    setlocal omnifunc=rubycomplete#Complete
 autocmd FileType java          setlocal omnifunc=eclim#java#complete#CodeComplete
+autocmd FileType python        setlocal omnifunc=jedi#completions
 
 if !exists('g:neocomplete#sources')
   let g:neocomplete#sources = {}
@@ -245,8 +255,10 @@ let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
 if !exists('g:neocomplete#force_omni_input_patterns')
   let g:neocomplete#force_omni_input_patterns = {}
 endif
-let g:neocomplete#force_omni_input_patterns.ruby = '[^. *\t]\.\w*\|\h\w*::'
-let g:neocomplete#force_omni_input_patterns.java = '\k\.\k*'
+let g:neocomplete#force_omni_input_patterns.ruby   = '[^. *\t]\.\w*\|\h\w*::'
+let g:neocomplete#force_omni_input_patterns.java   = '\k\.\k*'
+let g:neocomplete#force_omni_input_patterns.python =
+  \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
 
 NeoBundle 'Shougo/neosnippet'
 let g:neosnippet#disable_runtime_snippets = {
@@ -365,7 +377,6 @@ let g:localvimrc_persistence_file = "$HOME/tmp/localvimrc_persistent"
 
 " NeoBundle 'bkudria/vim-hardy'
 NeoBundle 'sophacles/vim-processing'
-
 
 call neobundle#end()
 filetype plugin indent on
