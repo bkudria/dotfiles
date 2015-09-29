@@ -112,16 +112,21 @@ map <leader>a=> :Tabularize /=><cr>
 map <leader>a-> :Tabularize /-><cr>
 
 map <leader>bd  :e .<cr>
+let g:blockle_mapping = '<Leader>bt'
 
 map <leader>c <plug>(operator-coffee-compile)
 
 map <leader>cl :ccl<cr>
 map <leader>cd :CtrlPDir ~<cr>
 
+nmap <Leader>cs <Plug>GitGutterStageHunk
+nmap <Leader>cr <Plug>GitGutterRevertHunk
+nmap <Leader>cv <Plug>GitGutterPreviewHunk
+omap ic <Plug>(textobj-gitgutter-i)
+xmap ic <Plug>(textobj-gitgutter-i)
+
 map %% :CopyRelativeFilePath<cr>
 map <leader>%% :CopyAbsoluteFilePath<cr>
-
-let g:blockle_mapping = '<Leader>bt'
 
 map <leader>d   <Plug>(operator-dash)
 map <leader>dru <Plug>(operator-dash-ruby)
@@ -140,11 +145,6 @@ map <leader>gps :Git push<cr>
 map <leader>gom :CtrlPModified<CR>
 map <leader>gob :CtrlPBranch<CR>
 map <leader>gbl :Gblame<CR>
-map <leader>gts :SignifyToggleGit<cr>
-omap ic <plug>(signify-motion-inner-pending)
-xmap ic <plug>(signify-motion-inner-visual)
-omap ac <plug>(signify-motion-outer-pending)
-xmap ac <plug>(signify-motion-outer-visual)
 
 map <leader>f :Rgrep <c-r>* *.<c-r>=expand('%:e')<cr><cr>
 map <leader>ff :Rgrep<cr>

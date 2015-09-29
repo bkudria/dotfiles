@@ -41,6 +41,8 @@ set cmdheight=1
 set scrolloff=20
 set shortmess=aOsTWI
 
+set updatetime=500
+
 syntax enable
 
 augroup MyAutoCmd
