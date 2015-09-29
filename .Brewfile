@@ -1,16 +1,22 @@
+tap 'homebrew/bundle'
 brew 'ctags'
 brew 'docker'
 brew 'docker-machine'
 brew 'duck'
 brew 'git'
+brew 'hub'
 brew 'httpie'
 brew 'jq'
 brew 'macvim', args: ['HEAD', 'with-lua', 'with-luajit', 'with-override-system-vim', 'with-python3']
 brew 'ncdu'
 brew 'nodejs'
+brew 'pgcli'
+
 brew 'python3'
+
 brew 'rbenv'
 brew 'ruby-build'
+
 brew 'the_silver_searcher'
 brew 'tig', args: ['HEAD']
 brew 'tree'
@@ -22,6 +28,7 @@ tap 'homebrew/completions'
 brew 'homebrew/completions/vagrant-completion'
 
 tap 'caskroom/cask'
+brew 'caskroom/cask/brew-cask'
 cask 'alfred'
 cask 'bartender'
 cask 'bettertouchtool'
@@ -44,10 +51,12 @@ cask 'vox'
 cask 'vox-preferences-pane'
 cask 'xscreensaver'
 
+tap 'caskroom/fonts'
 tap 'caskroom/homebrew-fonts'
 cask 'font-glober'
 cask 'font-source-code-pro-for-powerline'
 
+tap 'caskroom/versions'
 tap 'caskroom/homebrew-versions'
 cask 'fantastical'
 cask 'google-chrome-beta'

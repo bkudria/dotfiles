@@ -57,3 +57,6 @@ export VISUAL='mvim --remote-wait'
 if (( $+commands[docker-machine] )); then
   eval "$(docker-machine env dev)"
 fi
+
+alias git=hub
+

@@ -141,8 +141,10 @@ map <leader>gom :CtrlPModified<CR>
 map <leader>gob :CtrlPBranch<CR>
 map <leader>gbl :Gblame<CR>
 map <leader>gts :SignifyToggleGit<cr>
-nmap <leader>gj <plug>(signify-next-hunk)
-nmap <leader>gk <plug>(signify-prev-hunk)
+omap ic <plug>(signify-motion-inner-pending)
+xmap ic <plug>(signify-motion-inner-visual)
+omap ac <plug>(signify-motion-outer-pending)
+xmap ac <plug>(signify-motion-outer-visual)
 
 map <leader>f :Rgrep <c-r>* *.<c-r>=expand('%:e')<cr><cr>
 map <leader>ff :Rgrep<cr>

@@ -43,7 +43,7 @@ let g:syntastic_enable_elixir_checker = 1
 let g:syntastic_ruby_checkers         = ['mri']
 let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_python_python_exec    = '/usr/local/bin/python3'
-let g:syntastic_python_checkers       = ['python', 'pylint', 'pyflakes', 'pep8']
+let g:syntastic_python_checkers       = ['python', 'pyflakes', 'pep8', 'pylint']
 let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
@@ -62,7 +62,10 @@ let g:signify_sign_change            = '±'
 let g:signify_sign_delete            = '_'
 let g:signify_sign_delete_first_line = '‾'
 
+NeoBundle 'fisadev/vim-isort'
+
 NeoBundle 'bling/vim-airline'
+
 set laststatus=2
 set noshowmode
 let g:airline_extensions = [
@@ -142,7 +145,6 @@ NeoBundle 'Raimondi/delimitMate'
 au FileType elixir let b:delimitMate_nesting_quotes = ['"']
 
 
-NeoBundle 'spiiph/vim-space'
 NeoBundle 'majutsushi/tagbar'
 let g:tagbar_compact   = 1
 let g:tagbar_indent    = 1
@@ -156,7 +158,7 @@ NeoBundle 'kana/vim-textobj-user'
 NeoBundle 'kana/vim-textobj-line'
 NeoBundle 'nelstrom/vim-textobj-rubyblock'
 NeoBundle 'lucapette/vim-textobj-underscore'
-NeoBundle 'coderifous/textobj-word-column.vim'
+NeoBundle 'bps/vim-textobj-python'
 NeoBundle 'bootleq/vim-textobj-rubysymbol'
 NeoBundle 'RyanMcG/vim-textobj-dash'
 NeoBundle 'vim-scripts/argtextobj.vim'
@@ -196,7 +198,8 @@ NeoBundle 'jeffkreeftmeijer/vim-numbertoggle'
 NeoBundle 'grep.vim'
 let Grep_Xargs_Options = '-0 -P 10'
 let Grep_Default_Options = '-S -m 1000'
-let Grep_Skip_Dirs = '.git log node_modules .coffee'
+" TODO Generalize for project search
+let Grep_Skip_Dirs = '.git log node_modules .coffee .pants.d'
 let Grep_Path = '/usr/local/bin/ag'
 let Grep_Default_Filelist = '*'
 
