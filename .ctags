@@ -44,6 +44,6 @@
 --regex-coffee=/((constructor|initialize):[ \t]*\()@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?(,[ \t]*@(([A-Za-z][A-Za-z0-9_.]*)+)([ \t]*=[ \t]*[^,)]+)?){9}/\8/f,field/
 --coffee-kinds=-i
 
---python-kinds=-1
+--python-kinds=-l
 
 --languages=ruby,js,markdown,coffee,html,java,perl,php,python,sh,vim

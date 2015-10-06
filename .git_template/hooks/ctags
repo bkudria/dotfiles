@@ -2,6 +2,10 @@
 
 set -e
 
+if [ "$PWD" = "$HOME" ]; then
+  exit 0
+fi
+
 PATH="/usr/local/bin:$PATH"
 
 tagsfile=".git/tags.$$"
