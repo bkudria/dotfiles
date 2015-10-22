@@ -59,4 +59,5 @@ if (( $+commands[docker-machine] )); then
 fi
 
 alias git=hub
+path=("$HOME/bin" $path)
 

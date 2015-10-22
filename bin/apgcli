@@ -1,0 +1,38 @@
+#!/bin/bash
+
+echo -n "Waiting for tunnel... "
+
+exec 3< <(aptible db:tunnel $* 2> /dev/null &)
+
+while read line; do
+   if [[ $line =~ ^Connect\ at ]]; then
+      pg_url=${line#Connect at }
+      port=${pg_url##*:}
+      port=${port%/*}
+      break
+   fi
+done <&3
+
+ssh_ps=""
+while [[ ! $ssh_ps ]]; do
+   ssh_ps=$(ps -o pid,command | grep "[s]sh -L $port:localhost")
+   [[ $ssh_ps ]] && ssh_pid=${ssh_ps%% sh -c*}
+done
+
+attempts=0
+exit_status=0
+until [[ $attempts -ge 10 ]]; do
+   reset
+   pgcli $pg_url && break
+   exit_status=$?
+   (( attempts++ ))
+   sleep 1
+done
+
+function finish {
+   exec 3<&-
+   kill -9 $ssh_pid
+   exit $exit_status
+}
+trap finish EXIT
+

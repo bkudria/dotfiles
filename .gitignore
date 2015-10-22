@@ -13,6 +13,7 @@
 .keychain
 .lesshst
 .mozilla
+.netrc
 .node-gyp
 .npm
 .npmrc
@@ -85,6 +86,7 @@
 /Documents
 /Downloads
 /Dropbox
+/Google\ Drive
 /Library
 /Movies
 /Music

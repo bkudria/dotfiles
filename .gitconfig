@@ -41,6 +41,8 @@
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
 	ctags = !.git/hooks/ctags
 
+	pr = pull-request
+
 [init]
 	templatedir = ~/.git_template
 [help]
