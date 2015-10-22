@@ -36,6 +36,9 @@ endfunction
 
 NeoBundle 'mhinz/vim-sayonara'
 
+NeoBundle 'airblade/vim-gitgutter'
+NeoBundle 'gilligan/textobj-gitgutter'
+
 NeoBundle 'scrooloose/syntastic'
 let g:syntastic_check_on_open         = 1
 let g:syntastic_aggregate_errors      = 1
@@ -64,6 +67,14 @@ endif
 
 NeoBundle 'fisadev/vim-isort'
 
+NeoBundle 'Shougo/vimproc.vim', { 'build' : { 'mac' : 'make' } }
+NeoBundle 'Shougo/unite.vim'
+NeoBundle 'Shougo/unite-outline'
+NeoBundle 'tsukkee/unite-tag'
+call unite#custom#profile('default', 'context', {
+\   'start_insert' : 1
+\ })
+
 NeoBundle 'bling/vim-airline'
 
 set laststatus=2
@@ -74,6 +85,7 @@ let g:airline_extensions = [
       \ 'ctrlp',
       \ 'syntastic',
       \ 'tabline',
+      \ 'unite',
       \ 'whitespace'
       \ ]
 
@@ -116,6 +128,7 @@ let g:airline#extensions#tabline#left_alt_sep    = ''
 let g:airline#extensions#tabline#formatter = 'custom'
 
 NeoBundle 'tpope/vim-fugitive'
+NeoBundle 'tpope/vim-rhubarb'
 NeoBundle 'gregsexton/gitv'
 NeoBundle 'tpope/vim-rails'
 NeoBundle 'vim-ruby/vim-ruby'
@@ -129,11 +142,14 @@ NeoBundle 'tpope/vim-repeat'
 NeoBundle 'tpope/vim-sleuth'
 NeoBundle 'tpope/vim-sensible'
 NeoBundle 'tpope/vim-dispatch'
-NeoBundle 'tpope/vim-haml'
 NeoBundle 'tpope/vim-commentary'
 NeoBundle 'AndrewRadev/splitjoin.vim'
 NeoBundle 'tpope/vim-unimpaired'
 set undodir^=~/.vim/undo
+
+NeoBundle 'tpope/vim-haml'
+NeoBundle 'hail2u/vim-css3-syntax'
+NeoBundle 'cakebaker/scss-syntax.vim'
 
 NeoBundle 'tpope/vim-abolish'
 " Replace defined :s
@@ -168,9 +184,6 @@ NeoBundle 'kana/vim-textobj-syntax'
 NeoBundle 'killphi/vim-textobj-signify-hunk'
 NeoBundle 'kana/vim-textobj-lastpat'
 NeoBundle 'Julian/vim-textobj-variable-segment'
-
-NeoBundle 'airblade/vim-gitgutter'
-NeoBundle 'gilligan/textobj-gitgutter'
 
 NeoBundle 'terryma/vim-expand-region'
 let g:expand_region_text_objects = {
@@ -214,9 +227,12 @@ NeoBundle 'edma2/vim-pants'
 NeoBundle 'davidhalter/jedi-vim'
 let g:jedi#completions_enabled = 0
 let g:jedi#auto_vim_configuration = 0
+let g:jedi#auto_vim_configuration = 0
 
 " let g:EclimCompletionMethod = 'omnifunc'
 
+NeoBundle 'Shougo/neco-syntax'
+NeoBundle 'Shougo/neoinclude.vim'
 NeoBundle 'Shougo/neocomplete.vim'
 let g:acp_enableAtStartup                           = 0
 let g:neocomplete#enable_at_startup                 = 1
@@ -237,11 +253,12 @@ autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
 autocmd FileType ruby,eruby    setlocal omnifunc=rubycomplete#Complete
 autocmd FileType java          setlocal omnifunc=eclim#java#complete#CodeComplete
 autocmd FileType python        setlocal omnifunc=jedi#completions
+autocmd FileType css,scss      setlocal omnifunc=csscomplete#CompleteCSS
 
 if !exists('g:neocomplete#sources')
   let g:neocomplete#sources = {}
 endif
-let g:neocomplete#sources._ = ['neosnippet', 'buffer', 'tag', 'syntax']
+let g:neocomplete#sources._ = ['neosnippet', 'omni', 'buffer', 'tag', 'syntax']
 
 if !exists('g:neocomplete#keyword_patterns')
   let g:neocomplete#keyword_patterns = {}
@@ -265,6 +282,7 @@ let g:neocomplete#force_omni_input_patterns.ruby   = '[^. *\t]\.\w*\|\h\w*::'
 let g:neocomplete#force_omni_input_patterns.java   = '\k\.\k*'
 let g:neocomplete#force_omni_input_patterns.python =
   \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
+let g:neocomplete#force_omni_input_patterns.conf   = '@\w*'
 
 NeoBundle 'Shougo/neosnippet'
 let g:neosnippet#disable_runtime_snippets = {
@@ -307,6 +325,7 @@ let g:rbpt_colorpairs = [
 NeoBundle 'rizzatti/funcoo.vim'
 
 NeoBundle 'justinmk/vim-sneak'
+hi! link SneakPluginTarget IncSearch
 
 NeoBundle 'thinca/vim-localrc'
 
@@ -320,7 +339,6 @@ NeoBundle 'geekjuice/vim-mocha'
 
 NeoBundle 'mustache/vim-mustache-handlebars'
 
-NeoBundle 'hail2u/vim-css3-syntax'
 NeoBundle 'groenewege/vim-less'
 
 NeoBundle 'tfnico/vim-gradle'
@@ -373,6 +391,10 @@ NeoBundle 'elixir-lang/vim-elixir'
 NeoBundle 'mattreduce/vim-mix'
 NeoBundle 'ryanss/vim-hackernews'
 
+NeoBundle 'hdima/python-syntax'
+
+NeoBundle 'qpkorr/vim-renamer'
+
 " NeoBundle 'JazzCore/ctrlp-cmatcher', {'build': {'mac': 'CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments ./install.sh'}}
 " let g:ctrlp_match_func = {'match' : 'matcher#cmatch'}
 
@@ -380,6 +402,8 @@ NeoBundle 'ryanss/vim-hackernews'
 NeoBundle 'sophacles/vim-processing'
 
 NeoBundle 'bkudria/vim-pep8radius'
+
+NeoBundle 'rhysd/conflict-marker.vim'
 
 call neobundle#end()
 filetype plugin indent on

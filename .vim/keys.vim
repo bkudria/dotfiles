@@ -82,6 +82,9 @@ map <F4> :CtrlPTag<cr>
 map <F5> :e!<cr>
 map <F6> :SemanticHighlightToggle<cr>
 
+map <F7>         :Unite outline -toggle<cr>
+map <leader><F7> :Unite outline -here -immediately -no-resize -toggle -no-split -start-insert<cr>
+
 nmap gt g<c-]>
 map <M-LeftMouse> <LeftMouse>gt
 
@@ -113,8 +116,6 @@ map <leader>a-> :Tabularize /-><cr>
 
 map <leader>bd  :e .<cr>
 let g:blockle_mapping = '<Leader>bt'
-
-map <leader>c <plug>(operator-coffee-compile)
 
 map <leader>cl :ccl<cr>
 map <leader>cd :CtrlPDir ~<cr>
@@ -152,8 +153,6 @@ map <leader>h :h<cr>:CtrlPTag<cr>
 
 map <leader>l <Plug>(operator-duplicate)
 
-map <leader>o <Plug>(operator-open)
-
 nmap <silent> // :CtrlPRelated<cr>
 
 map <leader>rr :R<cr>
@@ -185,3 +184,5 @@ nnoremap <silent> n         :call WordNavigation(1)<cr>
 nnoremap <silent> N         :call WordNavigation(0)<cr>
 
 nnoremap R cl
+
+nmap Y yil
