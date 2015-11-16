@@ -71,9 +71,9 @@ NeoBundle 'Shougo/vimproc.vim', { 'build' : { 'mac' : 'make' } }
 NeoBundle 'Shougo/unite.vim'
 NeoBundle 'Shougo/unite-outline'
 NeoBundle 'tsukkee/unite-tag'
-call unite#custom#profile('default', 'context', {
-\   'start_insert' : 1
-\ })
+NeoBundle 'tsukkee/unite-help'
+NeoBundle 'Shougo/neomru.vim'
+let g:unite_force_overwrite_statusline = 0
 
 NeoBundle 'bling/vim-airline'
 
@@ -225,9 +225,15 @@ let g:echodoc_enable_at_startup = 1
 NeoBundle 'pantsbuild/vim-pants'
 NeoBundle 'edma2/vim-pants'
 NeoBundle 'davidhalter/jedi-vim'
-let g:jedi#completions_enabled = 0
-let g:jedi#auto_vim_configuration = 0
-let g:jedi#auto_vim_configuration = 0
+let g:jedi#show_call_signatures     = 2
+let g:jedi#completions_enabled      = 0
+let g:jedi#auto_vim_configuration   = 0
+let g:jedi#completions_command      = ''
+let g:jedi#goto_command             = ''
+let g:jedi#goto_assignments_command = ''
+let g:jedi#documentation_command    = ''
+let g:jedi#rename_command           = ''
+let g:jedi#usages_command           = ''
 
 " let g:EclimCompletionMethod = 'omnifunc'
 
@@ -394,6 +400,7 @@ NeoBundle 'ryanss/vim-hackernews'
 NeoBundle 'hdima/python-syntax'
 
 NeoBundle 'qpkorr/vim-renamer'
+let g:RenamerSupportColonWToRename = 1
 
 " NeoBundle 'JazzCore/ctrlp-cmatcher', {'build': {'mac': 'CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments ./install.sh'}}
 " let g:ctrlp_match_func = {'match' : 'matcher#cmatch'}
@@ -404,6 +411,8 @@ NeoBundle 'sophacles/vim-processing'
 NeoBundle 'bkudria/vim-pep8radius'
 
 NeoBundle 'rhysd/conflict-marker.vim'
+
+NeoBundle 'Glench/Vim-Jinja2-Syntax'
 
 call neobundle#end()
 filetype plugin indent on

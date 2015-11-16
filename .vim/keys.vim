@@ -1,5 +1,47 @@
-let mapleader="\<space>"
 let g:mapleader="\<space>"
+let g:maplocalleader="\<bslash>"
+
+call unite#custom#profile('default', 'context', {
+\       'no_resize'   : 1,
+\       'no_split'    : 1,
+\       'prompt'      : '> '
+\ })
+
+call unite#custom#profile('source/cwd', 'context', {
+\       'default_action'   : 'cd',
+\ })
+
+call unite#custom#profile('source/outline', 'context', {
+\       'winwidth'         : 30,
+\       'vertical'         : 1,
+\       'vertical_preview' : 1,
+\       'auto_preview'     : 1
+\ })
+
+let g:unite_source_alias_aliases = {
+      \   'cwd' : {
+      \     'source' : 'directory',
+      \   },
+      \ }
+
+call unite#filters#matcher_default#use(['matcher_fuzzy'])
+call unite#filters#sorter_default#use(['sorter_selecta'])
+
+let g:unite_source_tag_show_kind        = 0
+let g:unite_source_tag_max_name_length  = 30
+let g:unite_source_tag_max_fname_length = 50
+
+hi link uniteInputPrompt Special
+
+autocmd FileType unite call s:unite_my_settings()
+function! s:unite_my_settings()
+  map  <buffer> <D-w> <Plug>(unite_exit)
+  nmap <buffer> q     <Plug>(unite_exit)
+  nmap <buffer> <esc> <Plug>(unite_exit)
+  nmap <buffer> <F1>  <Plug>(unite_quick_help)
+  nmap <buffer> <F5>  <Plug>(unite_redraw)
+  imap <buffer> <Tab> <Plug>(unite_complete)
+endfunction
 
 map <up>    <nop>
 map <down>  <nop>
@@ -21,17 +63,13 @@ nmap <D-9> <Plug>AirlineSelectTab9
 
 if has("gui_macvim") && has("gui_running")
   macmenu &File.Open\.\.\. key=<nop>
-  map <D-o> :CtrlPCurWD<CR>
 
   macmenu &File.Save key=<nop>
-  nmap <D-s> :write<CR>
+  nmap <D-s> <nop>
   imap <expr> <D-s> pumvisible() ? neocomplete#close_popup() . "<ESC><D-s>" : "<ESC><D-s>"
 
   macmenu &File.Close key=<nop>
   nmap <D-w> :Sayonara<cr>
-
-  macmenu &Edit.Find.Find\.\.\. key=<nop>
-  map <D-f> /
 endif
 
 inoremap <Space> <C-g>u<Space>
@@ -76,14 +114,13 @@ nnoremap <silent><D-Down>   :set paste<CR>m`O<Esc>``:set nopaste<CR>
 nnoremap <silent><D-S-Down> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 
 map <F1> <leader>h
-map <F2> :CtrlPBuffer<cr>
-map <F3> :CtrlPMRUFiles<cr>
-map <F4> :CtrlPTag<cr>
+map <F2> :Unite buffer    -start-insert<cr>
+map <F3> :Unite file_mru  -start-insert<cr>
+map <F4> :Unite tag -start-insert<cr>
 map <F5> :e!<cr>
 map <F6> :SemanticHighlightToggle<cr>
-
-map <F7>         :Unite outline -toggle<cr>
-map <leader><F7> :Unite outline -here -immediately -no-resize -toggle -no-split -start-insert<cr>
+map              <F7> :Unite outline -toggle<cr>
+map <localleader><F7> :Unite outline -toggle -immediately -start-insert<cr>
 
 nmap gt g<c-]>
 map <M-LeftMouse> <LeftMouse>gt
@@ -118,7 +155,8 @@ map <leader>bd  :e .<cr>
 let g:blockle_mapping = '<Leader>bt'
 
 map <leader>cl :ccl<cr>
-map <leader>cd :CtrlPDir ~<cr>
+map              <leader>cd :Unite cwd:~/Code -start-insert<cr>
+map <localleader><leader>cd :Unite cwd:~<cr>
 
 nmap <Leader>cs <Plug>GitGutterStageHunk
 nmap <Leader>cr <Plug>GitGutterRevertHunk
@@ -129,11 +167,12 @@ xmap ic <Plug>(textobj-gitgutter-i)
 map %% :CopyRelativeFilePath<cr>
 map <leader>%% :CopyAbsoluteFilePath<cr>
 
-map <leader>d   <Plug>(operator-dash)
-map <leader>dru <Plug>(operator-dash-ruby)
-map <leader>dra <Plug>(operator-dash-rails)
+map <leader>d   :Unite grep/git:/::TODO<cr>
 
 map <leader>e <Plug>(operator-exec)
+
+map <leader>f :Unite grep/git:/::<cr>
+map <leader>gg :Unite grep/git:::<cr>
 
 map <leader>gs :Gstatus<cr>
 map <leader>gr :Gread<cr>
@@ -147,13 +186,14 @@ map <leader>gom :CtrlPModified<CR>
 map <leader>gob :CtrlPBranch<CR>
 map <leader>gbl :Gblame<CR>
 
-map <leader>f :Rgrep <c-r>* *.<c-r>=expand('%:e')<cr><cr>
-map <leader>ff :Rgrep<cr>
-map <leader>h :h<cr>:CtrlPTag<cr>
+map <leader>h :Unite help -resume -no-split -start-insert -input=<cr>
 
 map <leader>l <Plug>(operator-duplicate)
 
 nmap <silent> // :CtrlPRelated<cr>
+
+map <leader>o         :Unite file_rec/git:-cmo:--exclude-standard -start-insert<cr>
+map <leader><leader>o :Unite file_rec/git:-cmo:--exclude-standard -start-insert<cr>
 
 map <leader>rr :R<cr>
 map <leader>rm :CtrlPModels<cr>
@@ -163,10 +203,20 @@ map <leader>rw :CtrlP app/workers<cr>
 map <leader>r. :.Rake<cr>
 map <leader>r* :Rake<cr>
 
+nmap <leader>s :write<cr>
+
 nmap <leader>t <Plug>(operator-jumptag)
 vmap <leader>t :BrowseOrJumpTag <c-r>=Vselection()<cr>
 
-nnoremap <leader><leader> <c-^>
+nmap <leader>u :UniteResume<cr>
+
+map <leader>x :Sayonara<cr>
+map <leader>q :Sayonara<cr>
+
+nnoremap <localleader><localleader> <c-^>
+
+nmap [u :UnitePrevious<cr>
+nmap ]u :UniteNext<cr>
 
 nnoremap == gg=G''
 
@@ -179,7 +229,7 @@ map <C-w>1 :only<cr>
 map ~ :cd ~<cr>
 
 nnoremap <silent> <C-space> :call InterestingWords('n')<cr>
-nnoremap <silent> \         :call UncolorAllWords()<cr>
+nnoremap <silent> \         :call UncolorAllWords()<cr>:nohl<cr>
 nnoremap <silent> n         :call WordNavigation(1)<cr>
 nnoremap <silent> N         :call WordNavigation(0)<cr>
 
