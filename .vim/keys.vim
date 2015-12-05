@@ -18,6 +18,11 @@ call unite#custom#profile('source/outline', 'context', {
 \       'auto_preview'     : 1
 \ })
 
+call unite#custom#profile('source/line', 'context', {
+\       'custom_line_enable_highlight' : 1,
+\       'start_insert'                 : 1
+\ })
+
 let g:unite_source_alias_aliases = {
       \   'cwd' : {
       \     'source' : 'directory',
@@ -171,13 +176,13 @@ map <leader>d   :Unite grep/git:/::TODO<cr>
 
 map <leader>e <Plug>(operator-exec)
 
-map <leader>f :Unite grep/git:/::<cr>
-map <leader>gg :Unite grep/git:::<cr>
+map <leader>f  :Unite grep/git:/::<cr>
+map <leader>fl :Unite line<cr>
+map <leader>gd :Unite grep/git:::<cr>
 
 map <leader>gs :Gstatus<cr>
 map <leader>gr :Gread<cr>
 map <leader>gw :Gwrite<cr>
-map <leader>gl :Gitv<cr>
 map <leader>gcc :Gcommit<cr>
 map <leader>gcm :Gcommit -m ""<Left>
 map <leader>gpl :Git pull<cr>
@@ -210,6 +215,7 @@ vmap <leader>t :BrowseOrJumpTag <c-r>=Vselection()<cr>
 
 nmap <leader>u :UniteResume<cr>
 
+map <leader>w :Sayonara<cr>
 map <leader>x :Sayonara<cr>
 map <leader>q :Sayonara<cr>
 
