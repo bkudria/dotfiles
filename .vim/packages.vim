@@ -39,6 +39,23 @@ NeoBundle 'mhinz/vim-sayonara'
 NeoBundle 'airblade/vim-gitgutter'
 NeoBundle 'gilligan/textobj-gitgutter'
 
+NeoBundle 'davidhalter/jedi-vim'
+NeoBundle 'jmcantrell/vim-virtualenv'
+let g:jedi#show_call_signatures     = 2
+let g:jedi#completions_enabled      = 0
+let g:jedi#auto_vim_configuration   = 0
+let g:jedi#completions_command      = ''
+let g:jedi#goto_command             = ''
+let g:jedi#goto_assignments_command = ''
+let g:jedi#documentation_command    = ''
+let g:jedi#rename_command           = ''
+let g:jedi#usages_command           = ''
+NeoBundleLazy 'lambdalisue/vim-pyenv', {
+        \ 'depends': ['davidhalter/jedi-vim'],
+        \ 'autoload': {
+        \   'filetypes': ['python', 'python3'],
+        \ }}
+
 NeoBundle 'scrooloose/syntastic'
 let g:syntastic_check_on_open         = 1
 let g:syntastic_aggregate_errors      = 1
@@ -47,7 +64,9 @@ let g:syntastic_ruby_checkers         = ['mri']
 let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_python_python_exec    = '/usr/local/bin/python3'
 let g:syntastic_python_checkers       = ['python', 'pyflakes', 'pep8', 'pylint']
-let g:syntastic_elixir_checkers       = ['elixir']
+let g:syntastic_python_pylint_exec = system('pyenv which pylint')
+let g:syntastic_javascript_checkers   = ['eslint']
+let g:syntastic_javascript_eslint_args = "-c ~/.eslintrc"
 let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
 let g:syntastic_style_error_symbol    = '>'
@@ -56,6 +75,8 @@ let g:syntastic_style_warning_symbol  = '~'
 if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
+
+NeoBundle 'pmsorhaindo/syntastic-local-eslint.vim'
 
 " NeoBundle 'mhinz/vim-signify'
 " let g:signify_sign_overwrite         = 0
@@ -75,7 +96,8 @@ NeoBundle 'tsukkee/unite-help'
 NeoBundle 'Shougo/neomru.vim'
 let g:unite_force_overwrite_statusline = 0
 
-NeoBundle 'bling/vim-airline'
+NeoBundle 'vim-airline/vim-airline'
+NeoBundle 'vim-airline/vim-airline-themes'
 
 set laststatus=2
 set noshowmode
@@ -86,7 +108,8 @@ let g:airline_extensions = [
       \ 'syntastic',
       \ 'tabline',
       \ 'unite',
-      \ 'whitespace'
+      \ 'whitespace',
+      \ 'virtualenv'
       \ ]
 
 if exists("airline#extensions#eclim#init")
@@ -222,18 +245,10 @@ let Grep_Default_Filelist = '*'
 NeoBundle 'Shougo/echodoc.vim'
 let g:echodoc_enable_at_startup = 1
 
-NeoBundle 'pantsbuild/vim-pants'
-NeoBundle 'edma2/vim-pants'
-NeoBundle 'davidhalter/jedi-vim'
-let g:jedi#show_call_signatures     = 2
-let g:jedi#completions_enabled      = 0
-let g:jedi#auto_vim_configuration   = 0
-let g:jedi#completions_command      = ''
-let g:jedi#goto_command             = ''
-let g:jedi#goto_assignments_command = ''
-let g:jedi#documentation_command    = ''
-let g:jedi#rename_command           = ''
-let g:jedi#usages_command           = ''
+NeoBundle 'marijnh/tern_for_vim', { 'build': { 'mac': 'npm install' } }
+NeoBundle 'jelera/vim-javascript-syntax'
+NeoBundle 'pangloss/vim-javascript'
+NeoBundle 'mxw/vim-jsx'
 
 " let g:EclimCompletionMethod = 'omnifunc'
 
@@ -289,6 +304,7 @@ let g:neocomplete#force_omni_input_patterns.java   = '\k\.\k*'
 let g:neocomplete#force_omni_input_patterns.python =
   \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
 let g:neocomplete#force_omni_input_patterns.conf   = '@\w*'
+let g:neocomplete#force_omni_input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
 
 NeoBundle 'Shougo/neosnippet'
 let g:neosnippet#disable_runtime_snippets = {
@@ -372,7 +388,7 @@ let g:semanticGUIColors = [
       \ '#859900'
       \ ]
 
-NeoBundle 'bkudria/ctrlp-related'
+" NeoBundle 'bkudria/ctrlp-related'
 
 NeoBundle 'haya14busa/incsearch.vim'
 let g:incsearch#auto_nohlsearch = 1
@@ -408,7 +424,7 @@ let g:RenamerSupportColonWToRename = 1
 " NeoBundle 'bkudria/vim-hardy'
 NeoBundle 'sophacles/vim-processing'
 
-NeoBundle 'bkudria/vim-pep8radius'
+" NeoBundle 'bkudria/vim-pep8radius'
 
 NeoBundle 'rhysd/conflict-marker.vim'
 

@@ -79,7 +79,7 @@ endif
 
 inoremap <Space> <C-g>u<Space>
 
-inoremap <expr> <ESC>  pumvisible() ? neocomplete#cancel_popup() : "\<ESC>"
+inoremap <expr> <ESC>  pumvisible() ? neocomplete#close_popup() : "\<ESC>"
 
 imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ? "\<C-n>" : "\<TAB>")
 vmap <TAB> <Plug>(neosnippet_expand_target)
@@ -195,7 +195,7 @@ map <leader>h :Unite help -resume -no-split -start-insert -input=<cr>
 
 map <leader>l <Plug>(operator-duplicate)
 
-nmap <silent> // :CtrlPRelated<cr>
+" nmap <silent> // :CtrlPRelated<cr>
 
 map <leader>o         :Unite file_rec/git:-cmo:--exclude-standard -start-insert<cr>
 map <leader><leader>o :Unite file_rec/git:-cmo:--exclude-standard -start-insert<cr>

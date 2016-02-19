@@ -9,6 +9,7 @@ zstyle ':prezto:load' pmodule \
   'git' \
   'ruby' \
   'archive' \
+  'python' \
   'homebrew' \
   'directory' \
   'spectrum' \
@@ -53,11 +54,6 @@ zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 export EDITOR='mvim --remote-wait'
 export VISUAL='mvim --remote-wait'
-
-if (( $+commands[docker-machine] )); then
-  docker-machine start default
-  eval "$(docker-machine env default)"
-fi
 
 alias git=hub
 path=("$HOME/bin" $path)
