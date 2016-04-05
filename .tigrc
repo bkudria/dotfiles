@@ -7,6 +7,7 @@ set show-changes    = true
 
 set main-view-author = email-user
 
+bind generic   <F2> !@sh -c "echo %(commit)\\\\c | pbcopy"
 bind generic   <F5> refresh
 bind generic   E    @mvim --remote +%(lineno) %(file)
 bind main      R    !git rebase -i %(commit)~1

@@ -219,6 +219,13 @@ map <leader>w :Sayonara<cr>
 map <leader>x :Sayonara<cr>
 map <leader>q :Sayonara<cr>
 
+let g:jedi#goto_command = "<leader>pg"
+let g:jedi#goto_assignments_command = "<leader>pa"
+let g:jedi#goto_definitions_command = "<leader>pd"
+let g:jedi#documentation_command = "<leader>pk"
+let g:jedi#usages_command = "<leader>pu"
+let g:jedi#rename_command = "<leader>pr"
+
 nnoremap <localleader><localleader> <c-^>
 
 nmap [u :UnitePrevious<cr>

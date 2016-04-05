@@ -68,8 +68,10 @@
 /.local
 /.neocomplete
 /.oracle_jre_usage
+/.pex
 /.ptpython
 /.pulse
+/.pyenv
 /.pylint.d
 /.rbenv
 /.rvm

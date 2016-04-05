@@ -23,4 +23,4 @@ if jedi#init_python()
   augroup END
 endif
 
-PyenvActivate 3.4.3
+PyenvActivate 3.5.1

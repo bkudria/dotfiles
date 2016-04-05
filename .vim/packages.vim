@@ -44,12 +44,6 @@ NeoBundle 'jmcantrell/vim-virtualenv'
 let g:jedi#show_call_signatures     = 2
 let g:jedi#completions_enabled      = 0
 let g:jedi#auto_vim_configuration   = 0
-let g:jedi#completions_command      = ''
-let g:jedi#goto_command             = ''
-let g:jedi#goto_assignments_command = ''
-let g:jedi#documentation_command    = ''
-let g:jedi#rename_command           = ''
-let g:jedi#usages_command           = ''
 NeoBundleLazy 'lambdalisue/vim-pyenv', {
         \ 'depends': ['davidhalter/jedi-vim'],
         \ 'autoload': {
@@ -66,7 +60,6 @@ let g:syntastic_python_python_exec    = '/usr/local/bin/python3'
 let g:syntastic_python_checkers       = ['python', 'pyflakes', 'pep8', 'pylint']
 let g:syntastic_python_pylint_exec = system('pyenv which pylint')
 let g:syntastic_javascript_checkers   = ['eslint']
-let g:syntastic_javascript_eslint_args = "-c ~/.eslintrc"
 let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
 let g:syntastic_style_error_symbol    = '>'
@@ -207,6 +200,7 @@ NeoBundle 'kana/vim-textobj-syntax'
 NeoBundle 'killphi/vim-textobj-signify-hunk'
 NeoBundle 'kana/vim-textobj-lastpat'
 NeoBundle 'Julian/vim-textobj-variable-segment'
+NeoBundle 'whatyouhide/vim-textobj-xmlattr'
 
 NeoBundle 'terryma/vim-expand-region'
 let g:expand_region_text_objects = {
@@ -317,6 +311,9 @@ endif
 
 " NeoBundle 'aaronjensen/vim-recentcomplete'
 
+NeoBundle 'mattn/emmet-vim'
+let g:user_emmet_leader_key='<m-space>'
+
 NeoBundle 'terryma/vim-multiple-cursors'
 
 NeoBundle 'b4winckler/vim-objc'
@@ -355,6 +352,7 @@ NeoBundle 'gcmt/tube.vim'
 let g:tube_terminal = "iterm"
 
 NeoBundle 'dhruvasagar/vim-vinegar'
+let g:netrw_liststyle=3
 
 NeoBundle 'kchmck/vim-coffee-script'
 NeoBundle 'geekjuice/vim-mocha'
