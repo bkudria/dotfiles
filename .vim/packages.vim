@@ -144,6 +144,9 @@ let g:airline#extensions#tabline#left_alt_sep    = ''
 let g:airline#extensions#tabline#formatter = 'custom'
 
 NeoBundle 'jreybert/vimagit'
+let g:magit_show_help=0
+let g:magit_default_show_all_files=1
+let g:magit_default_fold_level=2
 
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'tpope/vim-rhubarb'

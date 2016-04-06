@@ -180,15 +180,8 @@ map <leader>f  :Unite grep/git:/::<cr>
 map <leader>fl :Unite line<cr>
 map <leader>gd :Unite grep/git:::<cr>
 
-map <leader>gs :Gstatus<cr>
-map <leader>gr :Gread<cr>
-map <leader>gw :Gwrite<cr>
-map <leader>gcc :Gcommit<cr>
-map <leader>gcm :Gcommit -m ""<Left>
-map <leader>gpl :Git pull<cr>
-map <leader>gps :Git push<cr>
-map <leader>gom :CtrlPModified<CR>
-map <leader>gob :CtrlPBranch<CR>
+map <leader>gos :MagitOnly<cr>
+map <leader>gs :Magit<cr>
 map <leader>gbl :Gblame<CR>
 
 map <leader>h :Unite help -resume -no-split -start-insert -input=<cr>
