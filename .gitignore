@@ -79,7 +79,7 @@
 /.subversion
 /.thumbnails
 /.vim/bundle
-/.vim/undodir
+/.vim/undo
 /.virtualenvs
 /.wallpapers
 /.wine

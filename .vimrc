@@ -45,10 +45,6 @@ set updatetime=500
 
 syntax enable
 
-"" Persistent undo
-set undofile
-set undodir=~/.vim/undodir
-
 augroup MyAutoCmd
   autocmd!
 augroup END

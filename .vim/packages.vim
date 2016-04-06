@@ -143,6 +143,8 @@ let g:airline#extensions#tabline#left_alt_sep    = ''
 
 let g:airline#extensions#tabline#formatter = 'custom'
 
+NeoBundle 'jreybert/vimagit'
+
 NeoBundle 'tpope/vim-fugitive'
 NeoBundle 'tpope/vim-rhubarb'
 NeoBundle 'gregsexton/gitv'
@@ -161,6 +163,7 @@ NeoBundle 'tpope/vim-dispatch'
 NeoBundle 'tpope/vim-commentary'
 NeoBundle 'AndrewRadev/splitjoin.vim'
 NeoBundle 'tpope/vim-unimpaired'
+set undofile
 set undodir^=~/.vim/undo
 
 NeoBundle 'tpope/vim-haml'
