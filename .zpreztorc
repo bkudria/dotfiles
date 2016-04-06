@@ -17,6 +17,7 @@ zstyle ':prezto:load' pmodule \
   'completion' \
   'syntax-highlighting' \
   'history-substring-search' \
+  'autosuggestions' \
   'prompt'
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'
@@ -51,6 +52,9 @@ zstyle ':prezto:module:terminal' auto-title 'yes'
 
 # Integrate with iTerm2.
 zstyle ':prezto:module:tmux:iterm' integrate 'yes'
+
+# Autosuggestions color
+zstyle ':prezto:module:autosuggestions:color' found 'fg=10'
 
 export EDITOR='mvim --remote-wait'
 export VISUAL='mvim --remote-wait'
