@@ -1,3 +1,5 @@
+# vim: ft=zsh
+
 zstyle ':prezto:*:*' color 'yes'
 
 zstyle ':prezto:load' pmodule \
@@ -54,7 +56,7 @@ zstyle ':prezto:module:terminal' auto-title 'yes'
 zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 # Autosuggestions color
-zstyle ':prezto:module:autosuggestions:color' found 'fg=10'
+zstyle ':prezto:module:autosuggestions:color' found 'fg=8'
 
 export EDITOR='mvim --remote-wait'
 export VISUAL='mvim --remote-wait'
@@ -62,3 +64,8 @@ export VISUAL='mvim --remote-wait'
 alias git=hub
 path=("$HOME/bin" $path)
 
+if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
+
+cdpath=($HOME/Code)
+
+alias getdbs='eval "$(ruby /Users/bkudria/code/api_service/scripts/getdbs.rb)"'

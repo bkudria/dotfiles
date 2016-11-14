@@ -8,3 +8,4 @@ client_dist
 .DS_Store
 .ctags.local
 .ctags.ignore
+.tern-project

@@ -2,7 +2,7 @@
 
 echo -n "Waiting for tunnel... "
 
-exec 3< <(aptible db:tunnel $* 2> /dev/null &)
+exec 3< <(aptible db:tunnel $* &)
 
 while read line; do
    if [[ $line =~ ^Connect\ at ]]; then

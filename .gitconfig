@@ -29,6 +29,7 @@
 [diff]
 	mnemonicprefix = true
 	algorithm      = minimal
+	compactionHeuristic = true
 
 [log]
 	date = relative
