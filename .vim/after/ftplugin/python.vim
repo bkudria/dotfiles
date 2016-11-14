@@ -4,9 +4,9 @@ setlocal omnifunc=jedi#completions
 
 nmap <buffer> <localleader>jt :call jedi#goto()<cr>
 
-" function! s:reset_syntastic_pylint_exec()
-"   let g:syntastic_python_pylint_exec = system('pyenv which pylint')
-" endfunction
+function! s:reset_syntastic_pylint_exec()
+  let g:syntastic_python_pylint_exec = system('pyenv which pylint')
+endfunction
 
 if jedi#init_python()
   function! s:jedi_auto_force_py_version() abort
@@ -23,4 +23,4 @@ if jedi#init_python()
   augroup END
 endif
 
-PyenvActivate 3.5.1
+PyenvActivate 3.5.2

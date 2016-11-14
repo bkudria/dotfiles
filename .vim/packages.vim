@@ -43,6 +43,7 @@ NeoBundle 'davidhalter/jedi-vim'
 NeoBundle 'jmcantrell/vim-virtualenv'
 let g:jedi#show_call_signatures     = 2
 let g:jedi#completions_enabled      = 0
+let g:jedi#popup_on_dot             = 0
 let g:jedi#auto_vim_configuration   = 0
 NeoBundleLazy 'lambdalisue/vim-pyenv', {
         \ 'depends': ['davidhalter/jedi-vim'],
@@ -57,8 +58,9 @@ let g:syntastic_enable_elixir_checker = 1
 let g:syntastic_ruby_checkers         = ['mri']
 let g:syntastic_elixir_checkers       = ['elixir']
 let g:syntastic_python_python_exec    = '/usr/local/bin/python3'
-let g:syntastic_python_checkers       = ['python', 'pyflakes', 'pep8', 'pylint']
-let g:syntastic_python_pylint_exec = system('pyenv which pylint')
+" let g:syntastic_python_pylint_exec = system('pyenv which pylint')
+let g:syntastic_python_pylint_exec = '/Users/bkudria/.pyenv/shims/pylint'
+let g:syntastic_python_checkers       = ['python', 'pyflakes', 'pep8']
 let g:syntastic_javascript_checkers   = ['eslint']
 let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
@@ -69,15 +71,7 @@ if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
 
-NeoBundle 'pmsorhaindo/syntastic-local-eslint.vim'
-
-" NeoBundle 'mhinz/vim-signify'
-" let g:signify_sign_overwrite         = 0
-" let g:signify_vcs_list               = [ 'git' ]
-" let g:signify_sign_add               = '+'
-" let g:signify_sign_change            = '±'
-" let g:signify_sign_delete            = '_'
-" let g:signify_sign_delete_first_line = '‾'
+NeoBundle 'mtscout6/syntastic-local-eslint.vim'
 
 NeoBundle 'fisadev/vim-isort'
 
@@ -130,7 +124,7 @@ function! AirlineInit()
 endfunction
 autocmd User AirlineAfterInit call AirlineInit()
 
-let g:airline_theme           = 'solarized'
+let g:airline_theme           = 'gruvbox'
 let g:airline_powerline_fonts = 1
 let g:airline_symbols         = {'readonly': '', 'linenr': '', 'modified': '!', }
 
@@ -207,6 +201,7 @@ NeoBundle 'killphi/vim-textobj-signify-hunk'
 NeoBundle 'kana/vim-textobj-lastpat'
 NeoBundle 'Julian/vim-textobj-variable-segment'
 NeoBundle 'whatyouhide/vim-textobj-xmlattr'
+NeoBundle 'saaguero/vim-textobj-pastedtext'
 
 NeoBundle 'terryma/vim-expand-region'
 let g:expand_region_text_objects = {
@@ -249,73 +244,20 @@ NeoBundle 'marijnh/tern_for_vim', { 'build': { 'mac': 'npm install' } }
 NeoBundle 'jelera/vim-javascript-syntax'
 NeoBundle 'pangloss/vim-javascript'
 NeoBundle 'mxw/vim-jsx'
+NeoBundle 'mvolkmann/vim-js-arrow-function'
 
-" let g:EclimCompletionMethod = 'omnifunc'
 
-NeoBundle 'Shougo/neco-syntax'
-NeoBundle 'Shougo/neoinclude.vim'
-NeoBundle 'Shougo/neocomplete.vim'
-let g:acp_enableAtStartup                           = 0
-let g:neocomplete#enable_at_startup                 = 1
-let g:neocomplete#max_list                          = 10
-let g:neocomplete#auto_completion_start_length      = 1
-let g:neocomplete#min_keyword_length                = 2
-let g:neocomplete#sources#syntax#min_keyword_length = 2
-let g:neocomplete#enable_smart_case                 = 1
-let g:neocomplete#enable_refresh_always             = 1
-let g:neocomplete#enable_auto_select                = 0
-let g:neocomplete#force_overwrite_completefunc      = 1
+let g:neobundle#install_process_timeout = 1500
+NeoBundle 'Valloric/YouCompleteMe', {
+     \ 'build' : {
+     \     'unix' : './install.sh --tern-completer',
+     \    }
+     \ }
+let g:ycm_collect_identifiers_from_tags_files = 1
+let g:ycm_seed_identifiers_with_syntax = 1
 
 set completeopt-=menuone
 set completeopt-=preview
-set ofu=syntaxcomplete#Complete
-autocmd FileType html,markdown setlocal omnifunc=htmlcomplete#CompleteTags
-autocmd FileType javascript    setlocal omnifunc=javascriptcomplete#CompleteJS
-autocmd FileType ruby,eruby    setlocal omnifunc=rubycomplete#Complete
-autocmd FileType java          setlocal omnifunc=eclim#java#complete#CodeComplete
-autocmd FileType python        setlocal omnifunc=jedi#completions
-autocmd FileType css,scss      setlocal omnifunc=csscomplete#CompleteCSS
-
-if !exists('g:neocomplete#sources')
-  let g:neocomplete#sources = {}
-endif
-let g:neocomplete#sources._ = ['neosnippet', 'omni', 'buffer', 'tag', 'syntax']
-
-if !exists('g:neocomplete#keyword_patterns')
-  let g:neocomplete#keyword_patterns = {}
-endif
-let g:neocomplete#keyword_patterns['default'] = '\h\w*'
-
-if !exists('g:neocomplete#omni_patterns')
-  let g:neocomplete#omni_patterns = {}
-endif
-let g:neocomplete#omni_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-
-if !exists('g:neocomplete#sources#omni#input_patterns')
-  let g:neocomplete#sources#omni#input_patterns = {}
-endif
-let g:neocomplete#sources#omni#input_patterns.ruby = '[^. *\t]\.\h\w*\|\h\w*::'
-
-if !exists('g:neocomplete#force_omni_input_patterns')
-  let g:neocomplete#force_omni_input_patterns = {}
-endif
-let g:neocomplete#force_omni_input_patterns.ruby   = '[^. *\t]\.\w*\|\h\w*::'
-let g:neocomplete#force_omni_input_patterns.java   = '\k\.\k*'
-let g:neocomplete#force_omni_input_patterns.python =
-  \ '\%([^. \t]\.\|^\s*@\|^\s*from\s.\+import \|^\s*from \|^\s*import \)\w*'
-let g:neocomplete#force_omni_input_patterns.conf   = '@\w*'
-let g:neocomplete#force_omni_input_patterns.javascript = '\h\w*\|[^. \t]\.\w*'
-
-NeoBundle 'Shougo/neosnippet'
-let g:neosnippet#disable_runtime_snippets = {
-      \   '_' : 1,
-      \ }
-let g:neosnippet#snippets_directory = '~/.vim/snippets/'
-if has('conceal')
-  set conceallevel=2 concealcursor=i
-endif
-
-" NeoBundle 'aaronjensen/vim-recentcomplete'
 
 NeoBundle 'mattn/emmet-vim'
 let g:user_emmet_leader_key='<m-space>'
@@ -326,7 +268,14 @@ NeoBundle 'b4winckler/vim-objc'
 NeoBundle 'msanders/cocoa.vim'
 
 "Color Scheme"
-NeoBundle 'altercation/vim-colors-solarized'
+" NeoBundle 'altercation/vim-colors-solarized'
+NeoBundle 'morhetz/gruvbox'
+let g:gruvbox_contrast_dark="soft"
+let g:gruvbox_contrast_dark="soft"
+let g:gruvbox_sign_column="bg0"
+let g:gruvbox_italicize_strings=1
+let g:gruvbox_invert_selection=0
+let g:gruvbox_improved_warnings=1
 
 NeoBundle 'eapache/rainbow_parentheses.vim'
 let g:rbpt_max = 20
@@ -335,17 +284,6 @@ au VimEnter * RainbowParenthesesToggle
 au Syntax * RainbowParenthesesLoadRound
 au Syntax * RainbowParenthesesLoadSquare
 au Syntax * RainbowParenthesesLoadBraces
-
-let g:rbpt_colorpairs = [
-    \ ['yellow',      '#b58900'],
-    \ ['brown',       '#cb4b16'],
-    \ ['red',         '#dc322f'],
-    \ ['magenta',     '#d33682'],
-    \ ['darkmagenta', '#6c71c4'],
-    \ ['blue',        '#268bd2'],
-    \ ['cyan',        '#2aa198'],
-    \ ['green',       '#859900'],
-    \ ]
 
 NeoBundle 'rizzatti/funcoo.vim'
 
@@ -357,8 +295,15 @@ NeoBundle 'thinca/vim-localrc'
 NeoBundle 'gcmt/tube.vim'
 let g:tube_terminal = "iterm"
 
-NeoBundle 'dhruvasagar/vim-vinegar'
-let g:netrw_liststyle=3
+NeoBundle 'justinmk/vim-dirvish'
+augroup dirvish_events
+  autocmd!
+
+  " Enable :Gstatus and friends.
+  autocmd FileType dirvish call fugitive#detect(@%)
+
+  autocmd FileType dirvish keeppatterns g@\v/\.[^\/]+/?$@d
+augroup END
 
 NeoBundle 'kchmck/vim-coffee-script'
 NeoBundle 'geekjuice/vim-mocha'
@@ -372,27 +317,15 @@ NeoBundle 'vim-scripts/groovy.vim'
 
 NeoBundle 'Yggdroot/indentLine'
 let g:indentLine_char = '│'
-let g:indentLine_color_gui = '#073642'
+" let g:indentLine_color_gui = '#073642'
 let g:indentLine_noConcealCursor = 1
 
 NeoBundle 'airblade/vim-rooter'
 let g:rooter_disable_map  = 1
 let g:rooter_silent_chdir = 1
-let g:rooter_patterns     = ['.git/', 'build.gradle']
+let g:rooter_patterns     = ['.root', '.git/', 'build.gradle']
 
 NeoBundle 'jaxbot/semantic-highlight.vim'
-let g:semanticGUIColors = [
-      \ '#b58900',
-      \ '#cb4b16',
-      \ '#dc322f',
-      \ '#d33682',
-      \ '#6c71c4',
-      \ '#268bd2',
-      \ '#2aa198',
-      \ '#859900'
-      \ ]
-
-" NeoBundle 'bkudria/ctrlp-related'
 
 NeoBundle 'haya14busa/incsearch.vim'
 let g:incsearch#auto_nohlsearch = 1
@@ -418,12 +351,11 @@ NeoBundle 'mattreduce/vim-mix'
 NeoBundle 'ryanss/vim-hackernews'
 
 NeoBundle 'hdima/python-syntax'
+NeoBundle 'vim-scripts/django.vim'
+NeoBundle 'jmcomets/vim-pony'
 
 NeoBundle 'qpkorr/vim-renamer'
 let g:RenamerSupportColonWToRename = 1
-
-" NeoBundle 'JazzCore/ctrlp-cmatcher', {'build': {'mac': 'CFLAGS=-Qunused-arguments CPPFLAGS=-Qunused-arguments ./install.sh'}}
-" let g:ctrlp_match_func = {'match' : 'matcher#cmatch'}
 
 " NeoBundle 'bkudria/vim-hardy'
 NeoBundle 'sophacles/vim-processing'
@@ -433,6 +365,12 @@ NeoBundle 'sophacles/vim-processing'
 NeoBundle 'rhysd/conflict-marker.vim'
 
 NeoBundle 'Glench/Vim-Jinja2-Syntax'
+
+NeoBundle 'bwmcadams/vim-deckset'
+
+NeoBundle 'joeytwiddle/sexy_scroller.vim'
+
+NeoBundle 'vim-scripts/po.vim--gray'
 
 call neobundle#end()
 filetype plugin indent on

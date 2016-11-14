@@ -25,7 +25,8 @@ set wildmode=longest,full
 set wildchar=<Tab>
 
 set encoding=utf-8
-set guifont=Source_Code_Pro_Medium:h14
+set guifont=Operator_Mono_for_Powerline:h15
+set linespace=-1
 
 "" Whitespace
 set nowrap
@@ -74,16 +75,16 @@ set directory=~/.vim-tmp,~/.tmp,~/tmp,/var/tmp,/tmp
 set writebackup
 
 set background=dark
-colorscheme solarized
+colorscheme gruvbox
 
-hi! link SignColumn   Background
-hi! link NonText      Background
-hi! link SpecialKey   Conceal
-hi! link LineNr       Conceal
-hi! link CursorLineNr Background
+" hi! link SignColumn   Background
+" hi! link NonText      Background
+" hi! link SpecialKey   Conceal
+" hi! link LineNr       Comment
+" hi! link CursorLineNr Background
 
-hi! MatchParen guibg='#073642' guifg='#b58900'
+" hi! MatchParen guibg='#073642' guifg='#b58900'
 
-hi! DiffAdd    guibg='#002b36'
-hi! DiffChange guibg='#002b36'
-hi! DiffDelete guibg='#002b36'
+" hi! DiffAdd    guibg='#002b36'
+" hi! DiffChange guibg='#002b36'
+" hi! DiffDelete guibg='#002b36'

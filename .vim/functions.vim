@@ -64,3 +64,7 @@ function! BrowseOrJumpTag(query)
 endfunction
 
 command! -range -nargs=1 BrowseOrJumpTag call BrowseOrJumpTag(<q-args>)
+
+function! ExpandJSObj(text)
+  return system("js-beautify -f - -b end-expand", a:text)
+endfunction

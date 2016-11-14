@@ -44,3 +44,11 @@ function! JumpTagOperator(motion_wiseness)
   echom MotionText(a:motion_wiseness)
   call BrowseOrJumpTag(MotionText(a:motion_wiseness))
 endfunction
+
+call operator#user#define('expand-js-obj', 'ExpandJSObjOperator')
+function! ExpandJSObjOperator(motion_wiseness)
+  let v = operator#user#visual_command_from_wise_name(a:motion_wiseness)
+  let @e = ExpandJSObj(MotionText(a:motion_wiseness))
+  execute 'normal!' . '`[' . v . '`]'
+  execute 'normal "e-'
+endfunction

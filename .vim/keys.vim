@@ -12,7 +12,7 @@ call unite#custom#profile('source/cwd', 'context', {
 \ })
 
 call unite#custom#profile('source/outline', 'context', {
-\       'winwidth'         : 30,
+\       'winwidth'         : 20,
 \       'vertical'         : 1,
 \       'vertical_preview' : 1,
 \       'auto_preview'     : 1
@@ -71,7 +71,7 @@ if has("gui_macvim") && has("gui_running")
 
   macmenu &File.Save key=<nop>
   nmap <D-s> <nop>
-  imap <expr> <D-s> pumvisible() ? neocomplete#close_popup() . "<ESC><D-s>" : "<ESC><D-s>"
+  imap <D-s> <ESC><D-s>
 
   macmenu &File.Close key=<nop>
   nmap <D-w> :Sayonara<cr>
@@ -79,15 +79,16 @@ endif
 
 inoremap <Space> <C-g>u<Space>
 
-inoremap <expr> <ESC>  pumvisible() ? neocomplete#close_popup() : "\<ESC>"
+" inoremap <expr> <ESC>  pumvisible() ? neocomplete#close_popup() : "\<ESC>"
 
-imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ? "\<C-n>" : "\<TAB>")
-vmap <TAB> <Plug>(neosnippet_expand_target)
-imap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
-smap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
+" imap <expr><TAB>  pumvisible() ? "\<C-n>" : "\<TAB>"
+" " imap <expr><TAB> neosnippet#expandable_or_jumpable() ? "\<Plug>(neosnippet_expand_or_jump)" : (pumvisible() ? "\<C-n>" : "\<TAB>")
+" " vmap <TAB> <Plug>(neosnippet_expand_target)
+" imap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
+" smap <expr><S-TAB> pumvisible() ? "\<C-p>" : ""
 
-inoremap <expr> <up>   pumvisible() ? neocomplete#cancel_popup() . "\<up>"   : "\<up>"
-inoremap <expr> <down> pumvisible() ? neocomplete#cancel_popup() . "\<down>" : "\<down>"
+" inoremap <expr> <up>   pumvisible() ? neocomplete#cancel_popup() . "\<up>"   : "\<up>"
+" inoremap <expr> <down> pumvisible() ? neocomplete#cancel_popup() . "\<down>" : "\<down>"
 
 " Bubble single lines
 nmap <C-Up> [e
@@ -118,21 +119,19 @@ nnoremap <silent><D-S-Up>   m`:silent +g/\m^\s*$/d<CR>``:noh<CR>
 nnoremap <silent><D-Down>   :set paste<CR>m`O<Esc>``:set nopaste<CR>
 nnoremap <silent><D-S-Down> :set paste<CR>m`o<Esc>``:set nopaste<CR>
 
+map ~~ :Unite cwd:~<cr>
+
 map <F1> <leader>h
-map <F2> :Unite buffer    -start-insert<cr>
-map <F3> :Unite file_mru  -start-insert<cr>
 map <F4> :Unite tag -start-insert<cr>
 map <F5> :e!<cr>
 map <F6> :SemanticHighlightToggle<cr>
-map              <F7> :Unite outline -toggle<cr>
-map <localleader><F7> :Unite outline -toggle -immediately -start-insert<cr>
 
 nmap gt g<c-]>
 map <M-LeftMouse> <LeftMouse>gt
 
 map - <Plug>(operator-replace)
 
-map /  <Plug>(incsearch-forward)
+" map /  <Plug>(incsearch-forward)
 map ?  <Plug>(incsearch-backward)
 map g/ <Plug>(incsearch-stay)
 
@@ -156,12 +155,10 @@ map <leader>a=  :Tabularize /=<cr>
 map <leader>a=> :Tabularize /=><cr>
 map <leader>a-> :Tabularize /-><cr>
 
-map <leader>bd  :e .<cr>
-let g:blockle_mapping = '<Leader>bt'
+map <leader>b :Unite buffer    -start-insert<cr>
 
 map <leader>cl :ccl<cr>
 map              <leader>cd :Unite cwd:~/Code -start-insert<cr>
-map <localleader><leader>cd :Unite cwd:~<cr>
 
 nmap <Leader>cs <Plug>GitGutterStageHunk
 nmap <Leader>cr <Plug>GitGutterRevertHunk
@@ -169,8 +166,8 @@ nmap <Leader>cv <Plug>GitGutterPreviewHunk
 omap ic <Plug>(textobj-gitgutter-i)
 xmap ic <Plug>(textobj-gitgutter-i)
 
-map %% :CopyRelativeFilePath<cr>
-map <leader>%% :CopyAbsoluteFilePath<cr>
+map ^^ :CopyRelativeFilePath<cr>
+map <leader>^^ :CopyAbsoluteFilePath<cr>
 
 map <leader>d   :Unite grep/git:/::TODO<cr>
 
@@ -186,20 +183,18 @@ map <leader>gbl :Gblame<CR>
 
 map <leader>h :Unite help -resume -no-split -start-insert -input=<cr>
 
+map <leader>je <Plug>(operator-expand-js-obj)
+
 map <leader>l <Plug>(operator-duplicate)
+
+map <leader>m :norm! @
 
 " nmap <silent> // :CtrlPRelated<cr>
 
 map <leader>o         :Unite file_rec/git:-cmo:--exclude-standard -start-insert<cr>
 map <leader><leader>o :Unite file_rec/git:-cmo:--exclude-standard -start-insert<cr>
 
-map <leader>rr :R<cr>
-map <leader>rm :CtrlPModels<cr>
-map <leader>rc :CtrlPControllers<cr>
-map <leader>rv :CtrlPViews<cr>
-map <leader>rw :CtrlP app/workers<cr>
-map <leader>r. :.Rake<cr>
-map <leader>r* :Rake<cr>
+map <leader>r :Unite file_mru  -start-insert<cr>
 
 nmap <leader>s :write<cr>
 
@@ -207,6 +202,8 @@ nmap <leader>t <Plug>(operator-jumptag)
 vmap <leader>t :BrowseOrJumpTag <c-r>=Vselection()<cr>
 
 nmap <leader>u :UniteResume<cr>
+
+nmap <leader>v :Unite outline -toggle<cr>
 
 map <leader>w :Sayonara<cr>
 map <leader>x :Sayonara<cr>
@@ -218,8 +215,9 @@ let g:jedi#goto_definitions_command = "<leader>pd"
 let g:jedi#documentation_command = "<leader>pk"
 let g:jedi#usages_command = "<leader>pu"
 let g:jedi#rename_command = "<leader>pr"
+nmap <leader>pl :SyntasticCheck pylint<cr>
 
-nnoremap <localleader><localleader> <c-^>
+nnoremap '' <c-^>
 
 nmap [u :UnitePrevious<cr>
 nmap ]u :UniteNext<cr>
