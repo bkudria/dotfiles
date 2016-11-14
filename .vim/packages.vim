@@ -51,7 +51,7 @@ NeoBundleLazy 'lambdalisue/vim-pyenv', {
         \   'filetypes': ['python', 'python3'],
         \ }}
 
-NeoBundle 'scrooloose/syntastic'
+NeoBundle 'vim-syntastic/syntastic'
 let g:syntastic_check_on_open         = 1
 let g:syntastic_aggregate_errors      = 1
 let g:syntastic_enable_elixir_checker = 1
