@@ -24,11 +24,14 @@ brew 'unrar'
 brew 'wget'
 brew 'zsh'
 
+tap 'd12frosted/emacs-plus'
+brew 'emacs-plus'
+
 tap 'homebrew/completions'
 brew 'homebrew/completions/vagrant-completion'
 
 tap 'caskroom/cask'
-brew 'caskroom/cask/brew-cask'
+#brew 'caskroom/cask/brew-cask'
 cask 'alfred'
 cask 'bartender'
 cask 'bettertouchtool'
