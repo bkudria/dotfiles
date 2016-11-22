@@ -66,12 +66,17 @@ let g:syntastic_error_symbol          = 'x'
 let g:syntastic_warning_symbol        = '!'
 let g:syntastic_style_error_symbol    = '>'
 let g:syntastic_style_warning_symbol  = '~'
-
 if exists("b:ismacruby") && b:is_macruby
   let b:syntastic_ruby_checkers = ['macruby']
 endif
-
 NeoBundle 'mtscout6/syntastic-local-eslint.vim'
+
+
+" NeoBundle '~/code/ale'
+" " let g:ALE_python_pylint_executable_callback={-> '/Users/bkudria/.pyenv/shims/pylint'}
+" let g:ALE_python_pylint_executable_callback={-> system("which pylint | tr -d '\n'") }
+" let g:ale_sign_error = 'x'
+" let g:ale_sign_warning = '>'
 
 NeoBundle 'fisadev/vim-isort'
 
@@ -91,13 +96,12 @@ set noshowmode
 let g:airline_extensions = [
       \ 'branch',
       \ 'quickfix',
-      \ 'ctrlp',
-      \ 'syntastic',
       \ 'tabline',
       \ 'unite',
       \ 'whitespace',
       \ 'virtualenv'
       \ ]
+      " \ 'syntastic',
 
 if exists("airline#extensions#eclim#init")
   g:airline_extensions += ['eclim']
