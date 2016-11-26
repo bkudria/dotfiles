@@ -47,6 +47,7 @@
      ;;        shell-default-height 30
      ;;        shell-default-position 'bottom)
      auto-completion
+     bkudria
      (colors :variables colors-colorize-identifiers 'variables)
      django
      emacs-lisp
@@ -56,12 +57,17 @@
      ivy
      (javascript :variables tern-command '("node" "/usr/local/bin/tern"))
      osx
-     python
+     (python :variables python-sort-imports-on-save t)
      react
      ruby
      shell-scripts
      sql
      themes-megapack
+     (theming :variables theming-modifications
+              '((gruvbox
+                 (font-lock-comment-face (:slant oblique))
+                 (font-lock-string-face  (:slant oblique))
+                 )))
      vinegar
      )
 
