@@ -6,7 +6,7 @@
 	user = bkudria
 
 [core]
-	editor = mvim --remote-wait-silent
+	editor = emacsclient -q
 	pager = less
 
 	whitespace = trailing-space,space-before-tab,cr-at-eol

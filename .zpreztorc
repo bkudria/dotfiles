@@ -58,8 +58,8 @@ zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 # Autosuggestions color
 zstyle ':prezto:module:autosuggestions:color' found 'fg=8'
 
-export EDITOR='mvim --remote-wait'
-export VISUAL='mvim --remote-wait'
+export EDITOR='emacsclient -q'
+export VISUAL='emacsclient -q'
 
 alias git=hub
 path=("$HOME/bin" $path)
