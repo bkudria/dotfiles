@@ -5,6 +5,7 @@
     (evil-textobj-line :location (recipe :fetcher github :repo "syohex/evil-textobj-line"))
     evil-replace-with-register
     highlight-indent-guides
+    magithub
     ))
 
 (defun bkudria/init-evil-extra-operator ()
@@ -29,3 +30,13 @@
   (add-hook 'prog-mode-hook 'highlight-indent-guides-mode)
   (set-face-foreground 'highlight-indent-guides-character-face "#504945")
   )
+
+(defun bkudria/init-magithub ()
+  (use-package magithub
+    :after magit
+    :config (magithub-feature-autoinject t)))
+
+(spacemacs|use-package-add-hook move-text
+  :post-config
+  (global-set-key [s-down] 'sticky-move-down)
+  (global-set-key [s-up] 'sticky-move-up))
