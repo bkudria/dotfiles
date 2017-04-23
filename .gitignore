@@ -98,3 +98,5 @@
 /VirtualBox\ VMs
 /tmp
 coffeelint.json
+/.electron
+/.exercism.json
