@@ -6,7 +6,15 @@
     evil-replace-with-register
     highlight-indent-guides
     magithub
+    (case :location (recipe
+                     :fetcher url
+                     :url "https://raw.githubusercontent.com/chrisbarrett/spacemacs-layers/master/cb-core/local/case/case.el"
+                     ))
+
     ))
+
+(defun bkudria/init-case ()
+  (use-package case))
 
 (defun bkudria/init-evil-extra-operator ()
   (use-package evil-extra-operator :defer t
