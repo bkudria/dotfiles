@@ -9,3 +9,4 @@ client_dist
 .ctags.local
 .ctags.ignore
 .tern-project
+.dir-locals.el

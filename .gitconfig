@@ -28,7 +28,7 @@
 
 [diff]
 	mnemonicprefix = true
-	algorithm      = minimal
+	algorithm = histogram
 	compactionHeuristic = true
 
 [log]
