@@ -67,5 +67,4 @@ path=("$HOME/bin" $path)
 if which pyenv-virtualenv-init > /dev/null; then eval "$(pyenv virtualenv-init -)"; fi
 
 cdpath=($HOME/Code)
-
-alias getdbs='eval "$(ruby /Users/bkudria/code/api_service/scripts/getdbs.rb)"'
+path=("/usr/local/opt/go/libexec/bin" $path)
