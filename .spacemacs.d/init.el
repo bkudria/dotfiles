@@ -59,6 +59,7 @@
      ivy
      (javascript :variables tern-command '("node" "/usr/local/bin/tern"))
      latex
+     lua
      markdown
      osx
      python
