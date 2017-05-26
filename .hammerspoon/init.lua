@@ -1,3 +1,4 @@
+-- -*- dash-at-point-docset: "hammerspoon,lua" -*-
 require 'autoreload'
 
 hyper = hs.hotkey.modal.new()
@@ -26,23 +27,23 @@ launch = function(appName, toggle)
   hs.application.launchOrFocus(target)
 end
 
+triggerHyper = function(key)
+  hs.eventtap.keyStroke({"cmd","alt","shift","ctrl"}, key)
+end
+
 handle = function(key, action)
   if type(action) == 'function' then
     action()
   elseif type(action) == 'string' then
     launch(action)
   else
-    hs.eventtap.keyStroke({"cmd","alt","shift","ctrl"}, key)
+    triggerHyper(key)
   end
   hyper.triggered = true
 end
 
 whenFocused = function(app, func)
   hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.1)
-end
-
-sendKey = function()
-
 end
 
 slackAndCmdK = function()
@@ -53,17 +54,19 @@ slackAndCmdK = function()
   end)
 end
 
+editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspoon/init.lua') end
+
 apps = {
+  {',', editHSConfig},
   {'b', 'Google Chrome'},
   {'d', nil},
   {'e', 'Emacs'},
-  {'t', 'iTerm'},
-  {'l', 'Slack'},
+  {'f', 'Caprine'},
+  {'h', function() triggerHyper('g') end},
   {'k', slackAndCmdK},
+  {'l', 'Slack'},
   {'r', 'Reeder'},
-  {',', nil},
-  {'f', 'Caprine'}
-
+  {'t', 'iTerm'}
 }
 
 for i, app in ipairs(apps) do
