@@ -6,6 +6,7 @@
     evil-replace-with-register
     highlight-indent-guides
     magithub
+    ruby-refactor
     (case :location (recipe
                      :fetcher url
                      :url "https://raw.githubusercontent.com/chrisbarrett/spacemacs-layers/master/cb-core/local/case/case.el"
