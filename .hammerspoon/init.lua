@@ -50,7 +50,14 @@ slackAndCmdK = function()
   launch('Slack', false)
   whenFocused('Slack', function()
                 hs.eventtap.keyStroke({'cmd'}, 'k')
-                hs.eventtap.keyStroke({}, 'return')
+  end)
+end
+
+chromeAndFocusPage = function()
+  launch('Google Chrome', false)
+  whenFocused('Google Chrome', function()
+                hs.eventtap.keyStroke({'cmd'}, 'f')
+                hs.eventtap.keyStroke({}, 'escape')
   end)
 end
 
@@ -58,15 +65,16 @@ editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspo
 
 apps = {
   {',', editHSConfig},
-  {'b', 'Google Chrome'},
+  {'b', chromeAndFocusPage},
   {'d', nil},
   {'e', 'Emacs'},
   {'f', 'Caprine'},
   {'h', function() triggerHyper('g') end},
   {'k', slackAndCmdK},
-  {'l', 'Slack'},
+  {'l', slackAndCmdK},
   {'r', 'Reeder'},
-  {'t', 'iTerm'}
+  {'t', 'iTerm'},
+  {'w', nil}
 }
 
 for i, app in ipairs(apps) do
