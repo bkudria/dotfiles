@@ -2,33 +2,51 @@ require 'autoreload'
 
 hyper = hs.hotkey.modal.new()
 
-launch = function(appname)
-  hs.application.launchOrFocus(appname)
+focusedApp = function()
+  return hs.window:focusedWindow():application():title()
 end
 
-launchOrCall = function(arg)
-  if type(arg) == 'function' then
-    arg()
+lastApp = false
+launch = function(appName, toggle)
+  toggle = toggle == nil and true or false
+  currentApp = focusedApp()
+
+  if toggle then
+    if appName == currentApp then
+      target = lastApp
+      lastApp = currentApp
+    else
+      lastApp = currentApp
+      target = appName
+    end
   else
-    launch(arg)
+    target = appName
+  end
+
+  hs.application.launchOrFocus(target)
+end
+
+handle = function(key, action)
+  if type(action) == 'function' then
+    action()
+  elseif type(action) == 'string' then
+    launch(action)
+  else
+    hs.eventtap.keyStroke({"cmd","alt","shift","ctrl"}, key)
   end
   hyper.triggered = true
 end
 
 whenFocused = function(app, func)
-  hs.timer.waitUntil(
-    function()
-      title = hs.window:focusedWindow():application():title()
-      print(title)
-      return title == app
-    end,
-    func,
-    0.1
-  )
+  hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.1)
+end
+
+sendKey = function()
+
 end
 
 slackAndCmdK = function()
-  launch('Slack')
+  launch('Slack', false)
   whenFocused('Slack', function()
                 hs.eventtap.keyStroke({'cmd'}, 'k')
                 hs.eventtap.keyStroke({}, 'return')
@@ -37,14 +55,19 @@ end
 
 apps = {
   {'b', 'Google Chrome'},
+  {'d', nil},
   {'e', 'Emacs'},
   {'t', 'iTerm'},
   {'l', 'Slack'},
   {'k', slackAndCmdK},
+  {'r', 'Reeder'},
+  {',', nil},
+  {'f', 'Caprine'}
+
 }
 
 for i, app in ipairs(apps) do
-  hyper:bind({}, app[1], function() launchOrCall(app[2]); hyper:exit(); end)
+  hyper:bind({}, app[1], function() handle(app[1], app[2]) end)
 end
 
 -- -- Sequential keybindings, e.g. Hyper-a,f for Finder
@@ -64,14 +87,6 @@ end
 
 -- Shortcut to reload config
 
-
-ofun = function()
-  hs.reload()
-  hs.alert.show("Config loaded")
-  hyper.triggered = true
-end
-hyper:bind({}, 'o', nil, ofun)
-
 -- Enter Hyper Mode when F18 (Hyper/Capslock) is pressed
 pressedF18 = function()
   hyper.triggered = false
@@ -89,3 +104,4 @@ end
 
 -- Bind the Hyper key
 f18 = hs.hotkey.bind({}, 'F18', pressedF18, releasedF18)
+hs.alert("!")
