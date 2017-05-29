@@ -17,6 +17,9 @@
 (defun bkudria/init-case ()
   (use-package case))
 
+(defun bkudria/init-ruby-refactor ()
+  (use-package ruby-refactor))
+
 (defun bkudria/init-evil-extra-operator ()
   (use-package evil-extra-operator :defer t
     :init
