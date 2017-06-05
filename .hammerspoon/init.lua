@@ -81,7 +81,8 @@ apps = {
   {'r', 'Reeder'},
   {'s', function() hs.caffeinate.startScreensaver() end },
   {'t', 'iTerm'},
-  {'w', nil}
+  {'w', nil},
+  {'x', nil}
 }
 
 for i, app in ipairs(apps) do
@@ -121,5 +122,6 @@ releasedF18 = function()
 end
 
 -- Bind the Hyper key
-f18 = hs.hotkey.bind({}, 'F18', pressedF18, releasedF18)
+hs.hotkey.bind({}, 'F18', pressedF18, releasedF18)
+hs.hotkey.bind({'shift'}, 'F18', pressedF18, releasedF18)
 hs.alert("!")
