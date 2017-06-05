@@ -71,6 +71,7 @@ editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspo
 apps = {
   {',', editHSConfig},
   {'b', chromeAndFocusPage},
+  {'c', nil},
   {'d', nil},
   {'e', 'Emacs'},
   {'f', 'Caprine'},
@@ -78,6 +79,7 @@ apps = {
   {'k', slackAndCmdK},
   {'l', 'Slack'},
   {'r', 'Reeder'},
+  {'s', function() hs.caffeinate.startScreensaver() end },
   {'t', 'iTerm'},
   {'w', nil}
 }
