@@ -47,10 +47,15 @@ whenFocused = function(app, func)
 end
 
 slackAndCmdK = function()
-  launch('Slack', false)
-  whenFocused('Slack', function()
-                hs.eventtap.keyStroke({'cmd'}, 'k')
-  end)
+  if focusedApp() == 'Slack' then
+    hs.eventtap.keyStroke({'cmd'}, 't')
+  else
+    launch('Slack', false)
+    whenFocused('Slack', function()
+                  print('2')
+                  hs.eventtap.keyStroke({'cmd'}, 't')
+    end)
+  end
 end
 
 chromeAndFocusPage = function()
@@ -71,7 +76,7 @@ apps = {
   {'f', 'Caprine'},
   {'h', function() triggerHyper('g') end},
   {'k', slackAndCmdK},
-  {'l', slackAndCmdK},
+  {'l', 'Slack'},
   {'r', 'Reeder'},
   {'t', 'iTerm'},
   {'w', nil}
