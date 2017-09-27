@@ -7,6 +7,7 @@
     highlight-indent-guides
     magithub
     ruby-refactor
+    evil-goggles
     (case :location (recipe
                      :fetcher url
                      :url "https://raw.githubusercontent.com/chrisbarrett/spacemacs-layers/master/cb-core/local/case/case.el"
@@ -19,6 +20,11 @@
 
 (defun bkudria/init-ruby-refactor ()
   (use-package ruby-refactor))
+
+(defun bkudria/init-evil-goggles ()
+  (use-package evil-goggles)
+  :init
+  (evil-goggles-mode))
 
 (defun bkudria/init-evil-extra-operator ()
   (use-package evil-extra-operator :defer t
