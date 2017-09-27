@@ -43,7 +43,7 @@ handle = function(key, action)
 end
 
 whenFocused = function(app, func)
-  hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.1)
+  hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.01)
 end
 
 slackAndCmdK = function()
@@ -52,7 +52,6 @@ slackAndCmdK = function()
   else
     launch('Slack', false)
     whenFocused('Slack', function()
-                  print('2')
                   hs.eventtap.keyStroke({'cmd'}, 't')
     end)
   end
@@ -78,11 +77,13 @@ apps = {
   {'h', function() triggerHyper('g') end},
   {'k', slackAndCmdK},
   {'l', 'Slack'},
+  {'m', 'SoundMate'},
   {'r', 'Reeder'},
   {'s', function() hs.caffeinate.startScreensaver() end },
   {'t', 'iTerm'},
   {'w', nil},
-  {'x', nil}
+  {'x', nil},
+  {'y', nil}
 }
 
 for i, app in ipairs(apps) do
