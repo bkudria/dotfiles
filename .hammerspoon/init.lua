@@ -4,27 +4,11 @@ require 'autoreload'
 hyper = hs.hotkey.modal.new()
 
 focusedApp = function()
-  return hs.window:focusedWindow():application():title()
+  return hs.application:frontmostApplication():title()
 end
 
-lastApp = false
-launch = function(appName, toggle)
-  toggle = toggle == nil and true or false
-  currentApp = focusedApp()
-
-  if toggle then
-    if appName == currentApp then
-      target = lastApp
-      lastApp = currentApp
-    else
-      lastApp = currentApp
-      target = appName
-    end
-  else
-    target = appName
-  end
-
-  hs.application.launchOrFocus(target)
+launch = function(appName)
+  hs.application.launchOrFocus(appName)
 end
 
 triggerHyper = function(key)
@@ -43,14 +27,14 @@ handle = function(key, action)
 end
 
 whenFocused = function(app, func)
-  hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.01)
+  hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.001)
 end
 
 slackAndCmdK = function()
   if focusedApp() == 'Slack' then
     hs.eventtap.keyStroke({'cmd'}, 't')
   else
-    launch('Slack', false)
+    launch('Slack')
     whenFocused('Slack', function()
                   hs.eventtap.keyStroke({'cmd'}, 't')
     end)
@@ -58,7 +42,7 @@ slackAndCmdK = function()
 end
 
 chromeAndFocusPage = function()
-  launch('Google Chrome', false)
+  launch('Google Chrome')
   whenFocused('Google Chrome', function()
                 hs.eventtap.keyStroke({'cmd'}, 'f')
                 hs.eventtap.keyStroke({}, 'escape')
@@ -89,23 +73,6 @@ apps = {
 for i, app in ipairs(apps) do
   hyper:bind({}, app[1], function() handle(app[1], app[2]) end)
 end
-
--- -- Sequential keybindings, e.g. Hyper-a,f for Finder
--- a = hs.hotkey.modal.new({}, "F16")
--- apps = {
---   {'d', 'Twitter'},
---   {'f', 'Finder'},
---   {'s', 'Skype'},
--- }
--- for i, app in ipairs(apps) do
---   a:bind({}, app[1], function() launch(app[2]); a:exit(); end)
--- end
-
--- pressedA = function() a:enter() end
--- releasedA = function() end
--- hyper:bind({}, 'a', nil, pressedA, releasedA)
-
--- Shortcut to reload config
 
 -- Enter Hyper Mode when F18 (Hyper/Capslock) is pressed
 pressedF18 = function()
