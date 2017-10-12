@@ -58,3 +58,12 @@
   :post-config
   (global-set-key [s-down] 'sticky-move-down)
   (global-set-key [s-up] 'sticky-move-up))
+
+(spacemacs|use-package-add-hook web-mode
+  :post-config
+  (setq web-mode-markup-indent-offset 2)
+  (setq web-mode-code-indent-offset 2))
+
+(spacemacs|use-package-add-hook css-mode
+  :post-config
+  (setq css-indent-offset 2))
