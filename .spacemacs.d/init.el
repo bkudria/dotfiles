@@ -69,6 +69,10 @@
               '((gruvbox-dark-soft
                 (font-lock-comment-face :family "Iosevka Slab" :slant italic)
                 (font-lock-string-face :family "Iosevka Slab" :slant italic)
+                (ediff-even-diff-A :background "#3c3836" )
+                (ediff-odd-diff-A :background "#504945" )
+                (ediff-odd-diff-B :background "#3c3836" )
+                (ediff-even-diff-B :background "#504945" )
                 )))
      themes-megapack
      vinegar
