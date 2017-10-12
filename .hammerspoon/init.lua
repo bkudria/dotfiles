@@ -44,8 +44,7 @@ end
 chromeAndFocusPage = function()
   launch('Google Chrome')
   whenFocused('Google Chrome', function()
-                hs.eventtap.keyStroke({'cmd'}, 'f')
-                hs.eventtap.keyStroke({}, 'escape')
+                hs.eventtap.keyStroke({'shift'}, 'f6')
   end)
 end
 
