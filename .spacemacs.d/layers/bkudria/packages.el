@@ -6,6 +6,7 @@
     evil-replace-with-register
     highlight-indent-guides
     magithub
+    processing-mode
     ruby-refactor
     (case :location (recipe
                      :fetcher url
@@ -19,6 +20,12 @@
 
 (defun bkudria/init-ruby-refactor ()
   (use-package ruby-refactor))
+
+(defun bkudria/init-processing-mode ()
+  (use-package processing-mode :defer t
+    :config (spacemacs/set-leader-keys-for-major-mode 'processing-mode
+              "r" 'processing-sketch-run
+              "b" 'processing-sketch-build)))
 
 (defun bkudria/init-evil-extra-operator ()
   (use-package evil-extra-operator :defer t
