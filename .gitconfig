@@ -53,4 +53,7 @@
 	check = true
 
 [include]
-	path = ~/.gitconfigs/cloverhealth.gitconfig
+	path = ~/.gitconfigs/raiseme.gitconfig
+
+[magit]
+	hideCampaign = true
