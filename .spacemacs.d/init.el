@@ -423,9 +423,11 @@
  '(paradox-github-token t)
  '(pos-tip-background-color "#36473A")
  '(pos-tip-foreground-color "#FFFFC8")
+ '(processing-location "/usr/local/bin/processing-java")
  '(safe-local-variable-values
    (quote
-    ((compilation-environment list "COVERALLS_SILENT=true")
+    ((dash-at-point-docset . "hammerspoon,lua")
+     (compilation-environment list "COVERALLS_SILENT=true")
      (compilation-environment quote
                               ("COVERALLS_SILENT=true"))
      (projectile-project-type quote rails-rspec)
