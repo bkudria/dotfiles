@@ -17,8 +17,8 @@ brew 'tree'
 brew 'wget'
 brew 'zsh'
 
-tap 'd12frosted/emacs-plus'
-brew 'emacs-plus'
+tap 'robertgzr/homebrew-tap'
+brew 'iosevka', args: %w[slab at-long asterisk-low 3-flattop].map {|s| 'with-' + s }
 
 tap 'caskroom/cask'
 cask 'aerial'
@@ -40,6 +40,9 @@ cask 'shortcat'
 cask 'soundflower'
 cask 'trailer'
 cask 'xscreensaver'
+
+tap 'railwaycat/emacsmacport'
+brew 'emacs-mac-spacemacs-icon'
 
 tap 'caskroom/versions'
 tap 'caskroom/homebrew-versions'
