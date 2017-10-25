@@ -66,8 +66,8 @@ This function should only modify configuration layer settings."
      sql
      (theming :variables theming-modifications
               '((gruvbox
-                (font-lock-comment-face :family "Operator Mono" :slant italic)
-                (font-lock-string-face :family "Operator Mono" :slant italic)
+                (font-lock-comment-face :family "Operator Mono for Powerline" :slant italic)
+                (font-lock-string-face :family "Operator Mono for Powerline" :slant italic)
                 (ediff-even-diff-A :background "#3c3836" )
                 (ediff-odd-diff-A :background "#504945" )
                 (ediff-odd-diff-B :background "#3c3836" )
