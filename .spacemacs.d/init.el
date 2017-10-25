@@ -65,9 +65,9 @@ This function should only modify configuration layer settings."
      (spell-checking :variables spell-checking-enable-by-default nil)
      sql
      (theming :variables theming-modifications
-              '((gruvbox-dark-soft
-                (font-lock-comment-face :family "Iosevka Slab" :slant italic)
-                (font-lock-string-face :family "Iosevka Slab" :slant italic)
+              '((gruvbox
+                (font-lock-comment-face :family "Operator Mono" :slant italic)
+                (font-lock-string-face :family "Operator Mono" :slant italic)
                 (ediff-even-diff-A :background "#3c3836" )
                 (ediff-odd-diff-A :background "#504945" )
                 (ediff-odd-diff-B :background "#3c3836" )
