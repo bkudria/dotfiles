@@ -34,7 +34,7 @@ slackAndCmdK = function()
   if focusedApp() == 'Slack' then
     hs.eventtap.keyStroke({'cmd'}, 't')
   else
-    launch('Slack')
+    slackApp()
     whenFocused('Slack', function()
                   hs.eventtap.keyStroke({'cmd'}, 't')
     end)
@@ -48,6 +48,10 @@ chromeAndFocusPage = function()
   end)
 end
 
+slackApp = function()
+  launch('/Applications/Slack.app')
+end
+
 editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspoon/init.lua') end
 
 apps = {
@@ -59,7 +63,7 @@ apps = {
   {'f', 'Caprine'},
   {'h', function() triggerHyper('g') end},
   {'k', slackAndCmdK},
-  {'l', 'Slack'},
+  {'l', slackApp},
   {'m', 'SoundMate'},
   {'r', 'Reeder'},
   {'s', function() hs.caffeinate.startScreensaver() end },
