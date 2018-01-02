@@ -9,8 +9,12 @@
     processing-mode
     ruby-refactor
     evil-goggles
-    (case :location (recipe :fetcher url
-                           :url "https://raw.githubusercontent.com/chrisbarrett/spacemacs-layers/master/cb-core/local/case/case.el"))))
+    (case :location
+      (recipe
+       :fetcher url
+       :url "https://raw.githubusercontent.com/chrisbarrett/spacemacs-layers/master/cb-core/local/case/case.el"))
+    (yasnippets-rails :location (recipe :fetcher github :repo "eschulte/yasnippets-rails"))
+    ))
 
 (defun bkudria/init-case ()
   (use-package case))
@@ -64,9 +68,17 @@
 
 (spacemacs|use-package-add-hook web-mode
   :post-config
-  (setq web-mode-markup-indent-offset 2)
-  (setq web-mode-code-indent-offset 2))
+  (setq-default web-mode-markup-indent-offset 2)
+  (setq-default web-mode-code-indent-offset 2))
+
+(spacemacs|use-package-add-hook js2-mode
+  :post-config
+  (setq-default js-indent-level 2))
 
 (spacemacs|use-package-add-hook css-mode
   :post-config
-  (setq css-indent-offset 2))
+  (setq-default css-indent-offset 2))
+
+(spacemacs|use-package-add-hook scss-mode
+  :post-config
+  (setq-default css-indent-offset 2))

@@ -10,3 +10,4 @@ client_dist
 .ctags.ignore
 .tern-project
 .dir-locals.el
+magithub/
