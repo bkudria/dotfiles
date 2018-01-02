@@ -7,7 +7,6 @@
     highlight-indent-guides
     magithub
     processing-mode
-    ruby-refactor
     evil-goggles
     (case :location
       (recipe
@@ -18,9 +17,6 @@
 
 (defun bkudria/init-case ()
   (use-package case))
-
-(defun bkudria/init-ruby-refactor ()
-  (use-package ruby-refactor))
 
 (defun bkudria/init-processing-mode ()
   (use-package processing-mode :defer t
