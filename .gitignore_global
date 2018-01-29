@@ -11,3 +11,7 @@ client_dist
 .tern-project
 .dir-locals.el
 magithub/
+.gtags.ignore
+GTAGS
+GRTAGS
+GPATH

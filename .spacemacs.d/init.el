@@ -50,6 +50,7 @@ This function should only modify configuration layer settings."
      git
      github
      go
+     gtags
      html
      ivy
      (javascript :variables tern-command '("node" "/usr/local/bin/tern"))
@@ -383,6 +384,10 @@ If you are unsure, try setting them in `dotspacemacs/user-config' first."
   (spacemacs/toggle-camel-case-motion-globally-on)
   (global-git-commit-mode t)
   (mac-auto-operator-composition-mode t)
+
+  (remove-hook 'spacemacs-jump-handlers-ruby-mode 'robe-jump)
+  (remove-hook 'spacemacs-jump-handlers-enh-ruby-mode 'robe-jump)
+
   (spacemacs/set-leader-keys
     "oo" 'dumb-jump-go
     "ouc" 'upper-camel-case

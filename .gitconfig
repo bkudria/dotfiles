@@ -41,6 +41,7 @@
 
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
 	ctags = !.git/hooks/ctags
+	gtags = !.git/hooks/gtags.sh
 
 	pr = pull-request
 
