@@ -10,6 +10,7 @@ zstyle ':prezto:load' pmodule \
   'osx' \
   'git' \
   'ruby' \
+  'rails' \
   'archive' \
   'python' \
   'homebrew' \

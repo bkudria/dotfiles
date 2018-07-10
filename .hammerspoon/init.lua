@@ -66,7 +66,7 @@ apps = {
   {'l', slackApp},
   {'m', 'SoundMate'},
   {'r', 'Reeder'},
-  {'s', function() hs.caffeinate.startScreensaver() end },
+  {'s', hs.caffeinate.startScreensaver },
   {'t', 'iTerm'},
   {'w', nil},
   {'x', nil},
