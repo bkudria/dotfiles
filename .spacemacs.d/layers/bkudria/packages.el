@@ -6,6 +6,8 @@
     evil-replace-with-register
     processing-mode
     rubocopfmt
+    all-the-icons-ivy
+    all-the-icons-dired
     ))
 
 (defun bkudria/init-processing-mode ()
@@ -29,6 +31,27 @@
 
 (defun bkudria/init-rubocopfmt ()
   (use-package rubocopfmt))
+
+(defun bkudria/init-all-the-icons-ivy ()
+  (use-package all-the-icons-ivy
+    :init
+    :ensure t
+    :config
+    (setq all-the-icons-ivy-file-commands
+          '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir projectile-recentf))
+    (all-the-icons-ivy-setup)
+  ))
+
+(defun bkudria/init-all-the-icons-dired ()
+  (use-package all-the-icons-dired
+    :init
+    :ensure t
+  ))
+
+(spacemacs|use-package-add-hook dired-mode
+  :post-config
+  (all-the-icons-dired-mode)
+  )
 
 (spacemacs|use-package-add-hook move-text
   :post-config
