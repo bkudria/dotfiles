@@ -1,5 +1,6 @@
 -- -*- dash-at-point-docset: "hammerspoon,lua" -*-
 require 'autoreload'
+-- require 'hyperlauncher'
 
 hyper = hs.hotkey.modal.new()
 
@@ -27,51 +28,54 @@ handle = function(key, action)
 end
 
 whenFocused = function(app, func)
-  hs.timer.waitUntil(function() return focusedApp() == app end, func, 0.001)
+  hs.timer.waitUntil(function() return focusedapp() == app end, func, 0.001)
 end
 
 slackAndCmdK = function()
   if focusedApp() == 'Slack' then
     hs.eventtap.keyStroke({'cmd'}, 't')
   else
-    slackApp()
-    whenFocused('Slack', function()
-                  hs.eventtap.keyStroke({'cmd'}, 't')
-    end)
+    launch('/Applications/Slack.app')
   end
 end
 
-chromeAndFocusPage = function()
-  launch('Google Chrome')
-  whenFocused('Google Chrome', function()
-                hs.eventtap.keyStroke({'shift'}, 'f6')
-  end)
+chromeAndChooseTab = function()
+  if focusedApp() == 'Google Chrome' then
+    hs.eventtap.keyStroke({'cmd'}, 'e')
+  else
+    launch('Google Chrome')
+  end
 end
 
-slackApp = function()
-  launch('/Applications/Slack.app')
+iTermAndChoose = function()
+  if focusedApp() == 'iTerm2' then
+    triggerHyper('y')
+  else
+    launch('iTerm')
+  end
 end
+
 
 editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspoon/init.lua') end
 
 apps = {
+  {'\\', nil}, -- 1Password
   {',', editHSConfig},
-  {'b', chromeAndFocusPage},
-  {'c', nil},
-  {'d', nil},
+  {'b', chromeAndChooseTab},
+  {'c', nil}, -- Fantastical
+  {'d', nil}, -- Dash
   {'e', '/Applications/Emacs.app'},
   {'f', 'Caprine'},
-  {'g', nil},
+  {'g', nil}, -- Trailer.app
   {'h', function() triggerHyper('g') end},
   {'k', slackAndCmdK},
-  {'l', slackApp},
+  {'l', slackAndCmdK},
   {'m', 'SoundMate'},
   {'r', 'Reeder'},
   {'s', hs.caffeinate.startScreensaver },
-  {'t', 'iTerm'},
-  {'w', nil},
-  {'x', nil},
-  {'y', nil}
+  {'t', iTermAndChoose},
+  {'w', nil}, -- Moom
+  {'tab', function() triggerHyper('tab') end},
 }
 
 for i, app in ipairs(apps) do
@@ -95,5 +99,11 @@ end
 
 -- Bind the Hyper key
 hs.hotkey.bind({}, 'F18', pressedF18, releasedF18)
-hs.hotkey.bind({'shift'}, 'F18', pressedF18, releasedF18)
+
+
+
+-- hs.hotkey.bind({'shift'}, 'F18', pressedF18, releasedF18)
 hs.alert("!")
+for i, app in ipairs(apps) do
+  hyper:bind({}, app[1], function() handle(app[1], app[2]) end)
+end
