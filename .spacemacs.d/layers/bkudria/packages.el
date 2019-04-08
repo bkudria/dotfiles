@@ -8,6 +8,7 @@
     rubocopfmt
     all-the-icons-ivy
     all-the-icons-dired
+    evil-embrace
     ))
 
 (defun bkudria/init-processing-mode ()
@@ -46,6 +47,15 @@
   (use-package all-the-icons-dired
     :init
     :ensure t
+  ))
+
+(defun bkudria/init-evil-embrace ()
+  (use-package evil-embrace
+    :init
+    :ensure t
+    :config
+    (setq evil-embrace-show-help-p nil)
+    (evil-embrace-enable-evil-surround-integration)
   ))
 
 (spacemacs|use-package-add-hook dired-mode
