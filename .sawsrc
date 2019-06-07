@@ -20,8 +20,6 @@ log_file = ~/.saws.log
 # Default log level. Possible values: "CRITICAL", "ERROR", "WARNING", "INFO"
 # and "DEBUG".
 log_level = INFO
-
-# AWS resources to refresh
 refresh_instance_ids = True
 refresh_instance_tags = True
 refresh_bucket_names = True
