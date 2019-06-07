@@ -7,7 +7,6 @@
     evil-extra-operator
     evil-replace-with-register
     processing-mode
-    rubocopfmt
     all-the-icons-ivy
     all-the-icons-dired
     evil-embrace
@@ -29,9 +28,6 @@
   (use-package evil-extra-operator :defer t
     :init
     (define-key evil-motion-state-map "gr" 'evil-replace-with-register)))
-
-(defun bkudria/init-rubocopfmt ()
-  (use-package rubocopfmt))
 
 (defun bkudria/init-all-the-icons-ivy ()
   (use-package all-the-icons-ivy
@@ -65,10 +61,6 @@
 (spacemacs|use-package-add-hook dired-mode
   :post-config
   (all-the-icons-dired-mode))
-
-(spacemacs|use-package-add-hook ruby-mode-hook
-  :post-config
-  (rubocopfmt-mode))
 
 (spacemacs|use-package-add-hook move-text
   :post-config

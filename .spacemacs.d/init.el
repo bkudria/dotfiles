@@ -116,7 +116,6 @@ This function should only modify configuration layer settings."
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
                                       company-flx
-                                      ;; wakatime-mode
                                       company-tabnine
                                       )
 
@@ -353,7 +352,7 @@ It should only modify the values of Spacemacs settings."
 
    ;; If non-nil the frame is fullscreen when Emacs starts up. (default nil)
    ;; (Emacs 24.4+ only)
-   dotspacemacs-fullscreen-at-startup nil
+   dotspacemacs-fullscreen-at-startup t
 
    ;; If non-nil `spacemacs/toggle-fullscreen' will not use native fullscreen.
    ;; Use to disable fullscreen animations in OSX. (default nil)
@@ -363,6 +362,11 @@ It should only modify the values of Spacemacs settings."
    ;; Takes effect only if `dotspacemacs-fullscreen-at-startup' is nil.
    ;; (default nil) (Emacs 24.4+ only)
    dotspacemacs-maximized-at-startup t
+
+   ;; If non-nil the frame is undecorated when Emacs starts up. Combine this
+   ;; variable with `dotspacemacs-maximized-at-startup' in OSX to obtain
+   ;; borderless fullscreen. (default nil)
+   dotspacemacs-undecorated-at-startup nil
 
    ;; A value from the range (0..100), in increasing opacity, which describes
    ;; the transparency level of a frame when it's active or selected.
@@ -513,10 +517,10 @@ dump."
    This function is called at the very end of Spacemacs startup, after
    layer configuration.
    Put your configuration code here, except for variables that  should be set before packages are loaded."
-  ;; ( ivy-re-builders-alist
-  ;;               '((counsel-projectile-find-file . ivy--regex-fuzzy)
-  ;;                 (counsel-projectile-switch-to-buffer . ivy--regex-fuzzy)
-  ;;                 (t . spacemacs/ivy--regex-plus)))
+  (setq ivy-re-builders-alist
+                '((counsel-projectile-find-file . ivy--regex-fuzzy)
+                  (counsel-projectile-switch-to-buffer . ivy--regex-fuzzy)
+                  (t . spacemacs/ivy--regex-plus)))
   (setq powerline-default-separator nil)
   (setq spaceline-all-the-icons-separator-type 'slant)
   (setq spaceline-all-the-icons-primary-separator "")
@@ -531,9 +535,6 @@ dump."
 
   (setq magit-repository-directories '("~/Code/"))
   (setq magit-log-section-commit-count 0)
-
-  (setq-default evil-escape-key-sequence "fd")
-  (setq-default evil-escape-unordered-key-sequence t)
 
   (with-eval-after-load 'transient
     (define-key transient-map        (kbd "<escape>" ) 'transient-quit-one)
@@ -573,31 +574,20 @@ dump."
     ;;                            (setq this-command old-this-command)))))
 
 
-  ;; (with-eval-after-load 'all-the-icons-ivy
-  ;;   (setq all-the-icons-ivy-file-commands
-  ;;         '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir projectile-recentf))
-  ;;   (all-the-icons-ivy-setup)
-  ;;   )
+  (with-eval-after-load 'all-the-icons-ivy
+    (setq all-the-icons-ivy-file-commands
+          '(counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir projectile-recentf))
+    (all-the-icons-ivy-setup)
+    )
 
   (spacemacs/toggle-centered-point-globally-on)
   (spacemacs/toggle-camel-case-motion-globally-on)
 
-  ;; (global-git-commit-mode t)
   ;; (mac-auto-operator-composition-mode t)
-
-  ;; (remove-hook 'spacemacs-jump-handlers-ruby-mode 'robe-jump)
-  ;; (remove-hook 'spacemacs-jump-handlers-enh-ruby-mode 'robe-jump)
 
   (company-flx-mode +1)
 
-  ;; (diminish 'counsel-mode "C")
-  ;; (diminish 'rubocop-mode "Rc")
-  ;; (diminish 'ruby-refactor-mode "Rr")
-
   (golden-ratio-mode)
-
-  ;; (global-wakatime-mode)
-  ;; (diminish 'wakatime-mode "WT")
 
   (spacemacs/set-leader-keys
     "oo" 'dumb-jump-go
