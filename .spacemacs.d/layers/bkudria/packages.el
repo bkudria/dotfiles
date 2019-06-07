@@ -1,14 +1,17 @@
+(push "~/.spacemacs.d/layers/bkudria/" load-path)
+(require 'iterm)
+
 (defconst
   bkudria-packages
   '(
     evil-extra-operator
-    (evil-textobj-line :location (recipe :fetcher github :repo "syohex/evil-textobj-line"))
     evil-replace-with-register
     processing-mode
     rubocopfmt
     all-the-icons-ivy
     all-the-icons-dired
     evil-embrace
+    ivy-posframe
     ))
 
 (defun bkudria/init-processing-mode ()
@@ -27,9 +30,6 @@
     :init
     (define-key evil-motion-state-map "gr" 'evil-replace-with-register)))
 
-(defun bkudria/init-evil-textobj-line ()
-  (use-package evil-textobj-line))
-
 (defun bkudria/init-rubocopfmt ()
   (use-package rubocopfmt))
 
@@ -40,14 +40,12 @@
     :config
     (setq all-the-icons-ivy-file-commands
           '(counsel-find-file counsel-file-jump counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir projectile-recentf))
-    (all-the-icons-ivy-setup)
-  ))
+    (all-the-icons-ivy-setup)))
 
 (defun bkudria/init-all-the-icons-dired ()
   (use-package all-the-icons-dired
     :init
-    :ensure t
-  ))
+    :ensure t))
 
 (defun bkudria/init-evil-embrace ()
   (use-package evil-embrace
@@ -55,13 +53,22 @@
     :ensure t
     :config
     (setq evil-embrace-show-help-p nil)
-    (evil-embrace-enable-evil-surround-integration)
-  ))
+    (evil-embrace-enable-evil-surround-integration)))
+
+(defun bkudria/init-ivy-posframe ()
+  (use-package ivy-posframe)
+  (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
+  (ivy-posframe-enable)
+  )
+
 
 (spacemacs|use-package-add-hook dired-mode
   :post-config
-  (all-the-icons-dired-mode)
-  )
+  (all-the-icons-dired-mode))
+
+(spacemacs|use-package-add-hook ruby-mode-hook
+  :post-config
+  (rubocopfmt-mode))
 
 (spacemacs|use-package-add-hook move-text
   :post-config
