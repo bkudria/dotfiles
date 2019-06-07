@@ -49,12 +49,18 @@ end
 
 iTermAndChoose = function()
   if focusedApp() == 'iTerm2' then
-    triggerHyper('y')
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'o')
+    hs.eventtap.keyStroke({}, 'delete')
   else
     launch('iTerm')
   end
 end
 
+menuBarTrailerApp = function()
+  hs.eventtap.keyStroke({'ctrl'}, 'F15')
+  hs.eventtap.keyStroke({}, 'tab')
+  hs.eventtap.keyStroke({'ctrl', 'cmd'}, 'g')
+end
 
 editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspoon/init.lua') end
 
@@ -66,8 +72,8 @@ apps = {
   {'d', nil}, -- Dash
   {'e', '/Applications/Emacs.app'},
   {'f', 'Caprine'},
-  {'g', nil}, -- Trailer.app
-  {'h', function() triggerHyper('g') end},
+  {'g', menuBarTrailerApp},
+  {'h', nil}, -- Trailer.app
   {'k', slackAndCmdK},
   {'l', slackAndCmdK},
   {'m', 'SoundMate'},
