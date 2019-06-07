@@ -80,6 +80,7 @@ apps = {
   {'r', 'Reeder'},
   {'s', hs.caffeinate.startScreensaver },
   {'t', iTermAndChoose},
+  {'v', nil}, -- alfred clipboard
   {'w', nil}, -- Moom
   {'tab', function() triggerHyper('tab') end},
 }
