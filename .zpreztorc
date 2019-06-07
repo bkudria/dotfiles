@@ -12,7 +12,6 @@ zstyle ':prezto:load' pmodule \
   'ruby' \
   'rails' \
   'archive' \
-  'python' \
   'homebrew' \
   'directory' \
   'spectrum' \
@@ -27,7 +26,7 @@ zstyle ':prezto:load' pmodule \
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'
 
-zstyle ':prezto:module:prompt' theme 'pure'
+zstyle ':prezto:module:prompt' theme 'powerlevel10k'
 
 zstyle ':prezto:module:ruby:chruby' auto-switch 'yes'
 
