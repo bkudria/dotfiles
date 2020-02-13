@@ -1,0 +1,46 @@
+#!/usr/local/bin/zsh
+source ~/.zshrc
+
+gco develop
+gss
+gfm
+
+RULE=$1
+DASHRULE=$(ruby -rubygems -ractive_support -r 'active_support/core_ext/string' -e "print ARGV[0].split('/').map(&:underscore).map(&:dasherize).join('-')" $RULE)
+
+BRANCH="rubocop-fix-$DASHRULE"
+
+gbc $BRANCH
+gco $BRANCH
+git merge develop --ff
+
+TMP_RULE_FILE="/tmp/rubocop-$DASHRULE.yml"
+
+RULE_CONFIG=`cat .rubocop.yml | yq ".\"$RULE\""`
+
+if [[ "$RULE_CONFIG" == "null" ]]; then
+    rubocop -a -c .ruby-style.yml --only $RULE
+else
+    rm -f $TMP_RULE_FILE
+    cat .rubocop.yml | yq -y "{AllCops: (.AllCops + {DisabledByDefault: true}), \"$RULE\"}" > $TMP_RULE_FILE
+
+    rubocop -R -a -c $TMP_RULE_FILE
+fi
+
+if [[ `git diff --exit-code` ]]; then
+    git diff | tig
+else
+    echo "No changes made!"
+fi
+
+read -q "REPLY?Commit? [y/n] "
+echo ""
+
+if [[ $REPLY == 'y' ]]; then
+    gca -m "Rubocop Autocorrect: $RULE"
+    # gca -m "$RULE"
+
+    # gpc
+    # git pr -m "Rubocop: Autocorrect $RULE" -b develop -o
+
+fi
