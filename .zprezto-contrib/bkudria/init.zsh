@@ -1,10 +1,13 @@
 export EDITOR='emacsclient -q'
 export VISUAL='emacsclient -q'
+export TERM=screen-256color
+export GOPATH=~/.go
 
 alias ll='exa -lF --colour-scale --group-directories-first'
 alias la='ll -a'
 alias git=hub
 alias cat=bat
+# alias fzf=fzy
 
 path=("$HOME/bin" $path)
 cdpath=($HOME/Code)
@@ -13,6 +16,7 @@ MARKER_KEY_GET="^[[Z"
 MARKER_KEY_NEXT_PLACEHOLDER="^N"
 [[ -s "$HOME/.local/share/marker/marker.sh" ]] && source "$HOME/.local/share/marker/marker.sh"
 
+# [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
 source "${0:a:h}/romkatv-purepower/.purepower"
 typeset -g POWERLEVEL9K_SHORTEN_DIR_LENGTH=1
 typeset -g POWERLEVEL9K_SHORTEN_DELIMITER=''

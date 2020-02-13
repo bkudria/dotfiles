@@ -6,11 +6,13 @@
   '(
     evil-extra-operator
     evil-replace-with-register
+    evil-ruby-text-objects
     processing-mode
     all-the-icons-ivy
     all-the-icons-dired
     evil-embrace
     ivy-posframe
+    keyfreq
     ))
 
 (defun bkudria/init-processing-mode ()
@@ -25,9 +27,12 @@
     (define-key evil-motion-state-map "gl" 'evil-operator-clone)))
 
 (defun bkudria/init-evil-replace-with-register ()
-  (use-package evil-extra-operator :defer t
+  (use-package evil-replace-with-register :defer t
     :init
     (define-key evil-motion-state-map "gr" 'evil-replace-with-register)))
+
+(defun bkudria/init-evil-ruby-text-objects ()
+  (use-package evil-ruby-text-objects))
 
 (defun bkudria/init-all-the-icons-ivy ()
   (use-package all-the-icons-ivy
@@ -53,14 +58,23 @@
 
 (defun bkudria/init-ivy-posframe ()
   (use-package ivy-posframe)
-  (setq ivy-display-function #'ivy-posframe-display-at-frame-center)
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   (ivy-posframe-enable)
   )
 
+(defun bkudria/init-keyfreq ()
+  (use-package keyfreq)
+  (keyfreq-mode 1)
+  (keyfreq-autosave-mode 1)
+  )
 
 (spacemacs|use-package-add-hook dired-mode
   :post-config
   (all-the-icons-dired-mode))
+
+(spacemacs|use-package-add-hook ruby-mode
+  :post-config
+  (evil-ruby-text-objects-mode))
 
 (spacemacs|use-package-add-hook move-text
   :post-config

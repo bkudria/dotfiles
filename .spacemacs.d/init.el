@@ -47,7 +47,7 @@ This function should only modify configuration layer settings."
                       spacemacs-default-company-backends
                       '(company-tabnine
                         (company-capf company-gtags company-keywords)
-                        ;; company-files company-dabbrev
+                        company-files company-dabbrev
                         )
                       )
      bkudria
@@ -68,11 +68,10 @@ This function should only modify configuration layer settings."
      gtags
      html
      (ivy :variables
-          ivy-height 75
           ivy-enable-advanced-buffer-information t
-          ivy-re-builders-alist '((
-                                   counsel-projectile-find-file . ivy--regex-fuzzy)
+          ivy-re-builders-alist '((counsel-projectile-find-file . ivy--regex-fuzzy)
                                   (counsel-projectile-switch-to-buffer . ivy--regex-fuzzy)
+                                  (ivy-switch-buffer . ivy--regex-fuzzy)
                                   (t . spacemacs/ivy--regex-plus)))
      (javascript :variables javascript-backend nil node-add-modules-path t)
      latex
@@ -83,12 +82,17 @@ This function should only modify configuration layer settings."
      (osx :variables osx-function-as nil)
      python
      react
-     (ruby :variables ruby-test-runner 'rspec ruby-backend nil ruby-version-manager 'rbenv)
+     (ruby
+      :variables
+      ruby-test-runner 'rspec
+      ruby-backend nil
+      ruby-version-manager 'rbenv)
      ruby-on-rails
      shell-scripts
      (spell-checking :variables spell-checking-enable-by-default nil)
      sql
      templates
+     (terraform :variables terraform-auto-format-on-save t)
      (theming :variables theming-modifications
               '((gruvbox-dark-soft
                 (font-lock-comment-face :family "Iosevka Slab" :slant italic)
@@ -115,7 +119,6 @@ This function should only modify configuration layer settings."
    ;; '(your-package :location "~/path/to/your-package/")
    ;; Also include the dependencies as they will not be resolved automatically.
    dotspacemacs-additional-packages '(
-                                      company-flx
                                       company-tabnine
                                       )
 
@@ -503,7 +506,7 @@ This function is called immediately after `dotspacemacs/init', before layer
 configuration.
 It is mostly for variables that should be set before packages are loaded.
 If you are unsure, try setting them in `dotspacemacs/user-config' first."
-  )
+  (setq-default git-magit-status-fullscreen t))
 
 (defun dotspacemacs/user-load ()
   "Library to load while dumping.
@@ -564,33 +567,14 @@ dump."
     (transient-append-suffix 'magit-merge "p" '(1 "v" "Merge latest develop" magit-merge-latest-develop))
     )
 
-    ;; (magit-define-popup-action
-    ;;   'magit-branch-popup ?j
-    ;;   "New develop branch" (lambda () (interactive)
-    ;;                          (magit-checkout "develop")
-    ;;                          (let ((old-this-command this-command))
-    ;;                            (setq this-command 'magit-branch-and-checkout)
-    ;;                            (command-execute 'magit-branch-and-checkout)
-    ;;                            (setq this-command old-this-command)))))
-
-
-  (with-eval-after-load 'all-the-icons-ivy
-    (setq all-the-icons-ivy-file-commands
-          '(counsel-recentf counsel-projectile-find-file counsel-projectile-find-dir projectile-recentf))
-    (all-the-icons-ivy-setup)
-    )
-
   (spacemacs/toggle-centered-point-globally-on)
   (spacemacs/toggle-camel-case-motion-globally-on)
-
-  ;; (mac-auto-operator-composition-mode t)
-
-  (company-flx-mode +1)
 
   (golden-ratio-mode)
 
   (spacemacs/set-leader-keys
     "oo" 'dumb-jump-go
+    "oy" 'repeat
     "ok" 'smerge-keep-current
     "ot" 'iterm-send-text-ruby
     "fr" 'projectile-recentf)
@@ -602,6 +586,15 @@ dump."
             (lambda () (visual-line-mode 1)))
 
   (add-hook 'ruby-mode-hook #'rubocopfmt-mode)
+  (add-hook 'ruby-mode-hook
+            (lambda ()
+              (setq-local flycheck-command-wrapper-function
+                          (lambda (command) (append '("bundle" "exec") command)))))
+
+  (setq ivy-height-alist
+        '((t
+           lambda (_caller)
+           (round (* 0.7 (frame-height) )))))
 
   (defun abbrev-path (path)
     (if (stringp path) (replace-regexp-in-string "\\b\\(\\w\\)\\w+" "\\1" path) path)
@@ -609,29 +602,14 @@ dump."
 
   (advice-add 'spaceline-all-the-icons--buffer-path :filter-return #'abbrev-path)
 
-  (setq company-idle-delay (lambda () (if (company-in-string-or-comment) 1 0.2)))
-  (company-tng-configure-default)
-  (setq company-frontends
-        '(company-tng-frontend
-          company-pseudo-tooltip-frontend
-          company-echo-metadata-frontend))
 
-  ;; ;; workaround for company-transformers
-  ;; (setq company-tabnine--disable-next-transform nil)
-  ;; (defun my-company--transform-candidates (func &rest args)
-  ;;   (if (not company-tabnine--disable-next-transform)
-  ;;       (apply func args)
-  ;;     (setq company-tabnine--disable-next-transform nil)
-  ;;     (car args)))
+  (setq company-idle-delay (lambda () (if (company-in-string-or-comment) 1 0.1)))
 
-  ;; (defun my-company-tabnine (func &rest args)
-  ;;   (when (eq (car args) 'candidates)
-  ;;     (setq company-tabnine--disable-next-transform t))
-  ;;   (apply func args))
+  (add-hook 'ruby-mode-hook (lambda ()
+                                 (add-to-list 'company-backends #'company-tabnine)))
 
-  ;; (advice-add #'company--transform-candidates :around #'my-company--transform-candidates)
-  ;; (advice-add #'company-tabnine :around #'my-company-tabnine)
-
+  (add-hook 'rjsx-mode-hook (lambda ()
+                                 (add-to-list 'company-backends #'company-tabnine)))
 
   ) ;; ) user-config
 
@@ -647,10 +625,12 @@ This function is called at the very end of Spacemacs initialization."
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(company-tabnine-log-file-path "~/.TabNine/company.log")
  '(package-selected-packages
    (quote
-    (loccur company-box ivy-rich 0blayout yaml-imenu coverage cov vimrc-mode helm-gtags dactyl-mode enh-ruby-mode evil-embrace embrace evil-textobj-column tide typescript-mode css-comb ivy-posframe all-the-icons-dired all-the-icons-ivy company-childframe auto-dim-other-buffers robe zenburn-theme zen-and-art-theme yasnippet-snippets yapfify yaml-mode ws-butler writeroom-mode winum white-sand-theme which-key wgrep web-mode web-beautify wakatime-mode volatile-highlights vi-tilde-fringe uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme treemacs-projectile treemacs-evil toxi-theme toc-org tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit symon sunny-day-theme sublime-themes subatomic256-theme subatomic-theme string-inflection sql-indent spaceline-all-the-icons spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode seti-theme seeing-is-believing scss-mode sass-mode rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocopfmt rubocop rspec-mode rjsx-mode reverse-theme reveal-in-osx-finder restart-emacs request rebecca-theme rbenv rainbow-mode rainbow-identifiers rainbow-delimiters railscasts-theme pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode projectile-rails professional-theme processing-mode prettier-js popwin pony-mode planet-theme pippel pipenv pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persp-mode password-generator paradox overseer osx-trash osx-dictionary organic-green-theme org-bullets open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme nameless mustang-theme move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minitest minimal-theme material-theme markdown-toc majapahit-theme magithub magit-svn magit-gitflow madhat2r-theme macrostep lush-theme lsp-ui lorem-ipsum livid-mode live-py-mode link-hint light-soap-theme launchctl kaolin-themes json-navigator js2-refactor js-doc jbeans-theme jazz-theme ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ir-black-theme insert-shebang inkpot-theme indent-guide importmagic impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme helm-make hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gmail-message-mode gitignore-templates gitignore-mode github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags gandalf-theme fuzzy forge font-lock+ flyspell-correct-ivy flymd flycheck-pos-tip flycheck-bashate flx-ido flatui-theme flatland-theme fish-mode fill-column-indicator feature-mode farmhouse-theme fancy-battery eziam-theme eyebrowse expand-region exotica-theme evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-snipe evil-replace-with-register evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-extra-operator evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu espresso-theme emojify emmet-mode elisp-slime-nav editorconfig edit-server dumb-jump dracula-theme dotenv-mode doom-themes doom-modeline dockerfile-mode docker django-theme diminish diff-hl dash-at-point darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme csv-mode counsel-projectile counsel-gtags counsel-dash counsel-css company-web company-tern company-tabnine company-statistics company-shell company-lua company-lsp company-go company-flx company-auctex company-anaconda column-enforce-mode color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized color-identifiers-mode clues-theme clean-aindent-mode chruby cherry-blossom-theme centered-window centered-cursor-mode busybee-theme bundler bubbleberry-theme browse-at-remote birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme ace-link ac-ispell)))
+    (fast-scroll js-import evil-ruby-text-objects chocolate-theme org-jira company-terraform terraform-mode hcl-mode keyfreq loccur company-box ivy-rich 0blayout yaml-imenu coverage cov vimrc-mode helm-gtags dactyl-mode enh-ruby-mode evil-embrace embrace evil-textobj-column tide typescript-mode css-comb ivy-posframe all-the-icons-dired all-the-icons-ivy company-childframe auto-dim-other-buffers robe zenburn-theme zen-and-art-theme yasnippet-snippets yapfify yaml-mode ws-butler writeroom-mode winum white-sand-theme which-key wgrep web-mode web-beautify wakatime-mode volatile-highlights vi-tilde-fringe uuidgen use-package underwater-theme ujelly-theme twilight-theme twilight-bright-theme twilight-anti-bright-theme treemacs-projectile treemacs-evil toxi-theme toc-org tao-theme tangotango-theme tango-plus-theme tango-2-theme tagedit symon sunny-day-theme sublime-themes subatomic256-theme subatomic-theme string-inflection sql-indent spaceline-all-the-icons spacegray-theme soothe-theme solarized-theme soft-stone-theme soft-morning-theme soft-charcoal-theme smyx-theme smex smeargle slim-mode seti-theme seeing-is-believing scss-mode sass-mode rvm ruby-tools ruby-test-mode ruby-refactor ruby-hash-syntax rubocopfmt rubocop rspec-mode rjsx-mode reverse-theme reveal-in-osx-finder restart-emacs request rebecca-theme rbenv rainbow-mode rainbow-identifiers rainbow-delimiters railscasts-theme pyvenv pytest pyenv-mode py-isort purple-haze-theme pug-mode projectile-rails professional-theme processing-mode prettier-js popwin pony-mode planet-theme pippel pipenv pip-requirements phoenix-dark-pink-theme phoenix-dark-mono-theme persp-mode password-generator paradox overseer osx-trash osx-dictionary organic-green-theme org-bullets open-junk-file omtose-phellack-theme oldlace-theme occidental-theme obsidian-theme noctilux-theme naquadah-theme nameless mustang-theme move-text monokai-theme monochrome-theme molokai-theme moe-theme mmm-mode minitest minimal-theme material-theme markdown-toc majapahit-theme magithub magit-svn magit-gitflow madhat2r-theme macrostep lush-theme lsp-ui lorem-ipsum livid-mode live-py-mode link-hint light-soap-theme launchctl kaolin-themes json-navigator js2-refactor js-doc jbeans-theme jazz-theme ivy-yasnippet ivy-xref ivy-purpose ivy-hydra ir-black-theme insert-shebang inkpot-theme indent-guide importmagic impatient-mode hungry-delete hl-todo highlight-parentheses highlight-numbers highlight-indentation heroku-theme hemisu-theme helm-make hc-zenburn-theme gruvbox-theme gruber-darker-theme grandshell-theme gotham-theme google-translate golden-ratio godoctor go-tag go-rename go-impl go-guru go-gen-test go-fill-struct go-eldoc gmail-message-mode gitignore-templates gitignore-mode github-search github-clone gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gist gh-md ggtags gandalf-theme fuzzy forge font-lock+ flyspell-correct-ivy flymd flycheck-pos-tip flycheck-bashate flx-ido flatui-theme flatland-theme fish-mode fill-column-indicator feature-mode farmhouse-theme fancy-battery eziam-theme eyebrowse expand-region exotica-theme evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-textobj-line evil-surround evil-snipe evil-replace-with-register evil-numbers evil-nerd-commenter evil-matchit evil-magit evil-lisp-state evil-lion evil-indent-plus evil-iedit-state evil-goggles evil-extra-operator evil-exchange evil-escape evil-ediff evil-cleverparens evil-args evil-anzu eval-sexp-fu espresso-theme emojify emmet-mode elisp-slime-nav editorconfig edit-server dumb-jump dracula-theme dotenv-mode doom-themes doom-modeline dockerfile-mode docker django-theme diminish diff-hl dash-at-point darktooth-theme darkokai-theme darkmine-theme darkburn-theme dakrone-theme cython-mode cyberpunk-theme csv-mode counsel-projectile counsel-gtags counsel-dash counsel-css company-web company-tern company-tabnine company-statistics company-shell company-lua company-lsp company-go company-flx company-auctex company-anaconda column-enforce-mode color-theme-sanityinc-tomorrow color-theme-sanityinc-solarized color-identifiers-mode clues-theme clean-aindent-mode chruby cherry-blossom-theme centered-window centered-cursor-mode busybee-theme bundler bubbleberry-theme browse-at-remote birds-of-paradise-plus-theme badwolf-theme auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile apropospriate-theme anti-zenburn-theme ample-zen-theme ample-theme alect-themes aggressive-indent afternoon-theme ace-link ac-ispell)))
  '(paradox-github-token t)
+ '(rubocopfmt-rubocop-command "rubocop-daemon-wrapper")
  '(safe-local-variable-values
    (quote
     ((dash-at-point-docset . "hammerspoon,lua")

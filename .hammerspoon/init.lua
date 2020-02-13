@@ -41,7 +41,7 @@ end
 
 chromeAndChooseTab = function()
   if focusedApp() == 'Google Chrome' then
-    hs.eventtap.keyStroke({'cmd'}, 'e')
+    hs.eventtap.keyStroke({'shift'}, 't')
   else
     launch('Google Chrome')
   end
@@ -50,7 +50,7 @@ end
 iTermAndChoose = function()
   if focusedApp() == 'iTerm2' then
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'o')
-    hs.eventtap.keyStroke({}, 'delete')
+    hs.eventtap.keyStrokes('/f ')
   else
     launch('iTerm')
   end
@@ -67,6 +67,7 @@ editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspo
 apps = {
   {'\\', nil}, -- 1Password
   {',', editHSConfig},
+  {'-', flipScreens},
   {'b', chromeAndChooseTab},
   {'c', nil}, -- Fantastical
   {'d', nil}, -- Dash

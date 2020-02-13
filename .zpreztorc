@@ -22,7 +22,11 @@ zstyle ':prezto:load' pmodule \
   'autosuggestions' \
   'prompt' \
   'fasd' \
-  'bkudria'
+  'tmux' \
+  'bkudria' \
+  'belak/enhancd' \
+  'belak/alias-tips' \
+  'fzf'
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'
 
@@ -55,7 +59,32 @@ zstyle ':prezto:module:terminal' auto-title 'yes'
 # zstyle ':prezto:module:tmux:auto-start' remote 'yes'
 
 # Integrate with iTerm2.
-zstyle ':prezto:module:tmux:iterm' integrate 'yes'
+# zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 # Autosuggestions color
 zstyle ':prezto:module:autosuggestions:color' found 'fg=8'
+
+zstyle ':prezto:module:enhancd' command 'fzy:peco'
+zstyle ':prezto:module:enhancd' command 'c'
+zstyle ':prezto:module:enhancd' show-fullpath 'ENHANCD_DOT_SHOW_FULLPATH'
+
+zstyle ':prezto:module:alias-tips' text 'ℹ '
+
+# Use keybindings
+zstyle ':prezto:module:fzf' key-bindings 'yes'
+
+# Use completion
+zstyle ':prezto:module:fzf' completion 'yes'
+
+# Set height of the fzf results (comment for full screen)
+zstyle ':prezto:module:fzf' height '30%'
+
+# Open fzf results in a tmux pane (if using tmux)
+zstyle ':prezto:module:fzf' tmux 'no'
+
+# Set colorscheme
+# A list of available colorschemes is available in color.zsh
+# To add more color schemes of your own, consult
+# https://github.com/junegunn/fzf/wiki/Color-schemes and add values to the
+# color.zsh file accordingly
+zstyle ':prezto:module:fzf' colorscheme 'Solarized Dark'
