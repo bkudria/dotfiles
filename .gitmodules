@@ -4,6 +4,3 @@
 [submodule ".emacs.d"]
 	path = .emacs.d
 	url = https://github.com/syl20bnr/spacemacs.git
-[submodule ".zprezto-contrib/bkudria/romkatv-purepower"]
-	path = .zprezto-contrib/bkudria/romkatv-purepower
-	url = https://github.com/romkatv/dotfiles-public
