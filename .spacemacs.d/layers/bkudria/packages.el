@@ -57,10 +57,13 @@
     (evil-embrace-enable-evil-surround-integration)))
 
 (defun bkudria/init-ivy-posframe ()
-  (use-package ivy-posframe)
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  (ivy-posframe-enable)
-  )
+  (use-package ivy-posframe
+    :init
+    :ensure t
+    :config
+    (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center))))
+  (ivy-posframe-mode 1)
+ )
 
 (defun bkudria/init-keyfreq ()
   (use-package keyfreq)
