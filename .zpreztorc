@@ -2,6 +2,8 @@
 
 zstyle ':prezto:*:*' color 'yes'
 
+zstyle ':prezto:load' pmodule-dirs $HOME/.zprezto-contrib
+
 zstyle ':prezto:load' pmodule \
   'environment' \
   'terminal' \
@@ -25,8 +27,7 @@ zstyle ':prezto:load' pmodule \
   'tmux' \
   'bkudria' \
   'belak/enhancd' \
-  'belak/alias-tips' \
-  'fzf'
+  'belak/alias-tips'
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'
 
