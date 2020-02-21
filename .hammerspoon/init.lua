@@ -2,6 +2,18 @@
 require 'autoreload'
 -- require 'hyperlauncher'
 
+flipScreens = function()
+   for i, screen in ipairs(hs.screen.allScreens()) do
+      print(screen)
+      currentRotation = screen:rotate()
+      if currentRotation == 90 then
+         screen:rotate(270)
+      else
+         screen:rotate(90)
+      end
+   end
+end
+
 hyper = hs.hotkey.modal.new()
 
 focusedApp = function()
