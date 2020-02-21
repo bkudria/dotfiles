@@ -40,13 +40,9 @@
 	ls = ls-files
 
 	top = !eval cd "$(pwd)/$(git rev-parse --show-cdup)" && pwd
-	ctags = !.git/hooks/ctags
-	gtags = !.git/hooks/gtags.sh
 
 	pr = pull-request
 
-[init]
-	templatedir = ~/.git_template
 [help]
 	autocorrect = 1
 
@@ -58,8 +54,10 @@
 
 [magit]
 	hideCampaign = true
+
 [magithub]
 	online = false
+
 [magithub "status"]
 	includeStatusHeader = false
 	includePullRequestsSection = false
