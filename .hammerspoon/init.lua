@@ -59,6 +59,15 @@ chromeAndChooseTab = function()
   end
 end
 
+
+localGlobal1Password = function()
+  if focusedApp() == 'Google Chrome' then
+    hs.eventtap.keyStroke({'cmd','shift'}, 'x')
+  else
+    triggerHyper('x')
+  end
+end
+
 iTermAndChoose = function()
   if focusedApp() == 'iTerm2' then
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'o')
@@ -77,7 +86,7 @@ end
 editHSConfig = function() hs.execute('/usr/local/bin/emacsclient -n ~/.hammerspoon/init.lua') end
 
 apps = {
-  {'\\', nil}, -- 1Password
+  {'\\', localGlobal1Password},
   {',', editHSConfig},
   {'-', flipScreens},
   {'b', chromeAndChooseTab},
@@ -95,6 +104,7 @@ apps = {
   {'t', iTermAndChoose},
   {'v', nil}, -- alfred clipboard
   {'w', nil}, -- Moom
+  {'x', nil}, -- 1Password
   {'tab', function() triggerHyper('tab') end},
 }
 
