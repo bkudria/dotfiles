@@ -4,7 +4,6 @@ require 'autoreload'
 
 flipScreens = function()
    for i, screen in ipairs(hs.screen.allScreens()) do
-      print(screen)
       currentRotation = screen:rotate()
       if currentRotation == 90 then
          screen:rotate(270)
@@ -62,9 +61,9 @@ end
 
 localGlobal1Password = function()
   if focusedApp() == 'Google Chrome' then
-    hs.eventtap.keyStroke({'cmd','shift'}, 'x')
+    hs.eventtap.keyStroke({'cmd','shift'}, 'i')
   else
-    triggerHyper('x')
+    triggerHyper('\\')
   end
 end
 
@@ -96,6 +95,7 @@ apps = {
   {'f', 'Caprine'},
   {'g', menuBarTrailerApp},
   {'h', nil}, -- Trailer.app
+  {'i', nil}, -- 1Password
   {'k', slackAndCmdK},
   {'l', slackAndCmdK},
   {'m', 'SoundMate'},
@@ -104,7 +104,7 @@ apps = {
   {'t', iTermAndChoose},
   {'v', nil}, -- alfred clipboard
   {'w', nil}, -- Moom
-  {'x', nil}, -- 1Password
+  {'1', toggleMute},
   {'tab', function() triggerHyper('tab') end},
 }
 
