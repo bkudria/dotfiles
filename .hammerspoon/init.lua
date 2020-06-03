@@ -58,7 +58,6 @@ chromeAndChooseTab = function()
   end
 end
 
-
 localGlobal1Password = function()
   if focusedApp() == 'Google Chrome' then
     hs.eventtap.keyStroke({'cmd','shift'}, 'i')
@@ -104,6 +103,7 @@ apps = {
   {'t', iTermAndChoose},
   {'v', nil}, -- alfred clipboard
   {'w', nil}, -- Moom
+  {'z', 'zoom.us.app'},
   {'1', toggleMute},
   {'tab', function() triggerHyper('tab') end},
 }
@@ -129,8 +129,6 @@ end
 
 -- Bind the Hyper key
 hs.hotkey.bind({}, 'F18', pressedF18, releasedF18)
-
-
 
 -- hs.hotkey.bind({'shift'}, 'F18', pressedF18, releasedF18)
 hs.alert("!")

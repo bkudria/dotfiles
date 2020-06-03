@@ -11,6 +11,7 @@ zstyle ':prezto:load' pmodule \
   'history' \
   'osx' \
   'git' \
+  'node' \
   'ruby' \
   'rails' \
   'archive' \
@@ -54,13 +55,13 @@ zstyle ':prezto:module:terminal' auto-title 'yes'
 #
 
 # Auto start a session when Zsh is launched in a local terminal.
-# zstyle ':prezto:module:tmux:auto-start' local 'yes'
+zstyle ':prezto:module:tmux:auto-start' local 'yes'
 
 # Auto start a session when Zsh is launched in a SSH connection.
-# zstyle ':prezto:module:tmux:auto-start' remote 'yes'
+zstyle ':prezto:module:tmux:auto-start' remote 'yes'
 
 # Integrate with iTerm2.
-# zstyle ':prezto:module:tmux:iterm' integrate 'yes'
+zstyle ':prezto:module:tmux:iterm' integrate 'yes'
 
 # Autosuggestions color
 zstyle ':prezto:module:autosuggestions:color' found 'fg=8'

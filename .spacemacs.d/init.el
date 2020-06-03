@@ -71,10 +71,12 @@ This function should only modify configuration layer settings."
           ivy-re-builders-alist '((counsel-projectile-find-file . ivy--regex-fuzzy)
                                   (counsel-projectile-switch-to-buffer . ivy--regex-fuzzy)
                                   (ivy-switch-buffer . ivy--regex-fuzzy)
+                                  (spacemacs/counsel-jump-in-buffer . ivy--regex-fuzzy)
+                                  (counsel-imenu . ivy--regex-fuzzy)
                                   (t . spacemacs/ivy--regex-plus)))
      (javascript :variables javascript-backend nil node-add-modules-path t)
      latex
-     ;; (lsp :variables lsp-ui-sideline-enable nil lsp-ui-doc-enable nil)
+     (lsp :variables lsp-ui-sideline-enable nil lsp-ui-doc-enable nil)
      lua
      markdown
      (neotree :variables)
@@ -104,7 +106,10 @@ This function should only modify configuration layer settings."
                 )))
      themes-megapack
      (unicode-fonts :variables unicode-fonts-force-multi-color-on-mac t)
-     typescript
+     ;; tide
+     (typescript :variables
+                 ;; typescript-backend 'tide
+                 typescript-linter 'eslint)
      vinegar
      wakatime
      yaml
@@ -126,7 +131,7 @@ This function should only modify configuration layer settings."
    dotspacemacs-frozen-packages '()
 
    ;; A list of packages that will not be installed and loaded.
-   dotspacemacs-excluded-packages '()
+   dotspacemacs-excluded-packages '(keyfreq)
 
    ;; Defines the behaviour of Spacemacs when installing packages.
    ;; Possible values are `used-only', `used-but-keep-unused' and `all'.
@@ -535,10 +540,18 @@ dump."
   (spaceline-toggle-all-the-icons-hud-off)
   (setq-default mode-line nil powerline-active2 nil powerline-inactive2 nil)
 
+  (setq-default wakatime-cli-path "/usr/local/bin/wakatime")
+
   (global-centered-cursor-mode)
 
   (setq magit-repository-directories '("~/Code/"))
   (setq magit-log-section-commit-count 0)
+
+  (with-eval-after-load 'yasnippet
+    (define-key yas-keymap (kbd "C-<tab>" ) 'yas-next-field)
+    (define-key yas-keymap (kbd "C-S-<tab>" ) 'yas-prev-field)
+    )
+
 
   (with-eval-after-load 'transient
     (define-key transient-map        (kbd "<escape>" ) 'transient-quit-one)
@@ -575,7 +588,8 @@ dump."
 
   (spacemacs/set-leader-keys
     "oo" 'dumb-jump-go
-    "og" 'spacemacs/counsel-git-grep-region-or-symbol
+    "og" 'counsel-git-grep
+    "oG" 'spacemacs/counsel-git-grep-region-or-symbol
     "oy" 'repeat
     "ok" 'smerge-keep-current
     "ot" 'iterm-send-text-ruby
@@ -605,13 +619,19 @@ dump."
   (advice-add 'spaceline-all-the-icons--buffer-path :filter-return #'abbrev-path)
 
 
-  (setq company-idle-delay (lambda () (if (company-in-string-or-comment) 1 0.1)))
+  (setq company-idle-delay (lambda () (if (company-in-string-or-comment) 1 1)))
 
-  (add-hook 'ruby-mode-hook (lambda ()
-                                 (add-to-list 'company-backends #'company-tabnine)))
+  (spacemacs|add-company-backends
+    :backends company-tabnine
+    :modes ruby-mode rjsx-mode)
 
-  (add-hook 'rjsx-mode-hook (lambda ()
-                                 (add-to-list 'company-backends #'company-tabnine)))
+  (setq-default typescript-indent-level 2)
+  (setq read-process-output-max (* 5 1024 1024))
+
+  (setq lsp-eslint-server-command
+        '("node"
+          "/home/bkudria/.vscode/extensions/dbaeumer.vscode-eslint-2.1.2/server/out/eslintServer.js"
+          "--stdio"))
 
   ) ;; ) user-config
 

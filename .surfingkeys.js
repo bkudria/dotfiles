@@ -1,11 +1,12 @@
 settings.tabsThreshold = 0;
-settings.scrollStepSize = 140;
+settings.scrollStepSize = 100;
 settings.focusFirstCandidate = true;
 settings.hintAlign = 'left';
 
-Hints.characters = 'yuiophjklnm'; // for right hand
+Hints.characters = 'yuophlnmasdfg';
 Hints.style('color: black; font-family: sans-serif;');
 
+map('<Backspace>', 'S');
 
 const getElement = (selector) => getElements(selector)[0];
 
@@ -20,14 +21,13 @@ const openStoryAndComments = ({story, link, comments}) => {
     }, {multipleHits: true});
 };
 
-map('F', 'gf');
-mapkey('gf', '#1Open Link and Comments [Lobsters]', () => openStoryAndComments({
+mapkey('cf', '#1Open Link and Comments [Lobsters]', () => openStoryAndComments({
     story: 'li.story',
     link: 'a.u-url',
     comments: '.comments_label a'
   }) , {domain: /lobste\.rs/});
 
-mapkey('gf', '#1Open Link and Comments [Lobsters]', () => openStoryAndComments({
+mapkey('cf', '#1Open Link and Comments [Lobsters]', () => openStoryAndComments({
     story: 'tr.athing',
     link: 'a.storylink',
     comments: '+ tr td.subtext > a:last-of-type'

@@ -16,3 +16,4 @@ GTAGS
 GRTAGS
 GPATH
 .solargraph.yml
+.envrc
