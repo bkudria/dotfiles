@@ -7,3 +7,7 @@
 [submodule ".zprezto-contrib/belak"]
 	path = .zprezto-contrib/belak
 	url = https://github.com/belak/prezto-contrib.git
+[submodule ".emacs.spacemacs"]
+	path = .emacs.spacemacs
+	url = https://github.com/syl20bnr/spacemacs.git
+	branch = develop
