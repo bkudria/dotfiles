@@ -11,7 +11,7 @@ alias cat=bat
 
 eval "$(direnv hook zsh)"
 
-path=("$HOME/bin" $path)
+path=("$HOME/bin" ".emacs.doom/bin" $path)
 cdpath=($HOME/Code)
 
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh

@@ -1,1 +1,1 @@
-.emacs.spacemacs
+.emacs.doom

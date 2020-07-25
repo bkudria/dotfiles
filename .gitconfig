@@ -65,3 +65,5 @@
 	includeStatusHeader = false
 	includePullRequestsSection = false
 	includeIssuesSection = false
+[credential]
+	helper = osxkeychain
