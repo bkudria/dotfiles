@@ -27,7 +27,6 @@ zstyle ':prezto:load' pmodule \
   'fasd' \
   'tmux' \
   'bkudria' \
-  'belak/enhancd' \
   'belak/alias-tips'
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'

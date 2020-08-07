@@ -47,6 +47,9 @@ Hyper!\space{
   't': apps.iTerm
   'v': -> spoon.TextClipboardHistory\toggleClipboard!
   'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
+    '0': ->
+      hs.eventtap.keyStroke({"ctrl"}, "1")
+      hs.eventtap.keyStroke({"ctrl"}, "2")
     '3': -> actions.toggleHazeOver!
     'space': -> actions.toOtherScreen!
     'w': -> actions.toggleFullScreen!
@@ -60,15 +63,21 @@ Hyper!\space{
 
 export turntouch = withTurnTouchConfig{
   n: {
-    n: 'k'
+    n: {
+      [apps.Reeder]: 'k',
+      [apps.Chrome]: '\\ttn'
+    }
     s: {
       [apps.Reeder]: 'j',
       [apps.Chrome]: '\\tts'
     }
-    w: -> hs.eventtap.keyStroke {}, 'SPACE'
     e: {
       [apps.Reeder]: 'b',
       [apps.Chrome]: '\\tte'
+    }
+    w: {
+      [apps.Reeder]: -> hs.eventtap.keyStroke {}, 'SPACE',
+      [apps.Chrome]: '\\ttw'
     }
   }
   s: {n: nil, s: nil, e: nil, w: nil}

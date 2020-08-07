@@ -1,3 +1,7 @@
+allScreensRect = hs.fnutils.reduce(hs.screen.allScreens!, (screen1, screen2) ->
+  screen1\fullFrame!\union(screen2\fullFrame!)
+)
+
 (args) ->
   watcher = nil
   timer = nil
@@ -12,7 +16,6 @@
     if newPos.x != pos.x or newPos.y != pos.y
       pos = newPos
     else
-      -- hs.eventtap.keyStroke({'fn'}, 'F8') -- Hide Cursor
-      hs.mouse.setAbsolutePosition{x:2160, y:1920}
+      hs.mouse.setAbsolutePosition(allScreensRect.center)
       watcher\start!
       timer\stop!

@@ -11,3 +11,6 @@
 [submodule ".emacs.doom"]
 	path = .emacs.doom
 	url = https://github.com/hlissner/doom-emacs.git
+[submodule ".surfingkeys.d/b0o-sk-conf"]
+	path = .surfingkeys.d/b0o-sk-conf
+	url = https://github.com/b0o/surfingkeys-conf.git

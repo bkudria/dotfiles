@@ -8,6 +8,10 @@
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 (package! rainbow-identifiers)
+(package! dimmer)
+(package! golden-ratio)
+(package! evil-replace-with-register)
+(package! evil-extra-operator)
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:

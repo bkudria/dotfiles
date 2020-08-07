@@ -1,6 +1,6 @@
 style = {
   strokeColor: {alpha: 0}
-  fillColor: {hex: "#282828"}
+  fillColor: {hex: "#282828", alpha: 0.8}
   radius: 10
   textSize: 200
   textColor: {hex: "#cc241d"}
@@ -17,4 +17,4 @@ class Clock
 
   start: =>
     for hour = 0,23
-      hs.timer.doAt(hour * 60 * 60, "1d", -> @show!)
+      hs.timer.doAt("#{hour}:00", "1d", -> @show!)

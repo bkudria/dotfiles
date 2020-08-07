@@ -65,3 +65,32 @@
 
 (use-package! rainbow-identifiers
   :hook (prog-mode . rainbow-identifiers-mode))
+
+(use-package! dimmer
+  :config (dimmer-mode))
+
+(use-package! evil-extra-operator
+  :bind (:map evil-normal-state-map
+         ("gl" . evil-operator-clone)
+         :map evil-visual-state-map
+         ("gl" . evil-operator-clone)
+         ))
+
+(use-package! evil-replace-with-register
+  :bind (:map evil-normal-state-map
+         ("gr" . evil-replace-with-register)
+         :map evil-visual-state-map
+         ("gr" . evil-replace-with-register)))
+
+(use-package! golden-ratio
+  :diminish golden-ratio-mode
+  :init (golden-ratio-mode 1)
+  :config
+  (progn
+    ;; golden-ratio-extra-commands
+    (dolist (f '(
+                 evil-window-next
+                 ))
+      (add-to-list 'golden-ratio-extra-commands f))
+    )
+  )

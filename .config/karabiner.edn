@@ -1,7 +1,23 @@
+;; !  | means mandatory
+;; #  | means optional
+;; C  | left_command
+;; T  | left_control
+;; O  | left_option
+;; S  | left_shift
+;; F  | fn
+;; Q  | right_command
+;; W  | right_control
+;; E  | right_option
+;; R  | right_shift
+;; !! | mandatory command + control + optional + shift (hyper)
+;; ## | optional any
+ 
 {:main [
-
   {:des "capslock => control mod, or escape"
    :rules [[:##caps_lock :left_control nil {:alone :escape}]]}
+
+  {:des "return => control mod"
+   :rules [[:##return_or_enter :right_control nil {:alone :##return_or_enter}]]}
 
   {:des "simultaneous f + j => escape"
    :rules [[[:f :j] :escape]]}
@@ -18,8 +34,12 @@
   {:des "spacebar hyper-mods"
    :rules [[:spacebar :!COTleft_shift nil {:alone [:spacebar]}]]}
 
-  {:des   "swap ; :"
-   :rules [[:semicolon :!Ssemicolon]
-            [:!Ssemicolon :semicolon]]}
+  {:des "disable sysdiagnose, keep chord mappable"
+   :rules [[:!COTSperiod :!COTSf16]]}
+
+  {:des   "swap some keys"
+   :rules [
+           [:semicolon :!Ssemicolon] [:!Ssemicolon :semicolon]
+           ]}
   ]}
 
