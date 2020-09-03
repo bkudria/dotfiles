@@ -2,7 +2,7 @@
 settings.theme = `
 .sk_theme {
     font-family: "Iosevka Nerd Font", system-ui, sans-serif;
-    font-size: 14pt;
+    font-size: 14px;
     background: #282828;
     color: #ebdbb2;
 }
@@ -13,5 +13,5 @@ settings.theme = `
 .sk_theme .omnibar_highlight {color: #ebdbb2;}
 .sk_theme #sk_omnibarSearchResult ul li:nth-child(odd) {background: #282828;}
 .sk_theme #sk_omnibarSearchResult ul li.focused {background: #3c3836;}
-#sk_status, #sk_find {font-size: 20pt;}
+#sk_status, #sk_find {font-size: 20px;}
 `;
