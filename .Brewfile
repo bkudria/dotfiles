@@ -1,54 +1,57 @@
 # -*- mode: ruby-*-
 
-tap 'homebrew/bundle'
-brew 'awscli'
-brew 'bat'
-brew 'direnv'
-brew 'exa'
-brew 'fd'
-brew 'git'
-brew 'httpie'
-brew 'hub'
-brew 'ispell'
-brew 'jq'
-brew 'luarocks'
-brew 'ncdu'
-brew 'nodejs'
-brew 'pgcli'
-brew 'postgresql'
-brew 'python3'
-brew 'rbenv'
-brew 'ripgrep'
-brew 'ruby-build'
-brew 'tig', args: ['HEAD']
-brew 'tmux'
-brew 'tree'
-brew 'wget'
-brew 'yqrashawn/goku/goku'
-brew 'zsh'
-brew 'mas'
+tap "homebrew/bundle"
+brew "awscli"
+brew "bat"
+brew "direnv"
+brew "emacs-mac"
+brew "exa"
+brew "fd"
+brew "git"
+brew "httpie"
+brew "hub"
+brew "ispell"
+brew "jq"
+brew "libvterm"
+brew "luarocks"
+brew "ncdu"
+brew "nodejs"
+brew "pgcli"
+brew "postgresql"
+brew "python3"
+brew "rbenv"
+brew "ripgrep"
+brew "ruby-build"
+brew "shellcheck"
+brew "shfmt"
+brew "tig", args: ["HEAD"]
+brew "tmux"
+brew "tree"
+brew "wget"
+brew "yqrashawn/goku/goku"
+brew "zsh"
+brew "mas"
 
-tap 'homebrew/cask-fonts'
-tap 'railwaycat/emacsmacport'
+tap "homebrew/cask-fonts"
+tap "railwaycat/emacsmacport"
 
-cask '1password'
-cask 'bettertouchtool'
-cask 'cursorcerer'
-cask 'dash'
-cask 'dropbox'
-cask 'emacs-mac-spacemacs-icon'
-cask 'fantastical'
-cask 'flux'
-cask 'font-iosevka-nerd-font'
-cask 'google-chrome'
-cask 'hammerspoon'
-cask 'hazeover'
-cask 'iterm2'
-cask 'karabiner-elements'
-cask 'mactex-no-gui'
-cask 'rescuetime'
-cask 'soundsource'
-cask 'zoomus'
+cask "1password"
+cask "bettertouchtool"
+cask "cursorcerer"
+cask "dash"
+cask "dropbox"
+cask "fantastical"
+cask "flux"
+cask "font-iosevka-nerd-font"
+cask "google-chrome"
+cask "hammerspoon"
+cask "hazeover"
+cask "iterm2"
+cask "karabiner-elements"
+cask "mactex-no-gui"
+cask "rescuetime"
+cask "soundsource"
+cask "zoomus"
 
-mas 'Reeder', id: 1449412482
-mas 'Wallpaper Wizard 2', id: 1266674560
+mas "Reeder", id: 1449412482
+mas "Wallpaper Wizard 2", id: 1266674560

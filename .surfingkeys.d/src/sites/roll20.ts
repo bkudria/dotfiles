@@ -1,7 +1,7 @@
 import { Site } from './types';
 
 const roll20: Site = {
-  domain: 'roll20.net',
+  domain: 'app.roll20.net',
   onLoad: () => {
     unmap('`', /roll20.net/);
     mapkey(

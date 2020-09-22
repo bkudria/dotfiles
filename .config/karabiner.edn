@@ -23,13 +23,16 @@
    :rules [[[:f :j] :escape]]}
 
   {:des "easy pairs"
-   :rules [[:left_shift :left_shift nil {:alone :!S9}]
+   :rules [
+           [:!S9 :vk_none]
+           [:!R9 :vk_none]
+           [:!S0 :vk_none]
+           [:!R0 :vk_none]
+           [:left_shift :left_shift nil {:alone :!S9}]
            [:right_shift :right_shift nil {:alone :!S0}]
-           [:left_option :left_option nil {:alone :!Sopen_bracket}]
-           [:right_option :right_shift nil {:alone :!Sclose_bracket}]
-           [:left_command :left_command nil {:alone :!Scomma}]
-           [:right_command :right_command nil {:alone :!Speriod}]
-           ]}
+           [:!Rleft_shift :!S9]
+           [:!Sright_shift :!S0]
+          ]}
 
   {:des "spacebar hyper-mods"
    :rules [[:spacebar :!COTleft_shift nil {:alone [:spacebar]}]]}

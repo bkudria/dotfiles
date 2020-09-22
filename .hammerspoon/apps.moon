@@ -24,7 +24,6 @@ class Chrome extends App
   whenFocused: =>
     hs.eventtap.keyStroke({'shift'}, 't')
 
-
 class iTerm extends App
   id: 'com.googlecode.iterm2'
   whenFocused: =>

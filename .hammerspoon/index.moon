@@ -16,6 +16,7 @@ clock = Clock!
 spoons{
   Emojis: {
     fn: (emojis) ->
+      emojis.chooser\rows(20)
       emojis.toggle = ->
         emojis.chooser\isVisible! and emojis.chooser\hide! or emojis.chooser\show!
   }
@@ -41,6 +42,7 @@ Hyper!\space{
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'l': hs.caffeinate.startScreensaver
     's': hs.caffeinate.systemSleep
+    'r': actions.rotateSecondaryScreen
     '-': actions.flipScreens
     ',': actions.editConfig
   }
@@ -51,10 +53,11 @@ Hyper!\space{
       hs.eventtap.keyStroke({"ctrl"}, "1")
       hs.eventtap.keyStroke({"ctrl"}, "2")
     '3': -> actions.toggleHazeOver!
-    'space': -> actions.toOtherScreen!
+    'space': -> actions.swapScreen(hs.window.focusedWindow!)
     'w': -> actions.toggleFullScreen!
     'j': -> actions.halfScreen('south')
     'k': -> actions.halfScreen('north')
+    'm': -> actions.maximize!
     '`': -> hs.hints.windowHints(hs.window.filter.default\getWindows!)
     'escape': (hyper) -> hyper.modal\exit!
   }

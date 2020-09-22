@@ -9,12 +9,18 @@ style = {
 
 class Clock
   new: =>
+    @timer = nil
     @time = os.date("%H:%M")
 
   show: =>
     @time = os.date("%H:%M")
+    print(@time)
     hs.alert(@time, style, hs.window.focusedWindow()\screen!)
 
   start: =>
-    for hour = 0,23
-      hs.timer.doAt("#{hour}:00", "1d", -> @show!)
+    nextHour = (os.date('*t').hour + 1) % 24
+    print("scheduling time for #{nextHour}")
+    @timer = hs.timer.doAt("#{nextHour}:00", ->
+      print("clock for #{nextHour}")
+      @show!
+      @start!)
