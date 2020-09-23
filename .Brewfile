@@ -1,6 +1,8 @@
 # -*- mode: ruby-*-
 
 tap "homebrew/bundle"
+tap "yqrashawn/goku"
+tap "railwaycat/emacsmacport"
 brew "awscli"
 brew "bat"
 brew "direnv"
@@ -29,12 +31,11 @@ brew "tig", args: ["HEAD"]
 brew "tmux"
 brew "tree"
 brew "wget"
-brew "yqrashawn/goku/goku"
+brew "goku"
 brew "zsh"
 brew "mas"
 
 tap "homebrew/cask-fonts"
-tap "railwaycat/emacsmacport"
 
 cask "1password"
 cask "bettertouchtool"
