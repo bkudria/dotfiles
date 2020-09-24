@@ -16,3 +16,5 @@ cdpath=($HOME/Code)
 
 [[ -f ~/.vterm.zsh ]] && source ~/.vterm.zsh
 [[ -f ~/.p10k.zsh ]] && source ~/.p10k.zsh
+
+[[ -f ~/.local.zsh ]] && source ~/.local.zsh

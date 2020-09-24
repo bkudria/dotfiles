@@ -38,6 +38,7 @@ Hyper!\space{
   'b': matte
   'd': nil -- Dash
   'e': apps.Emacs
+  'k': apps.Slack
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'l': hs.caffeinate.startScreensaver

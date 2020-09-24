@@ -43,6 +43,13 @@ class Emacs extends App
   whenFocused: =>
     hs.eventtap.keyStrokes('  ')
 
+class Slack extends App
+  id: 'com.tinyspeck.slackmacgap'
+  whenFocused: =>
+    hs.eventtap.keyStroke({'cmd'}, 't')
+    hs.eventtap.keyStroke({}, 'tab')
+    hs.eventtap.keyStroke({}, 'return')
+
 App\define_apps{
   Reeder: 'com.reederapp.macOS'
   Zoom: 'us.zoom.xos'
