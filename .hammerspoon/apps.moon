@@ -47,8 +47,8 @@ class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
   whenFocused: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
-    hs.eventtap.keyStroke({}, 'tab')
-    hs.eventtap.keyStroke({}, 'return')
+    hs.timer.doAfter 0.05, ->
+      hs.eventtap.keyStroke({}, 'down')
 
 App\define_apps{
   Reeder: 'com.reederapp.macOS'
