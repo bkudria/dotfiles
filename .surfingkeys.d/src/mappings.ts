@@ -11,10 +11,12 @@ export const applyMappings = () => {
   map('h', 'E');
   map('l', 'R');
 
+  map('g-', 'g0');
+
   map('\\ttn', 'k', /./, 'Scroll up [TTN]');
   map('\\tts', 'j', /./, 'Scroll down [TTS]');
   map('\\tte', 'x', /./, 'Close Tab [TTE]');
   mapkey('\\ttw', 'Scroll page down', () => Normal.scroll('fullPageDown'));
 
-  mapkey('\\]', 'Remove Sticky', removeSticky);
+  mapkey('--', 'Remove Sticky', removeSticky);
 };

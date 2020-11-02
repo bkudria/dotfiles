@@ -45,10 +45,13 @@ class Emacs extends App
 
 class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
-  whenFocused: =>
+  whenFocused: => @focusNextUnread!
+  focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
-    hs.timer.doAfter 0.05, ->
-      hs.eventtap.keyStroke({}, 'down')
+  switchNextUnread: =>
+    hs.eventtap.keyStroke({'cmd'}, 't')
+    hs.timer.doAfter 0.01, ->
+      hs.eventtap.keyStroke({}, 'return')
 
 App\define_apps{
   Reeder: 'com.reederapp.macOS'

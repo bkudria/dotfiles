@@ -3,7 +3,7 @@ declare var Hints: any;
 
 export const setSettings = () => {
   settings.tabsThreshold = 0;
-  settings.scrollStepSize = 100;
+  settings.scrollStepSize = 150;
   settings.focusFirstCandidate = true;
   settings.hintAlign = 'left';
 

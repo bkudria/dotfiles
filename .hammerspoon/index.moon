@@ -31,10 +31,10 @@ spoons{
 }
 
 Hyper!\space{
-  '\\': apps.OnePassword
+  'up': -> clock\show!
+  '-': apps.OnePassword
   ';': -> spoon.Emojis.toggle!
-  '2': -> clock\show!
-  '5': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
+  '\'': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
   'b': matte
   'd': nil -- Dash
   'e': apps.Emacs
@@ -72,8 +72,10 @@ export turntouch = withTurnTouchConfig{
       [apps.Chrome]: '\\ttn'
     }
     s: {
+      [apps.Chrome]: '\\tts',
       [apps.Reeder]: 'j',
-      [apps.Chrome]: '\\tts'
+      [apps.Slack]: apps.Slack.switchNextUnread
+      [apps.Zoom]: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
     }
     e: {
       [apps.Reeder]: 'b',
