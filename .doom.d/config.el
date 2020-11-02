@@ -94,3 +94,23 @@
       (add-to-list 'golden-ratio-extra-commands f))
     )
   )
+
+(use-package ivy-posframe
+  :init
+  :ensure t
+  :config
+  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+  (setq ivy-height-alist
+        '((t
+           lambda (_caller)
+           (round (* 0.7 (frame-height) )))))
+  )
+
+(use-package doom-modeline
+  :init
+  :ensure t
+  :config
+  (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
+        (setq doom-modeline-buffer-encoding t)
+
+  )
