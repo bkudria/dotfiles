@@ -3,7 +3,7 @@ require 'hammerspoon'
 
 spoons = require 'spoons'
 withTurnTouchConfig = require 'turntouch'
-apps = require 'apps'
+{App, apps} = require 'apps'
 actions = require 'actions'
 mouseValet = require 'mouse-valet'
 Hyper = require 'hyper'
@@ -31,7 +31,9 @@ spoons{
 }
 
 Hyper!\space{
-  'up': -> clock\show!
+  'down': -> clock\show!
+  'left': -> App.current!\prev!
+  'right': -> App.current!\next!
   '-': apps.OnePassword
   ';': -> spoon.Emojis.toggle!
   '\'': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
