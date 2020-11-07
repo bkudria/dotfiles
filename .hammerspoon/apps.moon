@@ -1,9 +1,11 @@
 class App
   @inherited = {}
+  @byID = {}
   @apps: => @inherited
 
   __inherited: (child) =>
     @inherited[child.__name] = child
+    @byID[child.id] = child
 
   define_apps: (apps) =>
     for name, id in pairs apps
@@ -12,7 +14,7 @@ class App
         id: id
 
   current: =>
-    hs.fnutils.find(App\apps!, (app) -> app\isFocused!)
+    App.byID[hs.application\frontmostApplication!\bundleID!]
 
   @isFocused: => hs.application\frontmostApplication!\bundleID! == @id
   @whenFocused: => nil
