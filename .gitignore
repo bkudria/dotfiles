@@ -99,3 +99,6 @@
 coffeelint.json
 /.electron
 /.exercism.json
+/.zsh_history
+/.hammerspoon/Spoons/
+/.hammerspoon/pasteboard_history.json
