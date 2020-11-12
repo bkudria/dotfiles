@@ -43,8 +43,8 @@ Hyper!\space{
   'k': apps.Slack
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
+    'delete': hs.caffeinate.systemSleep
     'l': hs.caffeinate.startScreensaver
-    's': hs.caffeinate.systemSleep
     'r': actions.rotateSecondaryScreen
     '-': actions.flipScreens
     ',': actions.editConfig
