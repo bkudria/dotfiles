@@ -31,9 +31,11 @@ spoons{
 }
 
 Hyper!\space{
-  'down': -> clock\show!
-  'left': -> App.current!\prev!
-  'right': -> App.current!\next!
+  '`': -> clock\show!
+  'left': -> App.current!\left!
+  'right': -> App.current!\right!
+  'up': -> App.current!\up!
+  'down': -> App.current!\down!
   '-': apps.OnePassword
   ';': -> spoon.Emojis.toggle!
   '\'': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )

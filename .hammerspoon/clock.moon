@@ -1,9 +1,9 @@
 style = {
   strokeColor: {alpha: 0}
-  fillColor: {hex: "#282828", alpha: 0.8}
+  fillColor: {hex: "#282828", alpha: 0.9}
   radius: 10
   textSize: 200
-  textColor: {hex: "#cc241d"}
+  textColor: {hex: "#fb4934"}
   textFont: "Futura Bold"
 }
 

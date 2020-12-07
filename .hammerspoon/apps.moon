@@ -24,20 +24,22 @@ class App
     else
       hs.application.launchOrFocusByBundleID(@id)
 
-  @prev: => nil
-  @next: => nil
+  @left: => nil
+  @right: => nil
+  @up: => nil
+  @down: => nil
 
 class Chrome extends App
   id: 'com.google.Chrome'
-  prev: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
-  next: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
+  left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
+  right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
   whenFocused: =>
     hs.eventtap.keyStroke({'shift'}, 't')
 
 class iTerm extends App
   id: 'com.googlecode.iterm2'
-  prev: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
-  next: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
+  left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
+  right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
   whenFocused: =>
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'o')
     hs.eventtap.keyStrokes('/f ')
@@ -52,15 +54,16 @@ class OnePassword extends App
 
 class Emacs extends App
   id: 'org.gnu.Emacs'
-  prev: => hs.eventtap.keyStrokes(' bp')
-  next: => hs.eventtap.keyStrokes(' bp')
+  left: => hs.eventtap.keyStrokes(' bp')
+  right: => hs.eventtap.keyStrokes(' bp')
   whenFocused: =>
     hs.eventtap.keyStrokes('  ')
 
 class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
-  prev: => hs.eventtap.keyStroke({'cmd'}, '[')
-  next: => hs.eventtap.keyStroke({'cmd'}, ']')
+  left: => hs.eventtap.keyStroke({'cmd'}, '[')
+  right: => hs.eventtap.keyStroke({'cmd'}, ']')
+  down: => @switchNextUnread!
   whenFocused: => @focusNextUnread!
   focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
