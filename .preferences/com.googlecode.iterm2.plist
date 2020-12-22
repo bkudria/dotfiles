@@ -1654,6 +1654,8 @@
 	</dict>
 	<key>PromptOnQuit</key>
 	<false/>
+	<key>SmartPlacement</key>
+	<true/>
 	<key>SoundForEsc</key>
 	<false/>
 	<key>TabStyle</key>
