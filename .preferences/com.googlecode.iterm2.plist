@@ -220,6 +220,10 @@
 	<true/>
 	<key>IRMemory</key>
 	<integer>4</integer>
+	<key>NeverWarnAboutShortLivedSessions_5B28CCA5-EF19-4E1E-9EFF-43AF3A8B9DBF</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_5B28CCA5-EF19-4E1E-9EFF-43AF3A8B9DBF_selection</key>
+	<integer>0</integer>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
