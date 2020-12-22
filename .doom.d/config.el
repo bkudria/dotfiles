@@ -106,11 +106,13 @@
            (round (* 0.7 (frame-height) )))))
   )
 
-(use-package doom-modeline
-  :init
-  :ensure t
+(use-package! doom-modeline
   :config
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
         (setq doom-modeline-buffer-encoding t)
 
   )
+
+
+(use-package! mini-frame
+  :config (mini-frame-mode))

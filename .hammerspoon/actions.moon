@@ -64,7 +64,14 @@ maximize = ->
 
 toggleHazeOver = ->
   _, isEnabled = hs.osascript.applescript 'tell application "HazeOver" to get enabled'
-  print isEnabled
   hs.osascript.applescript "tell application \"HazeOver\" to set enabled to #{not isEnabled}"
 
-{:flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :swapScreen, :toggleFullScreen, :halfScreen, :maximize, :toggleHazeOver}
+
+setHazeOver = (intensity) ->
+  hs.osascript.applescript "tell application \"HazeOver\" to set enabled to true"
+  hs.osascript.applescript "tell application \"HazeOver\" to set intensity to #{intensity}"
+
+{
+:flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :swapScreen,
+:toggleFullScreen, :halfScreen, :maximize, :toggleHazeOver, :setHazeOver
+}

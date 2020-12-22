@@ -7,11 +7,11 @@ export const setSettings = () => {
   settings.focusFirstCandidate = true;
   settings.hintAlign = 'left';
 
-  Hints.characters = 'hynumi,opl:fgrtvbedcxwqaz';
+  Hints.characters = 'umyhni7869olp0rvtgbedc435wsxqaz12';
   Hints.style(`
     font-size: 6pt;
     color: #3c3836;
-    font-family: sans-serif;
+    font-family: "Menlo";
     background: #fbf1c7;
   `);
 };

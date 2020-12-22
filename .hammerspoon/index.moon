@@ -24,8 +24,17 @@ spoons{
     start: true,
     hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
     fn: (seal) ->
+      seal.show = (self, query) ->
+        frame = hs.application.frontmostApplication!\focusedWindow!\screen!\frame!
+        center = frame.center
+        self.chooser\query('')
+        self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
+        self
+
       seal\loadPlugins{'apps', 'useractions', 'calc'}
       seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
+      seal.plugins.apps.appSearchPaths = {"/Applications", "/System/Applications"}
+      seal.plugins.apps\restart!
   }
   TextClipboardHistory: {start: true, config: {hist_size: 2^16, paste_on_select: true, show_in_menubar: false}}
 }
@@ -36,9 +45,9 @@ Hyper!\space{
   'right': -> App.current!\right!
   'up': -> App.current!\up!
   'down': -> App.current!\down!
-  '-': apps.OnePassword
+  ']': apps.OnePassword
   ';': -> spoon.Emojis.toggle!
-  '\'': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
+  '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
   'b': matte
   'd': nil -- Dash
   'e': apps.Emacs
@@ -48,8 +57,9 @@ Hyper!\space{
     'delete': hs.caffeinate.systemSleep
     'l': hs.caffeinate.startScreensaver
     'r': actions.rotateSecondaryScreen
-    '-': actions.flipScreens
+    'f': actions.flipScreens
     ',': actions.editConfig
+    'escape': (hyper) -> hyper.modal\exit!
   }
   't': apps.iTerm
   'v': -> spoon.TextClipboardHistory\toggleClipboard!
@@ -58,6 +68,8 @@ Hyper!\space{
       hs.eventtap.keyStroke({"ctrl"}, "1")
       hs.eventtap.keyStroke({"ctrl"}, "2")
     '3': -> actions.toggleHazeOver!
+    '4': -> actions.setHazeOver(20)
+    '5': -> actions.setHazeOver(80)
     'space': -> actions.swapScreen(hs.window.focusedWindow!)
     'w': -> actions.toggleFullScreen!
     'j': -> actions.halfScreen('south')

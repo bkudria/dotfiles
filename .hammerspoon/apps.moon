@@ -63,6 +63,7 @@ class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
   left: => hs.eventtap.keyStroke({'cmd'}, '[')
   right: => hs.eventtap.keyStroke({'cmd'}, ']')
+  up: => hs.eventtap.keyStroke({'cmd'}, '.')
   down: => @switchNextUnread!
   whenFocused: => @focusNextUnread!
   focusNextUnread: =>
