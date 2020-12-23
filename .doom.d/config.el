@@ -95,9 +95,7 @@
     )
   )
 
-(use-package ivy-posframe
-  :init
-  :ensure t
+(use-package! ivy-posframe
   :config
   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
   (setq ivy-height-alist
