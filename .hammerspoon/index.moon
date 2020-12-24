@@ -14,12 +14,6 @@ matte = Matte!\wrap(apps.Chrome)
 clock = Clock!
 
 spoons{
-  Emojis: {
-    fn: (emojis) ->
-      emojis.chooser\rows(20)
-      emojis.toggle = ->
-        emojis.chooser\isVisible! and emojis.chooser\hide! or emojis.chooser\show!
-  }
   Seal: {
     start: true,
     hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
@@ -46,7 +40,7 @@ Hyper!\space{
   'up': -> App.current!\up!
   'down': -> App.current!\down!
   ']': apps.OnePassword
-  ';': -> spoon.Emojis.toggle!
+  ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'SPACE' )
   '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
   'b': matte
   'd': nil -- Dash
