@@ -69,5 +69,7 @@
 	helper = osxkeychain
 [init]
 	defaultBranch = main
+[gpg]
+	program = /usr/local/MacGPG2/bin/gpg2
 [pull]
 	rebase = true
