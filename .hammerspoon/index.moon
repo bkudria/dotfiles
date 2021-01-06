@@ -61,6 +61,7 @@ Hyper!\space{
     '0': ->
       hs.eventtap.keyStroke({"ctrl"}, "1")
       hs.eventtap.keyStroke({"ctrl"}, "2")
+    '2': -> actions.toggleMovieMode!
     '3': -> actions.toggleHazeOver!
     '4': -> actions.setHazeOver(20)
     '5': -> actions.setHazeOver(80)
