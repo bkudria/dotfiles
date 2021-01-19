@@ -16,12 +16,12 @@ export const removeSticky = () => {
 const getElement = (selector: Selector) => getElements(selector)[0];
 
 const dispatchMouseClicks = (elements: HTMLAnchorElement[]) =>
-  elements.forEach(element => RUNTIME("openLink", {
+  new Set(elements.map(element => element.href)).forEach(href => RUNTIME("openLink", {
     tab: {
       tabbed: true,
       active: false
     },
-    url: element.href
+    url: href
   }));
 
 export const openStoryAndComments = ({
