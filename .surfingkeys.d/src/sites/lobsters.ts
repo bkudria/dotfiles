@@ -6,7 +6,7 @@ const lobsters: Site = {
   mappings: [
     {
       path: /^(page.*)?$/,
-      keys: 'cf',
+      keys: 'f',
       description: '#1Open Link and Comments [Lobsters]',
       fn: () =>
         openStoryAndComments({

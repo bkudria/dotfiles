@@ -15,8 +15,14 @@ export const removeSticky = () => {
 
 const getElement = (selector: Selector) => getElements(selector)[0];
 
-const dispatchMouseClicks = (elements: HTMLElement[]) =>
-  elements.forEach(element => Hints.dispatchMouseClick(element));
+const dispatchMouseClicks = (elements: HTMLAnchorElement[]) =>
+  elements.forEach(element => RUNTIME("openLink", {
+    tab: {
+      tabbed: true,
+      active: false
+    },
+    url: element.href
+  }));
 
 export const openStoryAndComments = ({
   story,
@@ -31,11 +37,10 @@ export const openStoryAndComments = ({
     story,
     (storyElement: HTMLElement) => {
       dispatchMouseClicks([
-        getElement(`*[id="${storyElement.id}"] ${link}`),
-        getElement(`*[id="${storyElement.id}"] ${comments}`),
+        getElement(`*[id="${storyElement.id}"] ${link}`) as HTMLAnchorElement,
+        getElement(`*[id="${storyElement.id}"] ${comments}`) as HTMLAnchorElement,
       ]);
-    },
-    { multipleHits: true }
+    }
   );
 };
 

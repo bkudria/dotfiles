@@ -6,7 +6,7 @@ const hackernews: Site = {
   mappings: [
     {
       path: /^$/,
-      keys: 'cf',
+      keys: 'f',
       description: '#1Open Link and Comments [Lobsters]',
       fn: () =>
         openStoryAndComments({

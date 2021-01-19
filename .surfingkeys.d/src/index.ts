@@ -9,6 +9,7 @@ declare global {
   var Front: { openOmnibar: (arg: any) => any };
   var Normal: any;
   var Hints: any;
+  var RUNTIME: any;
   var addSearchAliasX: any;
   var removeSearchAliasX: any;
   var map: any;
