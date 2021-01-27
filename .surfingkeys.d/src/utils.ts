@@ -16,13 +16,15 @@ export const removeSticky = () => {
 const getElement = (selector: Selector) => getElements(selector)[0];
 
 const dispatchMouseClicks = (elements: HTMLAnchorElement[]) =>
-  new Set(elements.map(element => element.href)).forEach(href => RUNTIME("openLink", {
-    tab: {
-      tabbed: true,
-      active: false
-    },
-    url: href
-  }));
+  new Set(elements.map(element => element.href)).forEach(href =>
+    RUNTIME('openLink', {
+      tab: {
+        tabbed: true,
+        active: false,
+      },
+      url: href,
+    })
+  );
 
 export const openStoryAndComments = ({
   story,
@@ -33,15 +35,12 @@ export const openStoryAndComments = ({
   link: Selector;
   comments: Selector;
 }) => {
-  Hints.create(
-    story,
-    (storyElement: HTMLElement) => {
-      dispatchMouseClicks([
-        getElement(`*[id="${storyElement.id}"] ${link}`) as HTMLAnchorElement,
-        getElement(`*[id="${storyElement.id}"] ${comments}`) as HTMLAnchorElement,
-      ]);
-    }
-  );
+  Hints.create(story, (storyElement: HTMLElement) => {
+    dispatchMouseClicks([
+      getElement(`*[id="${storyElement.id}"] ${link}`) as HTMLAnchorElement,
+      getElement(`*[id="${storyElement.id}"] ${comments}`) as HTMLAnchorElement,
+    ]);
+  });
 };
 
 export const createSuggestionItem = (html: string, props = {}) => {
