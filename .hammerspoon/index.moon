@@ -22,6 +22,7 @@ spoons{
         frame = hs.application.frontmostApplication!\focusedWindow!\screen!\frame!
         center = frame.center
         self.chooser\query('')
+        self.chooser\width(if frame.w > frame.h then 40 else 20)
         self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
         self
 
@@ -63,8 +64,8 @@ Hyper!\space{
       hs.eventtap.keyStroke({"ctrl"}, "2")
     '2': -> actions.toggleMovieMode!
     '3': -> actions.toggleHazeOver!
-    '4': -> actions.setHazeOver(20)
-    '5': -> actions.setHazeOver(80)
+    '4': -> actions.setHazeOver(30)
+    '5': -> actions.setHazeOver(70)
     'space': -> actions.swapScreen(hs.window.focusedWindow!)
     'w': -> actions.toggleFullScreen!
     'j': -> actions.halfScreen('south')

@@ -93,7 +93,7 @@ toggleMovieMode = ->
         tell menu bar 2
           tell menu bar item 1
             try
-              with timeout of 0.1 seconds
+              with timeout of 0.5 seconds
                 perform action "AXPress"
               end timeout
             end try
@@ -125,7 +125,7 @@ toggleMovieMode = ->
     end tell
   '
   hs.eventtap.keyStroke({"ctrl"}, "F2")
-  hs.timer.doAfter 0.2, ->
+  hs.timer.doAfter 1, ->
     hs.osascript.applescript applescript
 
 {
