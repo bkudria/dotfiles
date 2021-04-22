@@ -12,6 +12,8 @@
 (package! golden-ratio)
 (package! evil-replace-with-register)
 (package! evil-extra-operator)
+(package! evil-surround)
+(package! evil-matchit)
 (package! mini-frame)
 
 ;; To install a package directly from a remote git repo, you must specify a

@@ -76,6 +76,12 @@
          ("gl" . evil-operator-clone)
          ))
 
+(use-package! evil-surround
+  :config (global-evil-surround-mode 1))
+
+(use-package! evil-matchit
+  :config (global-evil-matchit-mode 1))
+
 (use-package! evil-replace-with-register
   :bind (:map evil-normal-state-map
          ("gr" . evil-replace-with-register)
