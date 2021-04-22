@@ -53,7 +53,7 @@
 	check = true
 
 [include]
-	path = ~/.gitconfigs/raiseme.gitconfig
+	path = ~/.gitconfigs/chime.gitconfig
 
 [magit]
 	hideCampaign = true
