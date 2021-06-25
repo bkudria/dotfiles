@@ -14,6 +14,7 @@ declare global {
   var removeSearchAliasX: any;
   var map: any;
   var mapkey: any;
+  var iunmap: any;
   var unmap: any;
   var unmapAllExcept: any;
 }

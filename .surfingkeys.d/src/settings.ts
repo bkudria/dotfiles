@@ -7,7 +7,7 @@ export const setSettings = () => {
   settings.focusFirstCandidate = true;
   settings.hintAlign = 'left';
 
-  Hints.characters = 'umyhni7869olp0rvtgbedc435wsxqaz12';
+  Hints.characters = 'umyhni8769olp0rvtgbedc345wsxqaz12';
   Hints.style(`
     font-size: 6pt;
     color: #3c3836;

@@ -6,6 +6,8 @@ export const applyMappings = () => {
   unmap(';cp');
   unmap(';ap');
 
+  iunmap(":"); // No emojis
+
   map('<Backspace>', 'S');
   map(';u', ';U');
   map('h', 'E');
