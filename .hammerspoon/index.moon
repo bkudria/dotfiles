@@ -22,13 +22,12 @@ spoons{
         frame = hs.application.frontmostApplication!\focusedWindow!\screen!\frame!
         center = frame.center
         self.chooser\query('')
-        self.chooser\width(if frame.w > frame.h then 40 else 20)
         self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
         self
 
       seal\loadPlugins{'apps', 'useractions', 'calc'}
       seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
-      seal.plugins.apps.appSearchPaths = {"/Applications", "/System/Applications"}
+      -- seal.plugins.apps.appSearchPaths = {"/Applications", "/System/Applications"}
       seal.plugins.apps\restart!
   }
   TextClipboardHistory: {start: true, config: {hist_size: 2^16, paste_on_select: true, show_in_menubar: false}}
@@ -36,6 +35,7 @@ spoons{
 
 Hyper!\space{
   '`': -> clock\show!
+  '1': -> clock\showDate!
   'left': -> App.current!\left!
   'right': -> App.current!\right!
   'up': -> App.current!\up!
@@ -65,7 +65,7 @@ Hyper!\space{
     '2': -> actions.toggleMovieMode!
     '3': -> actions.toggleHazeOver!
     '4': -> actions.setHazeOver(30)
-    '5': -> actions.setHazeOver(70)
+    '5': -> actions.setHazeOver(90)
     'space': -> actions.swapScreen(hs.window.focusedWindow!)
     'w': -> actions.toggleFullScreen!
     'j': -> actions.halfScreen('south')

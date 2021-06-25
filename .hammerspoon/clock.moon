@@ -14,8 +14,11 @@ class Clock
 
   show: =>
     @time = os.date("%H:%M")
-    print(@time)
     hs.alert(@time, style, hs.window.focusedWindow()\screen!)
+
+  showDate: =>
+    date = os.date("%A, %B %d")
+    hs.alert(date, style, hs.window.focusedWindow()\screen!)
 
   start: =>
     nextHour = (os.date('*t').hour + 1) % 24

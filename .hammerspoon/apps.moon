@@ -13,13 +13,11 @@ class App
         __name: name
         id: id
 
-  current: =>
-    App.byID[hs.application\frontmostApplication!\bundleID!]
-
-  @isFocused: => hs.application\frontmostApplication!\bundleID! == @id
+  current: => App.byID[hs.application.frontmostApplication!\bundleID!]
+  @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
   @whenFocused: => nil
   @handle: =>
-    if false or @isFocused!
+    if @isFocused!
       @whenFocused!
     else
       hs.application.launchOrFocusByBundleID(@id)
@@ -34,7 +32,7 @@ class Chrome extends App
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
   right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
   whenFocused: =>
-    hs.eventtap.keyStroke({'shift'}, 't')
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'a')
 
 class iTerm extends App
   id: 'com.googlecode.iterm2'
