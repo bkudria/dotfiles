@@ -88,19 +88,6 @@
          :map evil-visual-state-map
          ("gr" . evil-replace-with-register)))
 
-(use-package! golden-ratio
-  :diminish golden-ratio-mode
-  :init (golden-ratio-mode 1)
-  :config
-  (progn
-    ;; golden-ratio-extra-commands
-    (dolist (f '(
-                 evil-window-next
-                 ))
-      (add-to-list 'golden-ratio-extra-commands f))
-    )
-  )
-
 (use-package! ivy-posframe
   :config
   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
@@ -113,10 +100,16 @@
 (use-package! doom-modeline
   :config
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-        (setq doom-modeline-buffer-encoding t)
+  (setq doom-modeline-buffer-encoding t)
 
   )
 
 
 (use-package! mini-frame
   :config (mini-frame-mode))
+
+(use-package! tree-sitter
+  :config
+  (require 'tree-sitter-langs)
+  (global-tree-sitter-mode)
+  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))

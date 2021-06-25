@@ -9,12 +9,14 @@
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 (package! rainbow-identifiers)
 (package! dimmer)
-(package! golden-ratio)
 (package! evil-replace-with-register)
 (package! evil-extra-operator)
 (package! evil-surround)
 (package! evil-matchit)
 (package! mini-frame)
+
+(package! tree-sitter)
+(package! tree-sitter-langs)
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
@@ -28,6 +30,9 @@
 ;(package! this-package
 ;  :recipe (:host github :repo "username/repo"
 ;           :files ("some-file.el" "src/lisp/*.el")))
+
+(package! golden
+  :recipe (:type git :repo "https://git.sr.ht/~wklew/golden"))
 
 ;; If you'd like to disable a package included with Doom, you can do so here
 ;; with the `:disable' property:
