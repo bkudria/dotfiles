@@ -13,26 +13,26 @@
 ;; ## | optional any
  
 {:main [
-  {:des "capslock => control mod, or escape"
-   :rules [[:##caps_lock :left_control nil {:alone :escape}]]}
+  ;; {:des "capslock => control mod, or escape"
+  ;;  :rules [[:##caps_lock :left_control nil {:alone :escape}]]}
 
-  {:des "return => control mod"
-   :rules [[:##return_or_enter :right_control nil {:alone :##return_or_enter}]]}
+  ;; {:des "return => control mod"
+  ;;  :rules [[:##return_or_enter :right_control nil {:alone :##return_or_enter}]]}
 
   {:des "simultaneous f + j => escape"
    :rules [[[:f :j] :escape]]}
 
-  {:des "easy pairs"
-   :rules [
-           [:!S9 :vk_none]
-           [:!R9 :vk_none]
-           [:!S0 :vk_none]
-           [:!R0 :vk_none]
-           [:left_shift :left_shift nil {:alone :!S9}]
-           [:right_shift :right_shift nil {:alone :!S0}]
-           [:!Rleft_shift :!S9]
-           [:!Sright_shift :!S0]
-          ]}
+  ;; {:des "easy pairs"
+  ;;  :rules [
+  ;;          [:!S9 :vk_none]
+  ;;          [:!R9 :vk_none]
+  ;;          [:!S0 :vk_none]
+  ;;          [:!R0 :vk_none]
+  ;;          [:left_shift :left_shift nil {:alone :!S9}]
+  ;;          [:right_shift :right_shift nil {:alone :!S0}]
+  ;;          [:!Rleft_shift :!S9]
+  ;;          [:!Sright_shift :!S0]
+  ;;         ]}
 
   {:des "spacebar hyper-mods"
    :rules [[:spacebar :!COTleft_shift nil {:alone [:spacebar]}]]}

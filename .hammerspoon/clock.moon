@@ -5,6 +5,7 @@ style = {
   textSize: 200
   textColor: {hex: "#fb4934"}
   textFont: "Futura Bold"
+  textStyle: {paragraphStyle: {alignment: 'center'}}
 }
 
 class Clock
@@ -17,7 +18,7 @@ class Clock
     hs.alert(@time, style, hs.window.focusedWindow()\screen!)
 
   showDate: =>
-    date = os.date("%A, %B %d")
+    date = os.date("%A\n%B %d")
     hs.alert(date, style, hs.window.focusedWindow()\screen!)
 
   start: =>

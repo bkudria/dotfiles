@@ -31,6 +31,10 @@ class Chrome extends App
   id: 'com.google.Chrome'
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
   right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
+  auxLeft: =>  hs.eventtap.keyStrokes('!auxLeft')
+  auxRight: => hs.eventtap.keyStrokes('!auxRight')
+  auxUp: => hs.eventtap.keyStrokes('!auxUp')
+  auxDown: => hs.eventtap.keyStrokes('!auxDown')
   whenFocused: =>
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'a')
 
@@ -59,6 +63,7 @@ class Emacs extends App
 
 class Zoom extends App
   id: 'us.zoom.xos'
+  auxDown: => hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
   whenFocused: =>
     hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
 
@@ -68,6 +73,7 @@ class Slack extends App
   right: => hs.eventtap.keyStroke({'cmd'}, ']')
   up: => hs.eventtap.keyStroke({'cmd'}, '.')
   down: => @switchNextUnread!
+  auxDown: => @switchNextUnread!
   whenFocused: => @focusNextUnread!
   focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
@@ -76,8 +82,11 @@ class Slack extends App
     hs.timer.doAfter 0.01, ->
       hs.eventtap.keyStroke({}, 'return')
 
-App\define_apps{
-  Reeder: 'com.reederapp.macOS'
-}
+class Reeder extends App
+  id: 'com.reederapp.macOS'
+  auxLeft: =>  hs.eventtap.keyStroke({}, 'SPACE')
+  auxRight: => hs.eventtap.keyStroke({}, 'b')
+  auxUp: => hs.eventtap.keyStroke({}, 'k')
+  auxDown: => hs.eventtap.keyStroke({}, 'j')
 
 {App, App\apps!}

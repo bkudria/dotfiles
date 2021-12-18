@@ -11,7 +11,7 @@ const hackernews: Site = {
       fn: () =>
         openStoryAndComments({
           story: 'tr.athing',
-          link: 'a.storylink',
+          link: 'a.titlelink',
           comments: '+ tr td.subtext > a:last-of-type',
         }),
     },

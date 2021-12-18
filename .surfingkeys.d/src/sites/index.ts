@@ -10,6 +10,7 @@ import hackernews from './hackernews';
 import imgur from './imgur';
 import lobsters from './lobsters';
 import roll20 from './roll20';
+import twitter from './twitter';
 import wikipedia from './wikipedia';
 
 const sites: Site[] = [
@@ -21,6 +22,7 @@ const sites: Site[] = [
   imgur,
   lobsters,
   roll20,
+  twitter,
   wikipedia,
 ];
 

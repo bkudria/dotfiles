@@ -5,8 +5,8 @@ const roll20: Site = {
   onLoad: () => {
     unmap('`', /roll20.net/);
     mapkey(
-      '\\tts',
-      'Turn Touch South [Roll20]',
+      '!auxDown',
+      'Roll20 Mute Toggle',
       () =>
         (document?.querySelector(
           `*[id="player_-M2V74cjR6ybxSEet2kQ"] .mute-audio`

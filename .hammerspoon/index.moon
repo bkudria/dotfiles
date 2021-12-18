@@ -5,7 +5,7 @@ spoons = require 'spoons'
 withTurnTouchConfig = require 'turntouch'
 {App, apps} = require 'apps'
 actions = require 'actions'
-mouseValet = require 'mouse-valet'
+-- mouseValet = require 'mouse-valet'
 Hyper = require 'hyper'
 Matte = require 'matte'
 Clock = require 'clock'
@@ -27,7 +27,10 @@ spoons{
 
       seal\loadPlugins{'apps', 'useractions', 'calc'}
       seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
-      -- seal.plugins.apps.appSearchPaths = {"/Applications", "/System/Applications"}
+      seal.plugins.apps.appSearchPaths = {
+        "/Applications", "/System/Applications",
+        "/System/Library/PreferencePanes", "~/Applications"
+      }
       seal.plugins.apps\restart!
   }
   TextClipboardHistory: {start: true, config: {hist_size: 2^16, paste_on_select: true, show_in_menubar: false}}
@@ -79,31 +82,19 @@ Hyper!\space{
 
 export turntouch = withTurnTouchConfig{
   n: {
-    n: {
-      [apps.Reeder]: 'k',
-      [apps.Chrome]: '\\ttn'
-    }
-    s: {
-      [apps.Chrome]: '\\tts',
-      [apps.Reeder]: 'j',
-      [apps.Slack]: apps.Slack.switchNextUnread
-      [apps.Zoom]: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
-    }
-    e: {
-      [apps.Reeder]: 'b',
-      [apps.Chrome]: '\\tte'
-    }
-    w: {
-      [apps.Reeder]: -> hs.eventtap.keyStroke {}, 'SPACE',
-      [apps.Chrome]: '\\ttw'
-    }
+    n: -> App.current!\auxUp!
+    s: -> App.current!\auxDown!
+    e: -> App.current!\auxRight!
+    w: -> App.current!\auxLeft!
   }
-  s: {n: nil, s: nil, e: nil, w: nil}
-  e: {n: nil, s: nil, e: nil, w: nil}
-  w: {n: nil, s: nil, e: nil, w: nil}
 }
 
-mouseValet{delay: 10}
+hs.hotkey.bind({}, 'f15', -> App.current!\auxUp!)
+hs.hotkey.bind({}, 'f16', -> App.current!\auxLeft!)
+hs.hotkey.bind({}, 'f17', -> App.current!\auxDown!)
+hs.hotkey.bind({}, 'f18', -> App.current!\auxRight!)
+
+-- mouseValet{delay: 10}
 
 matte\start!
 clock\start!
