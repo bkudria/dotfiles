@@ -1,19 +1,16 @@
 #!/usr/bin/env bash
 
+#
+#  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/HEAD/install-dotfiles)"
+#
+
 cd ~
+url=http://github.com/bkudria/dotfiles
 
-url=http://github.com/bkudria/dotfiles/tarball/master
+git clone --recurse-submodules -- $url .
 
-hostname=$1
-if [ $hostname ]; then
-	curl -L $url | ssh $hostname "tar --strip-components 1 -xzf-"
-else
-	curl -L $url | tar --strip-components 1 -xzf-
-fi
+# # Homebrew
 
-# Homebrew
+# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-brew tap homebrew/bundle
-brew bundle --global
+# brew bundle --global install
