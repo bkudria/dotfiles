@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 #
-#  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/develop/bin/install-dotfiles)"
+#  /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/develop/bin/install-dotfiles)"
 #
 
 cd ~ || exit
