@@ -16,6 +16,8 @@ git fetch
 git checkout origin/develop -ft
 git submodule update --init --recursive
 
+source ~/.zshrc
+
 # Homebrew
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
