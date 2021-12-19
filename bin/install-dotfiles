@@ -12,6 +12,7 @@ git remote add origin $url
 git fetch
 git checkout origin/develop -ft
 
+git submodule update --init --recursive
 
 # # Homebrew
 
