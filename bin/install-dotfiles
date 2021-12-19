@@ -4,18 +4,19 @@
 #  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/develop/bin/install-dotfiles)"
 #
 
-cd ~
-url=http://github.com/bkudria/dotfiles
+cd ~ || exit
 
+# macOS defaults
+~/.macos
+
+# Dotfiles git
 git init
-git remote add origin $url
+git remote add origin http://github.com/bkudria/dotfiles
 git fetch
 git checkout origin/develop -ft
-
 git submodule update --init --recursive
 
-# # Homebrew
+# Homebrew
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 
-# /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-# brew bundle --global install
+brew bundle --global install
