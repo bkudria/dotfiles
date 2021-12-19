@@ -9,8 +9,6 @@ alias la='ll -a'
 alias git=hub
 alias cat=bat
 
-eval "$(direnv hook zsh)"
-
 path=("/opt/homebrew/bin" "/opt/homebrew/sbin" "$HOME/bin" "$HOME/.emacs.doom/bin" $path)
 cdpath=($HOME/Code)
 
