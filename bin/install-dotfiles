@@ -1,13 +1,17 @@
 #!/usr/bin/env bash
 
 #
-#  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/HEAD/install-dotfiles)"
+#  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/develop/bin/install-dotfiles)"
 #
 
 cd ~
 url=http://github.com/bkudria/dotfiles
 
-git clone --recurse-submodules -- $url .
+git init
+git remote add origin $url
+git fetch
+git checkout origin/develop -ft
+
 
 # # Homebrew
 
