@@ -1,22 +1,26 @@
-import { removeSticky } from './utils';
+import { removeSticky, scrollMostPage } from './utils';
 
 export const applyMappings = () => {
   // Unmap proxy stuff
-  unmap('cp');
-  unmap(';cp');
-  unmap(';ap');
+  api.unmap('cp');
+  api.unmap(';cp');
+  api.unmap(';ap');
 
-  iunmap(":"); // No emojis
+  api.unmap('D');
 
-  map('<Backspace>', 'S');
-  map(';u', ';U');
-  map('h', 'E');
-  map('l', 'R');
+  api.iunmap(':'); // No emojis
 
-  map('!auxUp', 'k', /./, 'Scroll up');
-  map('!auxDown', 'j', /./, 'Scroll down');
-  map('!auxRight', 'x', /./, 'Close Tab');
-  mapkey('!auxLeft', 'Scroll page down', () => Normal.scroll('fullPageDown'));
+  api.map('<Backspace>', 'S');
+  api.map(';u', ';U');
+  api.map('h', 'E');
+  api.map('l', 'R');
 
-  mapkey('__', 'Remove Sticky', removeSticky);
+  api.map('!rUp', 'k', /./, 'Scroll up');
+  api.map('!rDown', 'j', /./, 'Scroll down');
+  api.map('!rRight', 'x', /./, 'Close Tab');
+  // api.map('!rLeft', 'd', /./, 'Scroll page down');
+  api.mapkey('!rLeft', 'Scroll page down', scrollMostPage);
+  api.mapkey('<Space>', 'Scroll page down', scrollMostPage);
+
+  api.mapkey('__', 'Remove Sticky', removeSticky);
 };

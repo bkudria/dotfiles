@@ -13,11 +13,12 @@ export const removeSticky = () => {
   }
 };
 
-const getElement = (selector: Selector) => getElements(selector)[0];
+const getElement = (selector: Selector) =>
+  api.getClickableElements(selector)[0];
 
 const dispatchMouseClicks = (elements: HTMLAnchorElement[]) =>
   new Set(elements.map(element => element.href)).forEach(href =>
-    RUNTIME('openLink', {
+    api.RUNTIME('openLink', {
       tab: {
         tabbed: true,
         active: false,
@@ -35,7 +36,7 @@ export const openStoryAndComments = ({
   link: Selector;
   comments: Selector;
 }) => {
-  Hints.create(story, (storyElement: HTMLElement) => {
+  api.Hints.create(story, (storyElement: HTMLElement) => {
     dispatchMouseClicks([
       getElement(`*[id="${storyElement.id}"] ${link}`) as HTMLAnchorElement,
       getElement(`*[id="${storyElement.id}"] ${comments}`) as HTMLAnchorElement,
@@ -48,3 +49,10 @@ export const createSuggestionItem = (html: string, props = {}) => {
   li.innerHTML = html;
   return { html: li.outerHTML, props };
 };
+
+export const scrollMostPage = () =>
+  document.scrollingElement?.scrollBy({
+    behavior: 'smooth',
+    left: 0,
+    top: 0.9 * window.innerHeight,
+  });

@@ -5,7 +5,7 @@ const hackernews: Site = {
   domain: 'news.ycombinator.com',
   mappings: [
     {
-      path: /^$/,
+      path: /^(news)?$/,
       keys: 'f',
       description: '#1Open Link and Comments [Lobsters]',
       fn: () =>

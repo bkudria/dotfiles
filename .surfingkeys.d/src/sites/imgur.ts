@@ -3,13 +3,11 @@ import { Site } from './types';
 const imgur: Site = {
   domain: 'imgur.com',
   onLoad: () => {
-    mapkey(
-      '!auxRight',
+    api.mapkey(
+      '!rRight',
       'Imgur Next Item',
       () =>
-        (document?.querySelector(
-          `a.Navigation-next`
-        ) as HTMLElement).click(),
+        (document?.querySelector(`a.Navigation-next`) as HTMLElement).click(),
       { domain: /imgur\.com/ }
     );
   },

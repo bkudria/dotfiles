@@ -2,6 +2,7 @@ import { Site } from './types';
 
 const amazon: Site = {
   domain: 'smile.amazon.com',
+  onLoad: () => api.unmap('<Space>'),
   engines: [
     {
       name: 'Amazon',
