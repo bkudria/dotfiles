@@ -13,6 +13,13 @@ const twitter: Site = {
         )),
       { domain: /twitter\.com/ }
     );
+    api.mapkey(
+      ',t',
+      'Threadreader',
+      () =>
+        (window.location.href = `https://threadreaderapp.com/search?q=${window.location.href}`),
+      { domain: /twitter\.com/ }
+    );
   },
 };
 
