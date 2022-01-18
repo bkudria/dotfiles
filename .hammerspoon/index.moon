@@ -2,7 +2,7 @@ require 'reloader'
 require 'hammerspoon'
 
 spoons = require 'spoons'
-withTurnTouchConfig = require 'turntouch'
+dispatch = require 'dispatch'
 {App, apps} = require 'apps'
 actions = require 'actions'
 -- mouseValet = require 'mouse-valet'
@@ -46,7 +46,9 @@ Hyper!\space{
   ']': apps.OnePassword
   ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'SPACE' )
   '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
+  '-': nil -- Notification Center
   'b': matte
+  'c': nil -- Fantastical
   'd': nil -- Dash
   'e': apps.Emacs
   'k': apps.Slack
@@ -80,19 +82,24 @@ Hyper!\space{
   'z': apps.Zoom
 }
 
-export turntouch = withTurnTouchConfig{
-  n: {
-    n: -> App.current!\auxUp!
-    s: -> App.current!\auxDown!
-    e: -> App.current!\auxRight!
-    w: -> App.current!\auxLeft!
-  }
-}
+export rButton = (message) -> dispatch message, {
+  tapup:    App.current!\rUp
+  tapdown:  App.current!\rDown
+  tapleft:  App.current!\rLeft
+  tapright: App.current!\rRight
 
-hs.hotkey.bind({}, 'f15', -> App.current!\auxUp!)
-hs.hotkey.bind({}, 'f16', -> App.current!\auxLeft!)
-hs.hotkey.bind({}, 'f17', -> App.current!\auxDown!)
-hs.hotkey.bind({}, 'f18', -> App.current!\auxRight!)
+  back: App.current!\rBack
+  screen: App.current!\rScreen
+
+  playpause: App.current!\rPlayPause
+  mute: App.current!\rMute
+
+  plus: App.current!\rPlus
+  minus: App.current!\rMinus
+
+  microphone: App.current!\toggleAudio
+  power: App.current!\toggleVideo
+}
 
 -- mouseValet{delay: 10}
 

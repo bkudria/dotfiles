@@ -14,7 +14,9 @@ class App
         id: id
 
   current: => App.byID[hs.application.frontmostApplication!\bundleID!]
+
   @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
+  @isRunning: => hs.application.get(@id) ~= nil
   @whenFocused: => nil
   @handle: =>
     if @isFocused!
@@ -26,17 +28,39 @@ class App
   @right: => nil
   @up: => nil
   @down: => nil
+  @rBack: => hs.eventtap.keyStroke({}, 'ESCAPE')
+
+  @toggleAudio: =>
+    if @inherited.Zoom\isRunning!
+      @inherited.Zoom\toggleAudio!
+    elseif @inherited.Chrome\isRunning!
+      @inherited.Chrome\rMicrophone!
+
+  @toggleVideo: =>
+    if @inherited.Zoom\isRunning!
+      @inherited.Zoom\toggleVideo!
+    elseif @inherited.Chrome\isRunning!
+      @inherited.Chrome\rPower!
+
 
 class Chrome extends App
   id: 'com.google.Chrome'
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
   right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
-  auxLeft: =>  hs.eventtap.keyStrokes('!auxLeft')
-  auxRight: => hs.eventtap.keyStrokes('!auxRight')
-  auxUp: => hs.eventtap.keyStrokes('!auxUp')
-  auxDown: => hs.eventtap.keyStrokes('!auxDown')
+  rBack: => hs.eventtap.keyStroke({'cmd', 'shift'}, 't')
+  rScreen: => hs.eventtap.keyStroke({'cmd', 'shift'}, 'r')
+  rMute: => hs.eventtap.keyStrokes('__')
+  rLeft: =>  hs.eventtap.keyStrokes('!rLeft')
+  rRight: => hs.eventtap.keyStrokes('!rRight')
+  rUp: => hs.eventtap.keyStrokes('!rUp')
+  rDown: => hs.eventtap.keyStrokes('!rDown')
+  rPlus: => hs.eventtap.keyStrokes('zi')
+  rMinus: => hs.eventtap.keyStrokes('zo')
+  rPlayPause: => hs.eventtap.keyStroke({}, 'SPACE')
+  rMicrophone: => hs.eventtap.keyStrokes('!rMicrophone')
+  rPower: => hs.eventtap.keyStrokes('!rPower')
   whenFocused: =>
-    hs.eventtap.keyStroke({'cmd', 'shift'}, 'a')
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'a', 200000, hs.application.get(@id))
 
 class iTerm extends App
   id: 'com.googlecode.iterm2'
@@ -63,9 +87,9 @@ class Emacs extends App
 
 class Zoom extends App
   id: 'us.zoom.xos'
-  auxDown: => hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
-  whenFocused: =>
-    hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
+  rBack: => hs.eventtap.keyStroke({'cmd'}, 'q')
+  toggleAudio: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
+  toggleVideo: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'v',
 
 class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
@@ -73,7 +97,7 @@ class Slack extends App
   right: => hs.eventtap.keyStroke({'cmd'}, ']')
   up: => hs.eventtap.keyStroke({'cmd'}, '.')
   down: => @switchNextUnread!
-  auxDown: => @switchNextUnread!
+  rDown: => @switchNextUnread!
   whenFocused: => @focusNextUnread!
   focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
@@ -83,10 +107,12 @@ class Slack extends App
       hs.eventtap.keyStroke({}, 'return')
 
 class Reeder extends App
-  id: 'com.reederapp.macOS'
-  auxLeft: =>  hs.eventtap.keyStroke({}, 'SPACE')
-  auxRight: => hs.eventtap.keyStroke({}, 'b')
-  auxUp: => hs.eventtap.keyStroke({}, 'k')
-  auxDown: => hs.eventtap.keyStroke({}, 'j')
+  id: 'com.reederapp.5.macOS'
+  @rBack: => hs.eventtap.keyStroke({}, 'r')
+  @rScreen: => hs.eventtap.keyStroke({}, 'r')
+  rLeft: =>  hs.eventtap.keyStroke({}, 'SPACE')
+  rRight: => hs.eventtap.keyStroke({}, 'b')
+  rUp: => hs.eventtap.keyStroke({}, 'k')
+  rDown: => hs.eventtap.keyStroke({}, 'j')
 
 {App, App\apps!}
