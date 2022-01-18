@@ -67,14 +67,15 @@ Hyper!\space{
     '0': ->
       hs.eventtap.keyStroke({"ctrl"}, "1")
       hs.eventtap.keyStroke({"ctrl"}, "2")
-    '2': -> actions.toggleMovieMode!
-    '3': -> actions.toggleHazeOver!
+    '1': -> actions.screenFraction(1, 3)
+    '2': -> actions.screenFraction(2, 3)
+    '3': -> actions.screenFraction(3, 3)
     '4': -> actions.setHazeOver(30)
     '5': -> actions.setHazeOver(90)
     'space': -> actions.swapScreen(hs.window.focusedWindow!)
     'w': -> actions.toggleFullScreen!
-    'j': -> actions.halfScreen('south')
-    'k': -> actions.halfScreen('north')
+    'j': -> actions.screenFraction(2, 2)
+    'k': -> actions.screenFraction(1, 2)
     'm': -> actions.maximize!
     '`': -> hs.hints.windowHints(hs.window.filter.default\getWindows!)
     'escape': (hyper) -> hyper.modal\exit!

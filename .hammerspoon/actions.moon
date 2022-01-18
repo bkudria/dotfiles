@@ -46,14 +46,14 @@ toggleFullScreen = ->
     isFullScreen = \isFullscreen!
     \setFullScreen(not isFullScreen)
 
-halfScreen = (direction) ->
+screenFraction = (fraction, total) ->
   with window = hs.window.focusedWindow!
     \setFullScreen(false)
 
     with hs.grid
-      .setGrid("1x2")
+      .setGrid("1x#{total}")
       .setMargins("0x0")
-      .set(window, "0, #{direction == "north" and 0 or 1}, 1x1")
+      .set(window, "0, #{fraction - 1}, 1x1")
 
 maximize = ->
   with window = hs.window.focusedWindow!
@@ -130,6 +130,6 @@ toggleMovieMode = ->
 
 {
 :flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :swapScreen,
-:toggleFullScreen, :halfScreen, :maximize, :toggleHazeOver, :setHazeOver,
+:toggleFullScreen, :screenFraction, :maximize, :toggleHazeOver, :setHazeOver,
 :toggleMovieMode
 }
