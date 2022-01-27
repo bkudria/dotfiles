@@ -5,6 +5,7 @@ import duckduckgo from './duckduckgo';
 import gmail from './gmail';
 import google from './google';
 import hackernews from './hackernews';
+import hbomax from './hbomax';
 import imgur from './imgur';
 import lobsters from './lobsters';
 import netflix from './netflix';
@@ -20,6 +21,7 @@ const sites: Site[] = [
   gmail,
   google,
   hackernews,
+  hbomax,
   imgur,
   lobsters,
   netflix,
