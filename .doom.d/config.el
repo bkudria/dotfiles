@@ -54,7 +54,8 @@
 ;; they are implemented.
 
 (setq confirm-kill-emacs 'nil)
-(setq initial-frame-alist '((fullscreen . fullscreen)))
+(setq initial-frame-alist '((fullscreen . maximized)))
+(setq server-client-instructions 'nil)
 
 (setq scroll-preserve-screen-position t
       scroll-conservatively 0
@@ -82,34 +83,65 @@
 (use-package! evil-matchit
   :config (global-evil-matchit-mode 1))
 
+;; (use-package! topspace
+;;   :config (topspace-global-mode 1))
+
 (use-package! evil-replace-with-register
   :bind (:map evil-normal-state-map
          ("gr" . evil-replace-with-register)
          :map evil-visual-state-map
          ("gr" . evil-replace-with-register)))
 
-(use-package! ivy-posframe
+
+;; (use-package vertico
+;;   :config
+;;   (setq vertico-count 50)
+;; )
+
+(use-package emacs-everywhere
+  :bind (:map emacs-everywhere-mode-map
+         ("C-c C-c" . (lambda ()(interactive) (setq emacs-everywhere--contents nil) (emacs-everywhere-finish))))
   :config
-  (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-  (setq ivy-height-alist
-        '((t
-           lambda (_caller)
-           (round (* 0.7 (frame-height) )))))
-  )
+  (remove-hook 'emacs-everywhere-init-hooks #'emacs-everywhere-insert-selection)
+  (remove-hook 'emacs-everywhere-init-hooks #'emacs-everywhere-set-frame-position)
+  (setq emacs-everywhere-markdown-windows '(".*"))
+  (setq emacs-everywhere-markdown-apps '(".*"))
+  (setq emacs-everywhere-frame-parameters
+        `((name . "emacs-everywhere")
+          (undecorated-round . t)
+          (user-position . t)
+          (width . 100)
+          (height . 15)
+          (left . 0.25)
+          (top . 0.4)
+          )
+        ))
+
+;; (use-package! ivy-posframe
+;;   :config
+;;   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
+;;   (setq ivy-height-alist
+;;         '((t
+;;            lambda (_caller)
+;;            (round (* 0.7 (frame-height) )))))
+;;   )
 
 (use-package! doom-modeline
   :config
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
   (setq doom-modeline-buffer-encoding t)
-
   )
 
-
 (use-package! mini-frame
-  :config (mini-frame-mode))
-
-(use-package! tree-sitter
   :config
-  (require 'tree-sitter-langs)
-  (global-tree-sitter-mode)
-  (add-hook 'tree-sitter-after-on-hook #'tree-sitter-hl-mode))
+(setq mini-frame-show-parameters
+   '(
+     ;; (top . 0)
+     (width . 1.0)
+     ;; (left . 0.5)
+     (height . 0.8)
+     (min-height . 1)
+     (border-width . 50)
+     ))
+  (mini-frame-mode)
+)
