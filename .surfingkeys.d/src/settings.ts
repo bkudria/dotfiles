@@ -2,7 +2,7 @@ declare var settings: any;
 
 export const setSettings = () => {
   settings.tabsThreshold = 0;
-  settings.scrollStepSize = 125;
+  settings.scrollStepSize = 75;
   settings.focusFirstCandidate = true;
   settings.hintAlign = 'left';
 
@@ -10,11 +10,7 @@ export const setSettings = () => {
   api.unmap('l');
   api.unmap('0');
 
-  api.Hints.setCharacters('umyhni8769olp0rvtgbc345wsxqaz12');
-  api.Hints.style(`
-    font-size: 6pt;
-    color: #3c3836;
-    font-family: "Menlo";
-    background: #fbf1c7;
-  `);
+  api.Hints.setCharacters(
+    'uyi cre mnh vbgt 6789 12345 olp wsxqaz'.replace(/\s/Ag, '')
+  );
 };

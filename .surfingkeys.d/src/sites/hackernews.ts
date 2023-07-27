@@ -1,4 +1,6 @@
-import { openStoryAndComments } from '../utils';
+import { darkReaderEnabled, openStoryAndComments } from '../utils';
+import { applyLightTheme } from '../theme';
+
 import { Site } from './types';
 
 const hackernews: Site = {
@@ -7,15 +9,16 @@ const hackernews: Site = {
     {
       path: /^(news)?$/,
       keys: 'f',
-      description: '#1Open Link and Comments [Lobsters]',
+      description: '#1Open Link and Comments [HN]',
       fn: () =>
         openStoryAndComments({
           story: 'tr.athing',
-          link: 'a.titlelink',
-          comments: '+ tr td.subtext > a:last-of-type',
+          link: '.titleline > a',
+          comments: '+ tr td.subtext .subline > a:last-of-type',
         }),
     },
   ],
+  onLoad: () => darkReaderEnabled() && applyLightTheme(),
 };
 
 export default hackernews;

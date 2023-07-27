@@ -1,11 +1,13 @@
 import { Site } from './types';
 
 import amazon from './amazon';
+import disneyplus from './disneyplus';
 import duckduckgo from './duckduckgo';
 import gmail from './gmail';
 import google from './google';
 import hackernews from './hackernews';
 import hbomax from './hbomax';
+import hulu from './hulu';
 import imgur from './imgur';
 import lobsters from './lobsters';
 import netflix from './netflix';
@@ -17,11 +19,13 @@ declare var api: any;
 
 const sites: Site[] = [
   amazon,
+  disneyplus,
   duckduckgo,
   gmail,
   google,
   hackernews,
   hbomax,
+  hulu,
   imgur,
   lobsters,
   netflix,
@@ -37,6 +41,13 @@ const applyGlobalSiteSettings = () => {
   // });
 
   sites.forEach(site => {
+    api.mapkey(
+      'ga',
+      'Archived Page',
+      () =>
+        (window.location.href = `https://archive.vn/newest/${window.location.href}`)
+    );
+
     site.engines?.forEach(engine => {
       api.addSearchAlias(
         engine.alias,

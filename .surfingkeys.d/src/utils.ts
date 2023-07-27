@@ -3,15 +3,59 @@ type Selector = string;
 export const chars = ([chars]: TemplateStringsArray) => chars.split('');
 export const words = ([words]: TemplateStringsArray) => words.split(' ');
 
-export const removeSticky = () => {
-  let position;
-  for (let element of Array.from(document.querySelectorAll('body *'))) {
-    position = getComputedStyle(element).position;
-    if (position === 'fixed' || position === 'sticky') {
-      element.parentNode?.removeChild(element);
+export const removeSticky = ({
+  root,
+  nice,
+}: {
+  root: Document | DocumentFragment;
+  nice: boolean;
+}) => {
+  for (let element of Array.from(root.querySelectorAll('*'))) {
+    if (element.shadowRoot) {
+      removeSticky({ root: element.shadowRoot, nice: nice });
+    }
+
+    if (element instanceof HTMLElement) {
+      if (isFixedOrSticky(element) && element.className !== 'sk_ui') {
+        if (nice) {
+          if (isHorizontal(element)) {
+            if (isFixed(element)) {
+              element.style.position = 'absolute';
+            }
+            if (isSticky(element)) {
+              element.style.position = 'relative';
+            }
+            if (element.style.top !== '') {
+              element.style.top = '0';
+            }
+            console.log('unstickied', element, element.style.position);
+          }
+        } else {
+          element.parentNode?.removeChild(element);
+          console.log('removed', element);
+        }
+      }
     }
   }
 };
+
+const isHorizontal = (element: HTMLElement) => {
+  let rect = element.getBoundingClientRect();
+  return rect.width / rect.height > 2;
+};
+
+const isFixed = (element: HTMLElement) => {
+  let style = getComputedStyle(element);
+  return style.position === 'fixed';
+};
+
+const isSticky = (element: HTMLElement) => {
+  let style = getComputedStyle(element);
+  return style.position === 'sticky';
+};
+
+const isFixedOrSticky = (element: HTMLElement) =>
+  isFixed(element) || isSticky(element);
 
 const getElement = (selector: Selector) =>
   api.getClickableElements(selector)[0];
@@ -56,3 +100,7 @@ export const scrollMostPage = () =>
     left: 0,
     top: 0.9 * window.innerHeight,
   });
+
+export const darkReaderEnabled = () =>
+  document.querySelector('style.darkreader') ||
+  document.querySelector('style#dark-reader-style');

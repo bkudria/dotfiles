@@ -11,9 +11,9 @@ export const applyMappings = () => {
   api.iunmap(':'); // No emojis
 
   api.map('<Backspace>', 'S');
-  api.map(';u', ';U');
   api.map('h', 'E');
   api.map('l', 'R');
+  api.map('`', 'x');
 
   api.map('!rUp', 'k', /./, 'Scroll up');
   api.map('!rDown', 'j', /./, 'Scroll down');
@@ -22,5 +22,7 @@ export const applyMappings = () => {
   api.mapkey('!rLeft', 'Scroll page down', scrollMostPage);
   api.mapkey('<Space>', 'Scroll page down', scrollMostPage);
 
-  api.mapkey('__', 'Remove Sticky', removeSticky);
+  api.mapkey('__', 'Remove Sticky', () =>
+    removeSticky({ root: document, nice: false })
+  );
 };

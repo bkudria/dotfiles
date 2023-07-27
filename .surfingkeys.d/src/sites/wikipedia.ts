@@ -40,7 +40,7 @@ const wikipediaCallback = (response: { text: string }) =>
   });
 
 const wikipedia: Site = {
-  domain: 'en.wikipedia.org',
+  domain: 'en.m.wikipedia.org',
   engines: [
     {
       name: 'Wikipedia',
