@@ -26,20 +26,40 @@ editConfig = -> hs.execute '~/bin/emacsclient -n ~/.hammerspoon/index.moon'
 
 parkMouse = -> hs.mouse.setAbsolutePosition{x: 2^13, y: 2^13}
 
+maximize = ->
+  with window = hs.window.focusedWindow!
+    with hs.grid
+      .setGrid("1x1")
+      .setMargins("0x0")
+      .set(window, "0, 0, 1x1")
+
+
 swapScreen = (window) ->
   with window
-    frame = \frame!\toUnitRect(\screen!\frame!)
-    mvFn = -> \move({0, 0, frame.w, frame.h}, \screen!\next!)
+    -- frame = \frame!\toUnitRect(\screen!\frame!)
+    -- mvFn = -> \move({0, 0, frame.w, frame.h}, \screen!\next!)
+    -- maximize = ->
+    --   with hs.grid
+    --     .setGrid("1x1")
+    --     .setMargins("0x0")
+    --     .set(window, "0, 0, 1x1")
+
+    nextScreen = \screen!\next!
+    mvFn = -> \moveToScreen(nextScreen, true, true, 0)
+    -- restore = -> \setFullScreen(true) and \raise! and \focus!
+    restore = -> maximize! and \raise! and \focus!
+    -- switchScreen = -> mvFn! and hs.timer.waitUntil(
+    --   -> \screen! == nextScreen,
+    --   restore)
+    switchScreen = -> mvFn! and restore!
 
     if \isFullscreen!
+      \setFullScreen(false)
       hs.timer.waitUntil(
         -> not \isFullscreen!,
-        -> mvFn! and \setFullScreen(true) and \focus!)
-      \setFullScreen(false)
+        switchScreen)
     else
-      mvFn!
-      \focus!
-
+      switchScreen!
 
 toggleFullScreen = ->
   with hs.window.focusedWindow!
@@ -54,13 +74,6 @@ screenFraction = (fraction, total) ->
       .setGrid("1x#{total}")
       .setMargins("0x0")
       .set(window, "0, #{fraction - 1}, 1x1")
-
-maximize = ->
-  with window = hs.window.focusedWindow!
-    with hs.grid
-      .setGrid("1x1")
-      .setMargins("0x0")
-      .set(window, "0, 0, 1x1")
 
 toggleHazeOver = ->
   _, isEnabled = hs.osascript.applescript 'tell application "HazeOver" to get enabled'
@@ -128,8 +141,18 @@ toggleMovieMode = ->
   hs.timer.doAfter 1, ->
     hs.osascript.applescript applescript
 
+normalMode = ->
+  hs.watchable.watch('state.mode')\change('normal')
+  setHazeOver(30)
+  hs.execute("/usr/local/bin/lunar displays right rotation 270")
+
+mediaMode = ->
+  hs.watchable.watch('state.mode')\change('media')
+  setHazeOver(95)
+  hs.execute("/usr/local/bin/lunar displays right rotation 0")
+
 {
-:flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :swapScreen,
+:normalMode, :mediaMode, :flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :swapScreen,
 :toggleFullScreen, :screenFraction, :maximize, :toggleHazeOver, :setHazeOver,
 :toggleMovieMode
 }

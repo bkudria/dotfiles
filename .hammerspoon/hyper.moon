@@ -16,7 +16,11 @@ class Hyper
 
   handle: (action) =>
     switch type(action)
-      when 'function' then action(self)
+      when 'function'
+        result, err = pcall -> action(self)
+        unless result
+          hs.logger.new("hyper").e(err)
+          hs.reload!
       when 'table' then action\handle!
       when 'nil'
         if @inHyperspace

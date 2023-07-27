@@ -1,5 +1,6 @@
 require 'reloader'
 require 'hammerspoon'
+require 'hs.ipc'
 
 spoons = require 'spoons'
 dispatch = require 'dispatch'
@@ -9,10 +10,14 @@ actions = require 'actions'
 Hyper = require 'hyper'
 Matte = require 'matte'
 Clock = require 'clock'
+Flux = require 'flux'
+state = hs.watchable.new("state", true)
+hs.watchable.watch('state', '*', (watcher, path, key, old, new) -> print("#{path}.#{key}: #{old} → #{new}"))
+
+clock = Clock!
+flux = Flux!
 
 matte = Matte!\wrap(apps.Chrome)
-clock = Clock!
-
 spoons{
   Seal: {
     start: true,
@@ -33,7 +38,17 @@ spoons{
       }
       seal.plugins.apps\restart!
   }
-  TextClipboardHistory: {start: true, config: {hist_size: 2^16, paste_on_select: true, show_in_menubar: false}}
+  ClipboardTool: {
+    start: true,
+    config: {
+      hist_size: 2^15,
+      paste_on_select: true,
+      show_in_menubar: false,
+      max_size: true,
+      max_entry_size: 2^10,
+      show_copied_alert: false
+    }
+  },
 }
 
 Hyper!\space{
@@ -56,24 +71,25 @@ Hyper!\space{
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'delete': hs.caffeinate.systemSleep
     'l': hs.caffeinate.startScreensaver
-    'r': actions.rotateSecondaryScreen
-    'f': actions.flipScreens
+    'r': -> hs.reload!
+    's': actions.normalMode
+    'w': actions.mediaMode
+    -- 'r': actions.rotateSecondaryScreen
+    'f': actions.toggleMovieMode
     ',': actions.editConfig
     'escape': (hyper) -> hyper.modal\exit!
   }
   't': apps.iTerm
-  'v': -> spoon.TextClipboardHistory\toggleClipboard!
+  'v': ->
+      spoon.ClipboardTool\toggleClipboard!
   'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
-    '0': ->
-      hs.eventtap.keyStroke({"ctrl"}, "1")
-      hs.eventtap.keyStroke({"ctrl"}, "2")
     '1': -> actions.screenFraction(1, 3)
     '2': -> actions.screenFraction(2, 3)
     '3': -> actions.screenFraction(3, 3)
     '4': -> actions.setHazeOver(30)
-    '5': -> actions.setHazeOver(90)
+    '5': -> actions.setHazeOver(95)
     'space': -> actions.swapScreen(hs.window.focusedWindow!)
-    'w': -> actions.toggleFullScreen!
+    'w': -> actions.maximize!
     'j': -> actions.screenFraction(2, 2)
     'k': -> actions.screenFraction(1, 2)
     'm': -> actions.maximize!
@@ -106,5 +122,6 @@ export rButton = (message) -> dispatch message, {
 
 matte\start!
 clock\start!
+flux\apply!
 
 hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")

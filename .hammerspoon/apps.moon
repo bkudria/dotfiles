@@ -14,15 +14,18 @@ class App
         id: id
 
   current: => App.byID[hs.application.frontmostApplication!\bundleID!]
+  @app: => hs.application(@id)
 
   @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
   @isRunning: => hs.application.get(@id) ~= nil
   @whenFocused: => nil
   @handle: =>
     if @isFocused!
+      @app!\activate!
       @whenFocused!
     else
       hs.application.launchOrFocusByBundleID(@id)
+      @app!\activate!
 
   @left: => nil
   @right: => nil
@@ -60,7 +63,7 @@ class Chrome extends App
   rMicrophone: => hs.eventtap.keyStrokes('!rMicrophone')
   rPower: => hs.eventtap.keyStrokes('!rPower')
   whenFocused: =>
-    hs.eventtap.keyStroke({'cmd', 'shift'}, 'a', 200000, hs.application.get(@id))
+    hs.eventtap.keyStroke({'cmd'}, 'l', 200000, hs.application.get(@id))
 
 class iTerm extends App
   id: 'com.googlecode.iterm2'
@@ -71,11 +74,10 @@ class iTerm extends App
     hs.eventtap.keyStrokes('/f ')
 
 class OnePassword extends App
-  id: 'com.agilebits.onepassword7'
+  id: 'com.1password.1password'
   handle: =>
-    if Chrome\isFocused!
-      hs.eventtap.keyStroke({'cmd','shift'}, 'i')
-    else
+    hs.eventtap.keyStroke({'cmd', 'shift', 'alt', 'ctrl'}, 'o')
+    unless os.execute("/usr/local/bin/op whoami")
       hs.application.launchOrFocusByBundleID(@id)
 
 class Emacs extends App
@@ -90,6 +92,8 @@ class Zoom extends App
   rBack: => hs.eventtap.keyStroke({'cmd'}, 'q')
   toggleAudio: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
   toggleVideo: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'v',
+  whenFocused: =>
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'c')
 
 class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
@@ -104,12 +108,13 @@ class Slack extends App
   switchNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
     hs.timer.doAfter 0.01, ->
+      hs.eventtap.keyStroke({}, 'down')
       hs.eventtap.keyStroke({}, 'return')
 
 class Reeder extends App
   id: 'com.reederapp.5.macOS'
-  @rBack: => hs.eventtap.keyStroke({}, 'r')
-  @rScreen: => hs.eventtap.keyStroke({}, 'r')
+  rBack: => hs.eventtap.keyStroke({}, 'r')
+  rScreen: => hs.eventtap.keyStroke({}, 'r')
   rLeft: =>  hs.eventtap.keyStroke({}, 'SPACE')
   rRight: => hs.eventtap.keyStroke({}, 'b')
   rUp: => hs.eventtap.keyStroke({}, 'k')

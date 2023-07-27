@@ -12,6 +12,8 @@ class Clock
   new: =>
     @timer = nil
     @time = os.date("%H:%M")
+    @state = hs.watchable.watch("state", "*")
+    @updateState!
 
   show: =>
     @time = os.date("%H:%M")
@@ -21,10 +23,15 @@ class Clock
     date = os.date("%A\n%B %d")
     hs.alert(date, style, hs.window.focusedWindow()\screen!)
 
+  updateState: =>
+    sunrise = os.date("%H:%M", hs.location.sunrise(37.76, -122.42, -7))
+    sunset = os.date("%H:%M", hs.location.sunset(37.76, -122.42, -7))
+    @state\change("sunrise", sunrise)
+    @state\change("sunset", sunset)
+
   start: =>
     nextHour = (os.date('*t').hour + 1) % 24
-    print("scheduling time for #{nextHour}")
+    @updateState! if (nextHour > 11) and (nextHour < 14)
     @timer = hs.timer.doAt("#{nextHour}:00", ->
-      print("clock for #{nextHour}")
       @show!
       @start!)
