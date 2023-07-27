@@ -6,6 +6,7 @@ tap "homebrew/cask-fonts"
 tap "homebrew/cask-versions"
 tap "homebrew/core"
 tap "railwaycat/emacsmacport"
+
 tap "yqrashawn/goku"
 brew "asciidoc"
 brew "aspell"
@@ -57,27 +58,30 @@ brew "tree"
 brew "ugrep"
 brew "watch"
 brew "wget"
-brew "youtube-dl"
 brew "zsh"
 brew "zstd"
 brew "yqrashawn/goku/goku"
 cask "1password"
-cask "aerial"
 cask "bettertouchtool"
 cask "dash"
 cask "fantastical"
-cask "flux"
 cask "font-iosevka-nerd-font"
 cask "google-chrome"
 cask "hammerspoon"
 cask "hazeover"
 cask "iterm2"
 cask "karabiner-elements"
-cask "ledger-live"
 cask "mactex-no-gui"
 cask "slack"
-cask "steam"
-cask "xscreensaver"
 cask "zoom"
-mas "Reeder", id: 1449412482
-mas "Wallpaper Wizard", id: 1266674560
+
+if ENV['PERSONAL_BREW']
+  brew "youtube-dl"
+  cask "aerial"
+  cask "ledger-live"
+  cask "steam"
+  mas "Reeder", id: 1449412482
+  mas "Wallpaper Wizard", id: 1266674560
+end
+
+Dir['.Brewfile.*'].each { |brewfile| load brewfile }
