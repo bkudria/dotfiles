@@ -19,6 +19,7 @@ zstyle ':prezto:load' pmodule \
   'directory' \
   'spectrum' \
   'utility' \
+  'bkudria' \
   'completion' \
   'syntax-highlighting' \
   'history-substring-search' \
@@ -27,8 +28,7 @@ zstyle ':prezto:load' pmodule \
   'fasd' \
   'tmux' \
   'belak/direnv' \
-  'belak/alias-tips' \
-  'bkudria'
+  'belak/alias-tips'
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'
 
