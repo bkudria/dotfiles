@@ -63,6 +63,7 @@ Hyper!\space{
   '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
   '-': nil -- Notification Center
   'b': matte
+  'i': apps.Island
   'c': nil -- Fantastical
   'd': nil -- Dash
   'e': apps.Emacs

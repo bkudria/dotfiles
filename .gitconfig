@@ -73,3 +73,5 @@
 	program = /usr/local/MacGPG2/bin/gpg2
 [pull]
 	rebase = true
+[url "git@github.com:"]
+	insteadOf = https://github.com/

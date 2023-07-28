@@ -65,6 +65,9 @@ class Chrome extends App
   whenFocused: =>
     hs.eventtap.keyStroke({'cmd'}, 'l', 200000, hs.application.get(@id))
 
+class Island extends Chrome
+  id: 'io.island.Island'
+
 class iTerm extends App
   id: 'com.googlecode.iterm2'
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
