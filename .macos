@@ -45,14 +45,4 @@ defaults write com.apple.dock show-recents -bool false
 # Clear out all
 defaults delete NSGlobalDomain NSUserDictionaryReplacementItems
 
-# Add public
-while read replace with; do
-    defaults write NSGlobalDomain NSUserDictionaryReplacementItems -array-add "{on=1; replace=$replace; with=\"$with\";}"
-done < ~/.text-substitutions
-
-# Add private
-while read replace with; do
-    defaults write NSGlobalDomain NSUserDictionaryReplacementItems -array-add "{on=1; replace=$replace; with=\"$with\";}"
-done < ~/icloud/.text-substitutions.private
-
 killall Dock
