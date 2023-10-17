@@ -4,7 +4,10 @@
 #  /bin/zsh -c "$(curl -fsSL https://raw.githubusercontent.com/bkudria/dotfiles/develop/bin/install-dotfiles)"
 #
 
-cd ~ || exit
+cd ~ || {echo "could not cd ~"; exit 1}
+
+ssh -T git@github.com 2>&1 | grep -q "bkudria" || { echo "could not authenticate to Github"; exit 1; }
+
 
 # Ask for the administrator password upfront
 sudo -v
@@ -27,7 +30,7 @@ source ~/.zshrc
 
 # Homebrew
 
-softwareupdate --all --install --force
+softwareupdate --install
 xocde-select --install
 
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
