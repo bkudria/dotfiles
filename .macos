@@ -41,6 +41,12 @@ defaults write com.apple.dock autohide -bool true
 # Don’t show recent applications in Dock
 defaults write com.apple.dock show-recents -bool false
 
+# Dock on right
+defaults write com.apple.dock orientation -string "right"
+
+# Disable spotlight cmd-space shortcut
+/usr/libexec/PlistBuddy ~/Library/Preferences/com.apple.symbolichotkeys.plist -c "Add :AppleSymbolicHotKeys:64:enabled bool false"
+
 # Text substitutions
 # Clear out all
 defaults delete NSGlobalDomain NSUserDictionaryReplacementItems
