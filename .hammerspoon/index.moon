@@ -11,6 +11,9 @@ Hyper = require 'hyper'
 Matte = require 'matte'
 Clock = require 'clock'
 Flux = require 'flux'
+Typer = require 'typer'
+yasnippets = require 'yasnippets'
+
 state = hs.watchable.new("state", true)
 logger = hs.logger.new("main")
 loggingWatcher = hs.watchable.watch("state.*", (watcher, path, key, old, new) -> logger.i("#{path}.#{key}: #{old} → #{new}"))
@@ -18,7 +21,11 @@ loggingWatcher = hs.watchable.watch("state.*", (watcher, path, key, old, new) ->
 clock = Clock!
 flux = Flux!
 
+typer = Typer(yasnippets(apps.Emacs))
 matte = Matte!\wrap(apps.Chrome)
+
+-- selectedText = require 'selected_text'
+
 spoons{
   Seal: {
     start: true,
