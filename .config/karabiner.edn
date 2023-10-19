@@ -22,17 +22,17 @@
   {:des "simultaneous f + j => escape"
    :rules [[[:f :j] :escape]]}
 
-  ;; {:des "easy pairs"
-  ;;  :rules [
-  ;;          [:!S9 :vk_none]
-  ;;          [:!R9 :vk_none]
-  ;;          [:!S0 :vk_none]
-  ;;          [:!R0 :vk_none]
-  ;;          [:left_shift :left_shift nil {:alone :!S9}]
-  ;;          [:right_shift :right_shift nil {:alone :!S0}]
-  ;;          [:!Rleft_shift :!S9]
-  ;;          [:!Sright_shift :!S0]
-  ;;         ]}
+  {:des "easy pairs"
+   :rules [
+           ;; [:!S9 :vk_none]
+           ;; [:!R9 :vk_none]
+           ;; [:!S0 :vk_none]
+           ;; [:!R0 :vk_none]
+           [:left_shift :left_shift nil {:alone :!S9}]
+           [:right_shift :right_shift nil {:alone :!S0}]
+           ;; [:!Rleft_shift :!S9]
+           ;; [:!Sright_shift :!S0]
+          ]}
 
   {:des "spacebar hyper-mods"
    :rules [[:spacebar :!COTleft_shift nil {:alone [:spacebar]}]]}
@@ -42,7 +42,9 @@
 
   {:des   "swap some keys"
    :rules [
-           [:semicolon :!Ssemicolon] [:!Ssemicolon :semicolon]
+           [:semicolon :!Ssemicolon]
+           [:!Ssemicolon :semicolon]
+           [:!Rsemicolon :semicolon]
            ]}
   ]}
 
