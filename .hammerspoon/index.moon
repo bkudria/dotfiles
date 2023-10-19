@@ -12,7 +12,8 @@ Matte = require 'matte'
 Clock = require 'clock'
 Flux = require 'flux'
 state = hs.watchable.new("state", true)
-hs.watchable.watch('state', '*', (watcher, path, key, old, new) -> print("#{path}.#{key}: #{old} → #{new}"))
+logger = hs.logger.new("main")
+loggingWatcher = hs.watchable.watch("state.*", (watcher, path, key, old, new) -> logger.i("#{path}.#{key}: #{old} → #{new}"))
 
 clock = Clock!
 flux = Flux!
@@ -41,11 +42,11 @@ spoons{
   ClipboardTool: {
     start: true,
     config: {
-      hist_size: 2^15,
+      hist_size: 2^14,
       paste_on_select: true,
       show_in_menubar: false,
       max_size: true,
-      max_entry_size: 2^10,
+      max_entry_size: 2^11,
       show_copied_alert: false
     }
   },
@@ -120,6 +121,8 @@ export rButton = (message) -> dispatch message, {
 }
 
 -- mouseValet{delay: 10}
+
+-- hs.window.layout.new({{"Slack", "tile all clo [0,0,100,100] 0"}}, "slack")\start!
 
 matte\start!
 clock\start!
