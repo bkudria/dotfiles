@@ -1,0 +1,24 @@
+#!/usr/bin/env zsh
+
+
+cd ~
+
+extension_dir="Library/Application Support/Google/Chrome/External Extensions"
+mkdir -p $extension_dir
+
+extension_keys=(
+    aeblfdkhhhdcdjpifhhbdiojplfjncoa # 1Password
+    dlnpfhfhmkiebpnlllpehlmklgdggbhn # Do not close last tab
+    npfkglcfelgebbampcngijkklhocgfia # Github Jira links
+    hlepfoohegkhhmjieoechaddaejaokhf # Refined Github
+    clngdbkpkpeebahjckkjfobafhncgmne # Stylus
+    gfbliohnnapiefjpjlpjnehglfpaknnc # SurfingKeys
+    cjpalhdlnbpafiamejdnhcphjbkeiagm # uBlock Origin
+    pejkokffkapolfffcgbmdmhdelanoaih # Unsplash Instant
+)
+
+extension_json='{"external_update_url": "https://clients2.google.com/service/update2/crx"}'
+
+for extension_key in $extension_keys; do
+    echo $extension_json > "$extension_dir/$extension_key.json"
+done
