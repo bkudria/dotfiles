@@ -24,7 +24,7 @@ flux = Flux!
 typer = Typer(yasnippets(apps.Emacs))
 matte = Matte!\wrap(apps.Chrome)
 
--- selectedText = require 'selected_text'
+selectedText = require 'selected_text'
 
 spoons{
   Seal: {
@@ -75,6 +75,13 @@ Hyper!\space{
   'c': nil -- Fantastical
   'd': nil -- Dash
   'e': apps.Emacs
+  'g': Hyper(name: 'Selected Text', afterAction: (hyper) -> hyper.modal\exit!)\space{
+    'u': -> hs.eventtap.keyStrokes(string.upper(selectedText!))
+    'l': Hyper(name: 'Link', afterAction: (hyper) -> hyper.modal\exit!)\space{
+      'b': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{apps.Chrome.currentURL!})")
+      'v': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{hs.pasteboard.getContents!})")
+     }
+  }
   'k': apps.Slack
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
@@ -134,5 +141,7 @@ export rButton = (message) -> dispatch message, {
 matte\start!
 clock\start!
 flux\apply!
+typer\start!
+
 
 hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")

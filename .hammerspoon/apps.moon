@@ -64,6 +64,8 @@ class Chrome extends App
   rPower: => hs.eventtap.keyStrokes('!rPower')
   whenFocused: =>
     hs.eventtap.keyStroke({'cmd'}, 'l', 200000, hs.application.get(@id))
+  currentURL: =>
+    ({hs.osascript.applescript('tell application "Google Chrome" to return URL of active tab of front window')})[2]
 
 class Island extends Chrome
   id: 'io.island.Island'
