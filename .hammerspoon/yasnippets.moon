@@ -46,7 +46,8 @@ read_key_and_template_in = (file) ->
 
   key, {:key, lines: template_lines}
 
-snippets_path = "/Users/bkudria/.doom.d/snippets/fundamental-mode"
+snippets_path = "~/.doom.d/snippets/fundamental-mode"
+
 files = hs.fnutils.split(hs.execute("find #{snippets_path} -type f")\gsub("\n$", ""), "\n")
 
 templates = {read_key_and_template_in(file) for file in *files}
