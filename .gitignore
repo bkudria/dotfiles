@@ -101,3 +101,4 @@ coffeelint.json
 /.zsh_history
 /.hammerspoon/Spoons/
 /.hammerspoon/pasteboard_history.json
+/.doom.d/snippets/fundamental-mode/untracked/*
