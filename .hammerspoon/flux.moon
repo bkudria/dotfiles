@@ -7,12 +7,14 @@ class Flux
     @sunset = hs.watchable.watch("state.sunset", callback)
     @mode = hs.watchable.watch("state.mode", callback)
 
-
     @watcher = hs.caffeinate.watcher.new((event) ->
       print('caffeinate event', event)
       if event == hs.caffeinate.watcher.systemDidWake
         print('wake!')
         hs.timer.doAfter(10, -> hs.reload!)
+      if event == hs.caffeinate.watcher.screensDidUnlock
+        print('unlock!')
+        hs.timer.doAfter(1, -> hs.reload!)
     )\start!
 
   apply: =>
