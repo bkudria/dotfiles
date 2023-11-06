@@ -31,20 +31,6 @@ charPress = (char) ->
 charPresses = (string) -> hs.fnutils.mapCat([char for char in string\gmatch(".")], charPress)
 deletePresses = (count) -> hs.fnutils.mapCat([i for i = 1, count], -> keyPress("delete"))
 
-resolveAction = (action, word) ->
-  switch type(action)
-    when 'function'
-      status, result = pcall(action, word)
-      if status
-        result
-      else
-        "error"
-    when 'table' then action
-    else
-      print "unknown action:"
-      print(hs.inspect(action))
-      "error"
-
 class Typer
   new: (snippets) =>
     @word = ""
@@ -53,6 +39,35 @@ class Typer
 
   start: =>
     @tap\start!
+
+  type: (text) =>
+    if #text > 10
+      hs.pasteboard.callbackWhenChanged(() -> hs.eventtap.keyStroke({'cmd'}, 'v'))
+      hs.pasteboard.setContents(text)
+    else
+      hs.eventtap.keyStrokes(text)
+
+  keyEventsFor: (text) =>
+    events = {}
+    for line in *text
+      hs.fnutils.concat(events, charPresses(line))
+      hs.fnutils.concat(events, keyPress("return")) if #text > 1
+    events
+
+  resolveAction: (action, word) =>
+    switch type(action)
+      when 'function'
+        status, result = pcall(action, word)
+        if status
+          result
+        else
+          "error"
+      when 'string' then action
+      when 'table' then action
+      else
+        print "unknown action:"
+        print(hs.inspect(action))
+        "error"
 
   keyHandler: (event) =>
     key = keyMap[event\getKeyCode!]
@@ -78,10 +93,9 @@ class Typer
 
     if action = @snippets[@word]
       hs.fnutils.concat(newEvents, deletePresses(#@word))
-      result = resolveAction(action, @word)
+      result = @resolveAction(action, @word)
       @word = ""
-      for line in *result
-        hs.fnutils.concat(newEvents, charPresses(line))
-        hs.fnutils.concat(newEvents, keyPress("return")) if #result > 1
+      hs.fnutils.concat(newEvents, @keyEventsFor(result))
 
     true, newEvents
+

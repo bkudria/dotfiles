@@ -28,7 +28,7 @@ trigger_result_for = (key, template_lines, emacs) ->
           emacsClient(installHookElisp(key))
           {}
       else
-        {"emacs"}
+        {"emacs not running"}
   else
     template_lines
 
@@ -46,9 +46,9 @@ read_key_and_template_in = (file) ->
 
   key, {:key, lines: template_lines}
 
-snippets_path = "~/.doom.d/snippets/fundamental-mode"
+snippets_path = "~/.hammerspoon/snippets"
 
-files = hs.fnutils.split(hs.execute("find #{snippets_path} -type f")\gsub("\n$", ""), "\n")
+files = hs.fnutils.split(hs.execute("find #{snippets_path}/ -type f")\gsub("\n$", ""), "\n")
 
 templates = {read_key_and_template_in(file) for file in *files}
 

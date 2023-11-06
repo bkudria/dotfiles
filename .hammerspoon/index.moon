@@ -1,6 +1,17 @@
+print "start"
+lastTime = hs.timer.absoluteTime!
+startTime = lastTime
+tprint = (lbl) ->
+  print("⏰ #{(hs.timer.absoluteTime! - lastTime) / 1000000}ms #{lbl}")
+  lastTime = hs.timer.absoluteTime!
+
+tprint "timer"
+require 'console'
 require 'reloader'
 require 'hammerspoon'
 require 'hs.ipc'
+
+tprint "require"
 
 spoons = require 'spoons'
 dispatch = require 'dispatch'
@@ -11,8 +22,13 @@ Hyper = require 'hyper'
 Matte = require 'matte'
 Clock = require 'clock'
 Flux = require 'flux'
+Clipper = require 'clipper'
 Typer = require 'typer'
+Paster = require 'paster'
 yasnippets = require 'yasnippets'
+selectedText = require 'selected_text'
+
+tprint "load"
 
 state = hs.watchable.new("state", true)
 logger = hs.logger.new("main")
@@ -24,7 +40,10 @@ flux = Flux!
 typer = Typer(yasnippets(apps.Emacs))
 matte = Matte!\wrap(apps.Chrome)
 
-selectedText = require 'selected_text'
+clipper = Clipper!
+paster = Paster(clipper, typer)
+
+tprint "init"
 
 spoons{
   Seal: {
@@ -46,18 +65,20 @@ spoons{
       }
       seal.plugins.apps\restart!
   }
-  ClipboardTool: {
-    start: true,
-    config: {
-      hist_size: 2^14,
-      paste_on_select: true,
-      show_in_menubar: false,
-      max_size: true,
-      max_entry_size: 2^11,
-      show_copied_alert: false
-    }
-  },
+  -- ClipboardTool: {
+  --   start: true,
+  --   config: {
+  --     hist_size: 2^8,
+  --     paste_on_select: true,
+  --     show_in_menubar: false,
+  --     max_size: true,
+  --     max_entry_size: 2^8,
+  --     show_copied_alert: false
+  --   }
+  -- },
 }
+
+tprint "spoons"
 
 Hyper!\space{
   '`': -> clock\show!
@@ -86,8 +107,11 @@ Hyper!\space{
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'delete': hs.caffeinate.systemSleep
+    'c': hs.toggleConsole
     'l': hs.caffeinate.startScreensaver
-    'r': -> hs.reload!
+    'r': =>
+      @clips\stop!
+      hs.reload!
     's': actions.normalMode
     'w': actions.mediaMode
     -- 'r': actions.rotateSecondaryScreen
@@ -97,7 +121,8 @@ Hyper!\space{
   }
   't': apps.iTerm
   'v': ->
-      spoon.ClipboardTool\toggleClipboard!
+      paster\select!
+      -- spoon.ClipboardTool\toggleClipboard!
   'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
     '1': -> actions.screenFraction(1, 3)
     '2': -> actions.screenFraction(2, 3)
@@ -114,6 +139,8 @@ Hyper!\space{
   }
   'z': apps.Zoom
 }
+
+tprint "hyper"
 
 export rButton = (message) -> dispatch message, {
   tapup:    App.current!\rUp
@@ -134,6 +161,8 @@ export rButton = (message) -> dispatch message, {
   power: App.current!\toggleVideo
 }
 
+tprint 'remote'
+
 -- mouseValet{delay: 10}
 
 -- hs.window.layout.new({{"Slack", "tile all clo [0,0,100,100] 0"}}, "slack")\start!
@@ -142,6 +171,12 @@ matte\start!
 clock\start!
 flux\apply!
 typer\start!
+clipper\start!
 
+tprint "go"
 
 hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")
+
+tprint "done"
+
+print("⏰ #{(hs.timer.absoluteTime! - startTime) / 1000000}ms total")

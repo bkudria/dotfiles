@@ -107,7 +107,10 @@ class Slack extends App
   up: => hs.eventtap.keyStroke({'cmd'}, '.')
   down: => @switchNextUnread!
   rDown: => @switchNextUnread!
-  whenFocused: => @focusNextUnread!
+  whenFocused: => @switchToUnread!
+  switchToUnread: =>
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'a', @app!)
+    hs.eventtap.keyStroke({}, 'return', @app!)
   focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
   switchNextUnread: =>
