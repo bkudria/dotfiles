@@ -9,8 +9,16 @@ class Paster
 
   setChoices: () =>
     query = @chooser\query!
-    choices = hs.fnutils.imap(@clipper\search(query), (item) ->
+    results = @clipper\search(query)
+    choices = hs.fnutils.imap(results, (item) ->
       { text: item.clip, subText: os.date("%b %d, %H:%M:%S", item.ts) })
+    if #query > 1 and #results > 1
+      choices = hs.fnutils.concat(
+        choices, {{
+          text: table.concat(hs.fnutils.imap(results, (result) -> result.clip), "\n"),
+            subText: "Paste all #{#results} items"
+        }}
+      )
     @chooser\choices(choices)
 
   select: () =>
