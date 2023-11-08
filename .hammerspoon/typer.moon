@@ -34,6 +34,7 @@ deletePresses = (count) -> hs.fnutils.mapCat([i for i = 1, count], -> keyPress("
 class Typer
   new: (snippets) =>
     @word = ""
+    @typed_words_ring = {}
     @snippets = snippets
     @tap = hs.eventtap.new({ hs.eventtap.event.types.keyUp }, (event) -> @keyHandler(event))
 
@@ -82,7 +83,15 @@ class Typer
           t = [chars for _, chars in utf8.codes(@word)]
           table.remove(t, #t)
           @word = utf8.char(table.unpack(t))
-      when "space", "return", "up", "down", "left", "right"
+      when "space", "return"
+        ring_size = 20
+        if @word and #@word > 5
+          word = string.gsub(@word, "[^a-zA-Z'-]", "")
+          table.insert(@typed_words_ring, word)
+        table.remove(@typed_words_ring, 1) if #@typed_words_ring > ring_size
+        print(hs.inspect({r: @typed_words_ring}))
+        @word = ""
+      when "up", "down", "left", "right"
         @word = ""
       else
         flags = event\getFlags!
