@@ -888,7 +888,7 @@
 			<key>Shortcut</key>
 			<string></string>
 			<key>Silence Bell</key>
-			<false/>
+			<true/>
 			<key>Smart Cursor Color</key>
 			<false/>
 			<key>Sync Title</key>
@@ -920,7 +920,7 @@
 			<key>Window Type</key>
 			<integer>0</integer>
 			<key>Working Directory</key>
-			<string>/Users/bkudria</string>
+			<string>~</string>
 		</dict>
 	</array>
 	<key>OnlyWhenMoreTabs</key>
