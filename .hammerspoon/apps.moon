@@ -19,13 +19,17 @@ class App
   @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
   @isRunning: => hs.application.get(@id) ~= nil
   @whenFocused: => nil
+  @activate: =>
+    @app!\activate!
   @handle: =>
-    if @isFocused!
-      @app!\activate!
-      @whenFocused!
+    if @isRunning!
+      if @isFocused!
+        @activate!
+        @whenFocused!
+      else
+        @activate!
     else
       hs.application.launchOrFocusByBundleID(@id)
-      @app!\activate!
 
   @left: => nil
   @right: => nil
