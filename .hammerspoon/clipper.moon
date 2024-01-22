@@ -12,7 +12,7 @@ class Clipper
   stop: =>
     @db\close! if @db
 
-  skipClipping: () ->
+  privateClip: () ->
     skipTypes = {
       "org.nspasteboard.TransientType"
       "org.nspasteboard.ConcealedType"
@@ -24,7 +24,9 @@ class Clipper
     )
 
   recordNewClip: (clip) =>
-    return if @skipClipping!
+    return if @privateClip!
+    return if #clip < 5
+    hs.alert(clip, 0.2)
 
     clip = clip\gsub("^%s*(.-)%s*$", "%1")
     sql = "insert into clips(clip, ts) values (:clip, :time) on conflict(clip) do update set ts=:time"

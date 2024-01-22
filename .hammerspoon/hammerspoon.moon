@@ -5,5 +5,5 @@ hs.dockIcon                     false
 hs.menuIcon                     true
 hs.uploadCrashData              true
 
-hs.window.animationDuration = 0.1
+hs.window.animationDuration = 0
 hs.ipc.cliInstall!

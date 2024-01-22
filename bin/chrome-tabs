@@ -1,0 +1,80 @@
+#!/bin/zsh
+# https://chat.openai.com/share/274e189a-9252-43e2-9ffa-a20f0fa096f0
+
+# Create a temporary file
+# tempfile=$(mktemp -u)
+# mkfifo $tempfile
+tempfile=$(mktemp)
+
+# Run the AppleScript with the temporary file path, and in the background
+osascript -e '
+on run argv
+    -- Get the temporary file path from the arguments
+    set tempFilePath to item 1 of argv
+
+    -- Correctly convert the file path to a format AppleScript understands
+    -- set fileRef to open for access (POSIX file tempFilePath as string) with write permission
+
+    tell application "Google Chrome"
+        set outputBuffer to ""
+        set tabCounter to 0
+
+        repeat with w from 1 to (count of windows)
+            set currentWindow to window w
+            repeat with t from 1 to (count of tabs of currentWindow)
+                set currentTab to tab t of currentWindow
+                set tabUrl to URL of currentTab
+                set tabTitle to title of currentTab
+
+                -- Accumulate tab information
+                set outputBuffer to outputBuffer & tabUrl & " " & tabTitle & "\n"
+                set tabCounter to tabCounter + 1
+
+                -- Write to file in chunks
+                if tabCounter ≥ 50 then
+                    -- write outputBuffer to fileRef
+                    do shell script "echo " & quoted form of outputBuffer & " > " & quoted form of POSIX path of tempFilePath
+                    set outputBuffer to "" -- Reset the buffer
+                    set tabCounter to 0
+                end if
+            end repeat
+        end repeat
+
+        -- Write any remaining tab information
+        if outputBuffer ≠ "" then
+            -- write outputBuffer to fileRef
+            do shell script "echo " & quoted form of outputBuffer & " > " & quoted form of POSIX path of tempFilePath
+        end if
+    end tell
+
+    -- Write the end marker with a newline
+    -- write "EOF\n" to fileRef
+    set endMarker to "EOF"
+    do shell script "echo " & quoted form of endMarker & " > " & quoted form of POSIX path of tempFilePath
+
+    -- close access fileRef
+end run
+' "$tempfile" &
+
+# Store the PID of the background AppleScript process
+applescript_pid=$!
+
+# Start tailing the file in the background
+tail -f $tempfile | while IFS= read -r line; do
+    if [[ "$line" == "EOF" ]]; then
+        # Kill the tail -f process
+        pkill -P $$ tail
+        break
+    fi
+
+    # Check if the line seems to contain a URL and a title
+    if [[ "$line" =~ :// ]] && [[ "$line" =~ " " ]]; then
+        echo "$line"
+    fi
+done
+
+# Wait for AppleScript to finish, if it hasn't already
+wait $applescript_pid
+
+# Clean up
+rm -f $tempfile

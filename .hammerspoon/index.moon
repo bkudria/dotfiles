@@ -1,11 +1,10 @@
-print "start"
 lastTime = hs.timer.absoluteTime!
 startTime = lastTime
+initLogger = hs.logger.new("init", "debug")
 tprint = (lbl) ->
-  print("⏰ #{(hs.timer.absoluteTime! - lastTime) / 1000000}ms #{lbl}")
+  initLogger.d("⏰ #{(hs.timer.absoluteTime! - lastTime) / 1000000}ms #{lbl}")
   lastTime = hs.timer.absoluteTime!
 
-tprint "timer"
 require 'console'
 require 'reloader'
 require 'hammerspoon'
@@ -31,15 +30,23 @@ selectedText = require 'selected_text'
 tprint "load"
 
 state = hs.watchable.new("state", true)
-logger = hs.logger.new("main")
-loggingWatcher = hs.watchable.watch("state.*", (watcher, path, key, old, new) -> logger.i("#{path}.#{key}: #{old} → #{new}"))
+logger = hs.logger.new("state", "info")
+hs.watchable.watch("state.*", (watcher, path, key, old, new) -> logger.i("#{path}.#{key}: #{old} → #{new}"))
+
+logger.i(state["mode"])
+
+tprint "init state"
 
 clock = Clock!
 flux = Flux!
 
-typer = Typer(yasnippets(apps.Emacs))
+tprint "init clock/flux"
+
 matte = Matte!\wrap(apps.Chrome)
 
+tprint "init matte"
+
+typer = Typer(yasnippets(apps.Emacs))
 clipper = Clipper!
 paster = Paster(clipper, typer)
 
@@ -65,24 +72,14 @@ spoons{
       }
       seal.plugins.apps\restart!
   }
-  -- ClipboardTool: {
-  --   start: true,
-  --   config: {
-  --     hist_size: 2^8,
-  --     paste_on_select: true,
-  --     show_in_menubar: false,
-  --     max_size: true,
-  --     max_entry_size: 2^8,
-  --     show_copied_alert: false
-  --   }
-  -- },
 }
 
 tprint "spoons"
 
 Hyper!\space{
   '`': -> clock\show!
-  '1': -> clock\showDate!
+  'tab': typer\autocomplete_word
+  '2': -> clock\showDate!
   'left': -> App.current!\left!
   'right': -> App.current!\right!
   'up': -> App.current!\up!
@@ -92,7 +89,6 @@ Hyper!\space{
   '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
   '-': nil -- Notification Center
   'b': matte
-  'i': apps.Island
   'c': nil -- Fantastical
   'd': nil -- Dash
   'e': apps.Emacs
@@ -100,9 +96,21 @@ Hyper!\space{
     'u': -> hs.eventtap.keyStrokes(string.upper(selectedText!))
     'l': Hyper(name: 'Link', afterAction: (hyper) -> hyper.modal\exit!)\space{
       'b': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{apps.Chrome.currentURL!})")
+      't': -> matte\chooseTab((tab) ->
+        hs.eventtap.keyStrokes("[#{selectedText!}](#{tab["url"]})") if tab
+      )
       'v': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{hs.pasteboard.getContents!})")
      }
   }
+  'i': Hyper(name: "Insert", afterAction: (hyper) -> hyper.modal\exit!)\space{
+    'b': Hyper(name: 'Browser Tab', afterAction: (hyper) -> hyper.modal\exit!)\space{
+      'b': -> hs.eventtap.keyStrokes(apps.Chrome.currentURL!)
+      'l': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes("[#{tab['title']}](#{tab['url']})") if tab)
+      'u': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['url']) if tab)
+      't': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['title']) if tab)
+     }
+  }
+  'l': apps.Island
   'k': apps.Slack
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
@@ -114,7 +122,6 @@ Hyper!\space{
       hs.reload!
     's': actions.normalMode
     'w': actions.mediaMode
-    -- 'r': actions.rotateSecondaryScreen
     'f': actions.toggleMovieMode
     ',': actions.editConfig
     'escape': (hyper) -> hyper.modal\exit!
@@ -122,7 +129,6 @@ Hyper!\space{
   't': apps.iTerm
   'v': ->
       paster\select!
-      -- spoon.ClipboardTool\toggleClipboard!
   'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
     '1': -> actions.screenFraction(1, 3)
     '2': -> actions.screenFraction(2, 3)
@@ -165,13 +171,11 @@ tprint 'remote'
 
 -- mouseValet{delay: 10}
 
--- hs.window.layout.new({{"Slack", "tile all clo [0,0,100,100] 0"}}, "slack")\start!
-
-matte\start!
-clock\start!
 flux\apply!
+clock\start!
 typer\start!
 clipper\start!
+matte\start!
 
 tprint "go"
 
@@ -179,4 +183,4 @@ hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfull
 
 tprint "done"
 
-print("⏰ #{(hs.timer.absoluteTime! - startTime) / 1000000}ms total")
+initLogger.d("⏰ #{(hs.timer.absoluteTime! - startTime) / 1000000}ms total")

@@ -63,7 +63,12 @@ class Chrome extends App
   rMicrophone: => hs.eventtap.keyStrokes('!rMicrophone')
   rPower: => hs.eventtap.keyStrokes('!rPower')
   whenFocused: =>
-    hs.eventtap.keyStroke({'cmd'}, 'l', 200000, hs.application.get(@id))
+    hs.eventtap.keyStroke({'cmd'}, 'l', 200000, @app!)
+  @activate: =>
+    if #@app!\visibleWindows! == 0
+      hs.eventtap.keyStroke({'cmd'}, 'n', 200000, @app!)
+    else
+      super!
   currentURL: =>
     ({hs.osascript.applescript('tell application "Google Chrome" to return URL of active tab of front window')})[2]
 
@@ -105,14 +110,16 @@ class Slack extends App
   left: => hs.eventtap.keyStroke({'cmd'}, '[')
   right: => hs.eventtap.keyStroke({'cmd'}, ']')
   up: => hs.eventtap.keyStroke({'cmd'}, '.')
-  down: => @switchNextUnread!
-  rDown: => @switchNextUnread!
+  down: => @toggleSidebar!
+  rDown: => @toggleSidebar!
   whenFocused: => @switchToUnread!
   switchToUnread: =>
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'a', @app!)
     hs.eventtap.keyStroke({}, 'return', @app!)
   focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
+  toggleSidebar: =>
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'D')
   switchNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
     hs.timer.doAfter 0.01, ->

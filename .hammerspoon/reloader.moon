@@ -7,7 +7,8 @@ maybeReload = (paths, flags) ->
 
     continue unless filename\match(endswith('lua')) or filename\match(endswith('moon'))
     continue if filename\match("^%.#.*")
-
+    -- hs.alert.show("✅", 0.2)
+    -- hs.timer.doAfter(0.3, hs.reload)
     hs.reload!
 
 hs.pathwatcher.new("#{os.getenv('HOME')}/.hammerspoon/", maybeReload)\start!

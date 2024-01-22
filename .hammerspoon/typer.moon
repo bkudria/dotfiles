@@ -41,6 +41,11 @@ class Typer
   start: =>
     @tap\start!
 
+  autocomplete_word: =>
+    candidates = @typed_words_ring
+    if #@word > 2
+      table.insert(candidates, 1, hs.fnutils.split(hs.execute("look #{@word}"), "\n")[1])
+
   type: (text) =>
     if #text > 10
       hs.pasteboard.callbackWhenChanged(() -> hs.eventtap.keyStroke({'cmd'}, 'v'))
@@ -89,7 +94,6 @@ class Typer
           word = string.gsub(@word, "[^a-zA-Z'-]", "")
           table.insert(@typed_words_ring, word)
         table.remove(@typed_words_ring, 1) if #@typed_words_ring > ring_size
-        print(hs.inspect({r: @typed_words_ring}))
         @word = ""
       when "up", "down", "left", "right"
         @word = ""
