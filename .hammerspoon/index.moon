@@ -112,6 +112,7 @@ Hyper!\space{
   }
   'l': apps.Island
   'k': apps.Slack
+  'n': apps.Notion
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'delete': hs.caffeinate.systemSleep

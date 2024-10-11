@@ -75,6 +75,9 @@ class Chrome extends App
 class Island extends Chrome
   id: 'io.island.Island'
 
+class Notion extends App
+  id: 'notion.id'
+
 class iTerm extends App
   id: 'com.googlecode.iterm2'
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
@@ -89,6 +92,13 @@ class OnePassword extends App
     hs.eventtap.keyStroke({'cmd', 'shift', 'alt', 'ctrl'}, 'o')
     unless os.execute("/usr/local/bin/op whoami")
       hs.application.launchOrFocusByBundleID(@id)
+
+class NotionCalendar extends App
+  id: 'com.cron.electron'
+  handle: =>
+    hs.eventtap.keyStroke({'cmd', 'shift', 'alt', 'ctrl'}, 'c')
+  whenFocused: =>
+    hs.eventtap.keyStroke({'cmd'}, '1')
 
 class Emacs extends App
   id: 'org.gnu.Emacs'
