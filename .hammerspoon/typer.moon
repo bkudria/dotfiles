@@ -7,12 +7,14 @@ letters = "abcdefghijklmnopqrstuvwxyz"
 symbols_unshifted = { "#{symbols\sub(i,i)}", "#{i - 1}" for i = 1,10 }
 letters_unshifted = { "#{letters\sub(i,i)\upper!}", "#{letters\sub(i,i)}" for i = 1,#letters }
 
-shift_map = {}
+shift_map = {
+  "_": "-"
+}
 for k, v in pairs symbols_unshifted do shift_map[k] = v
 for k, v in pairs letters_unshifted do shift_map[k] = v
 
 char_map = {
-  [" "]: "space"
+  [" "]: "space",
 }
 
 -- https://github.com/Hammerspoon/hammerspoon/issues/1881
