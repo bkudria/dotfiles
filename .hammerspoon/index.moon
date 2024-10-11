@@ -117,7 +117,7 @@ Hyper!\space{
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'delete': hs.caffeinate.systemSleep
     'c': hs.toggleConsole
-    'l': hs.caffeinate.startScreensaver
+    'l': -> hs.caffeinate.startScreensaver!
     'r': =>
       @clips\stop!
       hs.reload!
