@@ -4,7 +4,7 @@ export TERM=screen-256color
 export GOPATH=~/.go
 export TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
 
-alias ll='exa -lF --colour-scale --group-directories-first'
+alias ll='eza -lF --colour-scale --group-directories-first'
 alias la='ll -a'
 alias lt='ll -T'
 alias git=hub
