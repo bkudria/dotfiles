@@ -1,8 +1,8 @@
 -- -*- dash-at-point-docset: "hammerspoon,lua" -*-
 
 local lVer = _VERSION:match("Lua (.+)$")
--- specify luarockt path yourself if this doesn't find it in the normal places
-local luarocks = "/opt/homebrew/bin/luarocks"
+-- specify luarocks path yourself if this doesn't find it in the normal places
+local luarocks = hs.execute("which luarocks"):gsub("\n", "")
 if #luarocks > 0 then
     package.path = package.path .. ";" .. hs.execute(
             luarocks .. " --lua-version " .. lVer .. " path --lr-path"
@@ -12,7 +12,4 @@ if #luarocks > 0 then
         ):gsub("\n", "")
 end
 
-require("moonscript_traceback").add()
-require 'moonscript'
-require 'index'
-
+require("yue")("index")
