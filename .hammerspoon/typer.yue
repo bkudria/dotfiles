@@ -106,7 +106,7 @@ class Typer
         else
           @word = ""
 
-    if action = @snippets[@word]
+    if action := @snippets[@word]
       hs.fnutils.concat(newEvents, deletePresses(#@word))
       result = @resolveAction(action, @word)
       @word = ""
