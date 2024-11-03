@@ -124,7 +124,6 @@ class Matte
 
     timer = hs.timer.delayed.new(0.05, () ->
       numWindows = #filter\getWindows!
-      @logger.i("=== layout #{numWindows}, timer for ===")
       filter\pause!
       layout1\apply! if numWindows == 1
       layout2\apply! if numWindows == 2
@@ -132,9 +131,7 @@ class Matte
       filter\resume!
     )
 
-    @logger.i("init")
     applyLayoutDebounced = (window, name, event) ->
-      @logger.i("window event: #{event}, title: #{window\title!}")
       timer\start(0.01)
 
     filter\subscribe(
