@@ -5,6 +5,7 @@ alertStyle = {
   textSize: 100
   textColor: {hex: "#d65d0e"}
 }
+
 class Hyper
   @mods: {"cmd","alt","shift","ctrl"}
   @spec: (key) => @mods, key
@@ -42,6 +43,7 @@ class Hyper
   space: (mappings) =>
     bind = if @config.name -- Sub-space, bind to modal instead
       @initModal!
+      @modal\bind(nil, 'escape', -> @modal\exit!)
       (key, fn) -> @modal\bind(nil, key, fn)
     else -- top-level, bind directly
       (key, fn) -> hs.hotkey.bind(@@mods, key, fn)

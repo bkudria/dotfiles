@@ -12,12 +12,12 @@ class Clock
   new: =>
     @timer = nil
     @time = os.date("%H:%M")
-    @state = hs.watchable.watch("state", "*")
     @updateState!
+    @logger = hs.logger.new("clock", "info")
 
   show: =>
     @time = os.date("%H:%M")
-    hs.alert(@time, style, hs.window.focusedWindow()\screen!)
+    hs.alert(@time, style, (hs.screen.mainScreen! or hs.screen.primaryScreen!))
 
   showDate: =>
     date = os.date("%A\n%B %d")
@@ -26,8 +26,8 @@ class Clock
   updateState: =>
     sunrise = os.date("%H:%M", hs.location.sunrise(37.76, -122.42, -7))
     sunset = os.date("%H:%M", hs.location.sunset(37.76, -122.42, -7))
-    @state\change("sunrise", sunrise)
-    @state\change("sunset", sunset)
+    hs.settings.set("sunrise", sunrise)
+    hs.settings.set("sunset", sunset)
 
   start: =>
     nextHour = (os.date('*t').hour + 1) % 24
@@ -35,3 +35,13 @@ class Clock
     @timer = hs.timer.doAt("#{nextHour}:00", ->
       @show!
       @start!)
+
+    @caffeinateWatcher = hs.caffeinate.watcher.new((event) ->
+      @logger.i('caffeinate event', event)
+      if event == hs.caffeinate.watcher.systemDidWake
+        @logger.i('wake!')
+        hs.timer.doAfter(10, -> hs.reload!)
+      if event == hs.caffeinate.watcher.screensDidUnlock
+        @logger.i('unlock!')
+        -- hs.timer.doAfter(1, -> hs.reload!)
+    )\start!

@@ -1,41 +1,49 @@
 class Flux
   new: =>
-    callback = (watcher, path, key, old, new) ->
-        @watcherCallback(watcher, path, key, old, new)
+    @logger = hs.logger.new("flux", "info")
 
-    @sunrise = hs.watchable.watch("state.sunrise", callback)
-    @sunset = hs.watchable.watch("state.sunset", callback)
-    @mode = hs.watchable.watch("state.mode", callback)
+    debouncedApply = hs.timer.delayed.new(1, ->
+      @logger.i("requested apply")
+      @apply!
+    )
 
-    @watcher = hs.caffeinate.watcher.new((event) ->
-      print('caffeinate event', event)
-      if event == hs.caffeinate.watcher.systemDidWake
-        print('wake!')
-        hs.timer.doAfter(10, -> hs.reload!)
-      if event == hs.caffeinate.watcher.screensDidUnlock
-        print('unlock!')
-        hs.timer.doAfter(1, -> hs.reload!)
-    )\start!
+    hs.settings.watchKey("flux", "sunrise", ->
+      @logger.i("sunrise changed")
+      debouncedApply\start(0.1)
+    )
+
+    hs.settings.watchKey("flux", "sunset", ->
+      @logger.i("sunset changed")
+      debouncedApply\start(0.1)
+    )
+
+    hs.settings.watchKey("flux", "mode", ->
+      @logger.i("mode changed")
+      debouncedApply\start(0.1)
+    )
 
   apply: =>
-    print("Redshift: #{@startTime!}-#{@endTime!}, to final gamma #{@finalGamma!} over 4h")
-    hs.redshift.start(@finalGamma!, @startTime!, @endTime!, '4h')
-
-  watcherCallback: (watcher, path, key, old, new) =>
-    if new != old
-        @apply!
+    @logger.i(hs.inspect({st: @startTime!, et: @endTime!, fg: @finalGamma!, mode: @mode!}))
+    @logger.i("Applying redshift: #{@startTime!}-#{@endTime!}, to final gamma #{@finalGamma!} over 4h")
+    hs.redshift.start(@finalGamma!, @startTime!, @endTime!, '1h')
 
   startTime: =>
-    if @mode\value() == "media"
+    if @mode! == "media"
         string.format("%.2d:%.2d", os.date('%H'), os.date('%M'))
     else
-        @sunset\value!
+        @sunset!
 
   endTime: =>
-    @sunrise\value!
+    hs.settings.get('sunrise')
+
+  sunset: =>
+    hs.settings.get('sunset')
+
+  mode: =>
+    hs.settings.get('mode')
 
   finalGamma: =>
-    if @mode\value() == "media"
+    if @mode! == "media"
         4000
     else
         2500

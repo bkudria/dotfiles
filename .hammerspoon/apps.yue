@@ -14,13 +14,16 @@ class App
         id: id
 
   current: => App.byID[hs.application.frontmostApplication!\bundleID!]
-  @app: => hs.application(@id)
+  @app: => hs.application.get(@id)
 
+  @launch: => hs.application.launchOrFocusByBundleID(@id)
   @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
-  @isRunning: => hs.application.get(@id) ~= nil
+  @isRunning: =>
+    @app! ~= nil
   @whenFocused: => nil
   @activate: =>
     @app!\activate!
+
   @handle: =>
     if @isRunning!
       if @isFocused!
@@ -29,7 +32,8 @@ class App
       else
         @activate!
     else
-      hs.application.launchOrFocusByBundleID(@id)
+      @launch!
+
 
   @left: => nil
   @right: => nil
@@ -38,16 +42,16 @@ class App
   @rBack: => hs.eventtap.keyStroke({}, 'ESCAPE')
 
   @toggleAudio: =>
-    if @inherited.Zoom\isRunning!
-      @inherited.Zoom\toggleAudio!
-    elseif @inherited.Chrome\isRunning!
-      @inherited.Chrome\rMicrophone!
+    if @apps!.Zoom\isRunning!
+      @apps!.Zoom\toggleAudio!
+    elseif @apps!.Chrome\isRunning!
+      @apps!.Chrome\rMicrophone!
 
   @toggleVideo: =>
-    if @inherited.Zoom\isRunning!
-      @inherited.Zoom\toggleVideo!
-    elseif @inherited.Chrome\isRunning!
-      @inherited.Chrome\rPower!
+    if @apps!.Zoom\isRunning!
+      @apps!.Zoom\toggleVideo!
+    elseif @apps!.Chrome\isRunning!
+      @apps!.Chrome\rPower!
 
 
 class Chrome extends App
@@ -106,8 +110,12 @@ class NotionCalendar extends App
 
 class Emacs extends App
   id: 'org.gnu.Emacs'
-  left: => hs.eventtap.keyStrokes(' bp')
-  right: => hs.eventtap.keyStrokes(' bp')
+  @activate: =>
+    if #@app!\visibleWindows! == 0
+      os.execute("/opt/homebrew/bin/emacsclient -cnF '((fullscreen . maximized))'")
+      super!
+    else
+      super!
   whenFocused: =>
     hs.eventtap.keyStrokes('  ')
 
@@ -126,10 +134,19 @@ class Slack extends App
   up: => hs.eventtap.keyStroke({'cmd'}, '.')
   down: => @toggleSidebar!
   rDown: => @toggleSidebar!
-  whenFocused: => @switchToUnread!
+  whenFocused: => @toggleUnreadActivity!
+  switchToUnread: =>
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'm', @app!)
+    -- hs.eventtap.keyStroke({}, 'return', @app!)
   switchToUnread: =>
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'a', @app!)
-    hs.eventtap.keyStroke({}, 'return', @app!)
+    -- hs.eventtap.keyStroke({}, 'return', @app!)
+  toggleUnreadActivity: =>
+    if @app\title!\match("Unread")
+      @switchToActivity!
+    else
+      @switchToUnread!
+
   focusNextUnread: =>
     hs.eventtap.keyStroke({'cmd'}, 't')
   toggleSidebar: =>
