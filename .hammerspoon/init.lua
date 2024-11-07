@@ -12,4 +12,6 @@ if #luarocks > 0 then
         ):gsub("\n", "")
 end
 
-require("yue")("index")
+exports = require("yue")("index")
+
+rButton = exports.rButton
