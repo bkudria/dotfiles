@@ -36,9 +36,13 @@
 (package! golden
   :recipe (:type git :repo "https://git.sr.ht/~wklew/golden"))
 
+
 ;; If you'd like to disable a package included with Doom, you can do so here
 ;; with the `:disable' property:
 (package! robe :disable t)
+
+(package! yuescript
+  :recipe (:type git :repo "https://github.com/bkudria/yuescript-mode"))
 
 ;; You can override the recipe of a built in package without having to specify
 ;; all the properties for `:recipe'. These will inherit the rest of its recipe
