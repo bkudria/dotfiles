@@ -122,6 +122,7 @@ if ENV['PERSONAL_BREW']
   mas "Reeder", id: 1529448980
   mas "Wallpaper Wizard", id: 1266674560
   mas "Draw Things", id: 6444050820
+  mas "Xcode", id: 497799835
 end
 
 Dir['.Brewfile.*'].each { |brewfile| load brewfile }
