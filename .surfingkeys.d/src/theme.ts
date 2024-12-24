@@ -3,9 +3,9 @@ declare var settings: any;
 export const applyDarkTheme = () => {
   // gruvbox dark
   api.Hints.style(`
-    font-size: 1ex;
+    font-size: 1.5vmax;
     color: #3c3836;
-    font-family: "Menlo";
+    font-family: "Iosevka Nerd Font", system-ui, sans-serif;
     background: #fbf1c7;
     `);
 
@@ -31,9 +31,9 @@ export const applyDarkTheme = () => {
 export const applyLightTheme = () => {
   // gruvbox light
   api.Hints.style(`
-            font-size: 8pt;
+            font-size: 1.5vmax;
             color: #fbf1c7;
-            font-family: "Menlo";
+            font-family: "Iosevka Nerd Font", system-ui, sans-serif;
             background: #3c3836;
   `);
 

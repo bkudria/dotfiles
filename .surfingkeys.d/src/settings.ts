@@ -5,6 +5,7 @@ export const setSettings = () => {
   settings.scrollStepSize = 75;
   settings.focusFirstCandidate = true;
   settings.hintAlign = 'left';
+  settings.verticalTabs = true;
 
   api.unmap('h');
   api.unmap('l');

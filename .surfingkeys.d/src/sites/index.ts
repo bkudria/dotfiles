@@ -7,6 +7,7 @@ import gmail from './gmail';
 import google from './google';
 import hackernews from './hackernews';
 import hbomax from './hbomax';
+import hckrnews from './hckrnews';
 import hulu from './hulu';
 import imgur from './imgur';
 import lobsters from './lobsters';
@@ -25,6 +26,7 @@ const sites: Site[] = [
   google,
   hackernews,
   hbomax,
+  hckrnews,
   hulu,
   imgur,
   lobsters,
@@ -40,7 +42,7 @@ const applyGlobalSiteSettings = () => {
   //   api.removeSearchAlias(searchAlias, 'o');
   // });
 
-  sites.forEach(site => {
+  sites.forEach(_site => {
     api.mapkey(
       'ga',
       'Archived Page',
@@ -48,22 +50,22 @@ const applyGlobalSiteSettings = () => {
         (window.location.href = `https://archive.vn/newest/${window.location.href}`)
     );
 
-    site.engines?.forEach(engine => {
-      api.addSearchAlias(
-        engine.alias,
-        engine.name,
-        engine.search,
-        's',
-        engine.completion,
-        engine.callback
-      );
+    // site.engines?.forEach(engine => {
+    //   api.addSearchAlias(
+    //     engine.alias,
+    //     engine.name,
+    //     engine.search,
+    //     's',
+    //     engine.completion,
+    //     engine.callback
+    //   );
 
-      api.mapkey(
-        `o${engine.single || engine.alias}`,
-        `#8Search ${engine.name}`,
-        () => {} //Front.openOmnibar({ type: 'SearchEngine', extra: engine.alias })
-      );
-    });
+    //   api.mapkey(
+    //     `o${engine.single || engine.alias}`,
+    //     `#8Search ${engine.name}`,
+    //     () => {} //Front.openOmnibar({ type: 'SearchEngine', extra: engine.alias })
+    //   );
+    // });
   });
 };
 
