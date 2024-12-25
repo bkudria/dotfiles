@@ -20,11 +20,12 @@
        ;;layout            ; auie,ctsrnm is the superior home row
 
        :completion
-       (company +childframe)           ; the ultimate code completion backend
+       ;; (company +childframe)           ; the ultimate code completion backend
+       (corfu +orderless)  ; complete with cap(f), cape and a flying feather!
        ;;helm              ; the *other* search engine for love and life
        ;;ido               ; the other *other* search engine...
-       (vertico +icons)
-       ;; (vertico +childframe +icons)
+       ;; (vertico +icons)
+       (vertico +childframe +icons)
        ;; (ivy +fuzzy +childframe +icons +prescient)               ; a search engine for love and life
 
        :ui
@@ -47,7 +48,7 @@
        ;;tabs              ; a tab bar for Emacs
        ;;treemacs          ; a project drawer, like neotree but cooler
        ;;unicode           ; extended unicode support for various languages
-       (vc-gutter +vc-gutter-diff-unsaved-buffer)         ; vcs diff in the fringe
+       (vc-gutter +vc-gutter-diff-unsaved-buffer +pretty)         ; vcs diff in the fringe
        ;; vi-tilde-fringe   ; fringe tildes to mark beyond EOB
        ;;window-select     ; visually switch windows
        ;; workspaces        ; tab emulation, persistence & separate workspaces
@@ -108,7 +109,7 @@
        ;;upload            ; map local to remote projects via ssh/ftp
 
        :os
-       (:if IS-MAC macos)  ; improve compatibility with macOS
+       (:if (featurep :system 'macos) macos)  ; improve compatibility with macOS
        ;;tty               ; improve the terminal Emacs experience
 
        :lang
