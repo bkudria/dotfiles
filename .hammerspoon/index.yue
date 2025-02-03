@@ -10,13 +10,13 @@ hs.hotkey.setLogLevel(1)
 
 tprint "early init"
 
-require 'console'
-require 'reloader'
+require "console"
+require "reloader"
 
 tprint "early require"
 
-Clock = require 'clock'
-Flux = require 'flux'
+Clock = require "clock"
+Flux = require "flux"
 
 clock = Clock!
 flux = Flux!
