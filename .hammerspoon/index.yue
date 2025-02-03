@@ -1,3 +1,4 @@
+
 lastTime = hs.timer.absoluteTime!
 startTime = lastTime
 initLogger = hs.logger.new("init", "debug")
@@ -5,8 +6,25 @@ tprint = (lbl) ->
   initLogger.d("⏰ #{(hs.timer.absoluteTime! - lastTime) / 1000000}ms #{lbl}")
   lastTime = hs.timer.absoluteTime!
 
+hs.autoLaunch(true)
+hs.hotkey.setLogLevel(1)
+
+tprint "early init"
+
 require 'console'
 require 'reloader'
+
+tprint "early require"
+
+Clock = require 'clock'
+Flux = require 'flux'
+
+clock = Clock!
+flux = Flux!
+
+flux\apply!
+
+tprint "init clock/flux"
 require 'hammerspoon'
 require 'hs.ipc'
 
@@ -19,28 +37,22 @@ actions = require 'actions'
 -- mouseValet = require 'mouse-valet'
 Hyper = require 'hyper'
 Matte = require 'matte'
-Clock = require 'clock'
-Flux = require 'flux'
+Gates = require 'gates'
 Clipper = require 'clipper'
 Typer = require 'typer'
 Paster = require 'paster'
-yasnippets = require 'yasnippets'
-selectedText = require 'selected_text'
+Screens = require 'screens'
 
 tprint "load"
 
-state = hs.watchable.new("state", true)
-logger = hs.logger.new("state", "info")
-hs.watchable.watch("state.*", (watcher, path, key, old, new) -> logger.i("#{path}.#{key}: #{old} → #{new}"))
+yasnippets = require 'yasnippets'
+selectedText = require 'selected_text'
 
-logger.i(state["mode"])
+tprint "snippets/selected_text"
 
-tprint "init state"
+gates = Gates!
 
-clock = Clock!
-flux = Flux!
-
-tprint "init clock/flux"
+tprint "init gates"
 
 matte = Matte!\wrap(apps.Chrome)
 
@@ -50,6 +62,8 @@ typer = Typer(yasnippets(apps.Emacs))
 clipper = Clipper!
 paster = Paster(clipper, typer)
 
+screens = Screens!\start!
+
 tprint "init"
 
 spoons{
@@ -58,7 +72,8 @@ spoons{
     hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
     fn: (seal) ->
       seal.show = (self, query) ->
-        frame = hs.application.frontmostApplication!\focusedWindow!\screen!\frame!
+        -- frame = hs.application.frontmostApplication!\focusedWindow!\screen!\frame!
+        frame = hs.mouse.getCurrentScreen!\frame!
         center = frame.center
         self.chooser\query('')
         self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
@@ -71,7 +86,16 @@ spoons{
         "/System/Library/PreferencePanes", "~/Applications"
       }
       seal.plugins.apps\restart!
-  }
+  },
+  -- PaperWM: {
+  --   url: "https://github.com/mogenson/PaperWM.spoon",
+  --   desc: "PaperWM.spoon repository",
+  --   branch: "release",
+  --   repo: "PaperWM",
+  --   config: { screen_margin: 16, window_gap: 64 },
+  --   start: true,
+  --   hotkeys: {}
+  -- }
 }
 
 tprint "spoons"
@@ -89,7 +113,7 @@ Hyper!\space{
   '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
   '-': nil -- Notification Center
   'b': matte
-  'c': nil -- Fantastical
+  'c': apps.NotionCalendar
   'd': nil -- Dash
   'e': apps.Emacs
   'g': Hyper(name: 'Selected Text', afterAction: (hyper) -> hyper.modal\exit!)\space{
@@ -110,8 +134,8 @@ Hyper!\space{
       't': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['title']) if tab)
      }
   }
-  'l': apps.Island
   'k': apps.Slack
+  'l': apps.Island
   'n': apps.Notion
   'r': apps.Reeder
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
@@ -120,7 +144,7 @@ Hyper!\space{
     'h': actions.hybridMode
     'l': hs.caffeinate.startScreensaver
     'r': =>
-      @clips\stop!
+      clipper\stop!
       hs.reload!
     's': actions.normalMode
     'w': actions.mediaMode
@@ -132,16 +156,21 @@ Hyper!\space{
   'v': ->
       paster\select!
   'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
+    'left': -> actions.moveToScreenLeft!
+    'right': -> actions.moveToScreenRight!
     '1': -> actions.screenFraction(1, 3)
     '2': -> actions.screenFraction(2, 3)
     '3': -> actions.screenFraction(3, 3)
     '4': -> actions.setHazeOver(30)
     '5': -> actions.setHazeOver(95)
-    'space': -> actions.swapScreen(hs.window.focusedWindow!)
+    'space': -> actions.moveToScreen!
     'w': -> actions.maximize!
+    'h': -> actions.moveToScreenLeft!
     'j': -> actions.screenFraction(2, 2)
     'k': -> actions.screenFraction(1, 2)
+    'l': -> actions.moveToScreenRight!
     'm': -> actions.maximize!
+    'z': -> hs.window.focusedWindow!\toggleZoom!
     '`': -> hs.hints.windowHints(hs.window.filter.default\getWindows!)
     'escape': (hyper) -> hyper.modal\exit!
   }
@@ -173,8 +202,6 @@ tprint 'remote'
 
 -- mouseValet{delay: 10}
 
-flux\apply!
-tprint "flux init"
 clock\start!
 tprint "clock init"
 typer\start!
@@ -183,8 +210,8 @@ clipper\start!
 tprint "clipper init"
 matte\start!
 tprint "matte init"
-gates\start!
-tprint "gates init"
+-- gates\start!
+-- tprint "gates init"
 
 hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)
 hs.urlevent.setDefaultHandler("http")
@@ -197,3 +224,4 @@ tprint "done"
 
 initLogger.d("⏰ #{(hs.timer.absoluteTime! - startTime) / 1000000}ms total")
 
+hs.window.setFrameCorrectness = false

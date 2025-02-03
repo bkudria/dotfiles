@@ -35,7 +35,7 @@ class Clipper
   search: (query) =>
     query = query\gsub('[^a-zA-Z0-9 ]', '')
     if string.len(query) > 1
-      @dbExec("select clip, ts from clip_fts where clip match :q limit 10", q: "#{query}*")
+      @dbExec("select clip, ts from clip_fts where clip match :q order BY rank limit 10", q: "#{query}")
     else
       @dbExec("select clip, ts from clip_fts order by ts desc limit 20")
 

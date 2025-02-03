@@ -21,7 +21,6 @@ class Hyper
         result, err = pcall -> action(self)
         unless result
           hs.logger.new("hyper").e(err)
-          hs.reload!
       when 'table' then action\handle!
       when 'nil'
         if @inHyperspace

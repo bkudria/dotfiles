@@ -44,6 +44,6 @@ class Flux
 
   finalGamma: =>
     if @mode! == "media"
-        4000
+      5000
     else
-        2500
+      3000

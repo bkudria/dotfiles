@@ -1,4 +1,14 @@
 (spoonConfig) ->
+
   hs.loadSpoon('SpoonInstall')
-  for name, arg in pairs spoonConfig
-    spoon.SpoonInstall\andUse(name, arg)
+
+  spoon.SpoonInstall.repos.PaperWM = {
+      url: "https://github.com/mogenson/PaperWM.spoon",
+      desc: "PaperWM.spoon repository",
+      branch: "release",
+  }
+
+  for name, args in pairs spoonConfig
+    { :url, :desc, :branch } = args
+    -- spoons.spoonInstall.repos[name] = {:url, :desc, :branch}
+    spoon.SpoonInstall\andUse(name, args)

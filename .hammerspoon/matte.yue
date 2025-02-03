@@ -8,6 +8,7 @@ class Matte
 
     @filters = {}
     @coalescingLayoutTimers = {}
+    @coalescingLayoutTimer = nil
 
     @tabs = {}
     -- @chooser\queryChangedCallback(() -> @searchTabs!)
@@ -74,17 +75,18 @@ class Matte
     @app\handle!
 
   start: =>
-    @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerFor(screen) for screen in *hs.screen.allScreens!]
-    @screenWatcher = hs.screen.watcher.new(->
-      hs.reload!
+    -- @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerForScreen(screen) for screen in *hs.screen.allScreens!]
+    -- @coalescingLayoutTimer = @makeCoaslescingLayoutTimerForScreens(hs.screen.allScreens!)
+    -- @screenWatcher = hs.screen.watcher.new(->
+    --   hs.reload!
       -- hs.fnutils.each(@coalescingLayoutTimers, (timer) -> timer\stop!)
       -- @coalescingLayoutTimers = nil
-      -- @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerFor(screen) for screen in *hs.screen.allScreens!]
-    )
-    @screenWatcher\start!
-    @appWatcher\start!
+      -- @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerForScreen(screen) for screen in *hs.screen.allScreens!]
+    -- )
+    -- @screenWatcher\start!
+    -- @appWatcher\start!
 
-  makeCoaslescingLayoutTimerFor: (screen) =>
+  makeCoaslescingLayoutTimerForScreen: (screen) =>
     screenHint = screen\getUUID!
     filter = hs.window.filter.new({
       "Google Chrome": {
@@ -140,7 +142,80 @@ class Matte
         hs.window.filter.windowNotOnScreen,
         hs.window.filter.windowMoved,
         hs.window.filter.windowFocused,
-        hs.window.filter.windowUnclosestused
+        hs.window.filter.windowUnfocused
+      },
+      applyLayoutDebounced,
+      true
+    )
+
+    timer
+
+  makeCoaslescingLayoutTimerForScreens: (screens) =>
+    print 1
+    mainUUID = hs.screen.mainScreen!\getUUID!
+    print 2
+    screenHints = [screen\getUUID! for screen in *screens]
+    print 3
+    table.sort(screenHints, (h1, h2) -> (h1 == mainUUID))
+    print 4
+
+    filter = hs.window.filter.new({
+      "Google Chrome": {
+        visible: true,
+        fullscreen: false,
+        hasTitlebar: true,
+        allowRoles: {'AXStandardWindow'}
+      }
+    })
+
+    ratio = 1/2
+
+    -- screenAspect = screen\frame!.w / screen\frame!.h
+
+    layout1 = hs.window.layout.new({
+      {filter, "move 1 focused [0,0,100,100] #{screenHint}"}
+    })
+
+    layout2 = hs.window.layout.new({
+      {filter, "move 1 focused 0,0,1,1 #{screenHints[1]} | move 1 oldest 0,0,1,1 #{screenHints[2]}"}
+    })
+    -- layout2 = if screenAspect > 1 then
+    --   hs.window.layout.new({
+    --     {filter, "move 1 closest 0,0,#{ratio},1 #{screenHint} | move 1 closest #{ratio},0,1,1 #{screenHint}"}
+    --   })
+    -- else
+    --   hs.window.layout.new({
+    --     {filter, "move 1 closest 0,0,1,#{ratio} #{screenHint} | move 1 closest 0,#{ratio},1,1 #{screenHint}"}
+    --   })
+
+    -- layoutN = if screenAspect > 1 then
+    --   hs.window.layout.new({
+    --     {filter, "move 1 closest 0,0,#{ratio},1 #{screenHint} | move 1 closest #{ratio},0,1,#{ratio} #{screenHint} | tile all closest #{ratio},#{ratio},1,1 #{screenHint}"}
+    --   })
+    -- else
+    --   hs.window.layout.new({
+    --     {filter, "move 1 closest 0,0,1,#{ratio} #{screenHint} | move 1 closest 0,#{ratio},#{ratio},1 #{screenHint} | tile all closest #{ratio},#{ratio},1,1 #{screenHint}"}
+    --   })
+
+    timer = hs.timer.delayed.new(0.01, () ->
+      numWindows = #filter\getWindows!
+      filter\pause!
+      layout1\apply! if numWindows == 1
+      layout2\apply! if numWindows == 2
+      -- layoutN\apply! if numWindows > 2
+      filter\resume!
+    )
+
+    applyLayoutDebounced = (window, name, event) ->
+      timer\start(0.02)
+
+    filter\subscribe(
+      {
+        hs.window.filter.windowOnScreen,
+        hs.window.filter.windowNotOnScreen,
+        hs.window.filter.windowMoved,
+        hs.window.filter.windowFocused,
+        hs.window.filter.windowUnfocused
       },
       applyLayoutDebounced,
       true

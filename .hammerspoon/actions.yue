@@ -26,40 +26,48 @@ editConfig = -> hs.execute '~/bin/emacsclient -n ~/.hammerspoon/index.moon'
 
 parkMouse = -> hs.mouse.setAbsolutePosition{x: 2^13, y: 2^13}
 
-maximize = ->
-  with window = hs.window.focusedWindow!
-    with hs.grid
-      .setGrid("1x1")
-      .setMargins("0x0")
-      .set(window, "0, 0, 1x1")
+maximize = (window = hs.window.focusedWindow!, frame = window\screen!\fullFrame!) ->
+  window\setFrame(frame)
+  -- window\maximize!
 
+moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window\screen!\previous!) ->
+  hs.window.animationDuration = 0
+  currentScreenSmallFrame = window\screen!\fullFrame!\scale(0.3)
+  targetScreenId = targetScreen\id!
+  moveChecks = 0
 
-swapScreen = (window) ->
-  with window
-    -- frame = \frame!\toUnitRect(\screen!\frame!)
-    -- mvFn = -> \move({0, 0, frame.w, frame.h}, \screen!\next!)
-    -- maximize = ->
-    --   with hs.grid
-    --     .setGrid("1x1")
-    --     .setMargins("0x0")
-    --     .set(window, "0, 0, 1x1")
+  mvFn = ->
+    window\moveToScreen(targetScreen, true, true, 0)
 
-    nextScreen = \screen!\next!
-    mvFn = -> \moveToScreen(nextScreen, true, false, 0)
-    -- restore = -> \setFullScreen(true) and \raise! and \focus!
-    restore = -> maximize! and \raise! and \focus!
-    -- switchScreen = -> mvFn! and hs.timer.waitUntil(
-    --   -> \screen! == nextScreen,
-    --   restore)
-    switchScreen = -> mvFn! and restore!
+  restore = ->
+    hs.timer.doAfter(0.01, -> maximize!)
 
-    if \isFullscreen!
-      \setFullScreen(false)
-      hs.timer.waitUntil(
-        -> not \isFullscreen!,
-        switchScreen)
-    else
+  windowMoved = ->
+    return true if window == nil
+    return true if moveChecks >= 2
+    screenId = hs.window.focusedWindow!\screen!\id!
+    moveChecks += 1
+    screenId == targetScreenId
+
+  setSmallFrame = ->
+    window\setFrame(currentScreenSmallFrame)
+
+  switchScreen = ->
+    setSmallFrame!
+    hs.timer.doAfter(0.01, ->
       mvFn!
+      hs.timer.doAfter(0.001, ->
+        if windowMoved!
+          restore!
+        else
+          hs.timer.waitUntil(windowMoved, -> restore!, 0.01)
+      )
+    )
+
+  switchScreen!
+
+moveToScreenLeft = (window = hs.window.focusedWindow!) -> moveToScreen(window, window\screen!\toWest!)
+moveToScreenRight = (window = hs.window.focusedWindow!) -> moveToScreen(window, window\screen!\toEast!)
 
 toggleFullScreen = ->
   with hs.window.focusedWindow!
@@ -79,7 +87,6 @@ toggleHazeOver = ->
   _, isEnabled = hs.osascript.applescript 'tell application "HazeOver" to get enabled'
   hs.osascript.applescript "tell application \"HazeOver\" to set enabled to #{not isEnabled}"
 
-
 setHazeOver = (intensity) ->
   hs.osascript.applescript "tell application \"HazeOver\" to set enabled to true"
   hs.osascript.applescript "tell application \"HazeOver\" to set intensity to #{intensity}"
@@ -87,20 +94,17 @@ setHazeOver = (intensity) ->
 normalMode = ->
   hs.settings.set('mode', 'normal')
   setHazeOver(30)
-  hs.execute("/usr/local/bin/lunar displays right rotation 270")
 
 hybridMode = ->
   hs.settings.set('mode', 'hybrid')
   setHazeOver(30)
-  hs.execute("/usr/local/bin/lunar displays right rotation 0")
 
 mediaMode = ->
   print("media mode")
   hs.settings.set('mode', 'media')
-  setHazeOver(95)
-  hs.execute("/usr/local/bin/lunar displays right rotation 0")
+  setHazeOver(100)
 
 {
-:normalMode, :mediaMode, :hybridMode, :flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :swapScreen,
-:toggleFullScreen, :screenFraction, :maximize, :toggleHazeOver, :setHazeOver
+:normalMode, :mediaMode, :hybridMode, :flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :moveToScreen,
+:toggleFullScreen, :screenFraction, :maximize, :toggleHazeOver, :setHazeOver, :moveToScreenLeft, :moveToScreenRight
 }

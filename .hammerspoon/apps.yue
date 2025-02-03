@@ -15,14 +15,18 @@ class App
 
   current: => App.byID[hs.application.frontmostApplication!\bundleID!]
   @app: => hs.application.get(@id)
-
   @launch: => hs.application.launchOrFocusByBundleID(@id)
   @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
   @isRunning: =>
     @app! ~= nil
-  @whenFocused: => nil
+  whenFocused: =>
+    @app!\activate!
+    hs.eventtap.keyStroke({'cmd'}, '`', 200000, @app!)
+    @app!\focusedWindow!\raise!
   @activate: =>
     @app!\activate!
+    @app!\mainWindow!\unminimize!
+    @app!\focusedWindow!\raise!
 
   @handle: =>
     if @isRunning!
@@ -71,12 +75,17 @@ class Chrome extends App
   rMicrophone: => hs.eventtap.keyStrokes('!rMicrophone')
   rPower: => hs.eventtap.keyStrokes('!rPower')
   whenFocused: =>
-    hs.eventtap.keyStroke({'cmd'}, 'l', 200000, @app!)
+    if #@app!\visibleWindows! == 1
+      hs.eventtap.keyStroke({'cmd'}, 'l', 200000, @app!)
+    else
+      super!
+
   @activate: =>
     if #@app!\visibleWindows! == 0
       hs.eventtap.keyStroke({'cmd'}, 'n', 200000, @app!)
     else
       super!
+
   currentURL: =>
     ({hs.osascript.applescript('tell application "Google Chrome" to return URL of active tab of front window')})[2]
 
@@ -99,7 +108,6 @@ class Chrome extends App
         end tell
       end if
     ]]
-
     hs.eventtap.keyStroke({}, 'tab', 200000, @app!) -- switch focus to page
 
 class Island extends Chrome
@@ -146,8 +154,6 @@ class Zoom extends App
   rBack: => hs.eventtap.keyStroke({'cmd'}, 'q')
   toggleAudio: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'a',
   toggleVideo: -> hs.eventtap.keyStroke {'cmd', 'shift'}, 'v',
-  whenFocused: =>
-    hs.eventtap.keyStroke({'cmd', 'shift'}, 'c')
 
 class Slack extends App
   id: 'com.tinyspeck.slackmacgap'
@@ -191,5 +197,15 @@ class Reeder extends App
   rRight: => hs.eventtap.keyStroke({}, 'b')
   rUp: => hs.eventtap.keyStroke({}, 'k')
   rDown: => hs.eventtap.keyStroke({}, 'j')
+
+class Notion extends App
+  id: 'notion.id'
+  up: => hs.eventtap.keyStroke({'cmd'}, "\\")
+  down: => hs.eventtap.keyStroke({'cmd'}, "\\")
+  left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
+  right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
+
+class NotionCalendar extends App
+  id: 'com.cron.electron'
 
 {App, App\apps!}
