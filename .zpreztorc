@@ -14,18 +14,15 @@ zstyle ':prezto:load' pmodule \
   'node' \
   'ruby' \
   'rails' \
+  'python' \
   'archive' \
   'homebrew' \
   'directory' \
   'spectrum' \
-  'utility' \
   'bkudria' \
-  'completion' \
-  'syntax-highlighting' \
-  'history-substring-search' \
-  'autosuggestions' \
-  'prompt' \
-  'fasd' \
+  'utility' 'completion' \
+  'syntax-highlighting' 'history-substring-search' 'autosuggestions'  'prompt' \
+  'command-not-found' \
   'tmux' \
   'belak/direnv' \
   'belak/alias-tips'
@@ -62,6 +59,10 @@ zstyle ':prezto:module:tmux:auto-start' remote 'yes'
 
 # Integrate with iTerm2.
 zstyle ':prezto:module:tmux:iterm' integrate 'yes'
+
+# Set session name
+zstyle ':prezto:module:tmux:session' name 'main'
+
 
 # Autosuggestions color
 zstyle ':prezto:module:autosuggestions:color' found 'fg=8'
