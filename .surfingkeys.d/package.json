@@ -12,12 +12,12 @@
   },
   "scripts": {
     "start": "tsdx watch",
-    "build": "tsdx build",
+    "prebuild": "node scripts/generateSiteIndex.js",
+    "build": "npm run prebuild && tsdx build",
     "test": "tsdx test",
     "lint": "tsdx lint",
     "prepare": "tsdx build"
   },
-  "peerDependencies": {},
   "husky": {
     "hooks": {
       "pre-commit": "tsdx lint"
@@ -37,6 +37,5 @@
     "tsdx": "^0.13.3",
     "tslib": "^2.0.1",
     "typescript": "^4.0.2"
-  },
-  "dependencies": {}
+  }
 }

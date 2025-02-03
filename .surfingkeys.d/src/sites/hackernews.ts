@@ -18,6 +18,14 @@ const hackernews: Site = {
         }),
     },
   ],
+  engines: [
+    {
+      name: 'HN',
+      alias: 'hn',
+      search:
+        'https://hn.algolia.com/?dateRange=all&page=0&prefix=true&sort=byPopularity&type=story&query=',
+    },
+  ],
   onLoad: () => {
     darkReaderEnabled() && applyLightTheme();
 

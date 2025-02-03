@@ -17,7 +17,7 @@ export const applyMappings = () => {
   api.map('h', 'E');
   api.map('l', 'R');
   api.map('`', 'x');
-  api.map('oo', '<Ctrl-6>'); // Switch to last used tab
+  // api.map('oo', '<Ctrl-6>'); // Switch to last used tab
 
   api.map('!rUp', 'k', /./, 'Scroll up');
   api.map('!rDown', 'j', /./, 'Scroll down');

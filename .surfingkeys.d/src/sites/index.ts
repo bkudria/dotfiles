@@ -1,42 +1,10 @@
 import { Site } from './types';
-
 import { chars } from '../utils';
-
-import amazon from './amazon';
-import disneyplus from './disneyplus';
-import duckduckgo from './duckduckgo';
-import gmail from './gmail';
-import google from './google';
-import hackernews from './hackernews';
-import hbomax from './hbomax';
-import hckrnews from './hckrnews';
-import hulu from './hulu';
-import imgur from './imgur';
-import lobsters from './lobsters';
-import netflix from './netflix';
-import roll20 from './roll20';
-import twitter from './twitter';
-import wikipedia from './wikipedia';
+import * as sitesImports from './sites';
 
 declare var api: any;
 
-const sites: Site[] = [
-  amazon,
-  disneyplus,
-  duckduckgo,
-  gmail,
-  google,
-  hackernews,
-  hbomax,
-  hckrnews,
-  hulu,
-  imgur,
-  lobsters,
-  netflix,
-  roll20,
-  twitter,
-  wikipedia,
-];
+const sites: Site[] = Object.values(sitesImports);
 
 const applyGlobalSiteSettings = () => {
   // Remove default engines
@@ -45,22 +13,17 @@ const applyGlobalSiteSettings = () => {
     api.removeSearchAlias(searchAlias, 'o');
   });
 
-  sites.forEach(_site => {
-    // site.engines?.forEach(engine => {
-    //   api.addSearchAlias(
-    //     engine.alias,
-    //     engine.name,
-    //     engine.search,
-    //     's',
-    //     engine.completion,
-    //     engine.callback
-    //   );
-    //   api.mapkey(
-    //     `o${engine.single || engine.alias}`,
-    //     `#8Search ${engine.name}`,
-    //     () => {} //Front.openOmnibar({ type: 'SearchEngine', extra: engine.alias })
-    //   );
-    // });
+  sites.forEach(site => {
+    site.engines?.forEach(engine => {
+      api.addSearchAlias(
+        engine.alias,
+        engine.name,
+        engine.search,
+        's',
+        engine.completion,
+        engine.callback
+      );
+    });
   });
 };
 

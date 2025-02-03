@@ -3,8 +3,8 @@ type Engine = {
   alias: string;
   single?: string;
   search: string;
-  completion: string;
-  callback: (response: { text: string }) => any;
+  completion?: string;
+  callback?: (response: { text: string }) => any;
 };
 
 type Mapping = {
