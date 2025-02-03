@@ -1,226 +1,215 @@
-lastTime = hs.timer.absoluteTime!
-startTime = lastTime
+epochTime = hs.timer.absoluteTime!
+
 initLogger = hs.logger.new("init", "debug")
-tprint = (lbl) ->
-  initLogger.d("⏰ #{(hs.timer.absoluteTime! - lastTime) / 1000000}ms #{lbl}")
-  lastTime = hs.timer.absoluteTime!
 
-hs.autoLaunch(true)
-hs.hotkey.setLogLevel(1)
+timed = (lbl, fn) ->
+  startTime = hs.timer.absoluteTime!
+  result = fn!
+  endTime = hs.timer.absoluteTime!
+  initLogger.d("⏰ #{(endTime - startTime) / 1000000}ms #{lbl}")
+  result
 
-tprint "early init"
+timed "require console, reloader", ->
+  require "console"
+  require "reloader"
 
-require "console"
-require "reloader"
+timed "clock & flux require & init", ->
+  global *
+  Clock = require "clock"
+  Flux = require "flux"
 
-tprint "early require"
+  clock = Clock!
+  flux = Flux!
 
-Clock = require "clock"
-Flux = require "flux"
+  flux\apply!
 
-clock = Clock!
-flux = Flux!
+timed "hammerspoon settings", ->
+  require 'hammerspoon'
+  require 'hs.ipc'
 
-flux\apply!
+timed "require spoons & modules", ->
+  global *
+  spoons = require 'spoons'
+  dispatch = require 'dispatch'
+  appAndApps = require 'apps'
+  App = appAndApps[1]
+  apps = appAndApps[2]
+  actions = require 'actions'
+  Hyper = require 'hyper'
+  Matte = require 'matte'
+  -- Gates = require 'gates'
+  Clipper = require 'clipper'
+  Typer = require 'typer'
+  Paster = require 'paster'
+  Screens = require 'screens'
 
-tprint "init clock/flux"
-require 'hammerspoon'
-require 'hs.ipc'
+timed "require snippets, text selection", ->
+  global *
+  yasnippets = require 'yasnippets'
+  selectedText = require 'selected_text'
 
-tprint "require"
+--timed "init gates", ->
+-- global *
+--  gates = Gates!
 
-spoons = require 'spoons'
-dispatch = require 'dispatch'
-{App, apps} = require 'apps'
-actions = require 'actions'
--- mouseValet = require 'mouse-valet'
-Hyper = require 'hyper'
-Matte = require 'matte'
-Gates = require 'gates'
-Clipper = require 'clipper'
-Typer = require 'typer'
-Paster = require 'paster'
-Screens = require 'screens'
+timed "init matte", ->
+  global *
+  matte = Matte!\wrap(apps.Chrome)
 
-tprint "load"
+timed "init remaining modules", ->
+  global *
+  matte = Matte!\wrap(apps.Chrome)
+  typer = Typer(yasnippets(apps.Emacs))
+  clipper = Clipper!
+  paster = Paster(clipper, typer)
+  screens = Screens!\start!
 
-yasnippets = require 'yasnippets'
-selectedText = require 'selected_text'
+timed "init and start spoons", ->
+  spoons{
+    Seal: {
+      start: true,
+      hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
+      fn: (seal) ->
+        seal.show = (self, query) ->
+          frame = hs.mouse.getCurrentScreen!\frame!
+          center = frame.center
+          self.chooser\query('')
+          self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
+          self
 
-tprint "snippets/selected_text"
+        seal\loadPlugins{'apps', 'useractions', 'calc'}
+        seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
+        seal.plugins.apps.appSearchPaths = {
+          "/Applications", "/System/Applications",
+          "/System/Library/PreferencePanes", "~/Applications"
+        }
+        seal.plugins.apps\restart!
+    },
+    -- PaperWM: {
+    --   url: "https://github.com/mogenson/PaperWM.spoon",
+    --   desc: "PaperWM.spoon repository",
+    --   branch: "release",
+    --   repo: "PaperWM",
+    --   config: { screen_margin: 16, window_gap: 64 },
+    --   start: true,
+    --   hotkeys: {}
+    -- }
+  }
 
-gates = Gates!
-
-tprint "init gates"
-
-matte = Matte!\wrap(apps.Chrome)
-
-tprint "init matte"
-
-typer = Typer(yasnippets(apps.Emacs))
-clipper = Clipper!
-paster = Paster(clipper, typer)
-
-screens = Screens!\start!
-
-tprint "init"
-
-spoons{
-  Seal: {
-    start: true,
-    hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
-    fn: (seal) ->
-      seal.show = (self, query) ->
-        -- frame = hs.application.frontmostApplication!\focusedWindow!\screen!\frame!
-        frame = hs.mouse.getCurrentScreen!\frame!
-        center = frame.center
-        self.chooser\query('')
-        self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
-        self
-
-      seal\loadPlugins{'apps', 'useractions', 'calc'}
-      seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
-      seal.plugins.apps.appSearchPaths = {
-        "/Applications", "/System/Applications",
-        "/System/Library/PreferencePanes", "~/Applications"
+timed "hyperspace config", ->
+  hs.hotkey.setLogLevel 1
+  Hyper!\space{
+    '`': -> clock\show!
+    'tab': typer\autocomplete_word
+    '2': -> clock\showDate!
+    'left': -> App.current!\left!
+    'right': -> App.current!\right!
+    'up': -> App.current!\up!
+    'down': -> App.current!\down!
+    ']': apps.OnePassword
+    ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'SPACE' )
+    '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
+    '-': nil -- Notification Center
+    'b': matte
+    'c': apps.NotionCalendar
+    'd': nil -- Dash
+    'e': apps.Emacs
+    'g': Hyper(name: 'Selected Text', afterAction: (hyper) -> hyper.modal\exit!)\space{
+      'u': -> hs.eventtap.keyStrokes(string.upper(selectedText!))
+      'l': Hyper(name: 'Link', afterAction: (hyper) -> hyper.modal\exit!)\space{
+        'b': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{apps.Chrome.currentURL!})")
+        't': -> matte\chooseTab((tab) ->
+          hs.eventtap.keyStrokes("[#{selectedText!}](#{tab["url"]})") if tab
+        )
+        'v': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{hs.pasteboard.getContents!})")
       }
-      seal.plugins.apps\restart!
-  },
-  -- PaperWM: {
-  --   url: "https://github.com/mogenson/PaperWM.spoon",
-  --   desc: "PaperWM.spoon repository",
-  --   branch: "release",
-  --   repo: "PaperWM",
-  --   config: { screen_margin: 16, window_gap: 64 },
-  --   start: true,
-  --   hotkeys: {}
-  -- }
-}
-
-tprint "spoons"
-
-Hyper!\space{
-  '`': -> clock\show!
-  'tab': typer\autocomplete_word
-  '2': -> clock\showDate!
-  'left': -> App.current!\left!
-  'right': -> App.current!\right!
-  'up': -> App.current!\up!
-  'down': -> App.current!\down!
-  ']': apps.OnePassword
-  ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'SPACE' )
-  '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
-  '-': nil -- Notification Center
-  'b': matte
-  'c': apps.NotionCalendar
-  'd': nil -- Dash
-  'e': apps.Emacs
-  'g': Hyper(name: 'Selected Text', afterAction: (hyper) -> hyper.modal\exit!)\space{
-    'u': -> hs.eventtap.keyStrokes(string.upper(selectedText!))
-    'l': Hyper(name: 'Link', afterAction: (hyper) -> hyper.modal\exit!)\space{
-      'b': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{apps.Chrome.currentURL!})")
-      't': -> matte\chooseTab((tab) ->
-        hs.eventtap.keyStrokes("[#{selectedText!}](#{tab["url"]})") if tab
-      )
-      'v': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{hs.pasteboard.getContents!})")
-     }
+    }
+    'i': Hyper(name: "Insert", afterAction: (hyper) -> hyper.modal\exit!)\space{
+      'b': Hyper(name: 'Browser Tab', afterAction: (hyper) -> hyper.modal\exit!)\space{
+        'b': -> hs.eventtap.keyStrokes(apps.Chrome.currentURL!)
+        'l': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes("[#{tab['title']}](#{tab['url']})") if tab)
+        'u': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['url']) if tab)
+        't': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['title']) if tab)
+      }
+    }
+    'k': apps.Slack
+    'l': apps.Island
+    'n': apps.Notion
+    'r': apps.Reeder
+    's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
+      'delete': hs.caffeinate.systemSleep
+      'c': hs.toggleConsole
+      'h': actions.hybridMode
+      'l': hs.caffeinate.startScreensaver
+      'r': =>
+        clipper\stop!
+        hs.reload!
+      's': actions.normalMode
+      'w': actions.mediaMode
+      'f': actions.toggleMovieMode
+      ',': actions.editConfig
+      'escape': (hyper) -> hyper.modal\exit!
+    }
+    't': apps.iTerm
+    'v': ->
+        paster\select!
+    'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
+      'left': -> actions.moveToScreenLeft!
+      'right': -> actions.moveToScreenRight!
+      '1': -> actions.screenFraction(1, 3)
+      '2': -> actions.screenFraction(2, 3)
+      '3': -> actions.screenFraction(3, 3)
+      '4': -> actions.setHazeOver(30)
+      '5': -> actions.setHazeOver(95)
+      'space': -> actions.moveToScreen!
+      'w': -> actions.maximize!
+      'h': -> actions.moveToScreenLeft!
+      'j': -> actions.screenFraction(2, 2)
+      'k': -> actions.screenFraction(1, 2)
+      'l': -> actions.moveToScreenRight!
+      'm': -> actions.maximize!
+      'z': -> hs.window.focusedWindow!\toggleZoom!
+      '`': -> hs.hints.windowHints(hs.window.filter.default\getWindows!)
+      'escape': (hyper) -> hyper.modal\exit!
+    }
+    'z': apps.Zoom
   }
-  'i': Hyper(name: "Insert", afterAction: (hyper) -> hyper.modal\exit!)\space{
-    'b': Hyper(name: 'Browser Tab', afterAction: (hyper) -> hyper.modal\exit!)\space{
-      'b': -> hs.eventtap.keyStrokes(apps.Chrome.currentURL!)
-      'l': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes("[#{tab['title']}](#{tab['url']})") if tab)
-      'u': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['url']) if tab)
-      't': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['title']) if tab)
-     }
+
+timed "remote config and ipc", ->
+  global *
+  rButton = (message) -> dispatch message, {
+    tapup:    App.current!\rUp
+    tapdown:  App.current!\rDown
+    tapleft:  App.current!\rLeft
+    tapright: App.current!\rRight
+
+    back: App.current!\rBack
+    screen: App.current!\rScreen
+
+    playpause: App.current!\rPlayPause
+    mute: App.current!\rMute
+
+    plus: App.current!\rPlus
+    minus: App.current!\rMinus
+
+    microphone: App.current!\toggleAudio
+    power: App.current!\toggleVideo
   }
-  'k': apps.Slack
-  'l': apps.Island
-  'n': apps.Notion
-  'r': apps.Reeder
-  's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
-    'delete': hs.caffeinate.systemSleep
-    'c': hs.toggleConsole
-    'h': actions.hybridMode
-    'l': hs.caffeinate.startScreensaver
-    'r': =>
-      clipper\stop!
-      hs.reload!
-    's': actions.normalMode
-    'w': actions.mediaMode
-    'f': actions.toggleMovieMode
-    ',': actions.editConfig
-    'escape': (hyper) -> hyper.modal\exit!
-  }
-  't': apps.iTerm
-  'v': ->
-      paster\select!
-  'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal\exit!)\space{
-    'left': -> actions.moveToScreenLeft!
-    'right': -> actions.moveToScreenRight!
-    '1': -> actions.screenFraction(1, 3)
-    '2': -> actions.screenFraction(2, 3)
-    '3': -> actions.screenFraction(3, 3)
-    '4': -> actions.setHazeOver(30)
-    '5': -> actions.setHazeOver(95)
-    'space': -> actions.moveToScreen!
-    'w': -> actions.maximize!
-    'h': -> actions.moveToScreenLeft!
-    'j': -> actions.screenFraction(2, 2)
-    'k': -> actions.screenFraction(1, 2)
-    'l': -> actions.moveToScreenRight!
-    'm': -> actions.maximize!
-    'z': -> hs.window.focusedWindow!\toggleZoom!
-    '`': -> hs.hints.windowHints(hs.window.filter.default\getWindows!)
-    'escape': (hyper) -> hyper.modal\exit!
-  }
-  'z': apps.Zoom
-}
 
-tprint "hyper"
+export rButton
 
-export rButton = (message) -> dispatch message, {
-  tapup:    App.current!\rUp
-  tapdown:  App.current!\rDown
-  tapleft:  App.current!\rLeft
-  tapright: App.current!\rRight
+timed "start clock, typer, clipper, matte, and gates", ->
+  clock\start!
+  typer\start!
+  clipper\start!
+  matte\start!
+  -- gates\start!
 
-  back: App.current!\rBack
-  screen: App.current!\rScreen
+timed "install URL handler", ->
+  hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)
+  hs.urlevent.setDefaultHandler("http")
 
-  playpause: App.current!\rPlayPause
-  mute: App.current!\rMute
+timed "go", ->
+  hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")
 
-  plus: App.current!\rPlus
-  minus: App.current!\rMinus
-
-  microphone: App.current!\toggleAudio
-  power: App.current!\toggleVideo
-}
-
-tprint 'remote'
-
--- mouseValet{delay: 10}
-
-clock\start!
-tprint "clock init"
-typer\start!
-tprint "typer init"
-clipper\start!
-tprint "clipper init"
-matte\start!
-tprint "matte init"
--- gates\start!
--- tprint "gates init"
-
-hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)
-hs.urlevent.setDefaultHandler("http")
-tprint "url init"
-tprint "go"
-
-hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")
-
-tprint "done"
-
-initLogger.d("⏰ #{(hs.timer.absoluteTime! - startTime) / 1000000}ms total")
-
-hs.window.setFrameCorrectness = false
+initLogger.d("⏰ #{(hs.timer.absoluteTime! - epochTime) / 1000000}ms total")

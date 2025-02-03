@@ -1,0 +1,19 @@
+-- TODO
+--   - init screens/watcher
+--   - per-screen filter
+--   - per-screen layouts
+--   - assign prefs to windows, prioritiezed
+--     - orientation
+--     - screen
+--     - app prefs
+--   - coalesce updates
+class Gates
+  new: =>
+    @logger = hs.logger.new("gates", "info")
+    @logger.i "init"
+    @screenWatcher = hs.screen.watcher.new(() => @screens = @getScreens!)
+    -- @filters = @createFilters!
+    -- @layouts = @createLayouts!
+    -- @applyLayouts!
+    --
+  start: =>

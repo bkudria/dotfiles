@@ -6,4 +6,5 @@ hs.menuIcon                     true
 hs.uploadCrashData              true
 
 hs.window.animationDuration = 0
+hs.window.setFrameCorrectness = false
 hs.ipc.cliInstall!
