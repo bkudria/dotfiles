@@ -3,8 +3,9 @@ export VISUAL='emacsclient -q'
 export TERM=screen-256color
 export GOPATH=~/.go
 export TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
+export EZA_ICON_SPACING=2
 
-alias ll='eza -lF --colour-scale --group-directories-first'
+alias ll='eza -lF --colour-scale all --group-directories-first --icons auto'
 alias la='ll -a'
 alias lt='ll -T'
 alias git=hub
