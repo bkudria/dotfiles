@@ -1,6 +1,11 @@
+[A-za-z0-9]*
+!.*
 */*.elc
 */*.git
 */*.hg
+.cargo
+.venv
+.ollama
 .Trash
 .coffee_history
 .cpan
@@ -84,6 +89,7 @@
 /.wine
 /Applications
 /Code
+/code
 /Desktop
 /Documents
 /Downloads
@@ -103,3 +109,5 @@ coffeelint.json
 /.hammerspoon/pasteboard_history.json
 /.doom.d/snippets/fundamental-mode/untracked/*
 /Library/**
+.aider*
+/.hammerspoon/.clips.sqlite
