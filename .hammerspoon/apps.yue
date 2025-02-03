@@ -80,6 +80,28 @@ class Chrome extends App
   currentURL: =>
     ({hs.osascript.applescript('tell application "Google Chrome" to return URL of active tab of front window')})[2]
 
+  -- https://apple.stackexchange.com/a/413088/218767
+  @openBackgroundURL: (url) ->
+    hs.osascript.applescript [[
+      if running of application "Google Chrome" then
+        tell application "Google Chrome"
+          if window 1 exists then
+            tell window 1
+              make new tab
+
+              repeat while (loading of active tab)
+                delay 0.01
+              end repeat
+
+              execute active tab javascript "document.location.href = \"]]..url..[[\";"
+            end tell
+          end if
+        end tell
+      end if
+    ]]
+
+    hs.eventtap.keyStroke({}, 'tab', 200000, @app!) -- switch focus to page
+
 class Island extends Chrome
   id: 'io.island.Island'
 
@@ -136,15 +158,19 @@ class Slack extends App
   rDown: => @toggleSidebar!
   whenFocused: => @toggleUnreadActivity!
   switchToUnread: =>
-    hs.eventtap.keyStroke({'cmd', 'shift'}, 'm', @app!)
-    -- hs.eventtap.keyStroke({}, 'return', @app!)
-  switchToUnread: =>
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'a', @app!)
     -- hs.eventtap.keyStroke({}, 'return', @app!)
+  switchToActivity: =>
+    hs.eventtap.keyStroke({'cmd', 'shift'}, 'm', @app!)
+    -- hs.eventtap.keyStroke({}, 'return', @app!)
   toggleUnreadActivity: =>
-    if @app\title!\match("Unread")
+    -- print(@app!\focusedWindow!\title!)
+    -- print(hs.inspect(@app!\focusedWindow!\title!\match("Unread")))
+    if @app!\focusedWindow!\title!\match("Unread")
+      -- print("u -> a")
       @switchToActivity!
     else
+      -- print("a -> u")
       @switchToUnread!
 
   focusNextUnread: =>

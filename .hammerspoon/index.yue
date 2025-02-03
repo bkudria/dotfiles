@@ -117,7 +117,8 @@ Hyper!\space{
   's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
     'delete': hs.caffeinate.systemSleep
     'c': hs.toggleConsole
-    'l': -> hs.caffeinate.startScreensaver!
+    'h': actions.hybridMode
+    'l': hs.caffeinate.startScreensaver
     'r': =>
       @clips\stop!
       hs.reload!
@@ -173,11 +174,21 @@ tprint 'remote'
 -- mouseValet{delay: 10}
 
 flux\apply!
+tprint "flux init"
 clock\start!
+tprint "clock init"
 typer\start!
+tprint "typer init"
 clipper\start!
+tprint "clipper init"
 matte\start!
+tprint "matte init"
+gates\start!
+tprint "gates init"
 
+hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)
+hs.urlevent.setDefaultHandler("http")
+tprint "url init"
 tprint "go"
 
 hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")
@@ -185,3 +196,4 @@ hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfull
 tprint "done"
 
 initLogger.d("⏰ #{(hs.timer.absoluteTime! - startTime) / 1000000}ms total")
+
