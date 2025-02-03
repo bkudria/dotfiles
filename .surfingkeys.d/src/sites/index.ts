@@ -1,5 +1,7 @@
 import { Site } from './types';
 
+import { chars } from '../utils';
+
 import amazon from './amazon';
 import disneyplus from './disneyplus';
 import duckduckgo from './duckduckgo';
@@ -37,19 +39,13 @@ const sites: Site[] = [
 ];
 
 const applyGlobalSiteSettings = () => {
-  // chars('bdghwyse').forEach(searchAlias => {
-  //   api.removeSearchAlias(searchAlias, 's');
-  //   api.removeSearchAlias(searchAlias, 'o');
-  // });
+  // Remove default engines
+  chars`bdghwyse`.forEach(searchAlias => {
+    api.removeSearchAlias(searchAlias, 's');
+    api.removeSearchAlias(searchAlias, 'o');
+  });
 
   sites.forEach(_site => {
-    api.mapkey(
-      'ga',
-      'Archived Page',
-      () =>
-        (window.location.href = `https://archive.vn/newest/${window.location.href}`)
-    );
-
     // site.engines?.forEach(engine => {
     //   api.addSearchAlias(
     //     engine.alias,
@@ -59,7 +55,6 @@ const applyGlobalSiteSettings = () => {
     //     engine.completion,
     //     engine.callback
     //   );
-
     //   api.mapkey(
     //     `o${engine.single || engine.alias}`,
     //     `#8Search ${engine.name}`,

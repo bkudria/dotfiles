@@ -94,12 +94,45 @@ export const createSuggestionItem = (html: string, props = {}) => {
   return { html: li.outerHTML, props };
 };
 
-export const scrollMostPage = () =>
-  document.scrollingElement?.scrollBy({
-    behavior: 'smooth',
-    left: 0,
-    top: 0.9 * window.innerHeight,
-  });
+const withScrollingIndicator = (amount: number, fn: () => void) => {
+  let line: HTMLElement | null = document.querySelector('#scrollingIndicator');
+  if (line == null) {
+    line = document.createElement('div');
+
+    line.id = 'scrollingIndicator';
+    line.style.cssText = `
+      mix-blend-mode: screen;
+      position: absolute;
+      width: 100%;
+      height: 10px;
+      background: #ff0000;
+      z-index: 9999;
+    `;
+  }
+
+  line.style.top = `${window.scrollY -
+    10 * amount +
+    (amount < 0 ? 0 : amount * window.innerHeight)}px`;
+
+  document.body.appendChild(line);
+  window.addEventListener('scrollend', removeScrollingIndicators);
+  removeScrollingIndicators();
+
+  fn();
+};
+
+function removeScrollingIndicators() {
+  document.querySelectorAll('#scrollingIndicator').forEach(e => e.remove());
+}
+
+export const scrollBy = (amount: number) =>
+  withScrollingIndicator(amount, () =>
+    document.scrollingElement?.scrollBy({
+      behavior: 'smooth',
+      left: 0,
+      top: amount * window.innerHeight,
+    })
+  );
 
 export const darkReaderEnabled = () =>
   document.querySelector('style.darkreader') ||
