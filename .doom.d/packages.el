@@ -13,7 +13,7 @@
 (package! evil-extra-operator)
 (package! evil-surround)
 (package! evil-matchit)
-(package! mini-frame)
+;; (package! mini-frame)
 (package! jsonnet-mode)
 (package! protobuf-mode)
 (package! mermaid-mode)

@@ -132,20 +132,19 @@
   (setq doom-modeline-buffer-encoding t)
   )
 
-(use-package! mini-frame
-  :config
-(setq mini-frame-show-parameters
-   '(
-     ;; (top . 0)
-     (width . 1.0)
-     ;; (left . 0.5)
-     (height . 0.8)
-     (min-height . 1)
-     (border-width . 50)
-     ))
-  (mini-frame-mode)
-)
-
+;; (use-package! mini-frame
+;;   :config
+;; (setq mini-frame-show-parameters
+;;    '(
+;;      ;; (top . 0)
+;;      (width . 1.0)
+;;      ;; (left . 0.5)
+;;      (height . 0.8)
+;;      (min-height . 1)
+;;      (border-width . 50)
+;;      ))
+;;   (mini-frame-mode)
+;; )
 (use-package magit-file-icons
   :ensure t
   :init
@@ -155,4 +154,3 @@
   (magit-file-icons-enable-diff-file-section-icons t)
   (magit-file-icons-enable-untracked-icons t)
   (magit-file-icons-enable-diffstat-icons t))
-
