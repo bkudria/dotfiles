@@ -1,4 +1,3 @@
-
 lastTime = hs.timer.absoluteTime!
 startTime = lastTime
 initLogger = hs.logger.new("init", "debug")
