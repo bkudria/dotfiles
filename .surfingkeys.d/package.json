@@ -15,7 +15,7 @@
     "prebuild": "node scripts/generateSiteIndex.js",
     "build": "npm run prebuild && tsdx build",
     "test": "tsdx test",
-    "lint": "tsdx lint",
+    "lint": "tsdx lint --fix",
     "prepare": "tsdx build"
   },
   "husky": {
