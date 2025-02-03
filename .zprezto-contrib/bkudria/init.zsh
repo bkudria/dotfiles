@@ -11,7 +11,7 @@ alias lt='ll -T'
 alias git=hub
 alias cat=bat
 
-path=("/opt/homebrew/bin" "/opt/homebrew/sbin" "$HOME/bin" "$HOME/.emacs.doom/bin" "/usr/local/opt/node@16/bin" $path)
+path=("/opt/homebrew/bin" "/opt/homebrew/sbin" "$HOME/bin" "$HOME/.emacs.doom/bin" "$HOME/.local/bin" "/usr/local/opt/node@16/bin" $path)
 cdpath=($HOME/Code)
 
 [[ -f ~/.vterm.zsh ]] && source ~/.vterm.zsh
