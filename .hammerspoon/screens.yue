@@ -13,6 +13,7 @@ class Screens
 
 
   start: =>
+    return unless #oledUUIDs > 0
     print("component start")
     @shades = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
       shade = hs.drawing.rectangle(oledScreenRect)
