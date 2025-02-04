@@ -17,3 +17,4 @@ GRTAGS
 GPATH
 .solargraph.yml
 .envrc
+.aider*
