@@ -90,6 +90,7 @@ class Chrome extends App
     ({hs.osascript.applescript('tell application "Google Chrome" to return URL of active tab of front window')})[2]
 
   -- https://apple.stackexchange.com/a/413088/218767
+  -- TODO raise window if it's on a different screen than the current one
   @openBackgroundURL: (url) ->
     hs.osascript.applescript [[
       if running of application "Google Chrome" then
@@ -102,7 +103,7 @@ class Chrome extends App
                 delay 0.01
               end repeat
 
-              execute active tab javascript "document.location.href = ::"]]..url..[[::";"
+              execute active tab javascript "document.location.href = \"]]..url..[[\";"
             end tell
           end if
         end tell

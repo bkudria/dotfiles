@@ -10,6 +10,7 @@ class Screens extends Drive
     @windowEventDebouncer = hs.timer.delayed.new(0.2, -> @handleWindowEvent!)
     @shadesDebouncer = hs.timer.delayed.new(60*5, -> @maybeShade!)
 
+
   scheduleNext: => @shadesDebouncer::start!
 
   onStart: =>
@@ -43,6 +44,8 @@ class Screens extends Drive
 
     t = os.time() + 60*10
     @logger.i "Scheduled next shade for #{os.date("%I:%M %p",t)}"
+
+    @saveScreens!
 
   oledScreens: => [hs.screen.find(uuid) for i, uuid in pairs oledUUIDs]
   oledScreensRects: => hs.fnutils.imap(@oledScreens!, (screen) -> screen::fullFrame!)
@@ -82,6 +85,13 @@ class Screens extends Drive
     )
     hs.settings.set("shaded", true)
 
+  saveScreens: =>
+    positions = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
+
+    screens = [ screen::getUUID! for screen, _ in positions]
+    hs.settings.set("screens", screens)
+
   screensChanged: =>
+    @saveScreens!
     @unshade!
     @restart!

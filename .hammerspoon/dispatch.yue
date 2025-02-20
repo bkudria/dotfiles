@@ -1,5 +1,5 @@
 class Dispatch extends Drive
-  handle: (action) ->
+  handle: (action) =>
     switch type(action)
       when 'function' then action!
       when 'string'
@@ -9,7 +9,7 @@ class Dispatch extends Drive
           hs.eventtap.keyStrokes(action)
       when 'table'
         for app, subaction in pairs action
-          handle(subaction) if app\isFocused!
+          @handle(subaction) if app\isFocused!
       else print "unknown action:" and print(hs.inspect(action))
 
-  dispatch: (message, config) -> @handle(config[message])
+  dispatch: (message, config) => @handle(config[message])

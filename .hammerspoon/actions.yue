@@ -1,111 +1,79 @@
--- class Actions extends Drive
-flipScreens = ->
-  for _, screen in ipairs hs.screen.allScreens!
-    currentRotation = screen::rotate!
-    if currentRotation == 90
-      screen::rotate(270)
+class Actions extends Drive
+  onNew: (@thrust) =>
+
+  flipScreens: =>
+    for _, screen in ipairs hs.screen.allScreens!
+      currentRotation = screen::rotate!
+      if currentRotation == 90
+        screen::rotate(270)
+      else
+        screen::rotate(90)
+
+  rotateSecondaryScreen: =>
+    screens = hs.screen.allScreens!
+    table.sort(screens, (s1, s2) -> s1::id! < s2::id!)
+    {primary, secondary} = screens
+
+    primaryRotation = primary::rotate!
+    secondaryRotation = secondary::rotate!
+
+    if secondaryRotation == 0
+      if primaryRotation == 90
+        secondary::rotate(270)
+      else
+        secondary::rotate(90)
     else
-      screen::rotate(90)
+      secondary::rotate(0)
 
-rotateSecondaryScreen = ->
-  screens = hs.screen.allScreens!
-  table.sort(screens, (s1, s2) -> s1::id! < s2::id!)
-  {primary, secondary} = screens
+  editConfig: => hs.execute '~/bin/emacsclient -n ~/.hammerspoon/index.moon'
 
-  primaryRotation = primary::rotate!
-  secondaryRotation = secondary::rotate!
+  parkMouse: => hs.mouse.setAbsolutePosition{x: 2^13, y: 2^13}
 
-  if secondaryRotation == 0
-    if primaryRotation == 90
-      secondary::rotate(270)
+  maximize: (window = hs.window.focusedWindow!, frame = window::screen!::fullFrame!) =>
+    window::setFrame(frame)
+
+  moveToScreen: (window = hs.window.focusedWindow!, targetScreen = window::screen!::toEast!) =>
+    targetScreen = if type(targetScreen)=="string" then hs.screen.find targetScreen else targetScreen
+
+    if window::frame!::equals window::screen!::fullFrame!
+      @thrust::moveMaxWindowTo targetScreen
+      @maximize!
     else
-      secondary::rotate(90)
-  else
-    secondary::rotate(0)
+      @thrust::moveWindowTo targetScreen
 
-editConfig = -> hs.execute '~/bin/emacsclient -n ~/.hammerspoon/index.moon'
+  moveToScreenLeft: (window = hs.window.focusedWindow!) => @moveToScreen(window, window::screen!::toWest!)
+  moveToScreenRight: (window = hs.window.focusedWindow!) => @moveToScreen(window, window::screen!::toEast!)
 
-parkMouse = -> hs.mouse.setAbsolutePosition{x: 2^13, y: 2^13}
+  toggleFullScreen: =>
+    with hs.window.focusedWindow!
+      isFullScreen = ::isFullscreen!
+      ::setFullScreen(not isFullScreen)
 
-maximize = (window = hs.window.focusedWindow!, frame = window::screen!::fullFrame!) ->
-  window::setFrame(frame)
-  -- window::maximize!
+  screenFraction: (fraction, total) =>
+    with window = hs.window.focusedWindow!
+      ::setFullScreen(false)
 
-moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window::screen!::previous!) ->
-  hs.window.animationDuration = 0
+      with hs.grid
+        .setGrid("1x#{total}")
+        .setMargins("0x0")
+        .set(window, "0, #{fraction - 1}, 1x1")
 
-  mvFn = ->
-    window::moveToScreen(targetScreen, true, true, 0)
+  toggleHazeOver: =>
+    _, isEnabled = hs.osascript.applescript 'tell application "HazeOver" to get enabled'
+    hs.osascript.applescript "tell application \"HazeOver\" to set enabled to #{not isEnabled}"
 
-  restore = ->
-    hs.timer.doAfter(0.1, -> maximize!)
+  setHazeOver: (intensity) =>
+    hs.osascript.applescript "tell application \"HazeOver\" to set enabled to true"
+    hs.osascript.applescript "tell application \"HazeOver\" to set intensity to #{intensity}"
 
-  moveChecks = 0
-  windowMoved = ->
-    return true if window == nil
-    return true if moveChecks >= 2
-    screenId = hs.window.focusedWindow!::screen!::id!
-    moveChecks += 1
-    targetScreenId = targetScreen::id!
-    screenId == targetScreenId
+  normalMode: =>
+    hs.settings.set('mode', 'normal')
+    @setHazeOver(30)
 
-  setSmallFrame = ->
-    targetScreenSmallFrame = window::screen!::fullFrame!::scale(0.2)
-    window::setFrame(targetScreenSmallFrame,0)
+  hybridMode: =>
+    hs.settings.set('mode', 'hybrid')
+    @setHazeOver(30)
 
-  switchScreen = ->
-    setSmallFrame!
-    hs.timer.doAfter(0.20, ->
-      mvFn!
-      hs.timer.doAfter(0.1, ->
-        if windowMoved!
-          restore!
-        else
-          hs.timer.waitUntil(windowMoved, -> restore!, 0.1)
-      )
-    )
-
-  switchScreen!
-
-moveToScreenLeft = (window = hs.window.focusedWindow!) -> moveToScreen(window, window::screen!::toWest!)
-moveToScreenRight = (window = hs.window.focusedWindow!) -> moveToScreen(window, window::screen!::toEast!)
-
-toggleFullScreen = ->
-  with hs.window.focusedWindow!
-    isFullScreen = ::isFullscreen!
-    ::setFullScreen(not isFullScreen)
-
-screenFraction = (fraction, total) ->
-  with window = hs.window.focusedWindow!
-    ::setFullScreen(false)
-
-    with hs.grid
-      .setGrid("1x#{total}")
-      .setMargins("0x0")
-      .set(window, "0, #{fraction - 1}, 1x1")
-
-toggleHazeOver = ->
-  _, isEnabled = hs.osascript.applescript 'tell application "HazeOver" to get enabled'
-  hs.osascript.applescript "tell application \"HazeOver\" to set enabled to #{not isEnabled}"
-
-setHazeOver = (intensity) ->
-  hs.osascript.applescript "tell application \"HazeOver\" to set enabled to true"
-  hs.osascript.applescript "tell application \"HazeOver\" to set intensity to #{intensity}"
-
-normalMode = ->
-  hs.settings.set('mode', 'normal')
-  setHazeOver(30)
-
-hybridMode = ->
-  hs.settings.set('mode', 'hybrid')
-  setHazeOver(30)
-
-mediaMode = ->
-  print("media mode")
-  hs.settings.set('mode', 'media')
-  setHazeOver(100)
-
-{
-:normalMode, :mediaMode, :hybridMode, :flipScreens, :rotateSecondaryScreen, :editConfig, :parkMouse, :moveToScreen,
-:toggleFullScreen, :screenFraction, :maximize, :toggleHazeOver, :setHazeOver, :moveToScreenLeft, :moveToScreenRight
-}
+  mediaMode: =>
+    hs.settings.set('mode', 'media')
+    @setHazeOver(100)

@@ -1,30 +1,62 @@
 class Thrust extends Drive
-  actions: => {
-    moveNextScreen:
-      type: 47
-      name: "Move Window to Next Monitor"
-    maxNextScreen:
-      type: 48
-      name: "Maximize Window to Next Monitor"
-    moveResize:
-      type: 251
-      name: "Custom Move  or  Resize Window"
-      config: "{\"BTTChangeWidthRelative\":1,\"BTTOriginToUse\":0,\"BTTChangeWindowWidth\":true,\"BTTCareForStageManager\":false,\"BTTActiveOrHoveredWindow\":0,\"BTTChangeHeightRelative\":1,\"BTTOriginDisplay\":1,\"BTTChangeXOriginRelative\":0,\"BTTNewWindowWidthRelative\":100,\"BTTChangeYOriginRelative\":0,\"BTTUseVisibleFrame\":false,\"BTTNewWindowHeightRelative\":100,\"BTTScreenOrigin\":0,\"BTTChangeWindowHeight\":true,\"BTTDirectionToMove\":1,\"BTTScreensToMove\":1}"
-  }
+  moveMaxWindowTo: (screen, config = {}) =>
+    frame = screen::fullFrame!
+    @moveWindowTo screen,
+      BTTChangeWindowHeight: true
+      BTTChangeWindowWidth: true
+      BTTChangeHeightRelative: 1
+      BTTChangeWidthRelative: 1
+      BTTNewWindowHeightRelative: 100
+      BTTNewWindowWidthRelative: 100
+      * ...config
 
-  action: (args) =>
-    {:type, :name} = args
+  moveWindowTo: (toScreen, config = {}) =>
+    screens = hs.settings.get("screens")
 
-    {
-      BTTPredefinedActionType: type
-      BTTPredefinedActionName: name
+    window = hs.window.focusedWindow!
+    windowScreen = window::screen!
+    windowScreenIndex = hs.fnutils.indexOf screens, windowScreen::getUUID!
+    windowFrame = window::frame!
+
+    toScreenIndex = hs.fnutils.indexOf screens, toScreen::getUUID!
+    toScreenFrame = toScreen::fullFrame!
+
+    direction = if windowFrame::inside toScreenFrame
+      @logger.e "nonsensical window move requested"
+      0
+    else
+      vector = windowFrame::vector toScreenFrame
+      if vector.x > 0 then 2 else 1
+
+    @moveWindow
+      BTTDirectionToMove: direction
+      BTTScreensToMove: math.abs(toScreenIndex - windowScreenIndex)
+      BTTSpecificScreenFrame: "{{#{toScreenFrame.x} #{toScreenFrame.y}} {#{toScreenFrame.w} #{toScreenFrame.h}}}",
+      * ...config
+
+  tellBTT: (action) =>
+    json = hs.json.encode {
+      ...action,
+      BTTActionMoveResizeConfig: hs.json.encode(action.BTTActionMoveResizeConfig)
     }
 
-  act: (id) =>
-    json = hs.json.encode(@action(@actions![id]))
-
     script = "tell application \"BetterTouchTool\"
-        trigger_action #{string.format("%q", json)}
-      end tell"
+      trigger_action #{string.format("%q", json)}
+    end tell"
 
-    hs.osascript.applescript script
+    ok, out, err = hs.osascript.applescript script
+
+  moveWindow: (config = {}) => @tellBTT {
+    BTTPredefinedActionType: 251
+    BTTPredefinedActionName: "Custom Move  or  Resize Window"
+    BTTActionMoveResizeConfig:
+      BTTActiveOrHoveredWindow: 0
+      BTTCareForStageManager: false
+      BTTChangeXOriginRelative: 0
+      BTTChangeYOriginRelative: 0
+      BTTOriginDisplay: 1
+      BTTOriginToUse: 0
+      BTTScreenOrigin: 0
+      BTTUseVisibleFrame: false
+      * ...config
+  }

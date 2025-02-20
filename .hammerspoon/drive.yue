@@ -23,7 +23,7 @@ class Drive
       @logger.d "beforeNew!"
       @beforeNew(...)
     catch err
-      @logger.e "Error before initializing driver:"
+      @logger.e "🔴 Error before initializing driver:"
       @logger.e "  #{yue.traceback err}"
 
     try
@@ -31,14 +31,14 @@ class Drive
       result = @onNew(...)
       @initialized = true
     catch err
-      @logger.e "Error initializing drive:"
+      @logger.e "🔴 Error initializing drive:"
       @logger.e "  #{yue.traceback err}"
 
     try
       @logger.d "afterNew!"
       @afterNew(...)
     catch err
-      @logger.w "Error after initializing drive:"
+      @logger.w "🔴 Error after initializing drive:"
       @logger.w "  #{yue.traceback err}"
 
     @logger.i("🔵 new in   ⏱️ #{(hs.timer.absoluteTime! - time) / 1000000}ms")
@@ -49,15 +49,15 @@ class Drive
   afterStart: (...) =>
 
   start: (...) =>
-    return @logger.e "Not starting #{@@__name}, initialization failed" unless @initialized
-    return @logger.e "Not starting #{@@__name}, it's already started!" if @started
+    return @logger.e "🔴 Not starting #{@@__name}, initialization failed" unless @initialized
+    return @logger.e "🔴 Not starting #{@@__name}, it's already started!" if @started
 
     time = hs.timer.absoluteTime!
     try
       @logger.d "beforeStart!"
       @beforeStart(...)
     catch err
-      @logger.e "Error before starting drive:"
+      @logger.e "🔴 Error before starting drive:"
       @logger.e "  #{err}"
 
     try
@@ -65,14 +65,14 @@ class Drive
       result = @onStart(...)
       @started = true
     catch err
-      @logger.e "Error starting drive:"
+      @logger.e "🔴 Error starting drive:"
       @logger.e "  #{err}"
 
     try
       @logger.d "afterStart!"
       @afterStart(...)
     catch err
-      @logger.w "Error after starting drive:"
+      @logger.w "🔴 Error after starting drive:"
       @logger.w "  #{err}"
 
     @logger.i("🟢️ start in ⏱️ #{(hs.timer.absoluteTime! - time) / 1000000}ms")
@@ -84,15 +84,15 @@ class Drive
   afterStop: (...) =>
 
   stop: (...) =>
-    return @logger.e "Not stopping, initialization failed" unless @initialized
-    return @logger.e "Not stopping, it's not started!" unless @started
+    return @logger.e "🔴 Not stopping, initialization failed" unless @initialized
+    return @logger.e "🔴 Not stopping, it's not started!" unless @started
 
     time = hs.timer.absoluteTime!
     try
       @logger.d "beforeStop!"
       @beforeStop(...)
     catch err
-      @logger.e "Error before stopping drive:"
+      @logger.e "🔴 Error before stopping drive:"
       @logger.e "  #{err}"
 
     try
@@ -100,14 +100,14 @@ class Drive
       result = @onStop(...)
       @started = false
     catch err
-      @logger.e "Error stopping drive:"
+      @logger.e "🔴 Error stopping drive:"
       @logger.e "  #{err}"
 
     try
       @logger.d "afterStop!"
       @afterStop(...)
     catch err
-      @logger.w "Error after stopping drive:"
+      @logger.w "🔴 Error after stopping drive:"
       @logger.w "  #{err}"
 
     @logger.i("🔴 stop in ⏱️ #{(hs.timer.absoluteTime! - time) / 1000000}ms")

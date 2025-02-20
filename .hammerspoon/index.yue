@@ -43,7 +43,8 @@ timed "load & init modules", ->
   App = appAndApps[1]
   apps = appAndApps[2]
 
-  actions = require("actions") -- TODO clean up
+  thrust = require("thrust")! -- TODO implement
+  actions = require("actions")(thrust) -- TODO clean up
 
 
   -- Matte = require 'matte' -- TODO delete?
@@ -65,7 +66,6 @@ timed "load & init modules", ->
 
   screens = require("screens")! -- TODO extend to replace hazeover
 
-  thrust = require("thrust")! -- TODO implement
 
   Hyper = require("hyper")
 
@@ -119,36 +119,33 @@ timed "hyperspace config", ->
       'delete': hs.caffeinate.systemSleep
       'down': -> screens::maybeShade!
       'c': hs.toggleConsole
-      'h': actions.hybridMode
+      'h': actions::hybridMode
       'l': hs.caffeinate.startScreensaver
       'r': =>
         clipper::stop!
         hs.reload!
-      's': actions.normalMode
-      'w': actions.mediaMode
-      'f': actions.toggleMovieMode
-      ',': actions.editConfig
+      's': actions::normalMode
+      'w': actions::mediaMode
+      'f': actions::toggleMovieMode
+      ',': actions::editConfig
       'escape': (hyper) -> hyper.modal::exit!
     }
     't': apps.iTerm
     'v': ->
         paster::select!
     'w': Hyper(name: 'Window', afterAction: (hyper) -> hyper.modal::exit!)::space{
-      'left': -> actions.moveToScreenLeft!
-      'right': -> actions.moveToScreenRight!
-      '1': -> actions.screenFraction(1, 3)
-      '2': -> actions.screenFraction(2, 3)
-      '3': -> actions.screenFraction(3, 3)
-      '4': -> actions.setHazeOver(30)
-      '5': -> actions.setHazeOver(95)
-      -- 'space': -> actions.moveToScreen!
-      'space': -> thrust::act("maxNextScreen")
-      'w': -> actions.maximize!
-      'h': -> actions.moveToScreenLeft!
-      'j': -> actions.screenFraction(2, 2)
-      'k': -> actions.screenFraction(1, 2)
-      'l': -> actions.moveToScreenRight!
-      'm': -> actions.maximize!
+      'left': -> actions::moveToScreenLeft!
+      'right': -> actions::moveToScreenRight!
+      '1': -> actions::moveToScreen(nil, hs.settings.get("screens")[1])
+      '2': -> actions::moveToScreen(nil, hs.settings.get("screens")[2])
+      '3': -> actions::moveToScreen(nil, hs.settings.get("screens")[3])
+      'space': -> actions::moveToScreen(nil, hs.settings.get("screens")[2])
+      'w': -> actions::maximize!
+      'h': -> actions::moveToScreenLeft!
+      'j': -> actions::screenFraction(2, 2)
+      'k': -> actions::screenFraction(1, 2)
+      'l': -> actions::moveToScreenRight!
+      'm': -> actions::maximize!
       'z': -> hs.window.focusedWindow!::toggleZoom!
       '`': -> hs.hints.windowHints(hs.window.filter.default::getWindows!)
       'escape': (hyper) -> hyper.modal::exit!
