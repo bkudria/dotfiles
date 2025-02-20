@@ -33,6 +33,7 @@ class Drive
     @initialized = false
     @started = false
 
+    print ""
     try
       @logger.d "beforeNew!"
       @beforeNew(...)
@@ -74,6 +75,8 @@ class Drive
     return @logger.e "🔴 Not starting #{@@__name}, it's already started!" if @started
 
     time = hs.timer.absoluteTime!
+
+    print ""
     try
       @logger.d "beforeStart!"
       @beforeStart(...)
@@ -128,6 +131,8 @@ class Drive
     return @logger.e "🔴 Not stopping #{@@__name}, it's not started!" unless @started
 
     time = hs.timer.absoluteTime!
+
+    print ""
     try
       @logger.d "beforeStop!"
       @beforeStop(...)

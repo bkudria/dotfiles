@@ -12,7 +12,7 @@ class Hyper extends Drive
   @key: (key) => -> hs.eventtap.keyStroke(@spec key)
 
   icon: "💠"
-  getName: (config = {}) => "#H-#{config.name or 'Hyper'}"
+  getName: (config = {}) => "#{@icon}-#{config.name or 'Hyper'}"
 
   onNew: (config = {}) =>
     @inHyperspace = false

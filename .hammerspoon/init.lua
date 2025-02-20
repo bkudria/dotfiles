@@ -12,6 +12,7 @@ print = function(value)
         -- printStyled(value)
         return
     else
+        if type(value) == "table" then value = hs.inspect(value) end
         printTimestamped(value)
     end
 end
