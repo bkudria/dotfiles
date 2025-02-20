@@ -32,35 +32,35 @@ maximize = (window = hs.window.focusedWindow!, frame = window\screen!\fullFrame!
 
 moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window\screen!\previous!) ->
   hs.window.animationDuration = 0
-  currentScreenSmallFrame = window\screen!\fullFrame!\scale(0.3)
-  targetScreenId = targetScreen\id!
-  moveChecks = 0
 
   mvFn = ->
     window\moveToScreen(targetScreen, true, true, 0)
 
   restore = ->
-    hs.timer.doAfter(0.01, -> maximize!)
+    hs.timer.doAfter(0.1, -> maximize!)
 
+  moveChecks = 0
   windowMoved = ->
     return true if window == nil
     return true if moveChecks >= 2
     screenId = hs.window.focusedWindow!\screen!\id!
     moveChecks += 1
+    targetScreenId = targetScreen\id!
     screenId == targetScreenId
 
   setSmallFrame = ->
-    window\setFrame(currentScreenSmallFrame)
+    targetScreenSmallFrame = window\screen!\fullFrame!\scale(0.2)
+    window\setFrame(targetScreenSmallFrame,0)
 
   switchScreen = ->
     setSmallFrame!
-    hs.timer.doAfter(0.01, ->
+    hs.timer.doAfter(0.20, ->
       mvFn!
-      hs.timer.doAfter(0.001, ->
+      hs.timer.doAfter(0.1, ->
         if windowMoved!
           restore!
         else
-          hs.timer.waitUntil(windowMoved, -> restore!, 0.01)
+          hs.timer.waitUntil(windowMoved, -> restore!, 0.1)
       )
     )
 

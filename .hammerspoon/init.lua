@@ -1,4 +1,8 @@
 -- -*- dash-at-point-docset: "hammerspoon,lua" -*-
+hs.logger.setGlobalLogLevel("warning")
+epochTime = hs.timer.absoluteTime()
+
+lastTime = epochTime
 
 local lVer = _VERSION:match("Lua (.+)$")
 -- specify luarocks path yourself if this doesn't find it in the normal places
@@ -11,6 +15,9 @@ if #luarocks > 0 then
             luarocks .. " --lua-version " .. lVer .. " path --lr-cpath"
         ):gsub("\n", "")
 end
+
+time = (hs.timer.absoluteTime() - lastTime) / 1000000
+print("⏰ " .. time .. "ms to set up luarocks")
 
 -- https://github.com/Hammerspoon/hammerspoon/issues/2943#issuecomment-2105644391
 function _wf_timed_allWindows()
@@ -35,10 +42,18 @@ function _wf_ignoreWebContent()
     end
 end
 
-hs.timer.doEvery(15, _wf_ignoreWebContent)
+hs.timer.doEvery(60*5, _wf_ignoreWebContent)
 _wf_ignoreWebContent()
 
+time = (hs.timer.absoluteTime() - lastTime) / 1000000
+print("⏰ " .. time .. "ms to fix windowfilter WebKit issue")
 
 exports = require("yue")("index")
 
 rButton = exports.rButton
+
+time = (hs.timer.absoluteTime() - lastTime) / 1000000
+print("⏰ " .. time .. "ms to compile & load yue config")
+
+time = (hs.timer.absoluteTime() - epochTime) / 1000000
+print("⏰ " .. time .. "ms to finish entire config ")
