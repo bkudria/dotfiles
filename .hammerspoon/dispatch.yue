@@ -2,7 +2,12 @@ class Dispatch extends Drive
   icon: "⚙️"
   handle: (action) =>
     switch type(action)
-      when 'function' then action!
+      when 'function'
+        try
+          action!
+        catch err
+          @logger.e "🔴 Error dispatching action:"
+          @logger.e "  #{yue.traceback err}"
       when 'string'
         if #action == 1
           hs.eventtap.keyStroke({}, action)

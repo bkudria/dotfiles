@@ -62,8 +62,25 @@ class Drive
     @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name}")
     @initialized
 
+  watchState: (path, key, callback) =>
+    pathKey = if type(key) == "string" then path.."."..key else path
 
-  watch:(...) => @watchers[] = hs.watchable.watch(...)
+    return pathKey if @watchers[pathKey] or @watchers[path..".*"]
+
+    @watchers[pathKey] = hs.watchable.watch(path, key, callback)
+
+    pathKey
+
+  getState: (path, key) =>
+    pathKey = if type(key) == "string" then path.."."..key else path
+
+    if watcher := @watchers[pathKey] then return watcher::value!
+    elseif watcher := @watchers[path..".*"] then return watcher::value(key)
+    else
+      watcher = hs.watchable.watch(path, key)
+      value = watcher::value!
+      watcher = nil
+      return value
 
   beforeStart: (...) =>
   onStart: (...)  =>
@@ -105,8 +122,8 @@ class Drive
       @logger.w "  #{err}"
       hs.openConsole(true)
 
-    @watch "Loader.reloading", -> @stop!
-    @watch "#{@name}.*", (watcher, path, key, old, new) ->
+    @watchState "Loader.reloading", -> @stop!
+    @watchState "#{@name}.*", (watcher, path, key, old, new) ->
       try
         @onStateChanged(key, old, new)
       catch err

@@ -7,7 +7,7 @@ class Cloak extends Drive
   onNew:  =>
     hs.window.filter.forceRefreshOnSpaceChange = false
 
-    @watch "Screens.numScreens", -> @resetCloaks!
+    @watchState "Screens.numScreens", -> @resetCloaks!
 
     @windowFilter = hs.window.filter.new!
     @cloaks = {}

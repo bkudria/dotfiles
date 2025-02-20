@@ -140,12 +140,12 @@ timed "configure hyperspace", ->
       'right': -> actions::moveToScreenRight!
       'space': -> actions::maximize!
 
-      'a': -> actions::moveToScreen(nil, hs.settings.get("screens").orderedUUIDs[1])
-      'd': -> actions::moveToScreen(nil, hs.settings.get("screens").orderedUUIDs[3])
+      'a': -> actions::moveToScreen(nil, 1)
+      'd': -> actions::moveToScreen(nil, 3)
       'h': -> actions::moveToScreenLeft!
       'l': -> actions::moveToScreenRight!
       'm': -> actions::maximize!
-      's': -> actions::moveToScreen(nil, hs.settings.get("screens").orderedUUIDs[2])
+      's': -> actions::moveToScreen(nil, 2)
       'w': -> actions::maximize!
       'z': -> hs.window.focusedWindow!::toggleZoom!
       '`': -> hs.hints.windowHints(hs.window.filter.default::getWindows!)

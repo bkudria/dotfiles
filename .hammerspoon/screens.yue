@@ -25,10 +25,14 @@ class Screens extends Drive
     [hs.screen.find(uuid) for uuid, _ in pairs @oledUUIDs!]
 
   getInfo: =>
-    positionsFn = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
+    positions = hs.screen.screenPositions!
 
-    orderedUUIDs = [ screen::getUUID! for screen, _ in positionsFn ]
-    numScreens = #orderedUUIDs
+    uuidsByIDFn = hs.fnutils.sortByKeys positions, (first, second) -> first::id! < second::id!
+    uuidsByUUIDFn = hs.fnutils.sortByKeyValues positions, (first, second) -> first.x < second.x
+
+    uuidsByID = [ screen::getUUID! for screen, _ in uuidsByIDFn ]
+    uuidsByPosition = [ screen::getUUID! for screen, _ in uuidsByUUIDFn ]
+    numScreens = #uuidsByID
 
     command = "/usr/local/bin/lunar displays -j | /opt/homebrew/bin/jq 'map({brightness,contrast})'"
     @displaysInfo = hs.json.decode((hs.execute(command)))
@@ -38,4 +42,5 @@ class Screens extends Drive
 
     brightness = hs.fnutils.reduce(brightnesses, (a,b) -> a+b) // numScreens
     contrast = hs.fnutils.reduce(contrasts, (a,b) -> a+b) // numScreens
-    {:brightness, :contrast, :numScreens, :orderedUUIDs}
+
+    {:brightness, :contrast, :numScreens, :uuidsByPosition, :uuidsByID}

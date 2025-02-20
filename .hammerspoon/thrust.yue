@@ -1,7 +1,7 @@
 class Thrust extends Drive
   icon: "🔥"
   moveMaxWindowTo: (screen, config = {}) =>
-    frame = screen::fullFrame!
+    -- frame = screen::fullFrame!
     @moveWindowTo screen,
       BTTChangeWindowHeight: true
       BTTChangeWindowWidth: true
@@ -11,17 +11,21 @@ class Thrust extends Drive
       BTTNewWindowWidthRelative: 100
       * ...config
 
-  moveWindowTo: (toScreen, config = {}) =>
-    screens = hs.settings.get("screens").orderedUUIDs
+  moveWindowTo: (toScreenOrPosition, config = {}) =>
+    uuidsByPosition = @getState("Screens.uuidsByPosition")
+
+    toScreen = if type(toScreenOrPosition) == "number"
+      hs.screen(uuidsByPosition[toScreenOrPosition])
+    else
+      toScreenOrPosition
 
     window = hs.window.focusedWindow!
-    windowScreen = window::screen!
-    windowScreenIndex = hs.fnutils.indexOf screens, windowScreen::getUUID!
+    windowScreenPosition = hs.fnutils.indexOf uuidsByPosition, window::screen!::getUUID!
+
+    toScreenPosition = hs.fnutils.indexOf uuidsByPosition, toScreen::getUUID!
+
     windowFrame = window::frame!
-
-    toScreenIndex = hs.fnutils.indexOf screens, toScreen::getUUID!
     toScreenFrame = toScreen::fullFrame!
-
     direction = if windowFrame::inside toScreenFrame
       0
     else
@@ -30,8 +34,7 @@ class Thrust extends Drive
 
     @moveWindow
       BTTDirectionToMove: direction
-      BTTScreensToMove: math.abs(windowScreenIndex - toScreenIndex)
-      BTTSpecificScreenFrame: "{{#{toScreenFrame.x} #{toScreenFrame.y}} {#{toScreenFrame.w} #{toScreenFrame.h}}}",
+      BTTScreensToMove:  math.abs(windowScreenPosition - toScreenPosition) -- -2
       * ...config
 
   tellBTT: (action) =>
@@ -44,19 +47,24 @@ class Thrust extends Drive
       trigger_action #{string.format("%q", json)}
     end tell"
 
+    p json
+
     ok, out, err = hs.osascript.applescript script
+    p {:ok, :out, :err}
 
   moveWindow: (config = {}) => @tellBTT {
-    BTTPredefinedActionType: 251
-    BTTPredefinedActionName: "Custom Move  or  Resize Window"
+    BTTActionCategory: 0,
+    BTTIsPureAction: 1,
+    BTTPredefinedActionType: 251,
+    BTTPredefinedActionName: 'Custom Move  or  Resize Window',
     BTTActionMoveResizeConfig:
-      BTTActiveOrHoveredWindow: 0
+      BTTOriginToUse: 0
       BTTCareForStageManager: false
+      BTTActiveOrHoveredWindow: 0
+      BTTOriginDisplay: 1
       BTTChangeXOriginRelative: 0
       BTTChangeYOriginRelative: 0
-      BTTOriginDisplay: 1
-      BTTOriginToUse: 0
-      BTTScreenOrigin: 0
       BTTUseVisibleFrame: false
+      BTTScreenOrigin: 0
       * ...config
   }
