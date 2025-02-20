@@ -2,49 +2,20 @@ class Screens extends Drive
   icon: "🖥️"
 
   onNew: =>
-    @calcInfoAndSave!
     @screenWatcher = hs.screen.watcher.new( -> @screensChanged!)
+    @lunarDebounced = hs.timer.delayed.new(1, -> @lunarSetBrightnessContrast!)
 
   onStart: =>
+    @initialState = {orderedUUIDs: @orderedUUIDs, :brightness, :contrast}
     @screenWatcher::start!
+    @lunarDebounced::start!
 
   screensChanged: =>
-    @calcInfoAndSave!
+    @mergeIntoState getInfo!
 
-  calcOrderedUUIDs: =>
-    positionsFn = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
-
-    @orderedUUIDs = [ screen::getUUID! for screen, _ in positionsFn]
-    @numScreens = #@orderedUUIDs
-
-    @orderedUUIDs
-
-  calcDisplaysInfo: =>
-    command = "/usr/local/bin/lunar displays -j | /opt/homebrew/bin/jq 'map_values({brightness,contrast})'"
-    @displaysInfo = hs.json.decode((hs.execute(command)))
-
-  calcInfoAndSave: =>
-    @calcOrderedUUIDs!
-    @calcDisplaysInfo!
-    hs.settings.set("screens", {orderedUUIDs: @orderedUUIDs, displaysInfo: @displaysInfo})
-
-  calcScreensBrightness: =>
-    @calcInfoAndSave!
-
-    @displayBrightness = hs.fnutils.reduce([ brightness for _, {:brightness} in pairs @screensDisplayInfo! ], (a,b) -> a+b) // @numScreens
-
-  setBrightness: (brightness) =>
-    hs.execute "/usr/local/bin/lunar displays brightness #{brightness}"
-    @calcInfoAndSave!
-
-  calcScreensContrast: =>
-    @calcInfoAndSave!
-
-    @displayContrast = hs.fnutils.reduce([ contrast for _, {:contrast} in pairs @screensDisplayInfo! ], (a,b) -> a+b) // @numScreens
-
-  setContrast: (contrast) =>
-    hs.execute "/usr/local/bin/lunar displays contrast #{contrast}"
-    @calcInfoAndSave!
+  lunarSetBrightnessContrast: =>
+    hs.execute "/usr/local/bin/lunar displays brightness #{@state.brightness}"
+    hs.execute "/usr/local/bin/lunar displays contrast #{@state.contrast}"
 
   oledUUIDs: => {["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true}
 
@@ -53,3 +24,27 @@ class Screens extends Drive
 
   oledScreensRects: =>
     hs.fnutils.imap(@oledScreens!, (screen) -> screen::fullFrame!)
+
+  getInfo: =>
+    layoutInfo = @getLayoutInfo!
+    displaysInfo = @getDisplaysInfo!
+    {...layoutInfo, ...displaysInfo}
+
+  getLayoutInfo: =>
+    positionsFn = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
+
+    orderedUUIDs = [ screen::getUUID! for screen, _ in positionsFn ]
+    numScreens = #@orderedUUIDs
+
+    {:numScreens, orderedUUIDs}
+
+  getDisplaysInfo: =>
+    command = "/usr/local/bin/lunar displays -j | /opt/homebrew/bin/jq 'map({brightness,contrast})'"
+    @displaysInfo = hs.json.decode((hs.execute(command)))
+
+    brightnesses = [info.brightness for info in *@displaysInfo]
+    contrasts = [info.contrast for info in *@displaysInfo]
+
+    brightness = hs.fnutils.reduce(brightnesses, (a,b) -> a+b) // @numScreens
+    contrast = hs.fnutils.reduce(contrasts, (a,b) -> a+b) // @numScreens
+    {:brightness, :contrast}

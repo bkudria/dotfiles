@@ -9,7 +9,6 @@ class Deck extends Drive
     hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
 
   onStart: =>
-
     @deck::setBrightness @brightness
     @deck::encoderCallback (...) -> @onEncoder ...
 
@@ -28,7 +27,6 @@ class Deck extends Drive
 
   onEncoder: (deck, id, wasPressed, turnedLeft, turnedRight) =>
     return unless deck == @deck
-
 
     encoderStateKey = if @encoderState[id] then "pressed" else "default"
     if turnedLeft

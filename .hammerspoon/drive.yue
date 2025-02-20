@@ -6,12 +6,28 @@ class Drive
   beforeNew: (...) =>
   onNew: (...) =>
   afterNew: (...) =>
-  name: (...) => @@__name
+  getName: (...) => @@__name
 
   new: (...) =>
     time = hs.timer.absoluteTime!
-    @logger = hs.logger.new "#{@icon or @name(...)}", "info"
-    @state = hs.watchable.new(@name(...), true)
+    @name = @getName(...)
+
+    @logger = hs.logger.new "#{@icon or @name}", "info"
+
+    @persistedStateKeys = [] -- TODO allow declerative
+    @initialState = hs.settings.get(@@__name)
+
+    initialState = { initializedAt: os.time! }
+    @initialState = do
+      if @initialState == nil
+        initialState
+      else
+        @initialState
+
+    @state = hs.watchable.new(@name, true)
+
+    for k,v in pairs @initialState
+      @state[k] = v
 
     @reloadWatcher = nil
     @initialized = false
@@ -42,7 +58,7 @@ class Drive
       @logger.w "  #{yue.traceback err}"
       hs.openConsole(true)
 
-    @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name ...}")
+    @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name}")
     @initialized
 
   beforeStart: (...) =>
@@ -71,6 +87,9 @@ class Drive
       @logger.e "  #{err}"
       hs.openConsole(true)
 
+    for k,v in pairs @initialState
+      @state[k] = @state[k] or v
+
     try
       @logger.d "afterStart!"
       @afterStart(...)
@@ -79,11 +98,22 @@ class Drive
       @logger.w "  #{err}"
       hs.openConsole(true)
 
-    @reloadWatcher = hs.watchable.watch("Loader", "reloading", ->
-      @stop!)
-    @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name!}")
+    @stateWatcher = hs.watchable.watch(@@__name, "*", (watcher, path, key, old, new) ->
+      @logger.i "Detected state change: #{path}.#{key}"
+      if old != new
+        @logger.i "  old:"
+        @logger.i "    #{hs.inspect old}"
+        @logger.i "  new:"
+        @logger.i "    #{hs.inspect new}"
+    )
+    @reloadWatcher = hs.watchable.watch("Loader", "reloading", -> @stop!)
+    @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name}")
     return (result or self) if @started
     return false
+
+  mergeIntoState: (...) =>
+    for k,v in pairs ...
+      @state[k] =  v
 
   beforeStop: (...) =>
   onStop: (...) =>
@@ -110,6 +140,14 @@ class Drive
       @logger.e "🔴 Error stopping #{@@__name}:"
       @logger.e "  #{err}"
       hs.openConsole(true)
+
+    persistedKeys = [...@persistedStateKeys, "initializedAt", "persistedAt", "modifiedAt"]
+    p persistedKeys
+    p @state
+    settings = { key, value for key, value in pairs @state when key in persistedKeys}
+    settings.persistedAt = os.time!
+    p settings
+    hs.settings.set(@@__name, settings)
 
     try
       @logger.d "afterStop!"

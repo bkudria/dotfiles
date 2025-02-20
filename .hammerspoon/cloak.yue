@@ -15,6 +15,8 @@ class Cloak extends Drive
     @windowEventDebouncer = hs.timer.delayed.new(0.1, -> @unshade! if @shouldBeUnshaded!)
     @shadesDebouncer = hs.timer.delayed.new(@delay, -> @maybeShade!)
 
+    @persistedStateKeys = { "cloaked" }
+
   onStart: =>
     return unless #@screens::oledScreens! > 0
 
@@ -40,7 +42,7 @@ class Cloak extends Drive
       hs.window.filter.windowMoved, -> @windowEventDebouncer::start!
     )
 
-    if hs.settings.get("shaded")
+    if @state.cloaked
         @drawShades(0) -- restore shaded state on restart
     else
         @scheduleNext! -- otherwise just schedule
@@ -63,11 +65,11 @@ class Cloak extends Drive
     if @shouldBeUnshaded!
       @scheduleNext!
     else
-      @drawShades! unless hs.settings.get("shaded")
+      @drawShades! unless @state.cloaked
 
   unshade: =>
     hs.fnutils.imap(@shades, (shade) -> shade::hide!)
-    hs.settings.set("shaded", false)
+    @state.cloaked = false
     @scheduleNext!
 
   drawShades: (duration = 10) =>
@@ -76,5 +78,5 @@ class Cloak extends Drive
         ::bringToFront(true)
         ::show(duration)
     )
-    hs.settings.set("shaded", true)
+    @state.cloaked = true
     @scheduleNext!
