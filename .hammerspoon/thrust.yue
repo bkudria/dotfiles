@@ -47,10 +47,7 @@ class Thrust extends Drive
       trigger_action #{string.format("%q", json)}
     end tell"
 
-    p json
-
     ok, out, err = hs.osascript.applescript script
-    p {:ok, :out, :err}
 
   moveWindow: (config = {}) => @tellBTT {
     BTTActionCategory: 0,
