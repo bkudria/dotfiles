@@ -1,4 +1,5 @@
 class Actions extends Drive
+  icon: "🎭"
   onNew: (@thrust) =>
 
   flipScreens: =>

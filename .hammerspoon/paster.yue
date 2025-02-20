@@ -1,4 +1,5 @@
 class Paster extends Drive
+  icon: "📋"
   onNew: (clipper, typer) =>
     @clipper = clipper
     @typer = typer

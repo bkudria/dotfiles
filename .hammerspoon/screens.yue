@@ -3,13 +3,15 @@ class Screens extends Drive
   oledUUIDs = {[asus1]: asus1}
   hs.window.filter.forceRefreshOnSpaceChange = false
 
+  icon: "🖥️"
+  delay: 30
+
   onNew: =>
     @screenWatcher = hs.screen.watcher.new( -> @screensChanged!)
     @windowFilter = hs.window.filter.new!
     @shades = {}
     @windowEventDebouncer = hs.timer.delayed.new(0.2, -> @handleWindowEvent!)
-    @shadesDebouncer = hs.timer.delayed.new(60*5, -> @maybeShade!)
-
+    @shadesDebouncer = hs.timer.delayed.new(@delay, -> @maybeShade!)
 
   scheduleNext: => @shadesDebouncer::start!
 
@@ -40,10 +42,11 @@ class Screens extends Drive
     @scheduleNext!
 
     -- restore shaded state on restart
-    @drawShades! if hs.settings.get("shaded")
+    @logger.i "we were shaded" if hs.settings.get("shaded")
+    @drawShades(0) if hs.settings.get("shaded")
 
-    t = os.time() + 60*10
-    @logger.i "Scheduled next shade for #{os.date("%I:%M %p",t)}"
+    t = os.time() + @delay
+    @logger.i "Scheduled next shade for #{os.date("%I:%M:%S %p",t)}"
 
     @saveScreens!
 
@@ -65,23 +68,22 @@ class Screens extends Drive
     if oledUUIDs[focusedScreenUUID]
       @scheduleNext!
     else
-      @drawShades!
+      @drawShades! unless hs.settings.get("shaded")
 
   unshade: =>
     hs.fnutils.imap(@shades, (shade) -> shade::hide!)
     hs.settings.set("shaded", false)
 
-  drawShades: =>
-    return if hs.settings.get("shaded")
+  drawShades: (duration = 10) =>
     return if hs.settings.get("mode") == "media"
 
-    t = os.time() + 60*10
-    @logger.i "Scheduled next shade for #{os.date("%I:%M %p",t)}"
+    t = os.time() + @delay
+    @logger.i "Scheduled next shade for #{os.date("%I:%M:%S %p",t)}"
 
     hs.fnutils.ieach(@shades, (shade) ->
       with shade
         ::bringToFront(true)
-        ::show(10)
+        ::show(duration)
     )
     hs.settings.set("shaded", true)
 

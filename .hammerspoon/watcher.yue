@@ -2,17 +2,22 @@ basename = (str) -> string.gsub(str, "(.*/)(.*)", "%2")
 endswith = (ext) -> "^[^#][a-z%-]+%.#{ext}"
 
 class Watcher extends Drive
+  icon: "♻️"
   onNew: =>
-    @watcher = hs.pathwatcher.new("#{os.getenv('HOME')}/.hammerspoon/", (...) -> @maybeReload(...))
+    @watcher = hs.pathwatcher.new("#{os.getenv('HOME')}/.hammerspoon/", (...) -> @watchConfig(...))
 
   onStart: =>
     @watcher::start!
 
-  maybeReload: (paths, flags) =>
+  watchConfig: (paths, flags) =>
     reloadConditions = for i, path in pairs paths
       filename = basename(path)
 
       continue unless filename\match(endswith('lua')) or filename\match(endswith('yue'))
       continue if filename\match("^%.#.*")
 
-      hs.reload!
+      @reload!
+
+  reload: =>
+    reloads.reload = true
+    hs.timer.doAfter 0.1, hs.reload

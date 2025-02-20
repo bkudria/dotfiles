@@ -1,4 +1,5 @@
 class Extensions extends Drive
+  icon: "🥄"
   onNew: =>
     hs.loadSpoon('SpoonInstall')
 

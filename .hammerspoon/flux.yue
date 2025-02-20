@@ -1,24 +1,28 @@
 class Flux extends Drive
+  icon: "🌅"
   onNew: =>
-    debouncedStart = hs.timer.delayed.new(1, ->
-      @logger.i("requested apply")
-      @onStart!
+    @debouncedStart = hs.timer.delayed.new(1, ->
+        @logger.i("requested apply")
+        @onStart!
     )
+    @debouncedStart::stop!
 
-    hs.settings.watchKey("flux", "sunrise", ->
-      @logger.i("sunrise changed")
-      debouncedStart\start(0.1)
-    )
+    @watchers = [
+      hs.settings.watchKey("flux", "sunrise", ->
+        @logger.i("sunrise changed")
+        @debouncedStart::start(0.1)
+      )
 
-    hs.settings.watchKey("flux", "sunset", ->
-      @logger.i("sunset changed")
-      debouncedStart\start(0.1)
-    )
+      hs.settings.watchKey("flux", "sunset", ->
+        @logger.i("sunset changed")
+        @debouncedStart::start(0.1)
+      )
 
-    hs.settings.watchKey("flux", "mode", ->
-      @logger.i("mode changed")
-      debouncedStart\start(0.1)
-    )
+      hs.settings.watchKey("flux", "mode", ->
+        @logger.i("mode changed")
+        @debouncedStart::start(0.1)
+      )
+    ]
 
   onStart: =>
     @logger.i("Applying redshift: #{@startTime!}-#{@endTime!}, to final gamma #{@finalGamma!} over 1h")

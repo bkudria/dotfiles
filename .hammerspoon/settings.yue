@@ -1,5 +1,6 @@
 require 'hs.ipc'
 class Settings extends Drive
+  icon: "🛠️️"
   onStart: =>
     hs.autoLaunch                   true
     hs.automaticallyCheckForUpdates true

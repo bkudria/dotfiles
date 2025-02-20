@@ -1,4 +1,5 @@
 class Clipper extends Drive
+  icon: "💾"
   onNew: (maxEntries = 100, maxAge = 1000) =>
     @dbPath = "#{hs.configdir}/.clips.sqlite"
     @maxEntries = maxEntries
@@ -24,6 +25,7 @@ class Clipper extends Drive
     )
 
   recordNewClip: (clip) =>
+    return unless clip
     return if @privateClip!
     return if #clip < 5
     hs.alert(clip, 0.2)

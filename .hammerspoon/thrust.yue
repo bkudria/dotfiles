@@ -1,4 +1,5 @@
 class Thrust extends Drive
+  icon: "🔥"
   moveMaxWindowTo: (screen, config = {}) =>
     frame = screen::fullFrame!
     @moveWindowTo screen,
@@ -22,7 +23,6 @@ class Thrust extends Drive
     toScreenFrame = toScreen::fullFrame!
 
     direction = if windowFrame::inside toScreenFrame
-      @logger.e "nonsensical window move requested"
       0
     else
       vector = windowFrame::vector toScreenFrame
@@ -30,7 +30,7 @@ class Thrust extends Drive
 
     @moveWindow
       BTTDirectionToMove: direction
-      BTTScreensToMove: math.abs(toScreenIndex - windowScreenIndex)
+      BTTScreensToMove: math.abs(windowScreenIndex - toScreenIndex)
       BTTSpecificScreenFrame: "{{#{toScreenFrame.x} #{toScreenFrame.y}} {#{toScreenFrame.w} #{toScreenFrame.h}}}",
       * ...config
 

@@ -11,8 +11,10 @@ class Hyper extends Drive
   @spec: (key) => @mods, key
   @key: (key) => -> hs.eventtap.keyStroke(@spec key)
 
+  icon: "💠"
+  name: (config = {}) => "#{@icon} #{config.name or 'Hyper'}"
+
   onNew: (config = {}) =>
-    @logger = hs.logger.new "✦#{config.name or 'Hyper'}", "info"
     @inHyperspace = false
     @config = config
     hs.hotkey.setLogLevel 1

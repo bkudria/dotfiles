@@ -9,6 +9,7 @@ style = {
 }
 
 class Clock extends Drive
+  icon: "🕰️"
   onNew: =>
     @timer = nil
     @time = os.date("%H:%M")

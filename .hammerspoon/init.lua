@@ -1,5 +1,21 @@
 -- -*- dash-at-point-docset: "hammerspoon,lua" -*-
 epochTime = hs.timer.absoluteTime()
+lastTime = epochTime
+
+local oldPrint = print
+print = function(value)
+    value = value:gsub("^%s*", "")
+    if (value:sub(1, 3) == "-- ") then
+        -- oldPrint(value)
+        return
+    else
+        oldPrint(value)
+    end
+end
+
+time = (hs.timer.absoluteTime() - lastTime) / 1000000
+print("⏰ " .. time .. "ms to patch logging")
+lastTime = hs.timer.absoluteTime()
 
 lastTime = epochTime
 

@@ -1,29 +1,25 @@
 import 'yue'
 
 class Drive
-  @go: =>
-    instance = @@!
-    instance::start!
-    instance
-
-  icon: => @icon
   logger: => @logger
 
   beforeNew: (...) =>
   onNew: (...) =>
   afterNew: (...) =>
+  name: (...) => @@__name
 
   new: (...) =>
     @initialized = false
     @started = false
-    @logger = hs.logger.new "#{@@__name}", "info"
+    @logger = hs.logger.new "#{@icon or @name}", "info"
+    @reloadWatcher = nil
 
     time = hs.timer.absoluteTime!
     try
       @logger.d "beforeNew!"
       @beforeNew(...)
     catch err
-      @logger.e "🔴 Error before initializing driver:"
+      @logger.e "🔴 Error before initializing #{@@__name}:"
       @logger.e "  #{yue.traceback err}"
 
     try
@@ -31,17 +27,17 @@ class Drive
       result = @onNew(...)
       @initialized = true
     catch err
-      @logger.e "🔴 Error initializing drive:"
+      @logger.e "🔴 Error initializing #{@@__name}:"
       @logger.e "  #{yue.traceback err}"
 
     try
       @logger.d "afterNew!"
       @afterNew(...)
     catch err
-      @logger.w "🔴 Error after initializing drive:"
+      @logger.w "🔴 Error after initializing #{@@__name}:"
       @logger.w "  #{yue.traceback err}"
 
-    @logger.i("🔵 new in   ⏱️ #{(hs.timer.absoluteTime! - time) / 1000000}ms")
+    @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name ...}")
     @initialized
 
   beforeStart: (...) =>
@@ -57,7 +53,7 @@ class Drive
       @logger.d "beforeStart!"
       @beforeStart(...)
     catch err
-      @logger.e "🔴 Error before starting drive:"
+      @logger.e "🔴 Error before starting #{@@__name}:"
       @logger.e "  #{err}"
 
     try
@@ -65,18 +61,19 @@ class Drive
       result = @onStart(...)
       @started = true
     catch err
-      @logger.e "🔴 Error starting drive:"
+      @logger.e "🔴 Error starting #{@@__name}:"
       @logger.e "  #{err}"
 
     try
       @logger.d "afterStart!"
       @afterStart(...)
     catch err
-      @logger.w "🔴 Error after starting drive:"
+      @logger.w "🔴 Error after starting #{@@__name}:"
       @logger.w "  #{err}"
 
-    @logger.i("🟢️ start in ⏱️ #{(hs.timer.absoluteTime! - time) / 1000000}ms")
-    return result if @started
+    @reloadWatcher = hs.watchable.watch("reloads", "reload", -> @stop!)
+    @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name!}")
+    return (result or self) if @started
     return false
 
   beforeStop: (...) =>
@@ -84,15 +81,15 @@ class Drive
   afterStop: (...) =>
 
   stop: (...) =>
-    return @logger.e "🔴 Not stopping, initialization failed" unless @initialized
-    return @logger.e "🔴 Not stopping, it's not started!" unless @started
+    return @logger.e "🔴 Not stopping #{@@__name}, initialization failed" unless @initialized
+    return @logger.e "🔴 Not stopping #{@@__name}, it's not started!" unless @started
 
     time = hs.timer.absoluteTime!
     try
       @logger.d "beforeStop!"
       @beforeStop(...)
     catch err
-      @logger.e "🔴 Error before stopping drive:"
+      @logger.e "🔴 Error before stopping #{@@__name}:"
       @logger.e "  #{err}"
 
     try
@@ -100,18 +97,18 @@ class Drive
       result = @onStop(...)
       @started = false
     catch err
-      @logger.e "🔴 Error stopping drive:"
+      @logger.e "🔴 Error stopping #{@@__name}:"
       @logger.e "  #{err}"
 
     try
       @logger.d "afterStop!"
       @afterStop(...)
     catch err
-      @logger.w "🔴 Error after stopping drive:"
+      @logger.w "🔴 Error after stopping #{@@__name}:"
       @logger.w "  #{err}"
 
-    @logger.i("🔴 stop in ⏱️ #{(hs.timer.absoluteTime! - time) / 1000000}ms")
-    return @result unless @started
+    @logger.i("⏱️ #{timeDeltaFrom time} to 🔴 stop #{@@__name}")
+    return (result or self) unless @started
     return false
 
   restart: =>

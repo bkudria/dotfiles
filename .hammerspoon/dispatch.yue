@@ -1,4 +1,5 @@
 class Dispatch extends Drive
+  icon: "⚙️"
   handle: (action) =>
     switch type(action)
       when 'function' then action!

@@ -1,12 +1,50 @@
-class Deck-- extends Drive
-  new: =>
-    print("deck new")
-    hs.streamdeck.init (connected, deck) ->
-      if connected
-        print "Connected..."
-        @deck = deck
-        print(hs.inspect(deck))
-      else
-        print "Disconnected..."
-        print(hs.inspect(@deck))
-        @deck = nil
+class Deck extends Drive
+  icon: "🎛️"
+  onNew: =>
+    @brightness = hs.settings.get("deck.brightness") or 50
+
+    @deck = nil
+    @encoderState = [false, false, false, false]
+
+    hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
+
+  onStart: =>
+    @deck::setBrightness @brightness
+    @deck::encoderCallback (...) -> @onEncoder ...
+
+  onStop: =>
+    hs.settings.set("deck.brightness", @brightness)
+
+  onInit: (connected, deck) =>
+    if connected
+      @logger.i "Connected..."
+      @deck = deck
+      @start!
+    else
+      @logger.i "Disconnected..."
+      @deck = nil
+      @stop!
+
+  onEncoder: (deck, id, wasPressed, turnedLeft, turnedRight) =>
+    return unless deck == @deck
+
+    if turnedLeft
+      @encoderActions[id][@encoderState[id]] @, -1
+    elseif turnedRight
+      @encoderActions[id][@encoderState[id]] @, 1
+    else
+      @encoderState[id] = wasPressed if not turnedLeft and not turnedRight
+      @encoderActions[id][@encoderState[id]](@,0)
+
+  setBrightness: (brightness) =>
+    brightness = math.max(0, brightness)
+    brightness = math.min(100, brightness)
+    @brightness = brightness
+    @deck::setBrightness @brightness
+
+  encoderActions:
+    * [true]: (sign) =>
+        @setBrightness @brightness + sign*5
+      [false]: (sign) =>
+        @setBrightness @brightness + sign*5
+

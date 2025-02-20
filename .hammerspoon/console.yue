@@ -1,6 +1,7 @@
 gruvbox = require "gruvbox"
 
 class Console extends Drive
+  icon: "🪵"
   onStart: =>
     hs.console.consoleFont { name: "Iosevka Nerd Font", size: 24 }
 

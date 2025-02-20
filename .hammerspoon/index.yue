@@ -2,31 +2,36 @@
 -- Early Init
 --
 global p = (...) -> print hs.inspect ...
+global timeDeltaFrom = (time) -> string.format("%.3f", (hs.timer.absoluteTime! - time) / 1000000) .. "ms"
 
 epochTime = hs.timer.absoluteTime!
 
+global reloads = hs.watchable.new("reloads", true)
+
 global Drive = require "drive"
 
-console = require("console")::go!
-watcher = require("watcher")::go!
+console = require("console")!::start!
 
-initLogger = hs.logger.new("→Index", "info")
+timeLogger = hs.logger.new("→", "info")
 
 timed = (lbl, fn) ->
-  initLogger.i("#{lbl}<")
+  print ""
+  timeLogger.i "#{lbl}"
   startTime = hs.timer.absoluteTime!
   result = fn!
-  endTime = hs.timer.absoluteTime!
-  initLogger.i(">#{lbl} #{(endTime - startTime) / 1000000}ms")
+  timeLogger.i("⏰ #{timeDeltaFrom startTime} to #{lbl}")
   result
 
 --
 -- Early Start
 --
-clock = require("clock")::go!
-flux = require("flux")::go!
+timed "start early modules", ->
+  global *
+  watcher = require("watcher")!::start!
+  clock = require("clock")!::start!
+  flux = require("flux")!::start!
 
-require("settings")::go!
+  require("settings")!::start!
 
 --
 -- Load & Init
@@ -37,7 +42,7 @@ timed "load & init modules", ->
   dispatch = require("dispatch")!::dispatch
   extensions = require("extensions")!
 
-  -- deck = require("deck")! TODO implement
+  deck = require("deck")!
 
   appAndApps = require 'apps' -- TODO rewrite
   App = appAndApps[1]
@@ -45,7 +50,6 @@ timed "load & init modules", ->
 
   thrust = require("thrust")! -- TODO implement
   actions = require("actions")(thrust) -- TODO clean up
-
 
   -- Matte = require 'matte' -- TODO delete?
   -- matte = Matte!::wrap(apps.Chrome) -- TODO delete
@@ -55,7 +59,6 @@ timed "load & init modules", ->
 
   --  gates = require("gates")! -- TODO implement
 
-  -- deck = Deck! -- TODO implement
   -- matte = Matte!::wrap(apps.Chrome) -- TODO delete?
 
   typer = require("typer")(yasnippets(apps.Emacs)) -- TODO lazy load, clean up typer
@@ -74,7 +77,7 @@ timed "load & init modules", ->
 --
 -- Config & Start
 --
-timed "hyperspace config", ->
+timed "configure hyperspace", ->
   Hyper!::space{
     '`': -> clock::show!
     'tab': typer::autocomplete_word
@@ -121,9 +124,7 @@ timed "hyperspace config", ->
       'c': hs.toggleConsole
       'h': actions::hybridMode
       'l': hs.caffeinate.startScreensaver
-      'r': =>
-        clipper::stop!
-        hs.reload!
+      'r': -> watcher::reload!
       's': actions::normalMode
       'w': actions::mediaMode
       'f': actions::toggleMovieMode
@@ -153,7 +154,7 @@ timed "hyperspace config", ->
     'z': apps.Zoom
   }
 
-timed "spoons start", ->
+timed "start spoons", ->
   extensions::start{
       Seal: {
         start: true,
@@ -185,7 +186,7 @@ timed "spoons start", ->
       -- }
     }
 
-timed "siri remote config", ->
+timed "configure siri remote", ->
   global *
   rButton = (message) -> dispatch message, {
     tapup:    App.current!::rUp
@@ -218,7 +219,7 @@ timed "install URL handler", ->
   hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)
   hs.urlevent.setDefaultHandler("http")
 
+timeLogger.i("⏰ #{timeDeltaFrom epochTime} total")
 
 export.rButton = rButton
 
-initLogger.d("⏰ #{(hs.timer.absoluteTime! - epochTime) / 1000000}ms total")
