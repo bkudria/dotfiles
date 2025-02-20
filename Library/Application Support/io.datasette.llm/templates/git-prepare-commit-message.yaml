@@ -37,7 +37,7 @@ prompt: |+
   classes", only 46 characters!
 
   The components are as follows:
-    type: one of `fix`, `feat`, `build`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, or `test`
+    type: one of `fix`, `feat`, `build`, `tidy`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, or `test`
     - Use `fix` if the commit is a bugfix. Use `feat` for new functionality.
     - Optionally, if there is enough room, indicate the scope (if any) in parentheses directly after the type. A scope refers to
       the part of the repository or program, or an area of functionality, being changed. If the scope is obvious from the diff,
