@@ -106,7 +106,7 @@ timed "hyperspace config", ->
     'right': -> App.current!\right!
     'up': -> App.current!\up!
     'down': -> App.current!\down!
-    ']': apps.OnePassword
+    ']': -- Siri
     ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'SPACE' )
     '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
     '-': nil -- Notification Center

@@ -13,7 +13,7 @@ class Screens
 
 
   start: =>
-    return unless #oledUUIDs > 0
+    return unless #@oledScreens! > 0
     print("component start")
     @shades = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
       shade = hs.drawing.rectangle(oledScreenRect)
@@ -57,7 +57,7 @@ class Screens
     -- print hs.inspect hs.window.focusedWindow!
     -- print hs.inspect hs.window.focusedWindow!\screen!
     -- print hs.inspect hs.window.focusedWindow!\screen!\getUUID!
-    print("focus event")
+    -- print("focus event")
     focusedScreenUUID = hs.window.focusedWindow!\screen!\getUUID!
     if oledUUIDs[focusedScreenUUID]
       print("oled focused event")
