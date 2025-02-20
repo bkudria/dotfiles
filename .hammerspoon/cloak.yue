@@ -13,23 +13,23 @@ class Cloak extends Drive
     )
 
     @windowFilter = hs.window.filter.new!
-    @shades = {}
-    @windowEventDebouncer = hs.timer.delayed.new(0.1, -> @unshade! if @shouldBeUnshaded!)
-    @shadesDebouncer = hs.timer.delayed.new(@delay, -> @maybeShade!)
+    @cloaks = {}
+    @windowEventDebouncer = hs.timer.delayed.new(0.1, -> @uncloak! if @shouldBeUncloaked!)
+    @cloaksDebouncer = hs.timer.delayed.new(@delay, -> @maybeCloak!)
 
     @persistedStateKeys = { "cloaked" }
 
   onStart: =>
     return unless #@oledScreens! > 0
 
-    @shades = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
-      shade = hs.drawing.rectangle(oledScreenRect)
-      with shade
+    @cloaks = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
+      cloak = hs.drawing.rectangle(oledScreenRect)
+      with cloak
         ::setFillColor({white: 0, alpha: 1})
         ::setStroke(false)
         ::setFill(true)
         ::setBehavior(17)
-      shade
+      cloak
     )
 
     -- TODO combine
@@ -45,15 +45,15 @@ class Cloak extends Drive
     )
 
     if @state.cloaked
-        @drawShades(0) -- restore shaded state on restart
+        @drawCloaks(0) -- restore cloaked state on restart
     else
         @scheduleNext! -- otherwise just schedule
 
   screensChanged: =>
-    @unshade!
+    @uncloak!
     @restart!
 
-  shouldBeUnshaded: =>
+  shouldBeUncloaked: =>
     screens = [hs.window.focusedWindow!?::screen!, hs.mouse.getCurrentScreen!]
     uuids = [screen?::getUUID! for screen in *screens]
     hs.settings.get("mode") == "media" or hs.fnutils.some(uuids, (uuid) -> oledUUIDs[uuid])
@@ -66,24 +66,24 @@ class Cloak extends Drive
 
 
   scheduleNext: =>
-    @shadesDebouncer::start!
+    @cloaksDebouncer::start!
     t = os.time() + @delay
-    @logger.d "Scheduled next shade for #{os.date("%I:%M:%S %p",t)}"
+    @logger.d "Scheduled next cloak for #{os.date("%I:%M:%S %p",t)}"
 
-  maybeShade: =>
-    if @shouldBeUnshaded!
+  maybeCloak: =>
+    if @shouldBeUncloaked!
       @scheduleNext!
     else
-      @drawShades! unless @state.cloaked
+      @drawCloaks! unless @state.cloaked
 
-  unshade: =>
-    hs.fnutils.imap(@shades, (shade) -> shade::hide!)
+  uncloak: =>
+    hs.fnutils.imap(@cloaks, (cloak) -> cloak::hide!)
     @state.cloaked = false
     @scheduleNext!
 
-  drawShades: (duration = 10) =>
-    hs.fnutils.ieach(@shades, (shade) ->
-      with shade
+  drawCloaks: (duration = 10) =>
+    hs.fnutils.ieach(@cloaks, (cloak) ->
+      with cloak
         ::bringToFront(true)
         ::show(duration)
     )
