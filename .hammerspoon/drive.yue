@@ -9,6 +9,7 @@ class Drive
   name: (...) => @@__name
 
   new: (...) =>
+    time = hs.timer.absoluteTime!
     @logger = hs.logger.new "#{@icon or @name(...)}", "info"
     @state = hs.watchable.new(@name(...), true)
 
@@ -16,13 +17,13 @@ class Drive
     @initialized = false
     @started = false
 
-    time = hs.timer.absoluteTime!
     try
       @logger.d "beforeNew!"
       @beforeNew(...)
     catch err
       @logger.e "🔴 Error before initializing #{@@__name}:"
       @logger.e "  #{yue.traceback err}"
+      hs.openConsole(true)
 
     try
       @logger.d "onNew!"
@@ -31,6 +32,7 @@ class Drive
     catch err
       @logger.e "🔴 Error initializing #{@@__name}:"
       @logger.e "  #{yue.traceback err}"
+      hs.openConsole(true)
 
     try
       @logger.d "afterNew!"
@@ -38,6 +40,7 @@ class Drive
     catch err
       @logger.w "🔴 Error after initializing #{@@__name}:"
       @logger.w "  #{yue.traceback err}"
+      hs.openConsole(true)
 
     @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name ...}")
     @initialized
@@ -57,6 +60,7 @@ class Drive
     catch err
       @logger.e "🔴 Error before starting #{@@__name}:"
       @logger.e "  #{err}"
+      hs.openConsole(true)
 
     try
       @logger.d "start!"
@@ -65,6 +69,7 @@ class Drive
     catch err
       @logger.e "🔴 Error starting #{@@__name}:"
       @logger.e "  #{err}"
+      hs.openConsole(true)
 
     try
       @logger.d "afterStart!"
@@ -72,8 +77,10 @@ class Drive
     catch err
       @logger.w "🔴 Error after starting #{@@__name}:"
       @logger.w "  #{err}"
+      hs.openConsole(true)
 
-    @reloadWatcher = hs.watchable.watch("drive", "loader", -> @stop!)
+    @reloadWatcher = hs.watchable.watch("Loader", "reloading", ->
+      @stop!)
     @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name!}")
     return (result or self) if @started
     return false
@@ -93,6 +100,7 @@ class Drive
     catch err
       @logger.e "🔴 Error before stopping #{@@__name}:"
       @logger.e "  #{err}"
+      hs.openConsole(true)
 
     try
       @logger.d "stop!"
@@ -101,6 +109,7 @@ class Drive
     catch err
       @logger.e "🔴 Error stopping #{@@__name}:"
       @logger.e "  #{err}"
+      hs.openConsole(true)
 
     try
       @logger.d "afterStop!"
@@ -108,8 +117,9 @@ class Drive
     catch err
       @logger.w "🔴 Error after stopping #{@@__name}:"
       @logger.w "  #{err}"
+      hs.openConsole(true)
 
-    @logger.i("⏱️ #{timeDeltaFrom time} to 🔴 stop #{@@__name}")
+    @logger.i("⏱️ #{timeDeltaFrom time} to ⚫️ stop #{@@__name}")
     return (result or self) unless @started
     return false
 

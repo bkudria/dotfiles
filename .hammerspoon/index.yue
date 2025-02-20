@@ -26,16 +26,21 @@ timed = (lbl, fn) ->
 timed "start early modules", ->
   global *
   loader = require("loader")!::start!
+
   clock = require("clock")!::start!
   flux = require("flux")!::start!
 
   require("settings")!::start!
+
 
 --
 -- Load & Init
 --
 timed "load & init modules", ->
   global *
+
+  screens = require("screens")!
+  cloak = require("cloak")(screens)
 
   extensions = require("extensions")!
 
@@ -63,9 +68,6 @@ timed "load & init modules", ->
   clipper = require("clipper")!
 
   paster = require("paster")(clipper, typer)
-
-  screens = require("screens")!
-  cloak = require("cloak")(screens)
 
   Hyper = require("hyper")
 
@@ -152,37 +154,36 @@ timed "configure hyperspace", ->
     'z': apps.Zoom
   }
 
-timed "start spoons", ->
-  extensions::start{
-      Seal: {
-        start: true,
-        hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
-        fn: (seal) ->
-          seal.show = (self, query) ->
-            frame = hs.mouse.getCurrentScreen!::frame!
-            center = frame.center
-            self.chooser::query('')
-            self.chooser::show(center::move({frame.w * -0.2, frame.h * -0.2}))
-            self
+extensions::start{
+    Seal: {
+      start: true,
+      hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
+      fn: (seal) ->
+        seal.show = (self, query) ->
+          frame = hs.mouse.getCurrentScreen!::frame!
+          center = frame.center
+          self.chooser::query('')
+          self.chooser::show(center::move({frame.w * -0.2, frame.h * -0.2}))
+          self
 
-          seal::loadPlugins{'apps', 'useractions', 'calc'}
-          seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
-          seal.plugins.apps.appSearchPaths = {
-            "/Applications", "/System/Applications",
-            "/System/Library/PreferencePanes", "~/Applications"
-          }
-          seal.plugins.apps::restart!
-      },
-      -- PaperWM: {
-      --   url: "https://github.com/mogenson/PaperWM.spoon",
-      --   desc: "PaperWM.spoon repository",
-      --   branch: "release",
-      --   repo: "PaperWM",
-      --   config: { screen_margin: 16, window_gap: 64 },
-      --   start: true,
-      --   hotkeys: {}
-      -- }
-    }
+        seal::loadPlugins{'apps', 'useractions', 'calc'}
+        seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
+        seal.plugins.apps.appSearchPaths = {
+          "/Applications", "/System/Applications",
+          "/System/Library/PreferencePanes", "~/Applications"
+        }
+        seal.plugins.apps::restart!
+    },
+    -- PaperWM: {
+    --   url: "https://github.com/mogenson/PaperWM.spoon",
+    --   desc: "PaperWM.spoon repository",
+    --   branch: "release",
+    --   repo: "PaperWM",
+    --   config: { screen_margin: 16, window_gap: 64 },
+    --   start: true,
+    --   hotkeys: {}
+    -- }
+  }
 
 timed "configure siri remote", ->
   global *
