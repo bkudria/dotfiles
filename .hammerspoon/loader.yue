@@ -1,7 +1,7 @@
 basename = (str) -> string.gsub(str, "(.*/)(.*)", "%2")
 endswith = (ext) -> "^[^#][a-z%-]+%.#{ext}"
 
-class Watcher extends Drive
+class Loader extends Drive
   icon: "♻️"
   onNew: =>
     @watcher = hs.pathwatcher.new("#{os.getenv('HOME')}/.hammerspoon/", (...) -> @watchConfig(...))
@@ -19,5 +19,6 @@ class Watcher extends Drive
       @reload!
 
   reload: =>
-    reloads.reload = true
+    @logger.i "publishing reload!"
+    @state.reloading = true
     hs.timer.doAfter 0.1, hs.reload

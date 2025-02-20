@@ -2,14 +2,17 @@
 epochTime = hs.timer.absoluteTime()
 lastTime = epochTime
 
-local oldPrint = print
+printTimestamped = print
+print = require 'hs.console'.printStyledtext
+
+local printStyled = print
 print = function(value)
     value = value:gsub("^%s*", "")
     if (value:sub(1, 3) == "-- ") then
-        -- oldPrint(value)
+        -- printStyled(value)
         return
     else
-        oldPrint(value)
+        printTimestamped(value)
     end
 end
 

@@ -36,7 +36,7 @@ class Clock extends Drive
 
   showDate: =>
     date = os.date("%A\n%B %d")
-    hs.alert(date, style, hs.window.focusedWindow()\screen!)
+    hs.alert(date, style, hs.screen.mainScreen!)
 
   updateState: =>
     sunrise = os.date("%H:%M", hs.location.sunrise(37.76, -122.42, -7))

@@ -1,0 +1,80 @@
+class Cloak extends Drive
+  icon: "⬛️"
+  delay: 5*60
+
+  onNew: (@screens) =>
+    hs.window.filter.forceRefreshOnSpaceChange = false
+
+    @screensSettingWatcher = hs.settings.watchKey("cloak", "screens", ->
+      @logger.i("screens changed")
+      @screensChanged!
+    )
+
+    @windowFilter = hs.window.filter.new!
+    @shades = {}
+    @windowEventDebouncer = hs.timer.delayed.new(0.1, -> @unshade! if @shouldBeUnshaded!)
+    @shadesDebouncer = hs.timer.delayed.new(@delay, -> @maybeShade!)
+
+  onStart: =>
+    return unless #@screens::oledScreens! > 0
+
+    @shades = hs.fnutils.imap(@screens::oledScreensRects!, (oledScreenRect) ->
+      shade = hs.drawing.rectangle(oledScreenRect)
+      with shade
+        ::setFillColor({white: 0, alpha: 1})
+        ::setStroke(false)
+        ::setFill(true)
+        ::setBehavior(17)
+      shade
+    )
+
+    -- TODO combine
+    -- TODO does BTT trigger?
+    @windowFilter::subscribe(
+      hs.window.filter.windowFocused, -> @windowEventDebouncer::start!
+    )
+    @windowFilter::subscribe(
+      hs.window.filter.windowUnfocused, -> @windowEventDebouncer::start!
+    )
+    @windowFilter::subscribe(
+      hs.window.filter.windowMoved, -> @windowEventDebouncer::start!
+    )
+
+    if hs.settings.get("shaded")
+        @drawShades(0) -- restore shaded state on restart
+    else
+        @scheduleNext! -- otherwise just schedule
+
+  screensChanged: =>
+    @unshade!
+    @restart!
+
+  shouldBeUnshaded: =>
+    screens = [hs.window.focusedWindow!?::screen!, hs.mouse.getCurrentScreen!]
+    uuids = [screen::getUUID! for screen in *screens]
+    hs.settings.get("mode") == "media" or hs.fnutils.some(uuids, (uuid) -> @screens::oledUUIDs![uuid])
+
+  scheduleNext: =>
+    @shadesDebouncer::start!
+    t = os.time() + @delay
+    @logger.d "Scheduled next shade for #{os.date("%I:%M:%S %p",t)}"
+
+  maybeShade: =>
+    if @shouldBeUnshaded!
+      @scheduleNext!
+    else
+      @drawShades! unless hs.settings.get("shaded")
+
+  unshade: =>
+    hs.fnutils.imap(@shades, (shade) -> shade::hide!)
+    hs.settings.set("shaded", false)
+    @scheduleNext!
+
+  drawShades: (duration = 10) =>
+    hs.fnutils.ieach(@shades, (shade) ->
+      with shade
+        ::bringToFront(true)
+        ::show(duration)
+    )
+    hs.settings.set("shaded", true)
+    @scheduleNext!

@@ -9,10 +9,12 @@ class Drive
   name: (...) => @@__name
 
   new: (...) =>
+    @logger = hs.logger.new "#{@icon or @name(...)}", "info"
+    @state = hs.watchable.new(@name(...), true)
+
+    @reloadWatcher = nil
     @initialized = false
     @started = false
-    @logger = hs.logger.new "#{@icon or @name}", "info"
-    @reloadWatcher = nil
 
     time = hs.timer.absoluteTime!
     try
@@ -71,7 +73,7 @@ class Drive
       @logger.w "🔴 Error after starting #{@@__name}:"
       @logger.w "  #{err}"
 
-    @reloadWatcher = hs.watchable.watch("reloads", "reload", -> @stop!)
+    @reloadWatcher = hs.watchable.watch("drive", "loader", -> @stop!)
     @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name!}")
     return (result or self) if @started
     return false

@@ -12,7 +12,7 @@ class Thrust extends Drive
       * ...config
 
   moveWindowTo: (toScreen, config = {}) =>
-    screens = hs.settings.get("screens")
+    screens = hs.settings.get("screens").orderedUUIDs
 
     window = hs.window.focusedWindow!
     windowScreen = window::screen!

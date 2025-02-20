@@ -2,24 +2,51 @@ class Screens extends Drive
   icon: "🖥️"
 
   onNew: =>
-    @saveScreens!
+    @calcInfoAndSave!
     @screenWatcher = hs.screen.watcher.new( -> @screensChanged!)
 
   onStart: =>
     @screenWatcher::start!
 
   screensChanged: =>
-    @saveScreens!
+    @calcInfoAndSave!
 
-  saveScreens: =>
-    positions = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
+  calcOrderedUUIDs: =>
+    positionsFn = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
 
-    screens = [ screen::getUUID! for screen, _ in positions]
-    hs.settings.set("screens", screens)
+    @orderedUUIDs = [ screen::getUUID! for screen, _ in positionsFn]
+    @numScreens = #@orderedUUIDs
 
-    @dell1, @dell2, @asus3 = table.unpack screens
+    @orderedUUIDs
 
-  oledUUIDs: => {[@asus3]: true}
+  calcDisplaysInfo: =>
+    command = "/usr/local/bin/lunar displays -j | /opt/homebrew/bin/jq 'map_values({brightness,contrast})'"
+    @displaysInfo = hs.json.decode((hs.execute(command)))
+
+  calcInfoAndSave: =>
+    @calcOrderedUUIDs!
+    @calcDisplaysInfo!
+    hs.settings.set("screens", {orderedUUIDs: @orderedUUIDs, displaysInfo: @displaysInfo})
+
+  calcScreensBrightness: =>
+    @calcInfoAndSave!
+
+    @displayBrightness = hs.fnutils.reduce([ brightness for _, {:brightness} in pairs @screensDisplayInfo! ], (a,b) -> a+b) // @numScreens
+
+  setBrightness: (brightness) =>
+    hs.execute "/usr/local/bin/lunar displays brightness #{brightness}"
+    @calcInfoAndSave!
+
+  calcScreensContrast: =>
+    @calcInfoAndSave!
+
+    @displayContrast = hs.fnutils.reduce([ contrast for _, {:contrast} in pairs @screensDisplayInfo! ], (a,b) -> a+b) // @numScreens
+
+  setContrast: (contrast) =>
+    hs.execute "/usr/local/bin/lunar displays contrast #{contrast}"
+    @calcInfoAndSave!
+
+  oledUUIDs: => {["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true}
 
   oledScreens: =>
     [hs.screen.find(uuid) for uuid, _ in pairs @oledUUIDs!]
