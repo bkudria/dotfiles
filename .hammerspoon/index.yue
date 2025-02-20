@@ -67,8 +67,8 @@ timed "load & init modules", ->
 
   paster = require("paster")(clipper, typer)
 
-  screens = require("screens")! -- TODO extend to replace hazeover
-
+  screens = require("screens")!
+  cloak = require("cloak")(screens)
 
   Hyper = require("hyper")
 
@@ -209,6 +209,7 @@ timed "configure siri remote", ->
 
 timed "start remaining modules", ->
   screens::start!
+  cloak::start!
   typer::start!
   clipper::start!
   thrust::start!

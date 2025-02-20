@@ -37,7 +37,7 @@ class Hyper extends Drive
     @modal = with hs.hotkey.modal.new!
       .entered = ->
         @alert = if @config.name
-          hs.alert.show(@config.name, alertStyle, hs.window.focusedWindow()\screen!, 'always')
+          hs.alert.show(@config.name, alertStyle, hs.window.focusedWindow!?::screen! or hs.screen.primaryScreen!, 'always')
         @inHyperspace = true
       .exited = ->
         hs.alert.closeSpecific(@alert)
