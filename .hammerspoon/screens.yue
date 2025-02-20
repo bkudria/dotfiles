@@ -10,29 +10,29 @@ class Screens extends Drive
     @windowEventDebouncer = hs.timer.delayed.new(0.2, -> @handleWindowEvent!)
     @shadesDebouncer = hs.timer.delayed.new(60*5, -> @maybeShade!)
 
-  scheduleNext: => @shadesDebouncer\start!
+  scheduleNext: => @shadesDebouncer::start!
 
   onStart: =>
     return unless #@oledScreens! > 0
     @shades = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
       shade = hs.drawing.rectangle(oledScreenRect)
       with shade
-        \setFillColor({white: 0, alpha: 1})
-        \setStroke(false)
-        \setFill(true)
-        \setBehavior(17)
+        ::setFillColor({white: 0, alpha: 1})
+        ::setStroke(false)
+        ::setFill(true)
+        ::setBehavior(17)
       shade
     )
 
-    @screenWatcher\start!
+    @screenWatcher::start!
 
-    @windowFilter\subscribe(
+    @windowFilter::subscribe(
       hs.window.filter.windowFocused, -> @scheduleNext!
     )
-    @windowFilter\subscribe(
+    @windowFilter::subscribe(
       hs.window.filter.windowUnfocused, -> @scheduleNext!
     )
-    @windowFilter\subscribe(
+    @windowFilter::subscribe(
       hs.window.filter.windowMoved, -> @scheduleNext!
     )
 
@@ -45,27 +45,27 @@ class Screens extends Drive
     @logger.i "Scheduled next shade for #{os.date("%I:%M %p",t)}"
 
   oledScreens: => [hs.screen.find(uuid) for i, uuid in pairs oledUUIDs]
-  oledScreensRects: => hs.fnutils.imap(@oledScreens!, (screen) -> screen\fullFrame!)
+  oledScreensRects: => hs.fnutils.imap(@oledScreens!, (screen) -> screen::fullFrame!)
 
   handleWindowEvent: =>
     window = hs.window.focusedWindow!
     return unless window
 
-    focusedScreenUUID = window\screen!\getUUID!
+    focusedScreenUUID = window::screen!::getUUID!
     if oledUUIDs[focusedScreenUUID]
       print("oled focused event")
       @unshade!
       @scheduleNext!
 
   maybeShade: =>
-    focusedScreenUUID = hs.window.focusedWindow!\screen!\getUUID!
+    focusedScreenUUID = hs.window.focusedWindow!::screen!::getUUID!
     if oledUUIDs[focusedScreenUUID]
       @scheduleNext!
     else
       @drawShades!
 
   unshade: =>
-    hs.fnutils.imap(@shades, (shade) -> shade\hide!)
+    hs.fnutils.imap(@shades, (shade) -> shade::hide!)
     hs.settings.set("shaded", false)
 
   drawShades: =>
@@ -77,8 +77,8 @@ class Screens extends Drive
 
     hs.fnutils.ieach(@shades, (shade) ->
       with shade
-        \bringToFront(true)
-        \show(10)
+        ::bringToFront(true)
+        ::show(10)
     )
     hs.settings.set("shaded", true)
 

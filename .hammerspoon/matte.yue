@@ -11,39 +11,39 @@ class Matte extends Drive
     @coalescingLayoutTimer = nil
 
     @tabs = {}
-    -- @chooser\queryChangedCallback(() -> @searchTabs!)
+    -- @chooser::queryChangedCallback(() -> @searchTabs!)
 
   -- searchTabs: () =>
-  --   query = @chooser\query!
-  --   results = @clipper\search(query)
+  --   query = @chooser::query!
+  --   results = @clipper::search(query)
   --   choices = hs.fnutils.imap(results, (item) ->
   --     { text: item.clip, subText: os.date("%b %d, %H:%M:%S", item.ts) })
   --   if #query > 1 and #results > 1
   --     choices = hs.fnutils.concat(
   --       choices, {{
-  --         text: table.concat(hs.fnutils.imap(results, (result) -> result.clip), "\n"),
+  --         text: table.concat(hs.fnutils.imap(results, (result) -> result.clip), "::n"),
   --           subText: "Paste all #{#results} items"
   --       }}
   --     )
-  --   @chooser\choices(choices)
+  --   @chooser::choices(choices)
 
   chooseTab: (callback) =>
     @tabChooser = hs.chooser.new(callback)
-    @tabChooser\choices -> @tabs
+    @tabChooser::choices -> @tabs
     @tabs = {}
     hs.task.new("/Users/bkudria/bin/chrome-tabs", nil, (_task, stdOut, _stdErr)->
       @parseTabs(stdOut)
-      @tabChooser\refreshChoicesCallback(true)
+      @tabChooser::refreshChoicesCallback(true)
       true
-    )\start!
+    )::start!
     @chooserCallback = callback
-    @tabChooser\query(nil)
-    @tabChooser\show!
+    @tabChooser::query(nil)
+    @tabChooser::show!
 
 
   parseTabs: (stdOut) =>
     return true if #stdOut == 0
-    lines = hs.fnutils.split(stdOut, '\n', true)
+    lines = hs.fnutils.split(stdOut, '::n', true)
     items = hs.fnutils.imap(lines, (line) ->
       return nil if #line == 0
       item = hs.fnutils.split(line, " ", 1, true)
@@ -72,22 +72,22 @@ class Matte extends Drive
 
   handle: =>
     @lastApp = nil
-    @app\handle!
+    @app::handle!
 
   onStart: =>
     -- @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerForScreen(screen) for screen in *hs.screen.allScreens!]
     -- @coalescingLayoutTimer = @makeCoaslescingLayoutTimerForScreens(hs.screen.allScreens!)
     -- @screenWatcher = hs.screen.watcher.new(->
     --   hs.reload!
-      -- hs.fnutils.each(@coalescingLayoutTimers, (timer) -> timer\stop!)
+      -- hs.fnutils.each(@coalescingLayoutTimers, (timer) -> timer::stop!)
       -- @coalescingLayoutTimers = nil
       -- @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerForScreen(screen) for screen in *hs.screen.allScreens!]
     -- )
-    -- @screenWatcher\start!
-    -- @appWatcher\start!
+    -- @screenWatcher::start!
+    -- @appWatcher::start!
 
   makeCoaslescingLayoutTimerForScreen: (screen) =>
-    screenHint = screen\getUUID!
+    screenHint = screen::getUUID!
     filter = hs.window.filter.new({
       "Google Chrome": {
         visible: true,
@@ -100,7 +100,7 @@ class Matte extends Drive
 
     ratio = 1/2
 
-    screenAspect = screen\frame!.w / screen\frame!.h
+    screenAspect = screen::frame!.w / screen::frame!.h
 
     layout1 = hs.window.layout.new({
       {filter, "move 1 closest [0,0,100,100] #{screenHint}"}
@@ -125,18 +125,18 @@ class Matte extends Drive
       })
 
     timer = hs.timer.delayed.new(0.05, () ->
-      numWindows = #filter\getWindows!
-      filter\pause!
-      layout1\apply! if numWindows == 1
-      layout2\apply! if numWindows == 2
-      layoutN\apply! if numWindows > 2
-      filter\resume!
+      numWindows = #filter::getWindows!
+      filter::pause!
+      layout1::apply! if numWindows == 1
+      layout2::apply! if numWindows == 2
+      layoutN::apply! if numWindows > 2
+      filter::resume!
     )
 
     applyLayoutDebounced = (window, name, event) ->
-      timer\start(0.01)
+      timer::start(0.01)
 
-    filter\subscribe(
+    filter::subscribe(
       {
         hs.window.filter.windowOnScreen,
         hs.window.filter.windowNotOnScreen,
@@ -152,9 +152,9 @@ class Matte extends Drive
 
   makeCoaslescingLayoutTimerForScreens: (screens) =>
     print 1
-    mainUUID = hs.screen.mainScreen!\getUUID!
+    mainUUID = hs.screen.mainScreen!::getUUID!
     print 2
-    screenHints = [screen\getUUID! for screen in *screens]
+    screenHints = [screen::getUUID! for screen in *screens]
     print 3
     table.sort(screenHints, (h1, h2) -> (h1 == mainUUID))
     print 4
@@ -170,7 +170,7 @@ class Matte extends Drive
 
     ratio = 1/2
 
-    -- screenAspect = screen\frame!.w / screen\frame!.h
+    -- screenAspect = screen::frame!.w / screen::frame!.h
 
     layout1 = hs.window.layout.new({
       {filter, "move 1 focused [0,0,100,100] #{screenHint}"}
@@ -198,18 +198,18 @@ class Matte extends Drive
     --   })
 
     timer = hs.timer.delayed.new(0.01, () ->
-      numWindows = #filter\getWindows!
-      filter\pause!
-      layout1\apply! if numWindows == 1
-      layout2\apply! if numWindows == 2
-      -- layoutN\apply! if numWindows > 2
-      filter\resume!
+      numWindows = #filter::getWindows!
+      filter::pause!
+      layout1::apply! if numWindows == 1
+      layout2::apply! if numWindows == 2
+      -- layoutN::apply! if numWindows > 2
+      filter::resume!
     )
 
     applyLayoutDebounced = (window, name, event) ->
-      timer\start(0.02)
+      timer::start(0.02)
 
-    filter\subscribe(
+    filter::subscribe(
       {
         hs.window.filter.windowOnScreen,
         hs.window.filter.windowNotOnScreen,

@@ -13,20 +13,20 @@ class App
         __name: name
         id: id
 
-  current: => App.byID[hs.application.frontmostApplication!\bundleID!]
+  current: => App.byID[hs.application.frontmostApplication!::bundleID!]
   @app: => hs.application.get(@id)
   @launch: => hs.application.launchOrFocusByBundleID(@id)
-  @isFocused: => hs.application.frontmostApplication!\bundleID! == @id
+  @isFocused: => hs.application.frontmostApplication!::bundleID! == @id
   @isRunning: =>
     @app! ~= nil
   whenFocused: =>
-    @app!\activate!
+    @app!::activate!
     hs.eventtap.keyStroke({'cmd'}, '`', 200000, @app!)
-    @app!\focusedWindow!\raise!
+    @app!::focusedWindow!::raise!
   @activate: =>
-    @app!\activate!
-    @app!\mainWindow!\unminimize!
-    @app!\focusedWindow!\raise!
+    @app!::activate!
+    @app!::mainWindow!::unminimize!
+    @app!::focusedWindow!::raise!
 
   @handle: =>
     if @isRunning!
@@ -46,16 +46,16 @@ class App
   @rBack: => hs.eventtap.keyStroke({}, 'ESCAPE')
 
   @toggleAudio: =>
-    if @apps!.Zoom\isRunning!
-      @apps!.Zoom\toggleAudio!
-    elseif @apps!.Chrome\isRunning!
-      @apps!.Chrome\rMicrophone!
+    if @apps!.Zoom::isRunning!
+      @apps!.Zoom::toggleAudio!
+    elseif @apps!.Chrome::isRunning!
+      @apps!.Chrome::rMicrophone!
 
   @toggleVideo: =>
-    if @apps!.Zoom\isRunning!
-      @apps!.Zoom\toggleVideo!
-    elseif @apps!.Chrome\isRunning!
-      @apps!.Chrome\rPower!
+    if @apps!.Zoom::isRunning!
+      @apps!.Zoom::toggleVideo!
+    elseif @apps!.Chrome::isRunning!
+      @apps!.Chrome::rPower!
 
 
 class Chrome extends App
@@ -75,13 +75,13 @@ class Chrome extends App
   rMicrophone: => hs.eventtap.keyStrokes('!rMicrophone')
   rPower: => hs.eventtap.keyStrokes('!rPower')
   whenFocused: =>
-    if #@app!\visibleWindows! == 1
+    if #@app!::visibleWindows! == 1
       hs.eventtap.keyStroke({'cmd'}, 'l', 200000, @app!)
     else
       super!
 
   @activate: =>
-    if #@app!\visibleWindows! == 0
+    if #@app!::visibleWindows! == 0
       hs.eventtap.keyStroke({'cmd'}, 'n', 200000, @app!)
     else
       super!
@@ -102,7 +102,7 @@ class Chrome extends App
                 delay 0.01
               end repeat
 
-              execute active tab javascript "document.location.href = \"]]..url..[[\";"
+              execute active tab javascript "document.location.href = ::"]]..url..[[::";"
             end tell
           end if
         end tell
@@ -141,7 +141,7 @@ class NotionCalendar extends App
 class Emacs extends App
   id: 'org.gnu.Emacs'
   @activate: =>
-    if #@app!\visibleWindows! == 0
+    if #@app!::visibleWindows! == 0
       os.execute("/opt/homebrew/bin/emacsclient -cnF '((fullscreen . maximized))'")
       super!
     else
@@ -170,9 +170,9 @@ class Slack extends App
     hs.eventtap.keyStroke({'cmd', 'shift'}, 'm', @app!)
     -- hs.eventtap.keyStroke({}, 'return', @app!)
   toggleUnreadActivity: =>
-    -- print(@app!\focusedWindow!\title!)
-    -- print(hs.inspect(@app!\focusedWindow!\title!\match("Unread")))
-    if @app!\focusedWindow!\title!\match("Unread")
+    -- print(@app!::focusedWindow!::title!)
+    -- print(hs.inspect(@app!::focusedWindow!::title!::match("Unread")))
+    if @app!::focusedWindow!::title!::match("Unread")
       -- print("u -> a")
       @switchToActivity!
     else
@@ -200,12 +200,12 @@ class Reeder extends App
 
 class Notion extends App
   id: 'notion.id'
-  up: => hs.eventtap.keyStroke({'cmd'}, "\\")
-  down: => hs.eventtap.keyStroke({'cmd'}, "\\")
+  up: => hs.eventtap.keyStroke({'cmd'}, "::::")
+  down: => hs.eventtap.keyStroke({'cmd'}, "::::")
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
   right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
 
 class NotionCalendar extends App
   id: 'com.cron.electron'
 
-{App, App\apps!}
+{App, App::apps!}

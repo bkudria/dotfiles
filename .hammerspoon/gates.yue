@@ -19,32 +19,32 @@ class Gates
   start: =>
     -- @screens = @getScreens!
     -- @logger.i hs.inspect(@screens)
-    -- @screenWatcher\start!
-    -- @managedWindows = hs.window.filter.new((w) -> hs.window.filter.default\isWindowAllowed(w))
-    -- -- @logger.i hs.inspect(@managedWindows\getWindows!)
+    -- @screenWatcher::start!
+    -- @managedWindows = hs.window.filter.new((w) -> hs.window.filter.default::isWindowAllowed(w))
+    -- -- @logger.i hs.inspect(@managedWindows::getWindows!)
     -- @assignWindows!
 
   getWindowPrefs: (window) =>
-    hs.settings.get("windowPrefs."..window\id!)
+    hs.settings.get("windowPrefs."..window::id!)
 
   getScreens: =>
     @logger.i "updated screens"
-    { \
-      screen\id!, \
-      (if screen\frame!.aspect > 1 then "landscape" else "portrait") \
+    { ::
+      screen::id!, ::
+      (if screen::frame!.aspect > 1 then "landscape" else "portrait") ::
       for screen in *hs.screen.allScreens! }
 
   assignWindows: =>
     screenAssignments = { id, [] for id, _ in pairs @screens }
     screenIDs = [id for id in pairs @screens]
 
-    unassignedWindows = @managedWindows\getWindows!
+    unassignedWindows = @managedWindows::getWindows!
 
     for window in *unassignedWindows
       @logger.i hs.inspect(window)
-      appCounts = { \
-        id, \
-        (hs.fnutils.ifilter(assignments, (assignedWindow) -> assingedWindow\application!\pid! > 2)) \
+      appCounts = { ::
+        id, ::
+        (hs.fnutils.ifilter(assignments, (assignedWindow) -> assingedWindow::application!::pid! > 2)) ::
         for id, assignments in pairs screenAssignments }
       @logger.i hs.inspect({:windoow, :appCounts})
 
@@ -55,4 +55,4 @@ class Gates
     -- { id, screen for screenInfo in hs.fnutils.imap(hs.screen.allscreens!, (screen) ->
     --   [screen.id!, {frame: screen.frame!}])}
 
-        -- (hs.fnutils.ifilter(assignments, (assignedWindow) -> assignedWindow\application\bundleID! == window\application\bundleID!)) \
+        -- (hs.fnutils.ifilter(assignments, (assignedWindow) -> assignedWindow::application::bundleID! == window::application::bundleID!)) ::

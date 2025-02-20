@@ -1,41 +1,41 @@
 -- class Actions extends Drive
 flipScreens = ->
   for _, screen in ipairs hs.screen.allScreens!
-    currentRotation = screen\rotate!
+    currentRotation = screen::rotate!
     if currentRotation == 90
-      screen\rotate(270)
+      screen::rotate(270)
     else
-      screen\rotate(90)
+      screen::rotate(90)
 
 rotateSecondaryScreen = ->
   screens = hs.screen.allScreens!
-  table.sort(screens, (s1, s2) -> s1\id! < s2\id!)
+  table.sort(screens, (s1, s2) -> s1::id! < s2::id!)
   {primary, secondary} = screens
 
-  primaryRotation = primary\rotate!
-  secondaryRotation = secondary\rotate!
+  primaryRotation = primary::rotate!
+  secondaryRotation = secondary::rotate!
 
   if secondaryRotation == 0
     if primaryRotation == 90
-      secondary\rotate(270)
+      secondary::rotate(270)
     else
-      secondary\rotate(90)
+      secondary::rotate(90)
   else
-    secondary\rotate(0)
+    secondary::rotate(0)
 
 editConfig = -> hs.execute '~/bin/emacsclient -n ~/.hammerspoon/index.moon'
 
 parkMouse = -> hs.mouse.setAbsolutePosition{x: 2^13, y: 2^13}
 
-maximize = (window = hs.window.focusedWindow!, frame = window\screen!\fullFrame!) ->
-  window\setFrame(frame)
-  -- window\maximize!
+maximize = (window = hs.window.focusedWindow!, frame = window::screen!::fullFrame!) ->
+  window::setFrame(frame)
+  -- window::maximize!
 
-moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window\screen!\previous!) ->
+moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window::screen!::previous!) ->
   hs.window.animationDuration = 0
 
   mvFn = ->
-    window\moveToScreen(targetScreen, true, true, 0)
+    window::moveToScreen(targetScreen, true, true, 0)
 
   restore = ->
     hs.timer.doAfter(0.1, -> maximize!)
@@ -44,14 +44,14 @@ moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window\screen!
   windowMoved = ->
     return true if window == nil
     return true if moveChecks >= 2
-    screenId = hs.window.focusedWindow!\screen!\id!
+    screenId = hs.window.focusedWindow!::screen!::id!
     moveChecks += 1
-    targetScreenId = targetScreen\id!
+    targetScreenId = targetScreen::id!
     screenId == targetScreenId
 
   setSmallFrame = ->
-    targetScreenSmallFrame = window\screen!\fullFrame!\scale(0.2)
-    window\setFrame(targetScreenSmallFrame,0)
+    targetScreenSmallFrame = window::screen!::fullFrame!::scale(0.2)
+    window::setFrame(targetScreenSmallFrame,0)
 
   switchScreen = ->
     setSmallFrame!
@@ -67,17 +67,17 @@ moveToScreen = (window = hs.window.focusedWindow!, targetScreen = window\screen!
 
   switchScreen!
 
-moveToScreenLeft = (window = hs.window.focusedWindow!) -> moveToScreen(window, window\screen!\toWest!)
-moveToScreenRight = (window = hs.window.focusedWindow!) -> moveToScreen(window, window\screen!\toEast!)
+moveToScreenLeft = (window = hs.window.focusedWindow!) -> moveToScreen(window, window::screen!::toWest!)
+moveToScreenRight = (window = hs.window.focusedWindow!) -> moveToScreen(window, window::screen!::toEast!)
 
 toggleFullScreen = ->
   with hs.window.focusedWindow!
-    isFullScreen = \isFullscreen!
-    \setFullScreen(not isFullScreen)
+    isFullScreen = ::isFullscreen!
+    ::setFullScreen(not isFullScreen)
 
 screenFraction = (fraction, total) ->
   with window = hs.window.focusedWindow!
-    \setFullScreen(false)
+    ::setFullScreen(false)
 
     with hs.grid
       .setGrid("1x#{total}")
