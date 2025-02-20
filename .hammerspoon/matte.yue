@@ -1,5 +1,5 @@
-class Matte
-  new: =>
+class Matte extends Drive
+  onNew: =>
     @logger = hs.logger.new("matte", "info")
 
     @lastApp = nil
@@ -74,7 +74,7 @@ class Matte
     @lastApp = nil
     @app\handle!
 
-  start: =>
+  onStart: =>
     -- @coalescingLayoutTimers = [@makeCoaslescingLayoutTimerForScreen(screen) for screen in *hs.screen.allScreens!]
     -- @coalescingLayoutTimer = @makeCoaslescingLayoutTimerForScreens(hs.screen.allScreens!)
     -- @screenWatcher = hs.screen.watcher.new(->

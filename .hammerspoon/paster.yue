@@ -1,5 +1,5 @@
-class Paster
-  new: (clipper, typer) =>
+class Paster extends Drive
+  onNew: (clipper, typer) =>
     @clipper = clipper
     @typer = typer
     @chooser = hs.chooser.new((item) -> @paste(item))

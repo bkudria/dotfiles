@@ -1,46 +1,47 @@
-utf8 = require 'utf8'
-keyMap = require"hs.keycodes".map
 
-symbols = ")!@#$%^&*("
-letters = "abcdefghijklmnopqrstuvwxyz"
+class Typer extends Drive
+  utf8 = require 'utf8'
+  keyMap = require"hs.keycodes".map
 
-symbols_unshifted = { "#{symbols\sub(i,i)}", "#{i - 1}" for i = 1,10 }
-letters_unshifted = { "#{letters\sub(i,i)\upper!}", "#{letters\sub(i,i)}" for i = 1,#letters }
+  symbols = ")!@#$%^&*("
+  letters = "abcdefghijklmnopqrstuvwxyz"
 
-shift_map = {
-  "_": "-"
-}
-for k, v in pairs symbols_unshifted do shift_map[k] = v
-for k, v in pairs letters_unshifted do shift_map[k] = v
+  symbols_unshifted = { "#{symbols\sub(i,i)}", "#{i - 1}" for i = 1,10 }
+  letters_unshifted = { "#{letters\sub(i,i)\upper!}", "#{letters\sub(i,i)}" for i = 1,#letters }
 
-char_map = {
-  [" "]: "space",
-}
+  shift_map = {
+    "_": "-"
+  }
+  for k, v in pairs symbols_unshifted do shift_map[k] = v
+  for k, v in pairs letters_unshifted do shift_map[k] = v
 
--- https://github.com/Hammerspoon/hammerspoon/issues/1881
-keyPress = (key, mods = {}) ->
-  { hs.eventtap.event.newKeyEvent(mods, key, true), hs.eventtap.event.newKeyEvent(mods, key, false) }
+  char_map = {
+    [" "]: "space",
+  }
+
+  -- https://github.com/Hammerspoon/hammerspoon/issues/1881
+  keyPress = (key, mods = {}) ->
+    { hs.eventtap.event.newKeyEvent(mods, key, true), hs.eventtap.event.newKeyEvent(mods, key, false) }
 
 
-charPress = (char) ->
-  mods, key = if shift_map[char]
-    {"shift"}, shift_map[char]
-  else
-    {}, (char_map[char] or char)
+  charPress = (char) ->
+    mods, key = if shift_map[char]
+      {"shift"}, shift_map[char]
+    else
+      {}, (char_map[char] or char)
 
-  keyPress(key, mods)
+    keyPress(key, mods)
 
-charPresses = (string) -> hs.fnutils.mapCat([char for char in string\gmatch(".")], charPress)
-deletePresses = (count) -> hs.fnutils.mapCat([i for i = 1, count], -> keyPress("delete"))
+  charPresses = (string) -> hs.fnutils.mapCat([char for char in string\gmatch(".")], charPress)
+  deletePresses = (count) -> hs.fnutils.mapCat([i for i = 1, count], -> keyPress("delete"))
 
-class Typer
-  new: (snippets) =>
+  onNew: (snippets) =>
     @word = ""
     @typed_words_ring = {}
     @snippets = snippets
     @tap = hs.eventtap.new({ hs.eventtap.event.types.keyUp }, (event) -> @keyHandler(event))
 
-  start: =>
+  onStart: =>
     @tap\start!
 
   autocomplete_word: =>

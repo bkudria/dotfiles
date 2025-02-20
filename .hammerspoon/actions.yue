@@ -1,3 +1,4 @@
+-- class Actions extends Drive
 flipScreens = ->
   for _, screen in ipairs hs.screen.allScreens!
     currentRotation = screen\rotate!

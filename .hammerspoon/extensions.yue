@@ -1,0 +1,17 @@
+class Extensions extends Drive
+  onNew: =>
+    hs.loadSpoon('SpoonInstall')
+
+    spoon.SpoonInstall.repos.PaperWM = {
+        url: "https://github.com/mogenson/PaperWM.spoon",
+        desc: "PaperWM.spoon repository",
+        branch: "release",
+    }
+
+  onStart: (spoonConfig) =>
+    for name, args in pairs spoonConfig
+
+      -- { :url, :desc, :branch } = args
+      -- spoons.spoonInstall.repos[name] = {:url, :desc, :branch}
+
+      spoon.SpoonInstall\andUse(name, args)

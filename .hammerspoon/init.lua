@@ -1,5 +1,4 @@
 -- -*- dash-at-point-docset: "hammerspoon,lua" -*-
-hs.logger.setGlobalLogLevel("warning")
 epochTime = hs.timer.absoluteTime()
 
 lastTime = epochTime
@@ -18,6 +17,7 @@ end
 
 time = (hs.timer.absoluteTime() - lastTime) / 1000000
 print("⏰ " .. time .. "ms to set up luarocks")
+lastTime = hs.timer.absoluteTime()
 
 -- https://github.com/Hammerspoon/hammerspoon/issues/2943#issuecomment-2105644391
 function _wf_timed_allWindows()
@@ -47,6 +47,7 @@ _wf_ignoreWebContent()
 
 time = (hs.timer.absoluteTime() - lastTime) / 1000000
 print("⏰ " .. time .. "ms to fix windowfilter WebKit issue")
+lastTime = hs.timer.absoluteTime()
 
 exports = require("yue")("index")
 

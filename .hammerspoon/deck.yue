@@ -1,0 +1,12 @@
+class Deck-- extends Drive
+  new: =>
+    print("deck new")
+    hs.streamdeck.init (connected, deck) ->
+      if connected
+        print "Connected..."
+        @deck = deck
+        print(hs.inspect(deck))
+      else
+        print "Disconnected..."
+        print(hs.inspect(@deck))
+        @deck = nil

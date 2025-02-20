@@ -8,12 +8,26 @@ style = {
   textStyle: {paragraphStyle: {alignment: 'center'}}
 }
 
-class Clock
-  new: =>
+class Clock extends Drive
+  onNew: =>
     @timer = nil
     @time = os.date("%H:%M")
+
+  onStart: =>
     @updateState!
-    @logger = hs.logger.new("clock", "info")
+    nextHour = (os.date('*t').hour + 1) % 24
+    @updateState! if (nextHour > 11) and (nextHour < 14)
+    @timer = hs.timer.doAt("#{nextHour}:00", ->
+      @show!
+      @restart!)
+
+    @caffeinateWatcher = hs.caffeinate.watcher.new((event) ->
+      @logger.i('caffeinate event', event)
+      if event == hs.caffeinate.watcher.systemDidWake
+        @logger.i('wake!')
+      if event == hs.caffeinate.watcher.screensDidUnlock
+        @logger.i('unlock!')
+    )\start!
 
   show: =>
     @time = os.date("%H:%M")
@@ -29,17 +43,3 @@ class Clock
     hs.settings.set("sunrise", sunrise)
     hs.settings.set("sunset", sunset)
 
-  start: =>
-    nextHour = (os.date('*t').hour + 1) % 24
-    @updateState! if (nextHour > 11) and (nextHour < 14)
-    @timer = hs.timer.doAt("#{nextHour}:00", ->
-      @show!
-      @start!)
-
-    @caffeinateWatcher = hs.caffeinate.watcher.new((event) ->
-      @logger.i('caffeinate event', event)
-      if event == hs.caffeinate.watcher.systemDidWake
-        @logger.i('wake!')
-      if event == hs.caffeinate.watcher.screensDidUnlock
-        @logger.i('unlock!')
-    )\start!

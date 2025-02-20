@@ -1,0 +1,30 @@
+class Thrust extends Drive
+  actions: => {
+    moveNextScreen:
+      type: 47
+      name: "Move Window to Next Monitor"
+    maxNextScreen:
+      type: 48
+      name: "Maximize Window to Next Monitor"
+    moveResize:
+      type: 251
+      name: "Custom Move  or  Resize Window"
+      config: "{\"BTTChangeWidthRelative\":1,\"BTTOriginToUse\":0,\"BTTChangeWindowWidth\":true,\"BTTCareForStageManager\":false,\"BTTActiveOrHoveredWindow\":0,\"BTTChangeHeightRelative\":1,\"BTTOriginDisplay\":1,\"BTTChangeXOriginRelative\":0,\"BTTNewWindowWidthRelative\":100,\"BTTChangeYOriginRelative\":0,\"BTTUseVisibleFrame\":false,\"BTTNewWindowHeightRelative\":100,\"BTTScreenOrigin\":0,\"BTTChangeWindowHeight\":true,\"BTTDirectionToMove\":1,\"BTTScreensToMove\":1}"
+  }
+
+  action: (args) =>
+    {:type, :name} = args
+
+    {
+      BTTPredefinedActionType: type
+      BTTPredefinedActionName: name
+    }
+
+  act: (id) =>
+    json = hs.json.encode(@action(@actions![id]))
+
+    script = "tell application \"BetterTouchTool\"
+        trigger_action #{string.format("%q", json)}
+      end tell"
+
+    hs.osascript.applescript script

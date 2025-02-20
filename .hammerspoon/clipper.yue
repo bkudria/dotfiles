@@ -1,15 +1,15 @@
-class Clipper
-  new: (maxEntries = 100, maxAge = 1000) =>
+class Clipper extends Drive
+  onNew: (maxEntries = 100, maxAge = 1000) =>
     @dbPath = "#{hs.configdir}/.clips.sqlite"
     @maxEntries = maxEntries
     @maxAge = maxAge
     @db = hs.sqlite3.open(@dbPath)
 
-  start: =>
+  onStart: =>
     @dbInit!
     @clipWatcher = hs.pasteboard.watcher.new((clipped) -> @recordNewClip(clipped))
 
-  stop: =>
+  onStop: =>
     @db\close! if @db
 
   privateClip: () ->

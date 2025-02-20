@@ -1,116 +1,95 @@
+--
+-- Early Init
+--
+global p = (...) -> print hs.inspect ...
+
 epochTime = hs.timer.absoluteTime!
 
-initLogger = hs.logger.new("init", "debug")
+global Drive = require "drive"
+
+console = require("console")::go!
+watcher = require("watcher")::go!
+
+initLogger = hs.logger.new("→Index", "info")
 
 timed = (lbl, fn) ->
+  initLogger.i("#{lbl}<")
   startTime = hs.timer.absoluteTime!
   result = fn!
   endTime = hs.timer.absoluteTime!
-  initLogger.d("⏰ #{(endTime - startTime) / 1000000}ms #{lbl}")
+  initLogger.i(">#{lbl} #{(endTime - startTime) / 1000000}ms")
   result
 
-timed "require console, reloader", ->
-  require "console"
-  require "reloader"
+--
+-- Early Start
+--
+clock = require("clock")::go!
+flux = require("flux")::go!
 
-timed "clock & flux require & init", ->
+require("settings")::go!
+
+--
+-- Load & Init
+--
+timed "load & init modules", ->
   global *
-  Clock = require "clock"
-  Flux = require "flux"
 
-  clock = Clock!
-  flux = Flux!
+  dispatch = require("dispatch")!::dispatch
+  extensions = require("extensions")!
 
-  flux\apply!
+  -- deck = require("deck")! TODO implement
 
-timed "hammerspoon settings", ->
-  require 'hammerspoon'
-  require 'hs.ipc'
-
-timed "require spoons & modules", ->
-  global *
-  spoons = require 'spoons'
-  dispatch = require 'dispatch'
-  appAndApps = require 'apps'
+  appAndApps = require 'apps' -- TODO rewrite
   App = appAndApps[1]
   apps = appAndApps[2]
-  actions = require 'actions'
-  Hyper = require 'hyper'
-  Matte = require 'matte'
-  -- Gates = require 'gates'
-  Clipper = require 'clipper'
-  Typer = require 'typer'
-  Paster = require 'paster'
-  Screens = require 'screens'
 
-timed "require snippets, text selection", ->
-  global *
-  yasnippets = require 'yasnippets'
-  selectedText = require 'selected_text'
+  actions = require("actions") -- TODO clean up
 
---timed "init gates", ->
--- global *
---  gates = Gates!
 
-timed "init matte", ->
-  global *
-  matte = Matte!\wrap(apps.Chrome)
+  -- Matte = require 'matte' -- TODO delete?
+  -- matte = Matte!\wrap(apps.Chrome) -- TODO delete
 
-timed "init remaining modules", ->
-  global *
-  matte = Matte!\wrap(apps.Chrome)
-  typer = Typer(yasnippets(apps.Emacs))
-  clipper = Clipper!
-  paster = Paster(clipper, typer)
-  screens = Screens!\start!
+  yasnippets = require 'yasnippets' -- TODO defer filescan
+  selectedText = require 'selected_text' --TODO replace with BTT functionality?
 
-timed "init and start spoons", ->
-  spoons{
-    Seal: {
-      start: true,
-      hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
-      fn: (seal) ->
-        seal.show = (self, query) ->
-          frame = hs.mouse.getCurrentScreen!\frame!
-          center = frame.center
-          self.chooser\query('')
-          self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
-          self
+  --  gates = require("gates")! -- TODO implement
 
-        seal\loadPlugins{'apps', 'useractions', 'calc'}
-        seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
-        seal.plugins.apps.appSearchPaths = {
-          "/Applications", "/System/Applications",
-          "/System/Library/PreferencePanes", "~/Applications"
-        }
-        seal.plugins.apps\restart!
-    },
-    -- PaperWM: {
-    --   url: "https://github.com/mogenson/PaperWM.spoon",
-    --   desc: "PaperWM.spoon repository",
-    --   branch: "release",
-    --   repo: "PaperWM",
-    --   config: { screen_margin: 16, window_gap: 64 },
-    --   start: true,
-    --   hotkeys: {}
-    -- }
-  }
+  -- deck = Deck! -- TODO implement
+  -- matte = Matte!\wrap(apps.Chrome) -- TODO delete?
 
+  typer = require("typer")(yasnippets(apps.Emacs)) -- TODO lazy load, clean up typer
+
+  clipper = require("clipper")!
+
+  paster = require("paster")(clipper, typer)
+
+  screens = require("screens")! -- TODO extend to replace hazeover
+
+  thrust = require("thrust")! -- TODO implement
+
+  Hyper = require("hyper")
+
+  dispatch = require("dispatch")!::dispatch
+
+--
+-- Config & Start
+--
 timed "hyperspace config", ->
-  hs.hotkey.setLogLevel 1
   Hyper!\space{
     '`': -> clock\show!
     'tab': typer\autocomplete_word
-    '2': -> clock\showDate!
+    '1': -> clock\showDate!
+    '2': -> hs.shortcuts.run "OCR -> Clipboard"
+    "\"": nil -- A11y
     'left': -> App.current!\left!
     'right': -> App.current!\right!
     'up': -> App.current!\up!
     'down': -> App.current!\down!
-    ']': -- Siri
-    ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'SPACE' )
+    ']': nil -- Siri
+    ';': -> hs.eventtap.keyStroke( {'cmd', 'ctrl'} , 'space' )
     '[': -> hs.eventtap.keyStroke( {'cmd', 'shift'} , '/' )
     '-': nil -- Notification Center
-    'b': matte
+    'b': apps.Chrome
     'c': apps.NotionCalendar
     'd': nil -- Dash
     'e': apps.Emacs
@@ -118,18 +97,18 @@ timed "hyperspace config", ->
       'u': -> hs.eventtap.keyStrokes(string.upper(selectedText!))
       'l': Hyper(name: 'Link', afterAction: (hyper) -> hyper.modal\exit!)\space{
         'b': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{apps.Chrome.currentURL!})")
-        't': -> matte\chooseTab((tab) ->
-          hs.eventtap.keyStrokes("[#{selectedText!}](#{tab["url"]})") if tab
-        )
+        -- 't': -> matte\chooseTab((tab) ->
+        --   hs.eventtap.keyStrokes("[#{selectedText!}](#{tab["url"]})") if tab
+        -- )
         'v': -> hs.eventtap.keyStrokes("[#{selectedText!}](#{hs.pasteboard.getContents!})")
       }
     }
     'i': Hyper(name: "Insert", afterAction: (hyper) -> hyper.modal\exit!)\space{
       'b': Hyper(name: 'Browser Tab', afterAction: (hyper) -> hyper.modal\exit!)\space{
         'b': -> hs.eventtap.keyStrokes(apps.Chrome.currentURL!)
-        'l': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes("[#{tab['title']}](#{tab['url']})") if tab)
-        'u': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['url']) if tab)
-        't': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['title']) if tab)
+        -- 'l': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes("[#{tab['title']}](#{tab['url']})") if tab)
+        -- 'u': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['url']) if tab)
+        -- 't': -> matte\chooseTab((tab) -> hs.eventtap.keyStrokes(tab['title']) if tab)
       }
     }
     'k': apps.Slack
@@ -138,6 +117,7 @@ timed "hyperspace config", ->
     'r': apps.Reeder
     's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal\exit!)\space{
       'delete': hs.caffeinate.systemSleep
+      'down': -> screens::maybeShade!
       'c': hs.toggleConsole
       'h': actions.hybridMode
       'l': hs.caffeinate.startScreensaver
@@ -161,7 +141,8 @@ timed "hyperspace config", ->
       '3': -> actions.screenFraction(3, 3)
       '4': -> actions.setHazeOver(30)
       '5': -> actions.setHazeOver(95)
-      'space': -> actions.moveToScreen!
+      -- 'space': -> actions.moveToScreen!
+      'space': -> thrust\act("maxNextScreen")
       'w': -> actions.maximize!
       'h': -> actions.moveToScreenLeft!
       'j': -> actions.screenFraction(2, 2)
@@ -175,7 +156,39 @@ timed "hyperspace config", ->
     'z': apps.Zoom
   }
 
-timed "remote config and ipc", ->
+timed "spoons start", ->
+  extensions::start{
+      Seal: {
+        start: true,
+        hotkeys: {toggle: {{'cmd'}, 'SPACE'}},
+        fn: (seal) ->
+          seal.show = (self, query) ->
+            frame = hs.mouse.getCurrentScreen!\frame!
+            center = frame.center
+            self.chooser\query('')
+            self.chooser\show(center\move({frame.w * -0.2, frame.h * -0.2}))
+            self
+
+          seal\loadPlugins{'apps', 'useractions', 'calc'}
+          seal.plugins.useractions.actions = {Sleep: {fn: -> hs.caffeinate.systemSleep!}}
+          seal.plugins.apps.appSearchPaths = {
+            "/Applications", "/System/Applications",
+            "/System/Library/PreferencePanes", "~/Applications"
+          }
+          seal.plugins.apps\restart!
+      },
+      -- PaperWM: {
+      --   url: "https://github.com/mogenson/PaperWM.spoon",
+      --   desc: "PaperWM.spoon repository",
+      --   branch: "release",
+      --   repo: "PaperWM",
+      --   config: { screen_margin: 16, window_gap: 64 },
+      --   start: true,
+      --   hotkeys: {}
+      -- }
+    }
+
+timed "siri remote config", ->
   global *
   rButton = (message) -> dispatch message, {
     tapup:    App.current!\rUp
@@ -196,20 +209,19 @@ timed "remote config and ipc", ->
     power: App.current!\toggleVideo
   }
 
-export rButton
-
-timed "start clock, typer, clipper, matte, and gates", ->
-  clock\start!
+timed "start remaining modules", ->
+  screens\start!
   typer\start!
   clipper\start!
-  matte\start!
+  thrust\start!
+  -- matte\start!
   -- gates\start!
 
 timed "install URL handler", ->
   hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)
   hs.urlevent.setDefaultHandler("http")
 
-timed "go", ->
-  hs.notify.show("Hammerspoon", "Configuration", "Configuration reload successfully!")
+
+export.rButton = rButton
 
 initLogger.d("⏰ #{(hs.timer.absoluteTime! - epochTime) / 1000000}ms total")

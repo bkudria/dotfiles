@@ -1,0 +1,13 @@
+require 'hs.ipc'
+class Settings extends Drive
+  onStart: =>
+    hs.autoLaunch                   true
+    hs.automaticallyCheckForUpdates true
+    hs.consoleOnTop                 false
+    hs.dockIcon                     false
+    hs.menuIcon                     true
+    hs.uploadCrashData              true
+
+    hs.window.animationDuration = 0
+    hs.window.setFrameCorrectness = false
+    hs.ipc.cliInstall("/opt/homebrew")

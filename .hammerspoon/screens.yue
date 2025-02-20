@@ -1,20 +1,19 @@
-class Screens
+class Screens extends Drive
   asus1 = "7AD41316-E066-4DC9-85A5-8BB89406EC5F"
   oledUUIDs = {[asus1]: asus1}
   hs.window.filter.forceRefreshOnSpaceChange = false
 
-  new: =>
-    print("screens init")
+  onNew: =>
     @screenWatcher = hs.screen.watcher.new( -> @screensChanged!)
     @windowFilter = hs.window.filter.new!
     @shades = {}
-    @shadesDebouncer = hs.timer.delayed.new(60*10, -> @maybeShade!)
     @windowEventDebouncer = hs.timer.delayed.new(0.2, -> @handleWindowEvent!)
+    @shadesDebouncer = hs.timer.delayed.new(60*5, -> @maybeShade!)
 
+  scheduleNext: => @shadesDebouncer\start!
 
-  start: =>
+  onStart: =>
     return unless #@oledScreens! > 0
-    print("component start")
     @shades = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
       shade = hs.drawing.rectangle(oledScreenRect)
       with shade
@@ -24,66 +23,58 @@ class Screens
         \setBehavior(17)
       shade
     )
-    print("made shades")
 
     @screenWatcher\start!
 
-    print "sw"
-
     @windowFilter\subscribe(
-      hs.window.filter.windowFocused, -> @windowEventDebouncer\start!
+      hs.window.filter.windowFocused, -> @scheduleNext!
     )
     @windowFilter\subscribe(
-      hs.window.filter.windowUnfocused, -> @windowEventDebouncer\start!
+      hs.window.filter.windowUnfocused, -> @scheduleNext!
     )
     @windowFilter\subscribe(
-      hs.window.filter.windowMoved, -> @windowEventDebouncer\start!
+      hs.window.filter.windowMoved, -> @scheduleNext!
     )
 
-    print "wf"
-
-    @shadesDebouncer\start!
-
-    print "sd"
+    @scheduleNext!
 
     -- restore shaded state on restart
     @drawShades! if hs.settings.get("shaded")
+
+    t = os.time() + 60*10
+    @logger.i "Scheduled next shade for #{os.date("%I:%M %p",t)}"
 
   oledScreens: => [hs.screen.find(uuid) for i, uuid in pairs oledUUIDs]
   oledScreensRects: => hs.fnutils.imap(@oledScreens!, (screen) -> screen\fullFrame!)
 
   handleWindowEvent: =>
-    -- print hs.inspect oledUUIDs
-    -- print hs.inspect hs.window.focusedWindow!
-    -- print hs.inspect hs.window.focusedWindow!\screen!
-    -- print hs.inspect hs.window.focusedWindow!\screen!\getUUID!
-    -- print("focus event")
-    focusedScreenUUID = hs.window.focusedWindow!\screen!\getUUID!
+    window = hs.window.focusedWindow!
+    return unless window
+
+    focusedScreenUUID = window\screen!\getUUID!
     if oledUUIDs[focusedScreenUUID]
       print("oled focused event")
       @unshade!
-      @shadesDebouncer\start!
+      @scheduleNext!
 
   maybeShade: =>
-    print "maybeShade"
     focusedScreenUUID = hs.window.focusedWindow!\screen!\getUUID!
     if oledUUIDs[focusedScreenUUID]
-      print("oled focused")
-      @shadesDebouncer\start!
+      @scheduleNext!
     else
       @drawShades!
 
   unshade: =>
-    print("unshade")
     hs.fnutils.imap(@shades, (shade) -> shade\hide!)
     hs.settings.set("shaded", false)
 
   drawShades: =>
-    print("drawShades")
     return if hs.settings.get("shaded")
     return if hs.settings.get("mode") == "media"
 
-    print("shading")
+    t = os.time() + 60*10
+    @logger.i "Scheduled next shade for #{os.date("%I:%M %p",t)}"
+
     hs.fnutils.ieach(@shades, (shade) ->
       with shade
         \bringToFront(true)
@@ -92,6 +83,5 @@ class Screens
     hs.settings.set("shaded", true)
 
   screensChanged: =>
-    print("screensChanged")
     @unshade!
-    @start!
+    @restart!

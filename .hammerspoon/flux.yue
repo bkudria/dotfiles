@@ -1,30 +1,27 @@
-class Flux
-  new: =>
-    @logger = hs.logger.new("flux", "info")
-
-    debouncedApply = hs.timer.delayed.new(1, ->
+class Flux extends Drive
+  onNew: =>
+    debouncedStart = hs.timer.delayed.new(1, ->
       @logger.i("requested apply")
-      @apply!
+      @onStart!
     )
 
     hs.settings.watchKey("flux", "sunrise", ->
       @logger.i("sunrise changed")
-      debouncedApply\start(0.1)
+      debouncedStart\start(0.1)
     )
 
     hs.settings.watchKey("flux", "sunset", ->
       @logger.i("sunset changed")
-      debouncedApply\start(0.1)
+      debouncedStart\start(0.1)
     )
 
     hs.settings.watchKey("flux", "mode", ->
       @logger.i("mode changed")
-      debouncedApply\start(0.1)
+      debouncedStart\start(0.1)
     )
 
-  apply: =>
-    @logger.i(hs.inspect({st: @startTime!, et: @endTime!, fg: @finalGamma!, mode: @mode!}))
-    @logger.i("Applying redshift: #{@startTime!}-#{@endTime!}, to final gamma #{@finalGamma!} over 4h")
+  onStart: =>
+    @logger.i("Applying redshift: #{@startTime!}-#{@endTime!}, to final gamma #{@finalGamma!} over 1h")
     hs.redshift.start(@finalGamma!, @startTime!, @endTime!, '1h')
 
   startTime: =>

@@ -6,14 +6,15 @@ alertStyle = {
   textColor: {hex: "#d65d0e"}
 }
 
-class Hyper
+class Hyper extends Drive
   @mods: {"cmd","alt","shift","ctrl"}
   @spec: (key) => @mods, key
   @key: (key) => -> hs.eventtap.keyStroke(@spec key)
 
-  new: (config = {}) =>
+  onNew: (config = {}) =>
     @inHyperspace = false
     @config = config
+    hs.hotkey.setLogLevel 1
 
   handle: (action) =>
     switch type(action)
