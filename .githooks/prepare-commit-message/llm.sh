@@ -16,7 +16,7 @@ if ! command -v llm &> /dev/null; then
   exit 1
 fi
 
-if [ "$COMMIT_SOURCE" = "message" ] && [ -f "$COMMIT_MSG_FILE" ]; then
+if [ "$COMMIT_SOURCE" = "message" ] && [ -f "$COMMIT_MSG_FILE" ] && ! grep Model "$COMMIT_MSG_FILE"; then
     MSG=$(<"$COMMIT_MSG_FILE")
 else
     MSG=""
