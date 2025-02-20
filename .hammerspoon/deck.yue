@@ -9,6 +9,7 @@ class Deck extends Drive
     hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
 
   onStart: =>
+
     @deck::setBrightness @brightness
     @deck::encoderCallback (...) -> @onEncoder ...
 
@@ -28,13 +29,16 @@ class Deck extends Drive
   onEncoder: (deck, id, wasPressed, turnedLeft, turnedRight) =>
     return unless deck == @deck
 
+
+    encoderStateKey = if @encoderState[id] then "pressed" else "default"
     if turnedLeft
-      @encoderActions[id][@encoderState[id]] @, -1
+      @encoderActions[id][encoderStateKey] @, -1
     elseif turnedRight
-      @encoderActions[id][@encoderState[id]] @, 1
+      @encoderActions[id][encoderStateKey] @, 1
     else
       @encoderState[id] = wasPressed if not turnedLeft and not turnedRight
-      @encoderActions[id][@encoderState[id]](@,0)
+      encoderStateKey = if @encoderState[id] then "pressed" else "default"
+      @encoderActions[id][encoderStateKey](@,0)
 
   setBrightness: (brightness) =>
     brightness = math.max(0, brightness)
@@ -43,8 +47,19 @@ class Deck extends Drive
     @deck::setBrightness @brightness
 
   encoderActions:
-    * [true]: (sign) =>
+    * pressed: (sign) =>
         @setBrightness @brightness + sign*5
-      [false]: (sign) =>
+      default: (sign) =>
         @setBrightness @brightness + sign*5
-
+    * pressed: (sign) =>
+        @logger.i "2p"
+      default: (sign) =>
+        @logger.i "2d"
+    * pressed: (sign) =>
+        @logger.i "3p"
+      default: (sign) =>
+        @logger.i "3d"
+    * pressed: (sign) =>
+        @logger.i "4p"
+      default: (sign) =>
+        @logger.i "4d"
