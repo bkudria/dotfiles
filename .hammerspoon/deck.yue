@@ -1,7 +1,14 @@
+clamp = (value, min, max) -> math.max(min, math.min(max, value))
+clamp0100 = (value) -> clamp(value, 0, 100)
+
 class Deck extends Drive
   icon: "🎛️"
   onNew: =>
-    @brightness = hs.settings.get("deck.brightness") or 50
+    @screenBrightnessState = hs.watchable.watch("Screens", "brightness", (...) -> )
+    @screenContrastState = hs.watchable.watch("Screens", "contrast", (...) -> )
+
+    @initialState = { brightness: 50 }
+    @persistedStateKeys = { "brightness" }
 
     @deck = nil
     @encoderState = [false, false, false, false]
@@ -9,11 +16,8 @@ class Deck extends Drive
     hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
 
   onStart: =>
-    @deck::setBrightness @brightness
+    @deck::setBrightness @state.brightness
     @deck::encoderCallback (...) -> @onEncoder ...
-
-  onStop: =>
-    hs.settings.set("deck.brightness", @brightness)
 
   onInit: (connected, deck) =>
     if connected
@@ -39,25 +43,26 @@ class Deck extends Drive
       @encoderActions[id][encoderStateKey](@,0)
 
   setBrightness: (brightness) =>
-    brightness = math.max(0, brightness)
-    brightness = math.min(100, brightness)
-    @brightness = brightness
-    @deck::setBrightness @brightness
+    @state.brightness = brightness
+    @screenBrightnessState::change(brightness)
+
+  onStateChanged: (key, old, new) =>
+    @setBrightness(new) if key == "brightness"
 
   encoderActions:
-    * pressed: (sign) =>
-        @setBrightness @brightness + sign*5
-      default: (sign) =>
-        @setBrightness @brightness + sign*5
-    * pressed: (sign) =>
-        @logger.i "2p"
-      default: (sign) =>
+    * default: (sign) =>
+        @setBrightness clamp0100(@state.brightness + sign*5)
+      pressed: (sign) =>
+        @screenContrastState::change clamp(@screenContrastState::value! + sign*5, 10, 90)
+    * default: (sign) =>
         @logger.i "2d"
-    * pressed: (sign) =>
-        @logger.i "3p"
-      default: (sign) =>
+      pressed: (sign) =>
+        @logger.i "2p"
+    * default: (sign) =>
         @logger.i "3d"
-    * pressed: (sign) =>
-        @logger.i "4p"
-      default: (sign) =>
-        @logger.i "4d"
+      pressed: (sign) =>
+        @logger.i "3p"
+    * default: (sign) =>
+        @logger.i "3d"
+      pressed: (sign) =>
+        @logger.i "3p"

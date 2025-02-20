@@ -33,6 +33,7 @@ class Drive
     @initialized = false
     @started = false
 
+    -- @logger.i "#{collectgarbage("count") kB}"
     try
       @logger.d "beforeNew!"
       @beforeNew(...)
@@ -64,6 +65,7 @@ class Drive
   beforeStart: (...) =>
   onStart: (...)  =>
   afterStart: (...) =>
+  onStateChanged: (...) =>
 
   start: (...) =>
     return @logger.e "🔴 Not starting #{@@__name}, initialization failed" unless @initialized
@@ -99,13 +101,14 @@ class Drive
       hs.openConsole(true)
 
     @stateWatcher = hs.watchable.watch(@@__name, "*", (watcher, path, key, old, new) ->
-      @logger.i "Detected state change: #{path}.#{key}"
-      if old != new
-        @logger.i "  old:"
-        @logger.i "    #{hs.inspect old}"
-        @logger.i "  new:"
-        @logger.i "    #{hs.inspect new}"
+      try
+        @onStateChanged(key, old, new)
+      catch err
+        @logger.w "🔴 Error handling #{key} state change:"
+        @logger.w "  #{yue.traceback err}"
+        hs.openConsole(true)
     )
+
     @reloadWatcher = hs.watchable.watch("Loader", "reloading", -> @stop!)
     @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name}")
     return (result or self) if @started
@@ -142,11 +145,8 @@ class Drive
       hs.openConsole(true)
 
     persistedKeys = [...@persistedStateKeys, "initializedAt", "persistedAt", "modifiedAt"]
-    p persistedKeys
-    p @state
     settings = { key, value for key, value in pairs @state when key in persistedKeys}
     settings.persistedAt = os.time!
-    p settings
     hs.settings.set(@@__name, settings)
 
     try

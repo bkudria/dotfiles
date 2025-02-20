@@ -1,3 +1,5 @@
+oledUUIDs = {["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true}
+
 class Cloak extends Drive
   icon: "⬛️"
   delay: 5*60
@@ -18,9 +20,9 @@ class Cloak extends Drive
     @persistedStateKeys = { "cloaked" }
 
   onStart: =>
-    return unless #@screens::oledScreens! > 0
+    return unless #@oledScreens! > 0
 
-    @shades = hs.fnutils.imap(@screens::oledScreensRects!, (oledScreenRect) ->
+    @shades = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
       shade = hs.drawing.rectangle(oledScreenRect)
       with shade
         ::setFillColor({white: 0, alpha: 1})
@@ -53,8 +55,15 @@ class Cloak extends Drive
 
   shouldBeUnshaded: =>
     screens = [hs.window.focusedWindow!?::screen!, hs.mouse.getCurrentScreen!]
-    uuids = [screen::getUUID! for screen in *screens]
-    hs.settings.get("mode") == "media" or hs.fnutils.some(uuids, (uuid) -> @screens::oledUUIDs![uuid])
+    uuids = [screen?::getUUID! for screen in *screens]
+    hs.settings.get("mode") == "media" or hs.fnutils.some(uuids, (uuid) -> oledUUIDs[uuid])
+
+  oledScreens: =>
+    [hs.screen.find(uuid) for uuid, _ in pairs oledUUIDs]
+
+  oledScreensRects: =>
+    hs.fnutils.imap(@oledScreens!, (screen) -> screen::fullFrame!)
+
 
   scheduleNext: =>
     @shadesDebouncer::start!

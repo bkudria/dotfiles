@@ -44,8 +44,6 @@ timed "load & init modules", ->
 
   extensions = require("extensions")!
 
-  deck = require("deck")!
-
   appAndApps = require 'apps' -- TODO rewrite
   App = appAndApps[1]
   apps = appAndApps[2]
@@ -214,6 +212,8 @@ timed "start remaining modules", ->
   thrust::start!
   -- matte::start!
   -- gates::start!
+
+  deck = require("deck")! -- starts itself
 
 timed "install URL handler", ->
   hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)

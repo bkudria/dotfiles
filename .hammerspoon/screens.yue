@@ -3,48 +3,39 @@ class Screens extends Drive
 
   onNew: =>
     @screenWatcher = hs.screen.watcher.new( -> @screensChanged!)
-    @lunarDebounced = hs.timer.delayed.new(1, -> @lunarSetBrightnessContrast!)
+    @lunarDebounced = hs.timer.delayed.new(0.1, ->
+      hs.execute "/usr/local/bin/lunar displays all brightness #{@state.brightness}"
+      hs.execute "/usr/local/bin/lunar displays all contrast #{@state.contrast}"
+    )
 
   onStart: =>
-    @initialState = {orderedUUIDs: @orderedUUIDs, :brightness, :contrast}
+    @initialState = @getInfo!
     @screenWatcher::start!
     @lunarDebounced::start!
 
   screensChanged: =>
-    @mergeIntoState getInfo!
+    @mergeIntoState @getInfo!
 
-  lunarSetBrightnessContrast: =>
-    hs.execute "/usr/local/bin/lunar displays brightness #{@state.brightness}"
-    hs.execute "/usr/local/bin/lunar displays contrast #{@state.contrast}"
+  onStateChanged: (key) =>
+    @lunarDebounced::start! if key == "brightness" or key == "contrast"
 
   oledUUIDs: => {["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true}
 
   oledScreens: =>
     [hs.screen.find(uuid) for uuid, _ in pairs @oledUUIDs!]
 
-  oledScreensRects: =>
-    hs.fnutils.imap(@oledScreens!, (screen) -> screen::fullFrame!)
-
   getInfo: =>
-    layoutInfo = @getLayoutInfo!
-    displaysInfo = @getDisplaysInfo!
-    {...layoutInfo, ...displaysInfo}
-
-  getLayoutInfo: =>
     positionsFn = hs.fnutils.sortByKeyValues hs.screen.screenPositions!, (first, second) -> first.x < second.x
 
     orderedUUIDs = [ screen::getUUID! for screen, _ in positionsFn ]
-    numScreens = #@orderedUUIDs
+    numScreens = #orderedUUIDs
 
-    {:numScreens, orderedUUIDs}
-
-  getDisplaysInfo: =>
     command = "/usr/local/bin/lunar displays -j | /opt/homebrew/bin/jq 'map({brightness,contrast})'"
     @displaysInfo = hs.json.decode((hs.execute(command)))
 
     brightnesses = [info.brightness for info in *@displaysInfo]
     contrasts = [info.contrast for info in *@displaysInfo]
 
-    brightness = hs.fnutils.reduce(brightnesses, (a,b) -> a+b) // @numScreens
-    contrast = hs.fnutils.reduce(contrasts, (a,b) -> a+b) // @numScreens
-    {:brightness, :contrast}
+    brightness = hs.fnutils.reduce(brightnesses, (a,b) -> a+b) // numScreens
+    contrast = hs.fnutils.reduce(contrasts, (a,b) -> a+b) // numScreens
+    {:brightness, :contrast, :numScreens, :orderedUUIDs}
