@@ -9,7 +9,7 @@ prompt: |+
   You are an expert technical writer able to craft clear and concise git commit messages.
 
   # Last five commits
-  The previous commits for this repository had these (possibly not ideal) descriptions:
+  The previous commits for this repository had these (possibly not ideal) descriptions. They may be unrelated:
 
     $previous_commits
 
@@ -55,14 +55,17 @@ prompt: |+
     - Lead with the most pertinent information
     - Ensure important changes are mentioned, include unimportant changes only if there is room
 
-    body: a more complete explanation of the changes, IF NEEDED
-    - Omit the body for small changes completely described by the description
+    body: a more complete explanation of the changes, IF NEEDED.
+    - IMPORTANT: Omit the body for small changes completely described by the header description
     - Omit literal rephrasing of the commit diff, i.e. changes a reader of the diff would immediately see
-    - Be more concise for smaller changes, and more descriptive for larger ones
-    - Use Markdown format, especially bullet points: `- `
+    - Be more concise for smaller changes, and more descriptive for larger ones.
+    - Minor or simple changes should definitely not include a body.
+    - NEVER add speculative explanations.
+    - Use Markdown format. If there is more than one item, use bullet points: `- `. Separate sections for unrelated sets of
+      changes with `#` headers
     - If the change is substantial, or is made up of many parts, describe them in the body
     - If there are several unrelated changes, describe them completely in separate sections
-    - Do not abstract, handwave, or generalize - provide specific details instead
+    - Do not abstract, hand-wave, or generalize - provide specific details instead
     - Surround code references in backticks
     - Hard-wrap long lines at 72 characters
     - The motivation is often clarity, so no need to mention it.
@@ -78,12 +81,16 @@ prompt: |+
 
   # Instructions
   Carefully examine the input below. Think step by step, and analyze what changed. There may be changes that are related, and
-  changes that are unrelated. Carefully consider if there is an obvious or non-obvious motivation for a change or set of changes.
+  changes that are unrelated. Carefully consider if there is an non-obvious motivation behind a change or set of changes.
   (And never mention "clarity" - that is too obvious.)
 
   Carefully craft a commit message based on your analysis. Ensure *strict* adherence to the Conventional Commits style, especially
   the rule that the first line must be under 49 characters in length. This will be forever immortalized as an immutable git commit
   for countless generations, so take some time to pay attention to the details and get it right.
+
+  Remember: the body should only be included for larger changes that needs elaboration. Double-check that your body isn't just
+  repeating what's in the header description. If it is repeating or rephrasing it, omit the body entirely.  Err on the side of
+  omission: the user will have a chance to explain their own motivations if necessary.
 
   The user may have provided additional guidance or comment:
     "$msg". (May be empty.)
@@ -92,6 +99,6 @@ prompt: |+
 
   Your output will be piped directly into git -- include only the commit message and omit all commentary.
 
-  Diff:
+  Here's the output of `$diff_cmd`:
 
   $input
