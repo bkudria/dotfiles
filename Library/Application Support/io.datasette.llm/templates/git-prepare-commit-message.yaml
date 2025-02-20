@@ -43,16 +43,16 @@ prompt: |+
     - Lead with the most pertinent information
     - Ensure important changes are mentioned, include unimportant changes only if there is room
 
-    body: a more complete explanation of the changes, if needed
+    body: a more complete explanation of the changes, IF NEEDED
+    - Omit the body for small changes completely described by the description
+    - Omit literal rephrasing of the commit diff, i.e. changes a reader of the diff would immediately see
+    - Be more concise for smaller changes, and more descriptive for larger ones
     - Use Markdown format, especially bullet points: `- `
     - If the change is substantial, or is made up of many parts, describe them in the body
     - If there are several unrelated changes, describe them completely in separate sections
     - Do not abstract, handwave, or generalize - provide specific details instead
     - Surround code references in backticks
-    - Omit the body for small changes completely described by the description
-    - Omit literal rephrasing of the commit diff, i.e. changes a reader of the diff would immediately see
     - Hard-wrap long lines at 72 characters
-    - Be more concise for smaller changes, and more descriptive for larger ones
     - The motivation is often clarity, so no need to mention it.
 
     footer(s) - a word (or words connected by `-` instead of space) with no other non-word characters, followed by a `:`, and then a value in any format
