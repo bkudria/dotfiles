@@ -4,13 +4,10 @@ class Cloak extends Drive
   icon: "⬛️"
   delay: 5*60
 
-  onNew: (@screens) =>
+  onNew:  =>
     hs.window.filter.forceRefreshOnSpaceChange = false
 
-    @screensSettingWatcher = hs.settings.watchKey("cloak", "screens", ->
-      @logger.i("screens changed")
-      @screensChanged!
-    )
+    @watch "Screens.numScreens", -> @resetCloaks!
 
     @windowFilter = hs.window.filter.new!
     @cloaks = {}
@@ -20,18 +17,6 @@ class Cloak extends Drive
     @persistedStateKeys = { "cloaked" }
 
   onStart: =>
-    return unless #@oledScreens! > 0
-
-    @cloaks = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
-      cloak = hs.drawing.rectangle(oledScreenRect)
-      with cloak
-        ::setFillColor({white: 0, alpha: 1})
-        ::setStroke(false)
-        ::setFill(true)
-        ::setBehavior(17)
-      cloak
-    )
-
     -- TODO combine
     -- TODO does BTT trigger?
     @windowFilter::subscribe(
@@ -44,14 +29,25 @@ class Cloak extends Drive
       hs.window.filter.windowMoved, -> @windowEventDebouncer::start!
     )
 
+    @resetCloaks!
+
+  resetCloaks: =>
+    return unless #@oledScreens! > 0
+
+    @cloaks = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
+      cloak = hs.drawing.rectangle(oledScreenRect)
+      with cloak
+        ::setFillColor({white: 0, alpha: 1})
+        ::setStroke(false)
+        ::setFill(true)
+        ::setBehavior(17)
+      cloak
+    )
+
     if @state.cloaked
         @drawCloaks(0) -- restore cloaked state on restart
     else
         @scheduleNext! -- otherwise just schedule
-
-  screensChanged: =>
-    @uncloak!
-    @restart!
 
   shouldBeUncloaked: =>
     screens = [hs.window.focusedWindow!?::screen!, hs.mouse.getCurrentScreen!]

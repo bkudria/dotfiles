@@ -13,19 +13,18 @@ class Deck extends Drive
     @deck = nil
     @encoderState = [false, false, false, false]
 
-    hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
 
   onStart: =>
-    @deck::setBrightness @state.brightness
-    @deck::encoderCallback (...) -> @onEncoder ...
+    hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
 
   onInit: (connected, deck) =>
     if connected
-      @logger.i "Connected..."
+      @logger.i "Connected to #{deck}"
       @deck = deck
-      @start!
+      @deck::setBrightness @state.brightness
+      @deck::encoderCallback (...) -> @onEncoder ...
     else
-      @logger.i "Disconnected..."
+      @logger.i "Disconnected from #{@deck}"
       @deck = nil
       @stop!
 

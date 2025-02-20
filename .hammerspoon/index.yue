@@ -40,7 +40,8 @@ timed "load & init modules", ->
   global *
 
   screens = require("screens")!
-  cloak = require("cloak")(screens)
+
+  cloak = require("cloak")!
 
   extensions = require("extensions")!
 
@@ -70,6 +71,8 @@ timed "load & init modules", ->
   Hyper = require("hyper")
 
   dispatch = require("dispatch")!::dispatch
+
+  deck = require("deck")!
 
 --
 -- Config & Start
@@ -210,10 +213,10 @@ timed "start remaining modules", ->
   typer::start!
   clipper::start!
   thrust::start!
+  deck::start!
   -- matte::start!
   -- gates::start!
 
-  deck = require("deck")! -- starts itself
 
 timed "install URL handler", ->
   hs.urlevent.httpCallback = (scheme, host, params, fullURL, senderPID) -> apps.Chrome.openBackgroundURL(fullURL)

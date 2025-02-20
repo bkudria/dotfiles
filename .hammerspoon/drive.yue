@@ -25,15 +25,14 @@ class Drive
         @initialState
 
     @state = hs.watchable.new(@name, true)
+    @watchers = []
 
     for k,v in pairs @initialState
       @state[k] = v
 
-    @reloadWatcher = nil
     @initialized = false
     @started = false
 
-    -- @logger.i "#{collectgarbage("count") kB}"
     try
       @logger.d "beforeNew!"
       @beforeNew(...)
@@ -61,6 +60,9 @@ class Drive
 
     @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name}")
     @initialized
+
+
+  watch:(...) => @watchers[] = hs.watchable.watch(...)
 
   beforeStart: (...) =>
   onStart: (...)  =>
@@ -100,16 +102,15 @@ class Drive
       @logger.w "  #{err}"
       hs.openConsole(true)
 
-    @stateWatcher = hs.watchable.watch(@@__name, "*", (watcher, path, key, old, new) ->
+    @watch "Loader.reloading", -> @stop!
+    @watch "#{@name}.*", (watcher, path, key, old, new) ->
       try
         @onStateChanged(key, old, new)
       catch err
         @logger.w "🔴 Error handling #{key} state change:"
         @logger.w "  #{yue.traceback err}"
         hs.openConsole(true)
-    )
 
-    @reloadWatcher = hs.watchable.watch("Loader", "reloading", -> @stop!)
     @logger.i("⏱️ #{timeDeltaFrom time} to 🟢️ start #{@name}")
     return (result or self) if @started
     return false
