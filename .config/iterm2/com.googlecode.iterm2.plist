@@ -569,6 +569,14 @@
 	<true/>
 	<key>NeverWarnAboutShortLivedSessions_5B28CCA5-EF19-4E1E-9EFF-43AF3A8B9DBF_selection</key>
 	<integer>0</integer>
+	<key>NeverWarnAboutShortLivedSessions_9EFCBC61-D5FE-4DA2-9498-4E2677322FFC</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_9EFCBC61-D5FE-4DA2-9498-4E2677322FFC_selection</key>
+	<integer>0</integer>
+	<key>NeverWarnAboutShortLivedSessions_DD077EBD-4463-4AED-8D96-5483A5130C08</key>
+	<true/>
+	<key>NeverWarnAboutShortLivedSessions_DD077EBD-4463-4AED-8D96-5483A5130C08_selection</key>
+	<integer>0</integer>
 	<key>New Bookmarks</key>
 	<array>
 		<dict>
