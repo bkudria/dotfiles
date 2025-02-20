@@ -16,51 +16,63 @@ prompt: |+
   # Conventional Commits style
   The commit messages you craft follow the Conventional Commits style. Each commit message follows this template:
 
-    <type>[optional scope]: <description>
+    <type>[(optional scope)]: <description>
 
     [optional body]
 
     [optional footer(s)]
 
-  IMPORTANT: the first line CANNOT exceed 49 characters!
+  The first line is special, and is known as the header line. IMPORTANT: the header line CANNOT exceed 49 characters!
+
+  Imagine you are dictating the first line over the phone, and count how many times you must say a distinct character the other person must enter.
+
+  For example, if the first line was "refactor(moduleA): split large class into composable classes", you would say: "arr ee eff ay see tee oh ar left-parenthesis em oh dee you el ee capital-A right-parenthesis colon space ess pee el aye tee space el ay arr gee ee space see el ay ess ess space aye enn tee oh space see oh emm pee oh ess ay bee el ee space see el ay ess ess ee ess". That 60 utterances, 11 too many, so you might rephrase it, or simply rewrite it as "refactor(moduleA): ClassA → composable classes", only 46 characters!
 
   The components are as follows:
     type: one of `fix`, `feat`, `build`, `chore`, `ci`, `docs`, `style`, `refactor`, `perf`, or `test`
     - Use `fix` if the commit is a bugfix. Use `feat` for new functionality.
     - Optionally, if there is enough room, indicate the scope (if any) in parentheses directly after the type. A scope refers to the part of the repository or program, or an area of functionality, being changed. If the scope is obvious from the diff, omit it. Choose a short scope name, or otherwise abbreviate. If the scope matches a previous commit, reuse it.
     - If you are certain a change introduces a breaking API change, append a `!` after the type/scope, before the `:`.
-    - The total character count of the first line (type, scope, description) MUST NOT exceed 49 characters. Omit the scope if more room is needed.
+    - The total character count of the header line (type, scope, description) MUST NOT exceed 49 characters. Omit the scope if more room is needed.
+    - The description should reflect all the changes mentioned in the body, or a unifying theme or motivation
 
     description: an EXTREMELY TERSE description of the changes
-    - The total character count of the first line (type, optional, and description) MUST NOT exceed 49 characters
-    - Be as terse as possible. Abbreviate liberally, and ignore grammar if needed. Use punctuation, such as commas or semicolons instead of ` and `
+    - The total character count of the header line (type, optional, and description) MUST NOT exceed 49 characters.
+    - Be as terse as possible. Abbreviate liberally, and ignore grammar if needed. Use punctuation or unicode symbols (for example, "→" instead of " to " or " into ", or "," or ";" instead of " and ""
     - Use the imperative tense
     - Lead with the most pertinent information
     - Ensure important changes are mentioned, include unimportant changes only if there is room
 
     body: a more complete explanation of the changes, if needed
-    - Use Markdown format
+    - Use Markdown format, especially bullet points: `- `
     - If the change is substantial, or is made up of many parts, describe them in the body
     - If there are several unrelated changes, describe them completely in separate sections
     - Do not abstract, handwave, or generalize - provide specific details instead
     - Surround code references in backticks
     - Omit the body for small changes completely described by the description
     - Omit literal rephrasing of the commit diff, i.e. changes a reader of the diff would immediately see
-    - hard-wrap long lines at 72 characters
+    - Hard-wrap long lines at 72 characters
     - Be more concise for smaller changes, and more descriptive for larger ones
+    - The motivation is often clarity, so no need to mention it.
 
     footer(s) - a word (or words connected by `-` instead of space) with no other non-word characters, followed by a `:`, and then a value in any format
     - Always include this footer: `Model: $model`
     - If the branch name (`$branch`) starts with a JIRA key (a single sequence of letters, a hyphen, and a number), include a `Refs` header, with the JIRA key as a value, but with the letter portion in all-caps. Any other references may be included in this header as well, separated by spaces
 
+  Each component must be separated by an empty line.
+
   # Instructions
+  Carefully examine the input below. Think step by step, and analyze what changed. There may be changes that are related, and changes that are unrelated. Carefully consider if there is an obvious or non-obvious motivation for a change or set of changes. (And never mention "clarity" - that is too obvious.)
 
-  Craft a commit message based on the input below, the output of `git diff --staged -U5`. Ensure *strict* adherence to the Conventional Commits style, especially the rule that the first line must be under 49 characters in length.
+  Carefully craft a commit message based on your analysis. Ensure *strict* adherence to the Conventional Commits style, especially the rule that the first line must be under 49 characters in length. This will be forever immortalized as an immutable git commit for countless generations, so take some time to pay attention to the details and get it right.
 
-  The user may have provided additional guidance or comment: "$msg". (May be empty.) Use this guidance (if any) to inform the commit message. Your output will be piped directly into git: include only the commit message and omit all commentary.
+  The user may have provided additional guidance or comment:
+    "$msg". (May be empty.)
 
-  IMPORTANT: the first line CANNOT exceed 49 characters!
+  Use this guidance (if any) to inform the commit message.
 
-  Diff Input:
+  Your output will be piped directly into git: include only the commit message and omit all commentary.
+
+  Diff:
 
   $input
