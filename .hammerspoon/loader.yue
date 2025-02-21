@@ -16,6 +16,8 @@ class Loader extends Drive
       continue unless filename\match(endswith('lua')) or filename\match(endswith('yue'))
       continue if filename\match("^%.#.*")
 
+      -- TODO yue syntax check
+
       @reload!
 
   reload: =>
