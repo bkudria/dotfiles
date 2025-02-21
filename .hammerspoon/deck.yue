@@ -7,32 +7,47 @@ class Deck extends Drive
     @screenBrightnessState = hs.watchable.watch("Screens", "brightness", (...) -> )
     @screenContrastState = hs.watchable.watch("Screens", "contrast", (...) -> )
 
-    @initialState = { brightness: 50 }
-    @persistedStateKeys = { "brightness" }
+    @persistedStateKeys = { "brightness", "contrast" }
+    @initialState = { brightness: 50, contrast: 50 }
 
-    @deck = nil
+    @device = nil
     @encoderState = [false, false, false, false]
 
+    @drawDefaultScreen = hs.timer.delayed.new(1, -> @drawDefaultScreenNow!) -- TODO macro decorator?
 
   onStart: =>
-    hs.streamdeck.init (connected, deck) -> @onInit(connected, deck)
+    hs.streamdeck.init (connected, deck) -> @onConnect(connected, deck)
 
-  onInit: (connected, deck) =>
-    if connected
-      @logger.i "Connected to #{deck}"
-      @deck = deck
-      @deck::setBrightness @state.brightness
-      @deck::encoderCallback (...) -> @onEncoder ...
-    else
-      @logger.i "Disconnected from #{@deck}"
-      @deck = nil
+  onConnect: (connected, device) =>
+    unless connected
+      @logger.i "Disconnected from #{@device}"
+      @device = nil
       @stop!
+      return false
+
+    @device = device
+    @columns, @rows = @device::buttonLayout!
+    @buttonSize = hs.geometry @device::imageSize!
+    @screenSize = hs.geometry "800x100" -- Not exposed, hard-coded to avoid Obj-C resizing
+    @numEncoders = 4
+    @screenPieceWidth = @screenSize.w / @numEncoders
+
+    @logger.i "Connected to #{@device}"
+    @logger.i "       Layout: #{@rows} rows, #{@columns} columns"
+    @logger.i "  Button Size: #{@buttonSize.string} pixels"
+    @logger.i "  Screen Size: #{@screenSize.string} pixels"
+    @logger.i "     Encoders: #{@numEncoders}"
+
+    @state.brightness = @state.brightness
+    @device::encoderCallback (...) -> @onEncoder ...
+    @drawDefaultScreen::start!
 
   onEncoder: (deck, id, wasPressed, turnedLeft, turnedRight) =>
-    return unless deck == @deck
+    return unless deck == @device
 
     encoderStateKey = if @encoderState[id] then "pressed" else "default"
-    if turnedLeft
+
+    value = if turnedLeft
       @encoderActions[id][encoderStateKey] @, -1
     elseif turnedRight
       @encoderActions[id][encoderStateKey] @, 1
@@ -40,19 +55,49 @@ class Deck extends Drive
       @encoderState[id] = wasPressed if not turnedLeft and not turnedRight
       encoderStateKey = if @encoderState[id] then "pressed" else "default"
       @encoderActions[id][encoderStateKey](@,0)
+      0
+
+    return true if encoderStateKey[id] == "default" and value == 0 -- Don't draw on release
+
+    returnType = type(value)
+    if returnType == "number"
+      @drawMeter(value)
+      hs.timer.doAfter(1, -> @drawDefaultScreen::start!)
+    else
+      @logger.w "Action for encoder ##{id} (#{encoderStateKey}) returned a #{type(returnType)}, instead of a number:"
+      @logger.w "  #{hs.inspect(value)}"
+
+  onStateChanged: (key, old, new) =>
+    @device::setBrightness(clamp(new // 2, 10, 50)) if key == "brightness"
 
   setBrightness: (brightness) =>
     @state.brightness = brightness
     @screenBrightnessState::change(brightness)
+    brightness
 
-  onStateChanged: (key, old, new) =>
-    @setBrightness(new) if key == "brightness"
+  setContrast: (contrast) =>
+    @state.contrast = contrast
+    @screenContrastState::change(contrast)
+    contrast
+
+  drawMeter: (value) => @drawScreenNow @rectLeft(value, @screenSize.table)::imageFromCanvas!
+  drawDefaultScreenNow: () => @drawScreenNow @rect(@screenSize.table, {white:0})::imageFromCanvas!
+
+  -- TODO use state instead
+  drawScreenNow: (image) =>
+    for index = 1, @numEncoders
+      @device::setScreenImage index, image::croppedCopy{
+        x: (index - 1) * @screenPieceWidth
+        y: 0
+        w: @screenPieceWidth
+        h: @screenSize.h
+      }
 
   encoderActions:
     * default: (sign) =>
-        @setBrightness clamp0100(@state.brightness + sign*5)
+        @setBrightness clamp0100(@state.brightness + sign*5) -- TODO these should just be setting state
       pressed: (sign) =>
-        @screenContrastState::change clamp(@screenContrastState::value! + sign*5, 10, 90)
+        @setContrast clamp(@state.contrast + sign*5, 0, 85)
     * default: (sign) =>
         @logger.i "2d"
       pressed: (sign) =>
@@ -62,6 +107,21 @@ class Deck extends Drive
       pressed: (sign) =>
         @logger.i "3p"
     * default: (sign) =>
-        @logger.i "3d"
+        @logger.i "4d"
       pressed: (sign) =>
-        @logger.i "3p"
+        @logger.i "4p"
+
+  -- TODO should we reuse a canvas?
+  -- TODO How many? 1 per button/encoder? or 1/screen?
+  -- TODO Benchmark
+  rect: (size, color = {white: 1}) =>
+    hs.canvas.new{"0 0", ...size}
+      ::appendElements{
+        type: "rectangle"
+        action: "fill"
+        fillColor: color
+        frame: {x:0, y:0, w:"1.0", h:"1.0"}
+      }
+
+  rectLeft: (percent, ...) =>
+    @rect(...)::elementAttribute(1,"frame", {x:0, y:0, w:"#{percent}%", h:"1"})
