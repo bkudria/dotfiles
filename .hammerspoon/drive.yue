@@ -1,22 +1,85 @@
 import 'yue'
 
-class Drive
-  logger: => @logger
 
-  beforeNew: (...) =>
-  onNew: (...) =>
-  afterNew: (...) =>
+
+-- TODO macros for caught error logging?
+-- name `...` so we can move custom behavior into `try` blocks
+-- figure out how else to compact / DRY
+-- pull out inflections?
+class Drive
+  --
+  -- Logging
+  --
+  logger: => @logger
+  tryLog: (label, fn) => -- TODO macro
+    if type(label) == "function"
+      fn, label = label, "in function"
+    try
+      @logger.d label
+      result = fn!
+    catch err
+      @logger.e "🔴 Error #{label}:"
+      @logger.e "  #{yue.traceback err}"
+      hs.openConsole(true)
+
+    result
+
   getName: (...) => @@__name
 
+  -- State
+  onStateChanged: (...) => -- Placeholder
+  mergeIntoState: (...) => for k,v in pairs ... do @state[k] =  v
+  watchState: (path, key, callback) =>
+    pathKey = if type(key) == "string" then path.."."..key else path
+
+    return pathKey if @watchers[pathKey] or @watchers[path..".*"]
+
+    @watchers[pathKey] = hs.watchable.watch(path, key, callback)
+
+    pathKey
+
+  getState: (path, key) =>
+    pathKey = if type(key) == "string" then path.."."..key else path
+
+    if watcher := @watchers[pathKey] then return watcher::value!
+    elseif watcher := @watchers[path..".*"] then return watcher::value(key)
+    else
+      watcher = hs.watchable.watch(path, key)
+      value = watcher::value!
+      watcher = nil
+      return value
+
+
+  --
+  -- Lifecycle
+  --
+
+  -- Placeholders
+  beforeNew: (...) =>
+  beforeStart: (...) =>
+  beforeStop: (...) =>
+
+  onNew: (...) =>
+  onStart: (...)  =>
+  onStop: (...) =>
+
+  afterNew: (...) =>
+  afterStart: (...) =>
+  afterStop: (...) =>
+
+  --
+  -- new
+  --
   new: (...) =>
     time = hs.timer.absoluteTime!
+
+    -- Logging
+    @logger = hs.logger.new "#{@icon or @name}", "info"
     @name = @getName(...)
 
-    @logger = hs.logger.new "#{@icon or @name}", "info"
-
+    -- State
     @persistedStateKeys = [] -- TODO allow declerative
     @initialState = hs.settings.get(@@__name)
-
     initialState = { initializedAt: os.time! }
     @initialState = do
       if @initialState == nil
@@ -27,8 +90,7 @@ class Drive
     @state = hs.watchable.new(@name, true)
     @watchers = []
 
-    for k,v in pairs @initialState
-      @state[k] = v
+    for k,v in pairs @initialState do @state[k] = v
 
     @initialized = false
     @started = false
@@ -62,31 +124,9 @@ class Drive
     @logger.i("⏱️ #{timeDeltaFrom time} to 🔵 init #{@name}")
     @initialized
 
-  watchState: (path, key, callback) =>
-    pathKey = if type(key) == "string" then path.."."..key else path
-
-    return pathKey if @watchers[pathKey] or @watchers[path..".*"]
-
-    @watchers[pathKey] = hs.watchable.watch(path, key, callback)
-
-    pathKey
-
-  getState: (path, key) =>
-    pathKey = if type(key) == "string" then path.."."..key else path
-
-    if watcher := @watchers[pathKey] then return watcher::value!
-    elseif watcher := @watchers[path..".*"] then return watcher::value(key)
-    else
-      watcher = hs.watchable.watch(path, key)
-      value = watcher::value!
-      watcher = nil
-      return value
-
-  beforeStart: (...) =>
-  onStart: (...)  =>
-  afterStart: (...) =>
-  onStateChanged: (...) =>
-
+  --
+  -- start
+  --
   start: (...) =>
     return @logger.e "🔴 Not starting #{@@__name}, initialization failed" unless @initialized
     return @logger.e "🔴 Not starting #{@@__name}, it's already started!" if @started
@@ -135,14 +175,9 @@ class Drive
     return (result or self) if @started
     return false
 
-  mergeIntoState: (...) =>
-    for k,v in pairs ...
-      @state[k] =  v
-
-  beforeStop: (...) =>
-  onStop: (...) =>
-  afterStop: (...) =>
-
+  --
+  -- stop
+  --
   stop: (...) =>
     return @logger.e "🔴 Not stopping #{@@__name}, initialization failed" unless @initialized
     return @logger.e "🔴 Not stopping #{@@__name}, it's not started!" unless @started
@@ -161,20 +196,25 @@ class Drive
     try
       @logger.d "stop!"
       result = @onStop(...)
-      @started = false
+
     catch err
       @logger.e "🔴 Error stopping #{@@__name}:"
       @logger.e "  #{err}"
       hs.openConsole(true)
 
+    @started = false
     persistedKeys = [...@persistedStateKeys, "initializedAt", "persistedAt", "modifiedAt"]
     settings = { key, value for key, value in pairs @state when key in persistedKeys}
+
     settings.persistedAt = os.time!
     hs.settings.set(@@__name, settings)
 
     try
       @logger.d "afterStop!"
       @afterStop(...)
+
+      @state = nil
+      @watchers = nil
     catch err
       @logger.w "🔴 Error after stopping #{@@__name}:"
       @logger.w "  #{err}"
