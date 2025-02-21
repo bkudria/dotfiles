@@ -120,13 +120,13 @@ timed "configure hyperspace", ->
     'r': apps.Reeder
     's': Hyper(name: 'System', afterAction: (hyper) -> hyper.modal::exit!)::space{
       'delete': hs.caffeinate.systemSleep
-      'down': -> screens::maybeShade!
+      'up': -> cloak::uncloak!
+      'down': -> cloak::maybeCloak!
       'c': hs.toggleConsole
       'h': actions::hybridMode
       'l': hs.caffeinate.startScreensaver
       'r': -> loader::reload!
       's': actions::normalMode
-      'u': -> cloak::unshade!
       'w': actions::mediaMode
       'f': actions::toggleMovieMode
       ',': actions::editConfig

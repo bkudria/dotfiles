@@ -1,4 +1,8 @@
-oledUUIDs = {["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true}
+-- TODO independent per-screen cloaking (or just seperate instances?)
+oledUUIDs = {
+  -- ["7F74CC60-846F-4E98-B479-4F0E94374D94"]: true
+  ["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true
+}
 
 class Cloak extends Drive
   icon: "⬛️"
@@ -11,7 +15,7 @@ class Cloak extends Drive
 
     @windowFilter = hs.window.filter.new!
     @cloaks = {}
-    @windowEventDebouncer = hs.timer.delayed.new(0.1, -> @uncloak! if @shouldBeUncloaked!)
+    @windowEventDebouncer = hs.timer.delayed.new(0.05, -> @uncloak! if @shouldBeUncloaked!)
     @cloaksDebouncer = hs.timer.delayed.new(@delay, -> @maybeCloak!)
 
     @persistedStateKeys = { "cloaked" }
@@ -34,13 +38,12 @@ class Cloak extends Drive
   resetCloaks: =>
     return unless #@oledScreens! > 0
 
+    hs.fnutils.imap @cloaks, (cloak) -> cloak::delete(0.1)
+
     @cloaks = hs.fnutils.imap(@oledScreensRects!, (oledScreenRect) ->
-      cloak = hs.drawing.rectangle(oledScreenRect)
-      with cloak
-        ::setFillColor({white: 0, alpha: 1})
-        ::setStroke(false)
-        ::setFill(true)
-        ::setBehavior(17)
+      cloak = hs.canvas.new(oledScreenRect)
+        ::appendElements { type: "rectangle", action: "fill", fillColor: {white: 0} }
+        ::behavior(17)
       cloak
     )
 
@@ -60,7 +63,6 @@ class Cloak extends Drive
   oledScreensRects: =>
     hs.fnutils.imap(@oledScreens!, (screen) -> screen::fullFrame!)
 
-
   scheduleNext: =>
     @cloaksDebouncer::start!
     t = os.time() + @delay
@@ -73,7 +75,7 @@ class Cloak extends Drive
       @drawCloaks! unless @state.cloaked
 
   uncloak: =>
-    hs.fnutils.imap(@cloaks, (cloak) -> cloak::hide!)
+    hs.fnutils.imap(@cloaks, (cloak) -> cloak::hide(0.1))
     @state.cloaked = false
     @scheduleNext!
 
