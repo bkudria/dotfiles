@@ -11,8 +11,8 @@ case "$COMMIT_SOURCE" in
     ;;
 esac
 
-if ! command -v llm &> /dev/null; then
-  echo "Error: 'llm' command not found."
+if ! command -v llm >/dev/null 2>&1; then
+  echo "Error: 'llm' command not found." >&2
   exit 1
 fi
 
@@ -34,7 +34,10 @@ fi
 PROMPT_TEMPLATE="$(llm templates path)/git-prepare-commit-message.yaml"
 PROMPT_COMMIT_SHA_CMD=("git" "-C" "$PWD" "log" "-1" "--pretty=format:%h" "--" "$PROMPT_TEMPLATE")
 echo "${PROMPT_COMMIT_SHA_CMD[@]}"
-PROMPT_COMMIT_SHA="$("${PROMPT_COMMIT_SHA_CMD[@]}")"
+if ! PROMPT_COMMIT_SHA="$("${PROMPT_COMMIT_SHA_CMD[@]}")"; then
+  echo "Error: Failed to get commit SHA." >&2
+  exit 1
+fi
 
 eval "$DIFF_CMD" | \
     llm \
