@@ -18,7 +18,6 @@
 (package! protobuf-mode)
 (package! mermaid-mode)
 ;; (package! topspace)
-(package! magit-file-icons)
 
 ;; To install a package directly from a remote git repo, you must specify a
 ;; `:recipe'. You'll find documentation on what `:recipe' accepts here:
@@ -35,11 +34,6 @@
 
 (package! golden
   :recipe (:type git :repo "https://git.sr.ht/~wklew/golden"))
-
-
-;; If you'd like to disable a package included with Doom, you can do so here
-;; with the `:disable' property:
-(package! robe :disable t)
 
 (package! yuescript
   :recipe (:type git :repo "https://github.com/bkudria/yuescript-mode"))
@@ -65,4 +59,3 @@
 ;(unpin! pinned-package another-pinned-package)
 ;; ...Or *all* packages (NOT RECOMMENDED; will likely break things)
 ;(unpin! t)
-
