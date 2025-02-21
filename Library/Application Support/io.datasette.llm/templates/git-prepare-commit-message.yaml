@@ -72,7 +72,8 @@ prompt: |+
 
     footer(s) - a word (or words connected by `-` instead of space) with no other non-word characters, followed by a `:`, and then
     a value in any format
-    - Always include this footer: `Model: $model`
+    - ALWAYS include this footer verbatim: `Model: $model`
+    - ALWAYS include this footer verbatim: `Prompt-Commit-SHA: $prompt_commit_sha`
     - If the branch name (`$branch`) starts with a JIRA key (a single sequence of letters, a hyphen, and a number), include a
       `Refs` header, with the JIRA key as a value, but with the letter portion in all-caps. Any other references may be included
       in this header as well, separated by spaces

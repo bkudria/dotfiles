@@ -31,9 +31,15 @@ if [ -z "$(git diff --numstat | awk '{adds+=$1; dels+=$2} END {print adds - dels
   DIFF_CMD="git diff --staged --word-diff=plain"
 fi
 
+PROMPT_TEMPLATE="$(llm templates path)/git-prepare-commit-message.yaml"
+PROMPT_COMMIT_SHA_CMD=("git" "-C" "$PWD" "log" "-1" "--pretty=format:%h" "--" "$PROMPT_TEMPLATE")
+echo "${PROMPT_COMMIT_SHA_CMD[@]}"
+PROMPT_COMMIT_SHA="$("${PROMPT_COMMIT_SHA_CMD[@]}")"
+
 eval "$DIFF_CMD" | \
     llm \
         -t git-prepare-commit-message \
+        -p prompt_commit_sha "$PROMPT_COMMIT_SHA" \
         -p previous_commits "$(git log --pretty="%ar: %s" -n 10 --relative-date)" \
         -p branch "$(git rev-parse --abbrev-ref HEAD)" \
         -p msg "$MSG" \
