@@ -3,26 +3,16 @@ class Screens extends Drive
 
   onNew: =>
     @screenWatcher = hs.screen.watcher.new( -> @screensChanged!)
-    @lunarDebounced = hs.timer.delayed.new(0.1, ->
-      hs.execute "/usr/local/bin/lunar displays all brightness #{@state.brightness}"
-      hs.execute "/usr/local/bin/lunar displays all contrast #{@state.contrast}"
-    )
+
+    @setScreensBrightness = hs.timer.delayed.new(0.5, -> @setScreensBrightnessNow!)
+    @setScreensContrast = hs.timer.delayed.new(0.5, -> @setScreensContrastNow!)
 
   onStart: =>
     @initialState = @getInfo!
     @screenWatcher::start!
-    @lunarDebounced::start!
 
-  screensChanged: =>
-    @mergeIntoState @getInfo!
-
-  onStateChanged: (key) =>
-    @lunarDebounced::start! if key == "brightness" or key == "contrast"
-
-  oledUUIDs: => {["7AD41316-E066-4DC9-85A5-8BB89406EC5F"]: true}
-
-  oledScreens: =>
-    [hs.screen.find(uuid) for uuid, _ in pairs @oledUUIDs!]
+    @setScreensBrightness::start!
+    @setScreensContrast::start!
 
   getInfo: =>
     positions = hs.screen.screenPositions!
@@ -44,3 +34,18 @@ class Screens extends Drive
     contrast = hs.fnutils.reduce(contrasts, (a,b) -> a+b) // numScreens
 
     {:brightness, :contrast, :numScreens, :uuidsByPosition, :uuidsByID}
+
+  screensChanged: => @mergeIntoState @getInfo!
+
+  onStateChanged: (key) =>
+    @setScreensBrightness::start! if key == "brightness"
+    @setScreensContrast::start! if key == "contrast"
+
+  setScreensBrightnessNow: => @lunarPropSet("brightness", @state.brightness)
+  setScreensContrastNow:  => @lunarPropSet("contrast", @state.contrast)
+
+  lunarPropSet: (prop, value) =>
+    @lunarTask(["displays", "all", prop, "#{value}"])
+
+  lunarTask: (args) =>
+    hs.task.new("/usr/local/bin/lunar",  f, args)::start!
