@@ -67,7 +67,6 @@ prompt: |+
     - If there are several unrelated changes, describe them completely in separate sections
     - Do not abstract, hand-wave, or generalize - provide specific details instead
     - Surround code references in backticks
-    - Hard-wrap long lines at 72 characters
     - The motivation is often clarity, so no need to mention it.
 
     footer(s) - a word (or words connected by `-` instead of space) with no other non-word characters, followed by a `:`, and then
