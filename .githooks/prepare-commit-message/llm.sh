@@ -32,7 +32,7 @@ if [ -z "$(git diff --numstat | awk '{adds+=$1; dels+=$2} END {print adds - dels
 fi
 
 PROMPT_TEMPLATE="$(llm templates path)/git-prepare-commit-message.yaml"
-PROMPT_COMMIT_SHA_CMD=("git" "-C" "$PWD" "log" "-1" "--pretty=format:%h" "--" "$PROMPT_TEMPLATE")
+PROMPT_COMMIT_SHA_CMD=("git" "-C" "$HOME" "log" "-1" "--pretty=format:%h" "--" "$PROMPT_TEMPLATE")
 echo "${PROMPT_COMMIT_SHA_CMD[@]}"
 if ! PROMPT_COMMIT_SHA="$("${PROMPT_COMMIT_SHA_CMD[@]}")"; then
   echo "Error: Failed to get commit SHA." >&2
@@ -43,8 +43,8 @@ eval "$DIFF_CMD" | \
     llm \
         -t git-prepare-commit-message \
         -p prompt_commit_sha "$PROMPT_COMMIT_SHA" \
-        -p previous_commits "$(git log --pretty="%ar: %s" -n 10 --relative-date)" \
-        -p branch "$(git rev-parse --abbrev-ref HEAD)" \
+        -p previous_commits "$(git log --pretty -n 5 --relative-date | grep -Ev 'commit .{40}|Author')" \
+        -p branch "$()" \
         -p msg "$MSG" \
         -p diff_cmd "$DIFF_CMD" \
         > "$COMMIT_MSG_FILE"
