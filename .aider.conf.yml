@@ -6,16 +6,16 @@ cache-prompts: true # This is false by default and I'm not sure why
 
 
 ## Set the color for user input (default: #00cc00)
-user-input-color: "#b8bb26"
+user-input-color: "#98971a"
 
 ## Set the color for tool error messages (default: #FF2222)
-tool-error-color: "#fb4934"
+tool-error-color: "#cc241d"
 
 ## Set the color for tool warning messages (default: #FFA500)
-tool-warning-color: "#fe8019"
+tool-warning-color: "#d65d0e"
 
 ## Set the color for assistant output (default: #0088ff)
-assistant-output-color: "fabd2f"
+assistant-output-color: "#d79921"
 
 code-theme: gruvbox-dark
 
