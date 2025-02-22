@@ -2,6 +2,18 @@
 epochTime = hs.timer.absoluteTime()
 lastTime = epochTime
 
+function isError(logEntry)
+    return logEntry.level == 1
+end
+
+hs.logger.historySize(10000)
+initialErrors = hs.fnutils.filter(hs.logger.history(), isError)
+
+if #initialErrors > 0 then
+  hs.inspect(initialErrors)
+  error "something is wrong, there are very early errors"
+end
+
 printTimestamped = print
 print = require 'hs.console'.printStyledtext
 
@@ -69,7 +81,20 @@ time = (hs.timer.absoluteTime() - lastTime) / 1000000
 print("⏰ " .. time .. "ms to fix windowfilter WebKit issue")
 lastTime = hs.timer.absoluteTime()
 
-exports = require("yue")("index")
+yue = require("yue")
+exports = yue("index")
+
+errors = hs.fnutils.filter(hs.logger.history(), isError)
+errorMessages = hs.fnutils.imap(errors, function(errorLogEntry)
+    return errorLogEntry.id.." "..yue.traceback(errorLogEntry.message)
+end)
+errorMessage = table.concat(errorMessages, "\n\n\n\n\n")
+
+numErrors = #errors - #initialErrors
+print("Number of errors during initialization: "..numErrors)
+print(string.rep(" ⚠️ ", numErrors))
+
+hs.logger.historySize(0)
 
 rButton = exports.rButton
 
