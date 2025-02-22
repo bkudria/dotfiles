@@ -11,19 +11,6 @@ class Drive
   -- Logging
   --
   logger: => @logger
-  tryLog: (label, fn) => -- TODO macro
-    if type(label) == "function"
-      fn, label = label, "in function"
-    try
-      @logger.d label
-      result = fn!
-    catch err
-      @logger.e "🔴 Error #{label}:"
-      @logger.e "  #{yue.traceback err}"
-      hs.openConsole(true)
-
-    result
-
   getName: (...) => @@__name
 
   -- State
