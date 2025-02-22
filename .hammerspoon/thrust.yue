@@ -1,7 +1,6 @@
 class Thrust extends Drive
   icon: "🔥"
   moveMaxWindowTo: (screen, config = {}) =>
-    -- frame = screen::fullFrame!
     @moveWindowTo screen,
       BTTChangeWindowHeight: true
       BTTChangeWindowWidth: true
@@ -40,7 +39,7 @@ class Thrust extends Drive
   tellBTT: (action) =>
     json = hs.json.encode {
       ...action,
-      BTTActionMoveResizeConfig: hs.json.encode(action.BTTActionMoveResizeConfig)
+      BTTActionMoveResizeConfig: action.BTTActionMoveResizeConfig and hs.json.encode(action.BTTActionMoveResizeConfig)
     }
 
     script = "tell application \"BetterTouchTool\"
@@ -64,4 +63,13 @@ class Thrust extends Drive
       BTTUseVisibleFrame: false
       BTTScreenOrigin: 0
       * ...config
+  }
+
+  maximizeWindow: => @tellBTT {
+    BTTActionCategory: 0
+    BTTIsPureAction: true
+    BTTPredefinedActionType: 21
+    BTTPredefinedActionName: "Maximize Window"
+    BTTEnabled2: 1
+    BTTOrder: 0
   }

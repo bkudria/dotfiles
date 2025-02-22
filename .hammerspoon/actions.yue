@@ -30,8 +30,8 @@ class Actions extends Drive
 
   parkMouse: => hs.mouse.setAbsolutePosition{x: 2^13, y: 2^13}
 
-  maximize: (window = hs.window.focusedWindow!, frame = window::screen!::fullFrame!) =>
-    window::setFrame(frame)
+  maximize: =>
+    @thrust::maximizeWindow!
 
   moveToScreen: (window = hs.window.focusedWindow!, targetScreen = window::screen!::toEast!) =>
     targetScreen = if type(targetScreen)=="string" then hs.screen.find targetScreen else targetScreen
