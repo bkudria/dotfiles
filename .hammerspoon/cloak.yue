@@ -15,7 +15,7 @@ class Cloak extends Drive
 
     @windowFilter = hs.window.filter.new!
     @cloaks = {}
-    @windowEventDebouncer = hs.timer.delayed.new(0.05, -> @uncloak! if @shouldBeUncloaked!)
+    @windowEventDebouncer = hs.timer.delayed.new(0.01, -> @uncloak! if @shouldBeUncloaked!)
     @cloaksDebouncer = hs.timer.delayed.new(@delay, -> @maybeCloak!)
 
     @persistedStateKeys = { "cloaked" }
@@ -24,13 +24,11 @@ class Cloak extends Drive
     -- TODO combine
     -- TODO does BTT trigger?
     @windowFilter::subscribe(
-      hs.window.filter.windowFocused, -> @windowEventDebouncer::start!
-    )
-    @windowFilter::subscribe(
-      hs.window.filter.windowUnfocused, -> @windowEventDebouncer::start!
-    )
-    @windowFilter::subscribe(
-      hs.window.filter.windowMoved, -> @windowEventDebouncer::start!
+      [ hs.window.filter.windowFocused,
+        hs.window.filter.windowUnfocused,
+        hs.window.filter.windowMoved ],
+      -> @windowEventDebouncer::start!,
+      true
     )
 
     @resetCloaks!
@@ -75,7 +73,7 @@ class Cloak extends Drive
       @drawCloaks! unless @state.cloaked
 
   uncloak: =>
-    hs.fnutils.imap(@cloaks, (cloak) -> cloak::hide(0.1))
+    hs.fnutils.imap(@cloaks, (cloak) -> cloak::hide(0.5))
     @state.cloaked = false
     @scheduleNext!
 
