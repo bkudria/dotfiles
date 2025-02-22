@@ -166,6 +166,7 @@ class Drive
   -- stop
   --
   stop: (...) =>
+    args = {...}
     return @logger.e "🔴 Not stopping #{@@__name}, initialization failed" unless @initialized
     return @logger.e "🔴 Not stopping #{@@__name}, it's not started!" unless @started
 
@@ -174,7 +175,7 @@ class Drive
     print ""
     try
       @logger.d "beforeStop!"
-      @beforeStop(...)
+      @beforeStop(table.unpack args)
     catch err
       @logger.e "🔴 Error before stopping #{@@__name}:"
       @logger.e "  #{err}"
@@ -182,7 +183,7 @@ class Drive
 
     try
       @logger.d "stop!"
-      result = @onStop(...)
+      result = @onStop(table.unpack args)
 
     catch err
       @logger.e "🔴 Error stopping #{@@__name}:"
@@ -198,10 +199,10 @@ class Drive
 
     try
       @logger.d "afterStop!"
-      @afterStop(...)
+      @afterStop(table.unpack args)
 
-      @state = nil
       @watchers = nil
+      @watchers = []
     catch err
       @logger.w "🔴 Error after stopping #{@@__name}:"
       @logger.w "  #{err}"
