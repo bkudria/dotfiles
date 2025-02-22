@@ -1,0 +1,59 @@
+model: o1-preview
+
+architect: true
+editor-model: sonnet
+cache-prompts: true # This is false by default and I'm not sure why
+
+
+## Set the color for user input (default: #00cc00)
+user-input-color: "#b8bb26"
+
+## Set the color for tool error messages (default: #FF2222)
+tool-error-color: "#fb4934"
+
+## Set the color for tool warning messages (default: #FFA500)
+tool-warning-color: "#fe8019"
+
+## Set the color for assistant output (default: #0088ff)
+assistant-output-color: "fabd2f"
+
+code-theme: gruvbox-dark
+
+auto-commits: false
+# Otherwise, Aider will make commits for you.
+# You can always undo Aider's committed changes with `/undo`
+
+watch-files: true # See explanation under Extras
+
+# See Testing/Linting section below
+#
+# lint-cmd:
+# test-cmd:
+auto-test: true
+
+# NB: Aider suggests adding `.aider*` to one's gitignore.
+# (And can do it for you if it isn't there)
+# I recommend adding it to your core.excludesfile
+#
+env-file: .aider.env # The default is `.env`
+
+read: .aider.context.md
+# Just a suggestion. The official docs suggest CONVENTIONS.md
+# I think 'context' is more accurate, and there's no need to shout
+#
+# Equivalent to the /read-only command
+#
+# If you want this to work in subdirectories,
+# add `AIDER_READ=.aider.context.md` to that directory's env-file
+
+load: .aider.commands # A list of commands to run
+# A great place to put `/web http://relevant-docs.example.com`
+# Also a great place to configure lint and test commands (you can also put them in the env-file)
+#
+# Equivalent to the /load command
+#
+# If you want this to work in subdirectories,
+# add `LOAD_FILE=.aider.commands` to that directory's env-file
+
+# Don't ask to opt-in to analytics. See: the section in Extras for more info.
+analytics: true
