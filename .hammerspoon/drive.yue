@@ -82,7 +82,6 @@ class Drive
     @initialized = false
     @started = false
 
-    print ""
     try
       @logger.d "beforeNew!"
       @beforeNew(...)
@@ -120,7 +119,6 @@ class Drive
 
     time = hs.timer.absoluteTime!
 
-    print ""
     try
       @logger.d "beforeStart!"
       @beforeStart(...)
@@ -172,7 +170,6 @@ class Drive
 
     time = hs.timer.absoluteTime!
 
-    print ""
     try
       @logger.d "beforeStop!"
       @beforeStop(table.unpack args)
