@@ -1,0 +1,4 @@
+describe "Example Test", ->
+  it "should pass", ->
+    lfs = require "lfs"
+    assert.is_true true

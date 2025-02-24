@@ -1,3 +1,5 @@
+import "yue" as yue
+
 basename = (str) -> string.gsub(str, "(.*/)(.*)", "%2")
 endswith = (ext) -> "^[^#][a-z%-]+%.#{ext}"
 
@@ -9,16 +11,20 @@ class Loader extends Drive
   onStart: =>
     @watcher::start!
 
-  watchConfig: (paths, flags) =>
-    reloadConditions = for i, path in pairs paths
-      filename = basename(path)
-
-      continue unless filename\match(endswith('lua')) or filename\match(endswith('yue'))
+  watchConfig: (paths) =>
+    for path in *paths
+      filename = basename path
+      continue unless filename\match(endswith("lua")) or filename\match(endswith("yue"))
       continue if filename\match("^%.#.*")
 
-      -- TODO yue syntax check
-
-      @reload!
+      if filename\match endswith("yue")
+        _, syntaxErr = yue.loadfile path
+        if syntaxErr
+          @logger.e "Syntax error in #{filename}:\n#{syntaxErr}"
+          hs.openConsole(true)
+          return
+        else
+          @reload!
 
   reload: =>
     @logger.i "publishing reload!"
