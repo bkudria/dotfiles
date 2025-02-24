@@ -21,10 +21,12 @@ class App
     @app! ~= nil
   whenFocused: =>
     @app!::activate!
-    hs.eventtap.keyStroke({'cmd'}, '`', 200000, @app!)
     @app!::focusedWindow!::raise!
   @activate: =>
     @app!::activate!
+
+    hs.eventtap.keyStroke({'cmd'}, 'n') if #@app!::allWindows! == 0
+
     @app!::mainWindow!::unminimize!
     @app!::focusedWindow!::raise!
 
