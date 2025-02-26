@@ -1,7 +1,7 @@
 ---
 extract: true
 model: &model
-  gpt-4o-mini
+  claude-3.5-haiku
 defaults:
   msg:
   model: *model
