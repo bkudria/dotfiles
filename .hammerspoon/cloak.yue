@@ -77,7 +77,7 @@ class Cloak extends Drive
     @state.cloaked = false
     @scheduleNext!
 
-  drawCloaks: (duration = 10) =>
+  drawCloaks: (duration = 5) =>
     hs.fnutils.ieach(@cloaks, (cloak) ->
       with cloak
         ::bringToFront(true)
