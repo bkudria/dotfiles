@@ -70,8 +70,8 @@ if [ -f "spec/helper.yue" ]; then
         exit 1
     }
 else
-    # Fallback to copying the Lua helper if YueScript version doesn't exist
-    cp spec/helper.lua "$TEMP_DIR/spec/helper.lua"
+    echo "Missing helper"
+    exit 1
 fi
 
 # Run busted on the compiled spec files
