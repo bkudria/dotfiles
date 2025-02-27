@@ -1,0 +1,32 @@
+-- Add mocks directory to package path
+package.path = "./spec/mocks/?.lua;" .. package.path
+
+-- Load mocks first
+_G.hs = require 'spec.mocks.hs'
+
+-- Helper function to capitalize first letter
+capitalize = (str) -> str\gsub "^%l", string.upper
+
+-- Load all modules being tested and make them available globally
+loadModules = ->
+  loaded = {}
+  files = io.popen('ls spec/*_spec.lua 2>/dev/null')\lines!
+
+  for spec_file in files
+    module_name = spec_file\match "spec/(.-)_spec%.lua$"
+    if module_name and not loaded[module_name]
+      module_file = "#{module_name}.lua"
+      if io.open module_file, "r"
+        success = true
+        module = nil
+
+        try
+          module = require module_name
+          globalName = capitalize module_name
+          _G[globalName] = module
+          loaded[module_name] = true
+        catch err
+          print "Couldn't load #{module_name}"
+
+-- Load all modules
+loadModules!

@@ -62,8 +62,17 @@ if [ -f "spec/mocks/hs.yue" ]; then
     }
 fi
 
-# Copy helper.lua into the temp spec directory
-cp spec/helper.lua "$TEMP_DIR/spec/helper.lua"
+# Compile helper.yue into the temp spec directory
+if [ -f "spec/helper.yue" ]; then
+    output=$(yue -r -t "$TEMP_DIR/spec" spec/helper.yue 2>&1) || {
+        echo "Error compiling helper.yue:"
+        echo "$output"
+        exit 1
+    }
+else
+    # Fallback to copying the Lua helper if YueScript version doesn't exist
+    cp spec/helper.lua "$TEMP_DIR/spec/helper.lua"
+fi
 
 # Run busted on the compiled spec files
 cd "$TEMP_DIR"
