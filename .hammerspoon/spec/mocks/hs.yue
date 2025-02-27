@@ -1,0 +1,40 @@
+-- Mock implementation of the hs (Hammerspoon) API for testing
+
+-- Create the base hs table
+hs = {}
+
+-- Logger implementation
+hs.logger =
+  new: (name, level) ->
+    {
+      d: (...) -> -- Debug
+      i: (...) -> -- Info
+      w: (...) -> -- Warning
+      e: (...) -> -- Error
+    }
+
+-- Timer implementation
+hs.timer =
+  absoluteTime: -> 0
+  delayed:
+    new: -> { start: -> }
+  doAfter: (seconds, fn) -> fn!
+
+-- Watchable implementation
+hs.watchable =
+  new: (name, persistent) -> {}
+  watch: (path, key, callback) ->
+    {
+      value: (k) -> nil
+    }
+
+-- Settings implementation
+hs.settings =
+  get: (key) -> nil
+  set: (key, value) -> nil
+
+-- Console functions
+hs.openConsole = (focus) -> nil
+
+-- Export the mock
+hs

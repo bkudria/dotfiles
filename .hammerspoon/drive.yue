@@ -1,6 +1,6 @@
 import 'yue'
 
-
+timeDeltaFrom = (time) -> string.format("%.3f", (hs.timer.absoluteTime! - time) / 1000000) .. "ms"
 
 -- TODO macros for caught error logging?
 -- name `...` so we can move custom behavior into `try` blocks

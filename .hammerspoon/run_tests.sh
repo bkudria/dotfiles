@@ -50,8 +50,24 @@ output=$(yue -r -t "$TEMP_DIR/spec" spec 2>&1) || {
     exit 1
 }
 
+# Ensure the mocks directory exists
+mkdir -p "$TEMP_DIR/spec/mocks"
+
+# Compile the mock hs module
+if [ -f "spec/mocks/hs.yue" ]; then
+    output=$(yue -r -t "$TEMP_DIR/spec/mocks" spec/mocks/hs.yue 2>&1) || {
+        echo "Error compiling mock hs module:"
+        echo "$output"
+        exit 1
+    }
+fi
+
 # Create a helper script that will be loaded before tests
 cat > "$TEMP_DIR/spec/helper.lua" << 'EOF'
+-- Load mocks first
+package.path = "./spec/mocks/?.lua;" .. package.path
+_G.hs = require('spec.mocks.hs')
+
 -- Make modules available globally for specs
 local function capitalize(str)
     return str:gsub("^%l", string.upper)
