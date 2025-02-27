@@ -1,0 +1,39 @@
+describe "Drive", ->
+  -- Define a minimal subclass of Drive for testing
+  local TestDrive
+
+  before_each ->
+    -- Create a fresh TestDrive class for each test
+    class TestDrive extends Drive
+      name: "TestDrive"
+      icon: "🧪"
+
+      onNew: =>
+        @state.testValue = "initialized"
+
+  describe "initialization", ->
+    it "should create an instance successfully", ->
+      testDrive = TestDrive!
+      assert.is_not_nil testDrive
+      assert.is_true testDrive.initialized
+
+    it "should set up a logger", ->
+      testDrive = TestDrive!
+      assert.is_not_nil testDrive.logger
+
+    it "should set the name property", ->
+      testDrive = TestDrive!
+      assert.equals "TestDrive", testDrive.name
+
+    it "should initialize state", ->
+      testDrive = TestDrive!
+      assert.is_not_nil testDrive.state
+      assert.equals "initialized", testDrive.state.testValue
+
+    it "should set initialized flag to true", ->
+      testDrive = TestDrive!
+      assert.is_true testDrive.initialized
+
+    it "should set started flag to false", ->
+      testDrive = TestDrive!
+      assert.is_false testDrive.started
