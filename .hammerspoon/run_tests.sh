@@ -12,19 +12,43 @@ trap 'rm -rf "$TEMP_DIR"' EXIT
 
 echo "Compiling Yuescript files..."
 
-# Compile all Yuescript files to the temp directory
-for yue_file in *.yue; do
-    if [ -f "$yue_file" ]; then
-        yue -r -t "$TEMP_DIR" "$yue_file"
-        echo "Compiled $yue_file"
+# Find all spec files to determine which modules to compile
+SPEC_FILES=()
+for spec_file in spec/*_spec.yue; do
+    if [ -f "$spec_file" ]; then
+        SPEC_FILES+=("$spec_file")
     fi
 done
 
-# Compile spec files
-if ! yue -r -t "$TEMP_DIR/spec" spec; then
-    echo "Error: Failed to compile Yuescript specs"
+# Extract module names from spec files
+MODULES=()
+for spec_file in "${SPEC_FILES[@]}"; do
+    # Extract module name from spec file (e.g., "drive" from "drive_spec.yue")
+    module_name=$(basename "$spec_file" _spec.yue)
+    if [ -f "${module_name}.yue" ]; then
+        MODULES+=("${module_name}")
+    fi
+done
+
+# Compile only the needed modules
+for module in "${MODULES[@]}"; do
+    if [ -f "${module}.yue" ]; then
+        # Capture output but only display it if there's an error
+        output=$(yue -r -t "$TEMP_DIR" "${module}.yue" 2>&1) || {
+            echo "Error compiling ${module}.yue:"
+            echo "$output"
+            exit 1
+        }
+    fi
+done
+
+# Compile spec files (capture output but only display it if there's an error)
+mkdir -p "$TEMP_DIR/spec"
+output=$(yue -r -t "$TEMP_DIR/spec" spec 2>&1) || {
+    echo "Error compiling Yuescript specs:"
+    echo "$output"
     exit 1
-fi
+}
 
 # Create a helper script that will be loaded before tests
 cat > "$TEMP_DIR/spec/helper.lua" << 'EOF'
@@ -33,19 +57,22 @@ local function capitalize(str)
     return str:gsub("^%l", string.upper)
 end
 
--- Load all modules and make them available globally with capitalized names
+-- Load only modules that have corresponding spec files
 local function loadModules()
-    local modules = {}
-    local files = io.popen('ls *.lua 2>/dev/null'):lines()
-
-    for file in files do
-        if not file:match("_spec%.lua$") and file ~= "helper.lua" then
-            local moduleName = file:gsub("%.lua$", "")
-            local success, module = pcall(require, moduleName)
-            if success then
-                local globalName = capitalize(moduleName)
-                _G[globalName] = module
-                print("Loaded module " .. moduleName .. " as global " .. globalName)
+    local loaded = {}
+    local files = io.popen('ls spec/*_spec.lua 2>/dev/null'):lines()
+    
+    for spec_file in files do
+        local module_name = spec_file:match("spec/(.-)_spec%.lua$")
+        if module_name and not loaded[module_name] then
+            local module_file = module_name .. ".lua"
+            if io.open(module_file, "r") then
+                local success, module = pcall(require, module_name)
+                if success then
+                    local globalName = capitalize(module_name)
+                    _G[globalName] = module
+                    loaded[module_name] = true
+                end
             end
         end
     end
@@ -57,4 +84,4 @@ EOF
 # Run busted on the compiled spec files
 cd "$TEMP_DIR"
 echo "Running tests..."
-busted --helper=spec/helper.lua spec/ | sed 's/\.lua/\.yue/g'
+unbuffer busted --helper=spec/helper.lua spec/ | sed 's/\.lua/\.yue/g'
