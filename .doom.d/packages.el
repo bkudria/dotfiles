@@ -38,6 +38,8 @@
 (package! yuescript
   :recipe (:type git :repo "https://github.com/bkudria/yuescript-mode"))
 
+(package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs" :files ("*.el")))
+
 ;; You can override the recipe of a built in package without having to specify
 ;; all the properties for `:recipe'. These will inherit the rest of its recipe
 ;; from Doom or MELPA/ELPA/Emacsmirror:

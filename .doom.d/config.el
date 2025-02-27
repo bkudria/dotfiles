@@ -151,3 +151,6 @@
 ;;   (mini-frame-mode)
 ;; )
 
+(use-package! aidermacs
+  :config
+  (setq aidermacs-backend 'vterm))
