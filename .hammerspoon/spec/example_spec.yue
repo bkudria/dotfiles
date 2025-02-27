@@ -1,4 +1,30 @@
-describe "Example Test", ->
-  it "should pass", ->
-    lfs = require "lfs"
-    assert.is_true true
+describe "Busted unit testing framework", ->
+  describe "should be awesome", ->
+    it "should be easy to use", ->
+      assert.truthy("Yup.")
+
+    it "should have lots of features", ->
+      -- deep check comparisons!
+      assert.are.same { table: "great"}, { table: "great" }
+
+      -- or check by reference!
+      assert.are_not.equal { table: "great"}, { table: "great"}
+
+      assert.truthy "this is a string" -- truthy: not false or nil
+
+      assert.True 1 == 1
+      assert.is_true 1 == 1
+
+      assert.falsy nil
+      assert.has_error -> error("Wat"), "Wat"
+
+    it "should provide some shortcuts to common functions", ->
+      assert.are.unique {{ thing: 1 }, { thing: 2 }, { thing: 3 }}
+
+    it "should have mocks and spies for functional tests", ->
+      thing = {greet: (s) -> nil}
+      spy.on(thing, "greet")
+      thing.greet("Hi!")
+
+      assert.spy(thing.greet).was.called()
+      assert.spy(thing.greet).was.called_with("Hi!")
