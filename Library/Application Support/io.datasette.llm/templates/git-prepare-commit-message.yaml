@@ -43,12 +43,13 @@ prompt: |+
       more room is needed.
     - The description should reflect all the changes mentioned in the body, or a unifying theme or motivation
 
-    description: an EXTREMELY TERSE description of the changes
+    description: an EXTREMELY TERSE description of the changes, in 49 characters or less
     - The total character count of the header line (type, optional, and description) MUST NOT exceed 49 characters.
     - Be as terse as possible. Abbreviate liberally, and ignore grammar if needed. Use punctuation or unicode symbols (for
       example, "→" instead of " to " or " into ", or "," or ";" instead of " and ""
     - Use the imperative tense
     - Lead with the most pertinent information
+    - Omit words implied by the type or scope
     - Ensure important changes are mentioned, include unimportant changes only if there is room
 
     body: a more complete explanation of the changes, IF NEEDED.
