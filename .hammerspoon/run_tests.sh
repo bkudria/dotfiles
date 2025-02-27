@@ -2,23 +2,23 @@
 
 set -euo pipefail
 
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+
 # Create a temp directory for processed files
 TEMP_DIR=$(mktemp -d)
 trap 'rm -rf "$TEMP_DIR"' EXIT
 
-# Compile Yuescript specs
-if ! yue -r spec; then
+# Compile Yuescript specs directly to temp directory
+if ! yue -r -t "$TEMP_DIR" spec; then
     echo "Error: Failed to compile Yuescript specs"
     exit 1
 fi
 
-# Copy lua files to temp directory to avoid modifying originals
-for spec_file in spec/*.lua; do
+# Add busted runner to the beginning of each file
+for spec_file in "$TEMP_DIR"/*.lua; do
     if [ -f "$spec_file" ]; then
-        base_name=$(basename "$spec_file")
-        cp "$spec_file" "$TEMP_DIR/$base_name"
         # Add busted runner to the beginning of each file
-        sed -i '.bak' '1s/^/require("busted.runner")()/g' "$TEMP_DIR/$base_name"
+        sed -i '.bak' '1s/^/require("busted.runner")()/g' "$spec_file"
     fi
 done
 
@@ -29,4 +29,8 @@ if [ ! "$(ls -A "$TEMP_DIR")" ]; then
 fi
 
 # Run all tests
-unbuffer lua "$TEMP_DIR"/*.lua | sed 's/\.lua/\.yue/g'
+for spec_file in "$TEMP_DIR"/*.lua; do
+    if [ -f "$spec_file" ]; then
+        unbuffer lua "$spec_file" | sed 's/\.lua/\.yue/g'
+    fi
+done
