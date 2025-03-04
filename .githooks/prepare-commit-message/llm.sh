@@ -47,4 +47,7 @@ eval "$DIFF_CMD" | \
         -p branch "$()" \
         -p msg "$MSG" \
         -p diff_cmd "$DIFF_CMD" \
+        -o prefill '```' \
+        -o hide_prefill true \
+        -o stop_sequences '```' \
         > "$COMMIT_MSG_FILE"
