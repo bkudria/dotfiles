@@ -19,13 +19,13 @@ zstyle ':prezto:load' pmodule \
   'homebrew' \
   'directory' \
   'spectrum' \
-  'bkudria' \
   'utility' 'completion' \
   'syntax-highlighting' 'history-substring-search' 'autosuggestions'  'prompt' \
   'command-not-found' \
   'tmux' \
   'belak/direnv' \
-  'belak/alias-tips'
+  'belak/alias-tips' \
+  'bkudria'
 
 zstyle ':prezto:module:editor' key-bindings 'emacs'
 
