@@ -56,7 +56,7 @@
 (setq confirm-kill-emacs 'nil)
 (setq initial-frame-alist '((fullscreen . maximized)))
 (setq server-client-instructions 'nil)
-(setq-default fill-column 120)
+(setq-default fill-column 140)
 
 (setq scroll-preserve-screen-position t
       scroll-conservatively 0

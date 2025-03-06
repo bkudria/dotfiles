@@ -1,5 +1,40 @@
-[A-za-z0-9]*
-!.*/*
+# ignore all non-hidden files
+/*
+
+# allow hidden files
+!.*
+
+# allow directories
+!*/
+
+/Applications
+/Desktop
+/Documents
+/Downloads
+/Movies
+/Music
+/Pictures
+/Public
+/tmp
+/code
+
+/Library/**
+
+/.hammerspoon/Spoons/
+/.hammerspoon/pasteboard_history.json
+/.hammerspoon/.clips.sqlite
+
+/.doom.d/snippets/fundamental-mode/untracked/*
+/.doom.d/custom.el
+
+/.zsh_history
+
+.aider*
+!.aider.commands
+!.aider.conf.yml
+!.aider.context.md
+!.aider.env
+
 */*.elc
 */*.git
 */*.hg

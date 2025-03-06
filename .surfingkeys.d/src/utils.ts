@@ -150,3 +150,8 @@ zm-6.2%203.5h5.1v6.4h-5.1v-6.4zm-8.8%200h6v1.8h-6v-1.8zm0%204.6h6v1.8h-6v-1.
   /\s+/g,
   ''
 );
+
+export const stayHere = () =>
+  window.addEventListener('beforeunload', function(e) {
+    e.preventDefault();
+  });

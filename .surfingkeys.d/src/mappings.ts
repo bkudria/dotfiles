@@ -1,4 +1,4 @@
-import { removeSticky, scrollBy } from './utils';
+import { removeSticky, scrollBy, stayHere } from './utils';
 
 export const applyMappings = () => {
   // Unmap proxy stuff
@@ -42,4 +42,6 @@ export const applyMappings = () => {
     () =>
       (window.location.href = `https://archive.vn/newest/${window.location.href}`)
   );
+
+  api.mapkey('g.', 'Stay Here', () => stayHere());
 };

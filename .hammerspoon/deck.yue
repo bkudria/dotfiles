@@ -6,9 +6,12 @@ class Deck extends Drive
   onNew: =>
     @screenBrightnessState = hs.watchable.watch("Screens", "brightness", (...) -> )
     @screenContrastState = hs.watchable.watch("Screens", "contrast", (...) -> )
+    -- TODO move sound/volume to its own Drive
+    @remoteVolumeSetter = hs.timer.delayed.new(0.1, -> @remoteSetVolumeNow!)
 
-    @persistedStateKeys = { "brightness", "contrast" }
-    @initialState = { brightness: 50, contrast: 50 }
+    -- TODO combine these two
+    @persistedStateKeys = { "brightness", "contrast", "volume", "remoteVolume"}
+    @initialState = { brightness: 50, contrast: 50, volume: 0, remoteVolume: 0 }
 
     @device = nil
     @encoderState = [false, false, false, false]
@@ -17,6 +20,7 @@ class Deck extends Drive
 
   onStart: =>
     hs.streamdeck.init (connected, deck) -> @onConnect(connected, deck)
+    -- TODO populate state
 
   onConnect: (connected, device) =>
     unless connected
@@ -69,6 +73,20 @@ class Deck extends Drive
 
   onStateChanged: (key, old, new) =>
     @device::setBrightness(clamp(new // 2, 10, 50)) if key == "brightness"
+    hs.audiodevice.defaultOutputDevice!::setVolume(clamp0100(new)) if key == "volume"
+    @remoteSetVolume! if key == "remoteVolume"
+
+  remoteSetVolume: =>
+    @remoteVolumeSetter::start!
+
+  remoteSetVolumeNow: =>
+    hs.osascript.applescript  [[
+      tell application "Finder" of machine "eppc://bkudria@Basho.local"
+        set volume output volume ]]..@state.remoteVolume..[[ --
+      end tell
+    ]]
+
+    @logger.i "Set remote volume to #{@state.remoteVolume}"
 
   setBrightness: (brightness) =>
     @state.brightness = brightness
@@ -107,9 +125,11 @@ class Deck extends Drive
       pressed: (sign) =>
         @logger.i "3p"
     * default: (sign) =>
-        @logger.i "4d"
+        @state.volume = clamp0100(@state.volume + sign*5) -- TODO Abstract simple setState
+        @state.volume
       pressed: (sign) =>
-        @logger.i "4p"
+        @state.remoteVolume = clamp0100(@state.remoteVolume + sign)
+        @state.remoteVolume
 
   -- TODO should we reuse a canvas?
   -- TODO How many? 1 per button/encoder? or 1/screen?
