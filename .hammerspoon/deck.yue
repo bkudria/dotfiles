@@ -42,7 +42,8 @@ class Deck extends Drive
     @logger.i "  Screen Size: #{@screenSize.string} pixels"
     @logger.i "     Encoders: #{@numEncoders}"
 
-    @state.brightness = @state.brightness
+    @state.brightness = @state.brightness -- trigger setting device brightness
+
     @device::encoderCallback (...) -> @onEncoder ...
     @drawDefaultScreen::start!
 
@@ -60,8 +61,6 @@ class Deck extends Drive
       encoderStateKey = if @encoderState[id] then "pressed" else "default"
       @encoderActions[id][encoderStateKey](@,0)
       0
-
-    return true if encoderStateKey[id] == "default" and value == 0 -- Don't draw on release
 
     returnType = type(value)
     if returnType == "number"
