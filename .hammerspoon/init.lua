@@ -19,9 +19,10 @@ print = require 'hs.console'.printStyledtext
 
 local printStyled = print
 print = function(value)
+    if type(value) ~= "string" then value = tostring(value) end
     value = value:gsub("^%s*", "")
     if (value:sub(1, 3) == "-- ") then
-        -- printStyled(value)
+        -- printTimestamped(value)
         return
     else
         if type(value) == "table" then value = hs.inspect(value) end
@@ -81,8 +82,13 @@ time = (hs.timer.absoluteTime() - lastTime) / 1000000
 print("⏰ " .. time .. "ms to fix windowfilter WebKit issue")
 lastTime = hs.timer.absoluteTime()
 
-yue = require("yue")
-exports = yue("index")
+local yue = require("yue")
+yue.insert_loader()
+local success, result = xpcall(function()
+  index = require("index")
+end, function(err)
+  error(yue.traceback(err))
+end)
 
 errors = hs.fnutils.filter(hs.logger.history(), isError)
 errorMessages = hs.fnutils.imap(errors, function(errorLogEntry)
@@ -96,7 +102,9 @@ print(string.rep(" ⚠️ ", numErrors))
 
 hs.logger.historySize(0)
 
-rButton = exports.rButton
+if type(exports) == "table" then
+  rButton = exports.rButton
+end
 
 time = (hs.timer.absoluteTime() - lastTime) / 1000000
 print("⏰ " .. time .. "ms to compile & load yue config")
