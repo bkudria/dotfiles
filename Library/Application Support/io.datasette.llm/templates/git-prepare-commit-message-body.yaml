@@ -42,6 +42,7 @@ prompt: |+
   - Use Markdown format with bullet points for multiple items.
   - Separate unrelated changes with '#' headers.
   - Be specific and avoid speculation.
+  - Shorter commits need shorter bodies, longer commits need longer bodies
   - Describe the effects of the changes, not the literal diff.
   </draft_body>
 
