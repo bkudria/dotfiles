@@ -5,10 +5,11 @@ model: &model
 defaults:
   msg:
   model: *model
+system: |+
+  You are an expert software engineer tasked with crafting clear and concise git commit messages following the Conventional Commits style.
+  Your commit messages should be informative and appreciated by other engineers for their clarity and elucidation.
 prompt: |+
-  You are an expert software engineer tasked with crafting clear and concise git commit messages following the Conventional Commits style. Your commit messages should be informative and appreciated by other engineers for their clarity and elucidation.
-
-  First, review the context provided:
+  First, review the following information:
 
   1. Diff output:
   <diff_output>
@@ -20,22 +21,30 @@ prompt: |+
   $previous_commits
   </previous_commits>
 
-  3. Diff command used:
-  <diff_command>
-  $diff_cmd
-  </diff_command>
+  3. Draft Body (if provided):
+  <body_draft>
+  $body_draft
+  </body_draft>
 
-  Now, perform a detailed analysis of the changes. Wrap your analysis in <diff_analysis> tags:
+  4. Additional user guidance:
+  <user_guidance>
+  $msg
+  </user_guidance>
 
-  <diff_analysis>
+  Now, perform a detailed analysis of the changes. Wrap your thought process in <commit_analysis> tags:
+
+  <commit_analysis>
   1. List and quote the most significant changes from the diff output.
-  2. Categorize each change into one of the commit types: fix, feat, build, tidy, ci, todo, docs, spec, style, refactor, perf, or test.
-  3. Identify potential scopes for the changes.
-  4. Consider the impact of each change on the overall codebase.
-  5. Prioritize the changes based on their significance and impact.
-  6. Consider and list any breaking changes.
-  7. Evaluate the need for a body in the commit message to explain complex changes.
-  </diff_analysis>
+  2. For each significant change:
+    a. Categorize it into one of the commit types: fix, feat, build, tidy, ci, todo, docs, spec, style, refactor, perf, or test.
+    b. Identify potential scopes for the change.
+    c. Consider the impact of the change on the overall codebase.
+  3. Prioritize the changes based on their significance and impact.
+  4. Consider and list any breaking changes.
+  5. Evaluate whether the provided draft body (if any) adequately explains complex changes. If no draft body is provided, do not create one.
+  6. Examine the relationship between the current changes and previous commits (if available).
+  7. Brainstorm 2-3 potential descriptions for the commit message header, ensuring they fit within the 49-character limit.
+  </commit_analysis>
 
   Based on your analysis, craft a commit message adhering to the Conventional Commits style:
 
@@ -46,9 +55,12 @@ prompt: |+
     - Scope: Include if clear and concise, omit if obvious or if more space is needed for the description.
     - Breaking change: Add '!' after the type/scope if there's a breaking API change.
     - Description: Use imperative tense, lead with pertinent information, and use symbols or abbreviations if needed to stay within the 49-character limit.
+    - Important: Ensure the header text isn't redundant with the scope or type of commit.
 
-  2. Body (optional, include only if necessary for complex changes):
-    - Describe the effects of the changes, not the literal diff.
+  2. Body:
+    - If a draft body was provided, use it with refinements if necessary.
+    - If no draft body was provided, do not create one.
+    - Ensure the body describes the effects of the changes, not the literal diff.
     - Use Markdown format with bullet points for multiple items.
     - Separate unrelated changes with '#' headers.
     - Be specific and avoid speculation.
@@ -60,9 +72,18 @@ prompt: |+
 
   Separate each component (header, body, footer) with an empty line.
 
-  Additional user guidance to consider:
-  <user_guidance>
-  $msg
-  </user_guidance>
-
   Present your final commit message as a markdown fenced code block, with no initial blank lines. Ensure strict adherence to the Conventional Commits style and the 49-character limit for the header line.
+
+  Example structure (do not copy content, only format):
+
+  ```
+  <type>[(scope)][!]: Short description (<=49 chars)
+
+  [Body paragraph 1]
+
+  [Body paragraph 2]
+
+  [Footer 1]
+  [Footer 2]
+  [Footer 3]
+  ```

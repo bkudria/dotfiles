@@ -1,0 +1,56 @@
+---
+extract: true
+model: &model
+  claude-3.5-haiku
+defaults:
+  msg:
+system: |+
+  You are an expert software engineer tasked with crafting clear and concise git commit message bodies following the Conventional Commits
+  style. Your commit message bodies should be informative and appreciated by other engineers for their clarity and elucidation.
+prompt: |+
+  First, review the following information:
+
+  1. Diff output:
+  <diff_output>
+  $input
+  </diff_output>
+
+  2. Diff command used:
+  <diff_command>
+  $diff_cmd
+  </diff_command>
+
+  3. Additional user guidance to consider:
+  <user_guidance>
+  $msg
+  </user_guidance>
+
+  Now, perform a detailed analysis of the changes. Write your analysis inside <commit_analysis> tags:
+
+  <commit_analysis>
+  1. List and quote the most significant changes from the diff output, prepending each with a number to keep count.
+  2. Consider the impact of each change on the overall codebase.
+  3. Prioritize the changes based on their significance and impact.
+  4. Consider and list any breaking changes.
+  5. For each significant change, consider arguments for and against including it in the commit message body.
+  </commit_analysis>
+
+  Based on your analysis, determine if a commit message body is necessary. If it is, draft the body content using <draft_body> tags:
+
+  <draft_body>
+  - Draft the body content here, focusing on explaining complex changes that aren't immediately obvious from the commit message header.
+  - Use Markdown format with bullet points for multiple items.
+  - Separate unrelated changes with '#' headers.
+  - Be specific and avoid speculation.
+  - Describe the effects of the changes, not the literal diff.
+  - Review and refine the content to ensure clarity, conciseness, and adherence to Conventional Commits style.
+  </draft_body>
+
+  After drafting the body, review and refine it to ensure:
+  1. It provides clear and concise explanations of complex changes.
+  2. It uses proper Markdown formatting.
+  3. It separates unrelated changes effectively.
+  4. It avoids redundancy with information that would be in the header.
+  5. It adheres to the Conventional Commits style guidelines.
+
+  Present your final commit message body as a markdown fenced code block. If no body is necessary, explain why in a brief statement.
