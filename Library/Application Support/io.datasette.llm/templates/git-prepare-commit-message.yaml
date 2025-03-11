@@ -54,8 +54,10 @@ prompt: |+
     - Type: Choose from fix, feat, build, tidy, ci, todo, docs, spec, style, refactor, perf, or test.
     - Scope: Include if clear and concise, omit if obvious or if more space is needed for the description.
     - Breaking change: Add '!' after the type/scope if there's a breaking API change.
-    - Description: Use imperative tense, lead with pertinent information, and use symbols or abbreviations if needed to stay within the 49-character limit.
-    - Important: Ensure the header text isn't redundant with the scope or type of commit.
+    - Description: Use imperative tense, lead with pertinent information, and use symbols or abbreviations if needed to stay within the
+      49-character limit.
+    - IMPORTANT: Ensure the header text isn't redundant with the scope or type of commit.
+    - IMPORTANT: The header line MUST NOT exceed 49 characters
 
   2. Body:
     - If a draft body was provided, use it with refinements if necessary.
@@ -64,10 +66,11 @@ prompt: |+
     - Use Markdown format with bullet points for multiple items.
     - Separate unrelated changes with '#' headers.
     - Be specific and avoid speculation.
+    - If the commit is small, and the body provides no additional information not included in your header, omit the body.
 
   3. Footer(s):
     - Include: Model: <model>$model</model>
-    - Include: Prompt-Commit-SHA: <prompt_commit_sha>$prompt_commit_sha</prompt_commit_sha>
+    - Include: Prompt-Commit-SHAs: <prompt_commit_shas>$prompt_commit_shas</prompt_commit_shas>
     - If the branch <branch>$branch</branch> starts with a JIRA key, include a 'Refs' footer with the uppercase JIRA key.
 
   Separate each component (header, body, footer) with an empty line.

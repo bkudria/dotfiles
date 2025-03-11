@@ -43,7 +43,6 @@ prompt: |+
   - Separate unrelated changes with '#' headers.
   - Be specific and avoid speculation.
   - Describe the effects of the changes, not the literal diff.
-  - Review and refine the content to ensure clarity, conciseness, and adherence to Conventional Commits style.
   </draft_body>
 
   After drafting the body, review and refine it to ensure:
@@ -51,6 +50,5 @@ prompt: |+
   2. It uses proper Markdown formatting.
   3. It separates unrelated changes effectively.
   4. It avoids redundancy with information that would be in the header.
-  5. It adheres to the Conventional Commits style guidelines.
 
-  Present your final commit message body as a markdown fenced code block. If no body is necessary, explain why in a brief statement.
+  Present your final commit message body as a code-fenced Markdown. If no body is necessary, explain why in a brief statement.
