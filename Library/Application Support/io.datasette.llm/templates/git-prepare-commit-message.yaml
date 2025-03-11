@@ -36,9 +36,11 @@ prompt: |+
   <commit_analysis>
   1. List and quote the most significant changes from the diff output.
   2. For each significant change:
-    a. Categorize it into one of the commit types: fix, feat, build, tidy, ci, todo, docs, spec, style, refactor, perf, or test.
-    b. Identify potential scopes for the change.
-    c. Consider the impact of the change on the overall codebase.
+    a. Categorize it into one of the commit types: fix, feat, build, tidy, ci, todo, docs, spec, style, perf, copy, or test.
+      1. Use tidy for refactors
+      2. Use copy for copy text changes
+    c. Identify potential scopes for the change.
+    d. Consider the impact of the change on the overall codebase.
   3. Prioritize the changes based on their significance and impact.
   4. Consider and list any breaking changes.
   5. Evaluate whether the provided draft body (if any) adequately explains complex changes. If no draft body is provided, do not create one.
