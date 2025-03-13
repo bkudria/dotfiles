@@ -9,7 +9,12 @@
 	whitespace = trailing-space,space-before-tab,cr-at-eol
 	excludesfile = /Users/bkudria/.gitignore_global
 [push]
-	default = upstream
+	default = simple
+	all = true
+	pruneTags = true
+	autoSetupRemote = true
+	followTags = true
+
 [clean]
 	requireForce = false
 [color]
@@ -23,6 +28,8 @@
 	mnemonicprefix = true
 	algorithm = histogram
 	compactionHeuristic = true
+	colorMoved = plain
+	renames = true
 [log]
 	date = relative
 [alias]
@@ -33,7 +40,7 @@
 	code-changes = "!git log --format=format: --name-only | egrep -v '^$' | sort | uniq -c | sort -rg | head -10"
 	cc = "!git code-changes"
 [help]
-	autocorrect = 1
+	autocorrect = prompt
 [git-up "bundler"]
 	check = true
 [include]
@@ -60,3 +67,25 @@
 [privacy]
 	pattern = s
 	limit = 08-24
+[column]
+	ui  = auto
+[branch]
+	sort=-committerdate
+[tag]
+	sort=version:refname
+[init]
+
+[commit]
+	verbose = true
+[rerere]
+	enabled = true
+[rebase]
+	autoSquash = true
+	autoStash = true
+	updateRefs = true
+[merge]
+	conflictstyle = zdiff3
+[fetch]
+	prune = true
+	pruneTags = true
+	all = true

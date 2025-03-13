@@ -154,3 +154,9 @@
 (use-package! aidermacs
   :config
   (setq aidermacs-backend 'vterm))
+
+(use-package! org-modern)
+(with-eval-after-load 'org (global-org-modern-mode))
+
+
+(load! "better-gruvbox.el")

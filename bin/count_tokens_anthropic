@@ -1,0 +1,249 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+
+require 'json'
+require 'net/http'
+require 'uri'
+require 'fileutils'
+require 'find'
+require 'optparse'
+
+# Counts tokens using Anthropic API for given text or files with optional system prompt
+# Usage:
+#   count_tokens_anthropic "message content"                 # Count tokens in a string
+#   echo "system prompt" | count_tokens_anthropic "message"  # With system prompt from stdin
+#   count_tokens_anthropic file1.txt file2.txt               # Count tokens in multiple files
+#   count_tokens_anthropic directory/                        # Recursively count tokens in directory
+#   count_tokens_anthropic -v file.txt                       # Verbose mode with detailed logging
+
+# Process options
+options = { verbose: false }
+OptionParser.new do |opts|
+  opts.banner = "Usage: count_tokens_anthropic [options] [text|files|directories]"
+  opts.on("-v", "--verbose", "Verbose mode with detailed logging") do
+    options[:verbose] = true
+  end
+end.parse!
+
+# Process stdin for system prompt
+system_prompt = ""
+if !STDIN.tty?
+  system_prompt = STDIN.read
+end
+
+# Validate arguments
+if ARGV.empty?
+  STDERR.puts "Error: No input provided. Please provide text, files, or directories."
+  exit 1
+end
+
+# Debug function
+def debug(message, verbose)
+  STDERR.puts "DEBUG: #{message}" if verbose
+end
+
+debug("Starting count_tokens_anthropic with #{ARGV.length} arguments", options[:verbose])
+debug("ANTHROPIC_API_KEY exists: #{ENV['ANTHROPIC_API_KEY'] ? 'yes' : 'no'}", options[:verbose])
+
+# Function to get token count
+def get_token_count(content, system_prompt = nil, verbose = false)
+  model = "claude-3-7-sonnet-20250219"
+  
+  # Create appropriate JSON payload
+  payload = if system_prompt && !system_prompt.empty?
+    {
+      model: model,
+      system: system_prompt,
+      messages: [{
+        role: "user",
+        content: content
+      }]
+    }
+  else
+    {
+      model: model,
+      messages: [{
+        role: "user",
+        content: content
+      }]
+    }
+  end
+
+  # Make API request
+  debug("Making API request to count tokens", verbose)
+  debug("Payload: #{payload}", verbose) if verbose
+  
+  uri = URI.parse("https://api.anthropic.com/v1/messages/count_tokens")
+  http = Net::HTTP.new(uri.host, uri.port)
+  http.use_ssl = true
+  http.open_timeout = 30
+  http.read_timeout = 30
+  
+  request = Net::HTTP::Post.new(uri.path)
+  request["x-api-key"] = ENV["ANTHROPIC_API_KEY"]
+  request["content-type"] = "application/json"
+  request["anthropic-version"] = "2023-06-01"
+  request.body = JSON.dump(payload)
+  
+  begin
+    response = http.request(request)
+    
+    if response.code.to_i != 200
+      STDERR.puts "Error: API request failed with status #{response.code}: #{response.body}"
+      return nil
+    end
+    
+    # Parse JSON response
+    begin
+      result = JSON.parse(response.body)
+    rescue JSON::ParserError
+      STDERR.puts "Error: Invalid JSON response: #{response.body}"
+      return nil
+    end
+    
+    # Extract token count and check if it exists
+    token_count = result["token_count"]
+    
+    if token_count.nil?
+      debug("Full API response: #{result}", verbose)
+      debug("Checking input_tokens field instead", verbose)
+      token_count = result["input_tokens"]
+      
+      if token_count.nil?
+        STDERR.puts "Error: No token count found in API response"
+        debug("Full response: #{result}", verbose)
+        return nil
+      end
+    end
+    
+    token_count
+  rescue => e
+    STDERR.puts "Error: Request failed: #{e.message}"
+    nil
+  end
+end
+
+# Check for file or directory arguments
+has_files = ARGV.any? { |arg| File.file?(arg) || File.directory?(arg) }
+debug("has_files: #{has_files}", options[:verbose])
+
+# Process string argument if no files or directories
+if !has_files
+  debug("No files/directories found, treating as text input", options[:verbose])
+  text = ARGV.join(" ")
+  token_count = get_token_count(text, system_prompt, options[:verbose])
+  if token_count
+    puts token_count
+  end
+  exit token_count ? 0 : 1
+end
+
+# Process files and directories
+file_tokens = {}
+dir_tokens = {}
+total_tokens = 0
+
+# Process individual arguments
+ARGV.each do |path|
+  debug("Processing argument: #{path}", options[:verbose])
+  
+  if File.file?(path)
+    # Process file
+    debug("Reading file: #{path}", options[:verbose])
+    begin
+      content = File.read(path)
+      debug("File size: #{content.bytesize} bytes", options[:verbose])
+      debug("Getting token count for file: #{path}", options[:verbose])
+      count = get_token_count(content, system_prompt, options[:verbose])
+      debug("Token count result: #{count}", options[:verbose])
+      
+      if count.nil? || !count.is_a?(Integer)
+        STDERR.puts "Error processing file: #{path} (invalid token count: #{count})"
+        next
+      end
+      
+      file_tokens[path] = count
+      total_tokens += count
+      
+      # Add to directory totals
+      dir = File.dirname(path)
+      while dir != "." && dir != "/"
+        dir_tokens[dir] ||= 0
+        dir_tokens[dir] += count
+        dir = File.dirname(dir)
+      end
+    rescue => e
+      STDERR.puts "Error reading file #{path}: #{e.message}"
+    end
+    
+  elsif File.directory?(path)
+    # Find text files in directory
+    debug("Finding text files in directory: #{path}", options[:verbose])
+    text_files = []
+    
+    Find.find(path) do |file|
+      if File.file?(file)
+        # This is a simple check for text files - might need refinement
+        begin
+          if !file.match?(/\.(jpg|jpeg|png|gif|bmp|zip|gz|tar|pdf|exe|dll|so|dylib|bin)$/i)
+            content = File.read(file, 8192) # Read first 8KB to check
+            if content.valid_encoding? && !content.match?(/\x00/)
+              text_files << file
+            end
+          end
+        rescue
+          # Skip files we can't read
+        end
+      end
+    end
+    
+    debug("Found #{text_files.size} text files", options[:verbose])
+    
+    text_files.each do |file|
+      debug("Processing file from directory: #{file}", options[:verbose])
+      begin
+        content = File.read(file)
+        debug("File size: #{content.bytesize} bytes", options[:verbose])
+        debug("Getting token count for file: #{file}", options[:verbose])
+        count = get_token_count(content, system_prompt, options[:verbose])
+        debug("Token count result: #{count}", options[:verbose])
+        
+        if count.nil? || !count.is_a?(Integer)
+          STDERR.puts "Error processing file: #{file} (invalid token count: #{count})"
+          next
+        end
+        
+        file_tokens[file] = count
+        total_tokens += count
+        
+        # Add to directory totals
+        dir = File.dirname(file)
+        while dir != "." && dir != "/"
+          dir_tokens[dir] ||= 0
+          dir_tokens[dir] += count
+          dir = File.dirname(dir)
+        end
+      rescue => e
+        STDERR.puts "Error reading file #{file}: #{e.message}"
+      end
+    end
+  end
+end
+
+# Print results
+if !file_tokens.empty?
+  # Print file results
+  file_tokens.each do |file, count|
+    puts "#{file}: #{count}"
+  end
+  
+  # Print directory summaries
+  if !dir_tokens.empty?
+    puts "\nDirectory Totals:"
+    dir_tokens.each do |dir, count|
+      puts "#{dir}/: #{count}"
+    end
+  end
+  
+  puts "\nTotal Tokens: #{total_tokens}"
+end
