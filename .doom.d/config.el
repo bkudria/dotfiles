@@ -151,6 +151,15 @@
 ;;   (mini-frame-mode)
 ;; )
 
+
+;; (use-package! flycheck-value
+;;   :config
+;;  (flycheck-vale-setup)
+;; )
+
+(after! magit
+  (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")))
+
 (use-package! aidermacs
   :config
   (setq aidermacs-backend 'vterm))
