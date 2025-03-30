@@ -53,13 +53,16 @@
 
 ;; Custom position handler using posframe's position function API
 (defun vertico-posframe-position-portrait-handler (info)
-  "Position handler for portrait mode.
+  "Position handler for portrait mode that anchors the top edge consistently.
 INFO is the position info from posframe."
   (let* ((parent-frame-width (plist-get info :parent-frame-width))
          (parent-frame-height (plist-get info :parent-frame-height))
          (posframe-width (plist-get info :posframe-width))
-         (x (/ (- parent-frame-width posframe-width) 2))
-         (y (floor (* parent-frame-height 0.1))))  ;; Fixed 10% from top
+         ;; Calculate top position that would vertically center a max-height frame
+         (top-margin-ratio (/ (- 1.0 vertico-posframe-portrait-height-ratio) 2.0))
+         (y (floor (* parent-frame-height top-margin-ratio)))
+         ;; Center horizontally
+         (x (/ (- parent-frame-width posframe-width) 2)))
     (cons x y)))
 
 ;; Improved size function that works with vertico-posframe's API
