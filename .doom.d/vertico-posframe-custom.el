@@ -4,7 +4,9 @@
 ;;
 ;; Author: Benjamin Kudria <ben@kudria.net>
 ;; Keywords: completion, convenience
+;; Version: 1.0.0
 ;; Package-Requires: ((emacs "26.1") (vertico "0.28") (posframe "1.0.0"))
+;; URL: https://github.com/bkudria/dotfiles
 
 ;;; Commentary:
 ;;
@@ -35,6 +37,10 @@
 
 (require 'vertico-posframe)
 
+;; Constants and defaults
+(defconst vertico-posframe-portrait--min-candidates 3
+  "Minimum number of candidates to display.")
+
 ;; Customization options
 (defgroup vertico-posframe-portrait nil
   "Portrait mode settings for vertico-posframe."
@@ -48,6 +54,11 @@
 (defcustom vertico-posframe-portrait-height-ratio 0.9
   "Maximum ratio of frame height for posframe (0.0-1.0)."
   :type 'float
+  :group 'vertico-posframe-portrait)
+
+(defcustom vertico-posframe-portrait-min-height 3
+  "Minimum height for the vertico-posframe in portrait mode."
+  :type 'integer
   :group 'vertico-posframe-portrait)
 
 ;; Position handler using posframe's native API
@@ -77,26 +88,43 @@ frame were vertically centered in the parent frame."
                        (if (boundp 'vertico--candidates)
                            (length vertico--candidates)
                          0)))
-         ;; Height based on actual number of candidates (or min 3)
-         (needed-height (min max-height (+ 1 (max 3 (min vertico-count candidates))))))
+         ;; Height based on actual number of candidates (or min value)
+         (needed-height (min max-height 
+                            (+ 1 (max vertico-posframe-portrait-min-height 
+                                     (min vertico-count candidates))))))
     (list :height needed-height
           :width width
-          :min-height 3
+          :min-height vertico-posframe-portrait-min-height
           :min-width width)))
+
+(defun vertico-posframe-portrait--update-count (_)
+  "Update vertico-count based on frame height.
+Called by `window-size-change-functions' with an ignored parameter."
+  (setq-default vertico-count 
+                (max vertico-posframe-portrait-min-height 
+                     (floor (* (frame-height) vertico-posframe-portrait-height-ratio)))))
 
 ;;;###autoload
 (defun vertico-posframe-portrait-setup ()
   "Configure vertico-posframe for portrait orientation."
+  ;; Validate settings
+  (when (or (< vertico-posframe-portrait-width-ratio 0)
+            (> vertico-posframe-portrait-width-ratio 1))
+    (user-error "Width ratio must be between 0 and 1"))
+  
+  (when (or (< vertico-posframe-portrait-height-ratio 0)
+            (> vertico-posframe-portrait-height-ratio 1))
+    (user-error "Height ratio must be between 0 and 1"))
+  
   ;; Configure vertico-posframe directly using its customization points
   (setq-default vertico-posframe-poshandler #'vertico-posframe-position-portrait-handler
                 vertico-posframe-size-function #'vertico-posframe-get-size-portrait
-                vertico-count (max 3 (floor (* (frame-height) vertico-posframe-portrait-height-ratio))))
+                vertico-count (max vertico-posframe-portrait-min-height 
+                                   (floor (* (frame-height) 
+                                           vertico-posframe-portrait-height-ratio))))
   
   ;; Update vertico-count when frame size changes
-  (add-hook 'window-size-change-functions
-            (lambda (_)
-              (setq-default vertico-count 
-                           (max 3 (floor (* (frame-height) vertico-posframe-portrait-height-ratio)))))))
+  (add-hook 'window-size-change-functions #'vertico-posframe-portrait--update-count))
 
 ;; For backward compatibility
 (defalias 'my-vertico-posframe-setup 'vertico-posframe-portrait-setup)
