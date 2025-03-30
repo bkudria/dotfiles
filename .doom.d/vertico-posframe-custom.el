@@ -37,10 +37,6 @@
 
 (require 'vertico-posframe)
 
-;; Constants and defaults
-(defconst vertico-posframe-portrait--min-candidates 3
-  "Minimum number of candidates to display.")
-
 ;; Customization options
 (defgroup vertico-posframe-portrait nil
   "Portrait mode settings for vertico-posframe."
@@ -77,21 +73,17 @@ frame were vertically centered in the parent frame."
          (x (/ (- parent-frame-width posframe-width) 2)))
     (cons x y)))
 
-;; Size function using vertico-posframe's native API
+;; Size function - simplified to leverage native vertico-posframe capabilities
 (defun vertico-posframe-get-size-portrait (buffer)
   "Calculate optimal dimensions for BUFFER in portrait mode."
   (let* ((frame-width (frame-width))
          (frame-height (frame-height))
          (width (floor (* frame-width vertico-posframe-portrait-width-ratio)))
          (max-height (floor (* frame-height vertico-posframe-portrait-height-ratio)))
-         (candidates (with-current-buffer buffer
-                       (if (boundp 'vertico--candidates)
-                           (length vertico--candidates)
-                         0)))
-         ;; Height based on actual number of candidates (or min value)
+         (candidates (buffer-local-value 'vertico--total buffer))
          (needed-height (min max-height 
-                            (+ 1 (max vertico-posframe-portrait-min-height 
-                                     (min vertico-count candidates))))))
+                           (+ 1 (max vertico-posframe-portrait-min-height 
+                                    (min vertico-count candidates))))))
     (list :height needed-height
           :width width
           :min-height vertico-posframe-portrait-min-height
@@ -116,12 +108,14 @@ Called by `window-size-change-functions' with an ignored parameter."
             (> vertico-posframe-portrait-height-ratio 1))
     (user-error "Height ratio must be between 0 and 1"))
   
-  ;; Configure vertico-posframe directly using its customization points
+  ;; Set vertico-posframe parameters directly
   (setq-default vertico-posframe-poshandler #'vertico-posframe-position-portrait-handler
                 vertico-posframe-size-function #'vertico-posframe-get-size-portrait
+                vertico-posframe-min-width nil  ; Let our size function handle this
+                vertico-posframe-min-height nil ; Let our size function handle this
                 vertico-count (max vertico-posframe-portrait-min-height 
-                                   (floor (* (frame-height) 
-                                           vertico-posframe-portrait-height-ratio))))
+                                  (floor (* (frame-height) 
+                                          vertico-posframe-portrait-height-ratio))))
   
   ;; Update vertico-count when frame size changes
   (add-hook 'window-size-change-functions #'vertico-posframe-portrait--update-count))
