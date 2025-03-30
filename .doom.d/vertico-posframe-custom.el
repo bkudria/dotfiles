@@ -22,7 +22,7 @@
 ;;   • Dynamically adjusts when input changes
 ;;
 ;; - Positioning:
-;;   • Fixed position at 10% from top of frame
+;;   • Fixed top position at the point where a maximum-height frame would be vertically centered
 ;;   • Horizontally centered
 ;;   • Maintains position regardless of candidate count
 ;;
@@ -34,7 +34,6 @@
 ;;; Code:
 
 (require 'vertico-posframe)
-(require 'cl-lib)
 
 ;; Customization options
 (defgroup vertico-posframe-portrait nil
@@ -51,10 +50,12 @@
   :type 'float
   :group 'vertico-posframe-portrait)
 
-;; Custom position handler using posframe's position function API
+;; Position handler using posframe's native API
 (defun vertico-posframe-position-portrait-handler (info)
   "Position handler for portrait mode that anchors the top edge consistently.
-INFO is the position info from posframe."
+INFO is the position info from posframe.
+Positions the frame so its top edge is where it would be if a max-height
+frame were vertically centered in the parent frame."
   (let* ((parent-frame-width (plist-get info :parent-frame-width))
          (parent-frame-height (plist-get info :parent-frame-height))
          (posframe-width (plist-get info :posframe-width))
@@ -65,7 +66,7 @@ INFO is the position info from posframe."
          (x (/ (- parent-frame-width posframe-width) 2)))
     (cons x y)))
 
-;; Improved size function that works with vertico-posframe's API
+;; Size function using vertico-posframe's native API
 (defun vertico-posframe-get-size-portrait (buffer)
   "Calculate optimal dimensions for BUFFER in portrait mode."
   (let* ((frame-width (frame-width))
@@ -86,19 +87,16 @@ INFO is the position info from posframe."
 ;;;###autoload
 (defun vertico-posframe-portrait-setup ()
   "Configure vertico-posframe for portrait orientation."
-  ;; 1. Set the poshandler
-  (setq-default vertico-posframe-poshandler #'vertico-posframe-position-portrait-handler)
+  ;; Configure vertico-posframe directly using its customization points
+  (setq-default vertico-posframe-poshandler #'vertico-posframe-position-portrait-handler
+                vertico-posframe-size-function #'vertico-posframe-get-size-portrait
+                vertico-count (max 3 (floor (* (frame-height) vertico-posframe-portrait-height-ratio))))
   
-  ;; 2. Set the size function
-  (setq-default vertico-posframe-size-function #'vertico-posframe-get-size-portrait)
-  
-  ;; 3. Configure vertico-count to adapt to frame size
-  (setq-default vertico-count (max 3 (floor (* (frame-height) vertico-posframe-portrait-height-ratio))))
-  
-  ;; 4. Add a hook to update vertico-count when frame size changes
+  ;; Update vertico-count when frame size changes
   (add-hook 'window-size-change-functions
             (lambda (_)
-              (setq-default vertico-count (max 3 (floor (* (frame-height) vertico-posframe-portrait-height-ratio)))))))
+              (setq-default vertico-count 
+                           (max 3 (floor (* (frame-height) vertico-posframe-portrait-height-ratio)))))))
 
 ;; For backward compatibility
 (defalias 'my-vertico-posframe-setup 'vertico-posframe-portrait-setup)
