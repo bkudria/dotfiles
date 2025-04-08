@@ -2,7 +2,11 @@
 
 ;; Place your private configuration here! Remember, you do not need to run 'doom
 ;; sync' after modifying this file!
-
+;;
+(defun load-better-gruvbox ()
+  "loads custom faces"
+  (load! "better-gruvbox.el")
+  )
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
@@ -20,17 +24,18 @@
 ;; They all accept either a font-spec, font string ("Input Mono-12"), or xlfd
 ;; font string. You generally only need these two:
 (setq doom-font (font-spec :family "Iosevka Nerd Font" :size 28 :weight 'regular)
-      doom-variable-pitch-font (font-spec :family "Gill Sans" :size 28))
+      doom-variable-pitch-font (font-spec :family "Iosevka Aile" :size 28))
 
 ;; There are two ways to load a theme. Both assume the theme is installed and
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-gruvbox
-      doom-gruvbox-dark-variant "soft")
+      doom-gruvbox-dark-variant "medium")
+(load-better-gruvbox)
 
 ;; If you use `org' and don't want your org files in the default location below,
 ;; change `org-directory'. It must be set before org loads!
-(setq org-directory "~/Dropbox/org/")
+(setq org-directory "~")
 
 ;; This determines the style of line numbers in effect. If set to `nil', line
 ;; numbers are disabled. For relative line numbers, set this to `relative'.
@@ -65,18 +70,19 @@
 
 (global-subword-mode)
 
-(use-package! rainbow-identifiers
-  :hook (prog-mode . rainbow-identifiers-mode))
+(use-package! rainbow-identifiers :hook prog-mode)
 
 (use-package! dimmer
   :config (dimmer-mode))
 
-(use-package! evil-extra-operator
-  :bind (:map evil-normal-state-map
-         ("gl" . evil-operator-clone)
-         :map evil-visual-state-map
-         ("gl" . evil-operator-clone)
-         ))
+
+(use-package evil-extra-operator
+  :bind
+  (:map evil-normal-state-map
+   ("gl" . evil-operator-clone)
+   :map evil-visual-state-map
+   ("gl" . evil-operator-clone)
+   ))
 
 (use-package! evil-surround
   :config (global-evil-surround-mode 1))
@@ -84,24 +90,18 @@
 (use-package! evil-matchit
   :config (global-evil-matchit-mode 1))
 
-;; (use-package! topspace
-;;   :config (topspace-global-mode 1))
+(use-package evil-replace-with-register
+  :bind
+  (:map evil-normal-state-map
+   ("gr" . evil-replace-with-register)
+   :map evil-visual-state-map
+   ("gr" . evil-replace-with-register)))
 
-(use-package! evil-replace-with-register
-  :bind (:map evil-normal-state-map
-         ("gr" . evil-replace-with-register)
-         :map evil-visual-state-map
-         ("gr" . evil-replace-with-register)))
-
-
-;; (use-package vertico
-;;   :config
-;;   (setq vertico-count 50)
-;; )
 
 (use-package emacs-everywhere
-  :bind (:map emacs-everywhere-mode-map
-         ("C-c C-c" . (lambda ()(interactive) (setq emacs-everywhere--contents nil) (emacs-everywhere-finish))))
+  :bind
+  (:map emacs-everywhere-mode-map
+        ("C-c C-c" . (lambda ()(interactive) (setq emacs-everywhere--contents nil) (emacs-everywhere-finish))))
   :config
   (remove-hook 'emacs-everywhere-init-hooks #'emacs-everywhere-insert-selection)
   (remove-hook 'emacs-everywhere-init-hooks #'emacs-everywhere-set-frame-position)
@@ -118,14 +118,6 @@
           )
         ))
 
-;; (use-package! ivy-posframe
-;;   :config
-;;   (setq ivy-posframe-display-functions-alist '((t . ivy-posframe-display-at-frame-center)))
-;;   (setq ivy-height-alist
-;;         '((t
-;;            lambda (_caller)
-;;            (round (* 0.7 (frame-height) )))))
-;;   )
 
 (use-package! doom-modeline
   :config
@@ -137,26 +129,6 @@
   :config
   (setq lsp-disabled-clients '(semgrep-ls rubocop-ls)))
 
-;; (use-package! mini-frame
-;;   :config
-;; (setq mini-frame-show-parameters
-;;    '(
-;;      ;; (top . 0)
-;;      (width . 1.0)
-;;      ;; (left . 0.5)
-;;      (height . 0.8)
-;;      (min-height . 1)
-;;      (border-width . 50)
-;;      ))
-;;   (mini-frame-mode)
-;; )
-
-
-;; (use-package! flycheck-value
-;;   :config
-;;  (flycheck-vale-setup)
-;; )
-
 (after! magit
   (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")))
 
@@ -164,8 +136,56 @@
   :config
   (setq aidermacs-backend 'vterm))
 
-(use-package! org-modern)
-(with-eval-after-load 'org (global-org-modern-mode))
+;;   (setq
+;;    ;; Edit settings
+;;    ;; org-auto-align-tags nil
+;;    org-tags-column 0
 
+;;    ;; Org styling, hide markup etc.
+;;    org-hide-emphasis-markers t
+;;    org-pretty-entities t
+;;    org-ellipsis "…"
+
+;;    ;; Agenda styling
+;;    org-agenda-tags-column 0
+;;    org-agenda-block-separator ?─)
+
+;;   :hook
+;;   (org-mode . global-org-modern-mode))
+
+
+;; Apply vertico-posframe customizations after the package loads
+(after! vertico-posframe
+  (load! "vertico-posframe-custom.el")
+  (my-vertico-posframe-setup))
+
+
+
+(use-package! auto-dark
+  :defer t
+  :init
+  (setq! auto-dark-dark-theme  'doom-gruvbox
+         doom-gruvbox-dark-variant "soft"
+         auto-dark-light-theme 'doom-gruvbox-light
+         doom-gruvbox-light-variant "hard")
+  ;; Inspired by doom-ui.el.
+  ;; Note that server-after-make-frame-hook also avoids the issues with an early
+  ;; start of the emacs daemon using systemd, which causes problems with the
+  ;; DBus connection that auto-dark mode relies upon.
+  (let ((hook (if (daemonp)
+                  'server-after-make-frame-hook
+                'after-init-hook)))
+    ;; Depth -95 puts this before doom-init-theme-h, which sounds like a good
+    ;; idea, if only for performance reasons.
+    (add-hook hook #'auto-dark-mode -95)
+    (add-hook hook #'load-better-gruvbox -94)))
 
 (load! "better-gruvbox.el")
+
+;; (use-package! org-modern
+;;   :config
+;;   (setq org-modern-todo-faces
+;;         `(
+;;           ("TODO" :background ,(doom-color 'bg) :foreground ,(doom-color 'red) :inverse-video t)
+;;           ("DOING" :background ,(doom-color 'bg) :foreground ,(doom-color 'purple) :inverse-video t)
+;;           )))

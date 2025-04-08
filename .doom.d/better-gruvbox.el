@@ -1,41 +1,98 @@
 ;;; better-grubox.el -*- lexical-binding: t; -*-
 ;;; https://github.com/thriveth/Gruvbox-goodies/blob/master/Emacs/gruvbox-conf.el
 
-(custom-theme-set-faces! 'doom-gruvbox
-  '(cursor                 :foreground "#928374")
-  '(org-block              :foreground "#ebdbb2":background "#1c2021" :extend t)
-  '(org-block-begin-line   :inherit org-block :background "#1d2021" :foreground "#665c54" :extend t)
-  '(org-block-end-line     :inherit org-block-begin-line)
-  '(org-document-info      :foreground "#d5c4a1" :weight bold)
-  '(org-document-info-keyword    :inherit shadow)
-  '(org-document-title     :foreground "#fbf1c7" :weight bold :height 1.4)
-  '(org-meta-line          :inherit shadow)
-  '(org-target             :height 0.7 :inherit shadow)
-  '(org-link               :foreground "#b8bb26" :background "#32302f" :overline nil)  ;;
-  '(org-indent             :inherit org-hide)
-  '(org-indent             :inherit (org-hide fixed-pitch))
-  '(org-footnote           :foreground "#8ec07c" :background "#32302f" :overline nil)
-  '(org-ref-cite-face      :foreground "#fabd2f" :background "#32302f" :overline nil)  ;;
-  '(org-ref-ref-face       :foreground "#83a598" :background "#32302f" :overline nil)
-  '(org-ref-label-face     :inherit shadow :box t)
-  '(org-drawer             :inherit shadow)
-  '(org-property-value     :inherit org-document-info t)
-  '(org-tag                :inherit shadow)
-  '(org-date               :foreground "#83a598" :underline t)
-  '(org-verbatim           :inherit org-block :background "#3c3836" :foreground "#d5c4a1")
-  '(org-code               :inherit org-verbatim :background "#3c3836" :foreground "#fe8019")
-  '(org-quote              :inherit org-block :slant italic)
-  '(org-level-1            :foreground "#fabd2f" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Yellow
-  '(org-level-2            :foreground "#fe8019" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Orange
-  '(org-level-3            :foreground "#fb4934" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Red
-  '(org-level-4            :foreground "#d3869b" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Blue
-  '(org-level-5            :foreground "#83a598" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Blue
-  '(org-level-6            :foreground "#8ec07c" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Aqua
-  '(org-level-7            :foreground "#b8bb26" :background "#282828" :weight bold :height 1.1 :overline nil :extend t) ;; Green
-  '(org-headline-done      :foreground "#928374" :background "#282828" :weight bold :overline nil :extend t) ;; Gray
-  '(org-ellipsis           :inherit shadow :height 1.0 :weight bold :extend t)
-  '(org-table              :foreground "#d5c4a1" :background "#3c3836")
+(custom-theme-set-faces! '(doom-gruvbox doom-gruvbox-light)
+  `(cursor                  :background ,(doom-color 'orange))
+  `(shadow                  :background ,(doom-color 'bg) :foreground ,(doom-color 'base4))
+  `(line-number             :background ,(doom-color 'bg) :foreground ,(doom-color 'base5))
+  `(link        :overline t :background ,(doom-color 'bg) :foreground ,(doom-color 'green))
 
-  '(link                              :foreground "#b8bb26" :overline t)
-  '(line-number                       :background "#32302f" :foreground "#665c54")
+  `(org-block-end-line        :inherit org-block-begin-line)
+  `(org-document-info-keyword :inherit shadow)
+  `(org-meta-line             :inherit shadow)
+  `(org-target :height 0.7    :inherit shadow)
+  `(org-indent                :inherit org-hide)
+  `(org-indent                :inherit (org-hide fixed-pitch))
+  `(org-ref-label-face        :inherit shadow :box t)
+  `(org-drawer                :inherit shadow)
+  `(org-property-value        :inherit org-document-info t)
+  `(org-tag                   :inherit shadow)
+  `(org-quote                 :inherit org-block :slant italic)
+  `(org-ellipsis              :inherit shadow :extend t :height 1.0 :weight extra-light)
+  `(org-verbatim              :inherit org-block    :background ,(doom-color 'bg) :foreground ,(doom-color 'base5))
+  `(org-code                  :inherit org-verbatim :background ,(doom-color 'bg) :foreground ,(doom-color 'orange))
+
+  `(org-document-title   :extend t :height 1.4        :background ,(doom-color 'bg) :foreground ,(doom-color 'base8) :weight ultraheavy)
+  `(org-block-begin-line :extend t :inherit org-block :background ,(doom-color 'bg) :foreground ,(doom-color 'base4))
+  `(org-block            :extend t                    :background ,(doom-color 'bg) :foreground ,(doom-color 'base6))
+
+  `(org-headline-done :background ,(doom-color 'bg) :foreground ,(doom-color 'fg)    :overline nil :weight extra-light :extend t)
+  `(org-link          :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :overline nil)
+  `(org-footnote      :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :overline nil)
+  `(org-ref-cite-face :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :overline nil)
+  `(org-ref-ref-face  :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :overline nil)
+  `(org-date          :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :underline t)
+  `(org-document-info :background ,(doom-color 'bg) :foreground ,(doom-color 'base5)   :weight bold)
+  `(org-table         :background ,(doom-color 'bg) :foreground ,(doom-color 'base5))
+
+  `(org-level-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
+  `(org-level-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
+  `(org-level-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
+  `(org-level-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
+  `(org-level-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
+  `(org-level-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
+  `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'red)     :weight normal)
+
+  ;; `(+org-todo-active               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
+  ;; `(+org-todo-cancel               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
+  ;; `(+org-todo-onhold               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
+  ;; `(+org-todo-project              :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
+
+  `(org-headline-todo              :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-todo                       :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-done                       :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-checkbox-statistics-done   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-checkbox-statistics-todo   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-checkbox                   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+
+  `(org-modern-progress-incomplete :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'orange) :weight semi-light)
+  `(org-modern-done                :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'green) :weight semi-light)
+
+  `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
+  `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
+
+  `(org-archived                   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-default                    :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-modern-label               :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-modern-symbol              :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-modern-tag                 :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-special-keyword            :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  `(org-warning                    :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
   )
+
+;; 01 [0 thin]
+;; 02 [40 ultralight ultra-light extralight extra-light]
+;; 03 [50 light]
+;; 04 [55 semilight demilight semi-light]
+;; 05 [80 regular normal unspecified book]
+;; 06 [100 medium]
+;; 07 [180 demi semibold semi-bold demibold demi-bold]
+;; 08 [200 bold]
+;; 09 [205 extrabold extra-bold ultrabold ultra-bold]
+;; 10 [210 black heavy]
+;; 11 [250 ultraheavy ultra-heavy]
+
+;; ‘ultra-condensed’, ‘extra-condensed’, ‘condensed’,
+;; ‘semi-condensed’, ‘normal’, ‘regular’, ‘medium’, ‘semi-expanded’,
+;; ‘expanded’, ‘extra-expanded’, or ‘ultra-expanded’.
+
+;; [
+;; [50 ultracondensed ultra-condensed]
+;; [63 extracondensed extra-condensed]
+;; [75 condensed compressed narrow]
+;; [87 semicondensed demicondensed semi-condensed]
+;; [100 normal medium regular unspecified]
+;; [113 semiexpanded demiexpanded semi-expanded]
+;; [125 expanded]
+;; [150 extraexpanded extra-expanded]
+;; [200 ultraexpanded ultra-expanded wide]]

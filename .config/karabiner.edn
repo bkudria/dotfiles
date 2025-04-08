@@ -42,6 +42,10 @@
 
   {:des   "swap some keys"
    :rules [
+           ;; [:slash :!Sslash]
+           ;; [:!Sslash :slash]
+           ;; [:!Rslash :slash]
+
            [:semicolon :!Ssemicolon]
            [:!Ssemicolon :semicolon]
            [:!Rsemicolon :semicolon]

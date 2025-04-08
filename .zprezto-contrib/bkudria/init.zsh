@@ -10,6 +10,7 @@ alias la='ll -a'
 alias lt='ll -T'
 alias cat=bat
 # alias git=hub
+alias env=env | sort
 
 alias brewi='brew info'
 alias brewI='brew install'
