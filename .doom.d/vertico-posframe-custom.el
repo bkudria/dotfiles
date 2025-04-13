@@ -81,9 +81,16 @@ frame were vertically centered in the parent frame."
          (width (floor (* frame-width vertico-posframe-portrait-width-ratio)))
          (max-height (floor (* frame-height vertico-posframe-portrait-height-ratio)))
          (candidates (buffer-local-value 'vertico--total buffer))
+         ;; Count the number of group titles if grouping is enabled
+         (group-count (if (and (buffer-local-value 'vertico-group-format buffer)
+                               (buffer-local-value 'vertico--groups buffer))
+                          (length (buffer-local-value 'vertico--groups buffer))
+                        0))
+         ;; Add group titles to the needed height calculation
          (needed-height (min max-height 
-                           (+ 1 (max vertico-posframe-portrait-min-height 
-                                    (min vertico-count candidates))))))
+                            (+ 1 (max vertico-posframe-portrait-min-height 
+                                     (min vertico-count candidates))
+                               group-count))))
     (list :height needed-height
           :width width
           :min-height vertico-posframe-portrait-min-height
