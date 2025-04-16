@@ -124,8 +124,7 @@ class iTerm extends App
   left: => hs.eventtap.keyStroke({'cmd', 'shift'}, '[')
   right: => hs.eventtap.keyStroke({'cmd', 'shift'}, ']')
   whenFocused: =>
-    hs.eventtap.keyStroke({'cmd', 'shift'}, 'o')
-    hs.eventtap.keyStrokes('/f ')
+    hs.eventtap.keyStroke({'cmd', 'shift', 'alt', 'ctrl'}, 't')
 
 class OnePassword extends App
   id: 'com.1password.1password'

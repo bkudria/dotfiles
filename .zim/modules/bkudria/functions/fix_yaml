@@ -1,0 +1,5 @@
+# Fix YAML multiline strings to use literal style
+fix_yaml() {
+  [ -z "$1" ] && echo "Usage: fix_yaml <file.yaml> [files...]" && return 1
+  yq eval -i ' (.. | select(tag == "!!str") | select(test("\\n"))) style = "literal" ' "$@"
+}

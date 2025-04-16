@@ -1,0 +1,20 @@
+# Display template keys for llm prompts
+llm_prompts() {
+  if [[ $# -ne 1 ]]; then
+    echo "Usage: llm-template-keys <template_name>"
+    return 1
+  fi
+
+  local template_path=$(llm templates path)/$1.yaml
+
+  if [[ ! -f "$template_path" ]]; then
+    echo "Template '$1.yaml' not found in $(llm templates path)"
+    return 1
+  fi
+
+  echo "System Keys:"
+  yq '.system // {} | keys' "$template_path"
+
+  echo -e "\nPrompt Keys:"
+  yq '.prompts // {} | keys' "$template_path"
+}

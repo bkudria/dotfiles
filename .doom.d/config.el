@@ -31,6 +31,7 @@
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-gruvbox
       doom-gruvbox-dark-variant "medium")
+
 (load-better-gruvbox)
 
 ;; If you use `org' and don't want your org files in the default location below,
@@ -68,7 +69,15 @@
       maximum-scroll-margin 0.5
       scroll-margin 99999)
 
+(map!
+ :leader
+ :desc "directory" "-"     #'dired-jump
+ :desc "other"     "<tab>" #'evil-switch-to-windows-last-buffer
+ )
+
+
 (global-subword-mode)
+
 
 (use-package! rainbow-identifiers :hook prog-mode)
 

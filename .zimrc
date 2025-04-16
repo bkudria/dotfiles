@@ -30,9 +30,10 @@ zmodule git-info
 # A heavily reduced, ASCII-only version of the Spaceship and Starship prompts.
 # zmodule asciiship
 # Sets up starship prompt in zsh.
-zmodule joke/zim-starship
+# zmodule joke/zim-starship
 
-
+# p10k
+zmodule romkatv/powerlevel10k
 
 # Figures out where to get the best help, and gets it.
 # zmodule run-help
@@ -48,7 +49,6 @@ zmodule exa
 
 # Configures fzf for faster fetching of files and directories names.
 zmodule fzf
-
 
 # Shown when there is no command and user presses ENTER.
 zmodule magic-enter
@@ -77,7 +77,6 @@ zmodule joke/zim-yq
 # Sets up zoxide in zsh.
 zmodule kiesman99/zim-zoxide
 
-#
 # Completion
 #
 
@@ -95,9 +94,14 @@ zmodule completion
 # Fish-like syntax highlighting for Zsh.
 # zsh-users/zsh-syntax-highlighting must be sourced after completion
 zmodule zsh-users/zsh-syntax-highlighting
+
 # Fish-like history search (up arrow) for Zsh.
 # zsh-users/zsh-history-substring-search must be sourced after zsh-users/zsh-syntax-highlighting
 zmodule zsh-users/zsh-history-substring-search
+
 # Fish-like autosuggestions for Zsh.
 zmodule zsh-users/zsh-autosuggestions
 # }}} End configuration added by Zim install
+
+# Custom module
+zmodule ${ZDOTDIR:-${HOME}}/.zim/modules/bkudria

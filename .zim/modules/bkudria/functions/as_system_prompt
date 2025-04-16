@@ -1,0 +1,6 @@
+# Use stdin as system prompt for llm
+as_system_prompt() {
+  local output
+  output="$(cat)" # read all stdin
+  llm --system "$output" "$@"
+}
