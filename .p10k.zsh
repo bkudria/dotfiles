@@ -37,7 +37,8 @@
     vcs                     # git status
     # =========================[ Line #2 ]=========================
     newline                 # \n
-    prompt_char             # prompt symbol
+    direnv
+    prompt_char_joined             # prompt symbol
   )
 
   # The list of segments shown on the right. Fill it with less important segments.
@@ -49,7 +50,7 @@
     status                  # exit code of the last command
     command_execution_time  # duration of the last command
     background_jobs         # presence of background jobs
-    direnv                  # direnv status (https://direnv.net/)
+    # direnv                  # direnv status (https://direnv.net/)
     # asdf                    # asdf version manager (https://github.com/asdf-vm/asdf)
     # virtualenv              # python virtual environment (https://docs.python.org/3/library/venv.html)
     # anaconda                # conda environment (https://conda.io/)
@@ -204,7 +205,7 @@
   # Red prompt symbol if the last command failed.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_ERROR_{VIINS,VICMD,VIVIS,VIOWR}_FOREGROUND=1
   # Default prompt symbol.
-  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='⏵'
+  typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VIINS_CONTENT_EXPANSION='❱'
   # Prompt symbol in command vi mode.
   typeset -g POWERLEVEL9K_PROMPT_CHAR_{OK,ERROR}_VICMD_CONTENT_EXPANSION='❮'
   # Prompt symbol in visual vi mode.
@@ -358,6 +359,29 @@
 
   # Custom prefix.
   # typeset -g POWERLEVEL9K_DIR_PREFIX='in '
+
+    typeset -g POWERLEVEL9K_DIR_CLASSES=(
+      '~/code(|/*)'  CODE     ''
+      '~(|/*)'       HOME     ''
+      '*'            DEFAULT  '')
+
+    typeset -g POWERLEVEL9K_DIR_HOME_VISUAL_IDENTIFIER_EXPANSION=''
+    # typeset -g POWERLEVEL9K_DIR_HOME_BACKGROUND=5
+    # typeset -g POWERLEVEL9K_DIR_HOME_FOREGROUND=0
+    # typeset -g POWERLEVEL9K_DIR_HOME_SHORTENED_FOREGROUND=0
+    # typeset -g POWERLEVEL9K_DIR_HOME_ANCHOR_FOREGROUND=0
+
+    typeset -g POWERLEVEL9K_DIR_CODE_VISUAL_IDENTIFIER_EXPANSION=' '
+    # typeset -g POWERLEVEL9K_DIR_CODE_BACKGROUND=3
+    # typeset -g POWERLEVEL9K_DIR_CODE_FOREGROUND=0
+    # typeset -g POWERLEVEL9K_DIR_CODE_SHORTENED_FOREGROUND=200
+    # typeset -g POWERLEVEL9K_DIR_CODE_ANCHOR_FOREGROUND=123
+
+    typeset -g POWERLEVEL9K_DIR_DEFAULT_VISUAL_IDENTIFIER_EXPANSION=''
+    # typeset -g POWERLEVEL9K_DIR_DEFAULT_BACKGROUND=5
+    # typeset -g POWERLEVEL9K_DIR_DEFAULT_FOREGROUND=0
+    # typeset -g POWERLEVEL9K_DIR_DEFAULT_SHORTENED_FOREGROUND=0
+    # typeset -g POWERLEVEL9K_DIR_DEFAULT_ANCHOR_FOREGROUND=0
 
   #####################################[ vcs: git status ]######################################
   # Version control background colors.
@@ -577,10 +601,10 @@
 
   #######################[ direnv: direnv status (https://direnv.net/) ]########################
   # Direnv color.
-  typeset -g POWERLEVEL9K_DIRENV_FOREGROUND=3
+  typeset -g POWERLEVEL9K_DIRENV_FOREGROUND=6
   typeset -g POWERLEVEL9K_DIRENV_BACKGROUND=0
   # Custom icon.
-  # typeset -g POWERLEVEL9K_DIRENV_VISUAL_IDENTIFIER_EXPANSION='⭐'
+  typeset -g POWERLEVEL9K_DIRENV_VISUAL_IDENTIFIER_EXPANSION=''
 
   ###############[ asdf: asdf version manager (https://github.com/asdf-vm/asdf) ]###############
   # Default asdf color. Only used to display tools for which there is no color override (see below).
