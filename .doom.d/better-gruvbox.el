@@ -3,8 +3,8 @@
 
 (custom-theme-set-faces! '(doom-gruvbox doom-gruvbox-light)
   `(cursor                  :background ,(doom-color 'orange))
-  `(shadow                  :background ,(doom-color 'bg) :foreground ,(doom-color 'base4))
-  `(line-number             :background ,(doom-color 'bg) :foreground ,(doom-color 'base5))
+  `(shadow                  :background ,(doom-color 'bg) :foreground ,(doom-color 'base6))
+  `(line-number             :background ,(doom-color 'bg) :foreground ,(doom-color 'base4))
   `(link        :overline t :background ,(doom-color 'bg) :foreground ,(doom-color 'green))
 
   `(org-block-end-line        :inherit org-block-begin-line)
@@ -48,12 +48,14 @@
   ;; `(+org-todo-onhold               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
   ;; `(+org-todo-project              :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
 
-  `(org-headline-todo              :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-todo                       :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-done                       :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-checkbox-statistics-done   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-checkbox-statistics-todo   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-checkbox                   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-headline-todo              :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-todo                       :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-done                       :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-checkbox-statistics-done   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-checkbox-statistics-todo   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-checkbox                   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+
+  `(org-modern-label               :height 1.0 :weight bold)
 
   `(org-modern-progress-incomplete :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'orange) :weight semi-light)
   `(org-modern-done                :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'green) :weight semi-light)
@@ -61,14 +63,32 @@
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
 
-  `(org-archived                   :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-default                    :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-modern-label               :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-modern-symbol              :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-modern-tag                 :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-special-keyword            :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
-  `(org-warning                    :height 1.0 :background ,(doom-color 'purple) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-archived                   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-default                    :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-modern-symbol              :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-modern-tag                 :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-special-keyword            :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
+  ;; `(org-warning                    :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
   )
+
+
+(use-package! org-modern
+  :config
+  (defun bk/set-org-modern-todo-faces ()
+    "Set org-modern-todo-faces using doom-color."
+    (setq org-modern-todo-faces
+          `(
+            ("TODO"    :background ,(doom-color 'bg) :foreground ,(doom-color 'faded-yellow) :inverse-video t :weight normal)
+            ("DOING"   :background ,(doom-color 'bg) :foreground ,(doom-color 'blue) :inverse-video t :weight heavy)
+            ("UNCLEAR" :background ,(doom-color 'bg) :foreground ,(doom-color 'violet) :inverse-video t)
+            )))
+
+  ;; Call it after both org-modern and doom-themes are loaded
+  (after! doom-themes
+    (bk/set-org-modern-todo-faces))
+  ;; Also add it to doom-load-theme-hook to ensure it updates when theme changes
+  (add-hook 'doom-load-theme-hook #'bk/set-org-modern-todo-faces))
+
 
 ;; 01 [0 thin]
 ;; 02 [40 ultralight ultra-light extralight extra-light]

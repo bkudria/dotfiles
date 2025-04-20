@@ -187,14 +187,7 @@
     ;; Depth -95 puts this before doom-init-theme-h, which sounds like a good
     ;; idea, if only for performance reasons.
     (add-hook hook #'auto-dark-mode -95)
-    (add-hook hook #'load-better-gruvbox -94)))
+    (add-hook hook #'load-better-gruvbox -96)))
 
 (load! "better-gruvbox.el")
 
-;; (use-package! org-modern
-;;   :config
-;;   (setq org-modern-todo-faces
-;;         `(
-;;           ("TODO" :background ,(doom-color 'bg) :foreground ,(doom-color 'red) :inverse-video t)
-;;           ("DOING" :background ,(doom-color 'bg) :foreground ,(doom-color 'purple) :inverse-video t)
-;;           )))
