@@ -116,3 +116,5 @@
 .zcompdump*
 .zhistory
 .zsh-histfile
+
+**/.claude/settings.local.json

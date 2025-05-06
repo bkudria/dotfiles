@@ -88,9 +88,9 @@ frame were vertically centered in the parent frame."
                         0))
          ;; Add group titles to the needed height calculation
          (needed-height (min max-height 
-                            (+ 1 (max vertico-posframe-portrait-min-height 
-                                     (min vertico-count candidates))
-                               group-count))))
+                             (+ 1 (max vertico-posframe-portrait-min-height
+                                       (min vertico-count candidates))
+                                group-count))))
     (list :height needed-height
           :width width
           :min-height vertico-posframe-portrait-min-height
@@ -121,8 +121,8 @@ Called by `window-size-change-functions' with an ignored parameter."
                 vertico-posframe-min-width nil  ; Let our size function handle this
                 vertico-posframe-min-height nil ; Let our size function handle this
                 vertico-count (max vertico-posframe-portrait-min-height 
-                                  (floor (* (frame-height) 
-                                          vertico-posframe-portrait-height-ratio))))
+                                   (floor (* (frame-height)
+                                             vertico-posframe-portrait-height-ratio))))
   
   ;; Update vertico-count when frame size changes
   (add-hook 'window-size-change-functions #'vertico-posframe-portrait--update-count))

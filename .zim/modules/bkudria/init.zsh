@@ -24,6 +24,8 @@ alias env='env | sort'
 alias ll='eza -lF  --group-directories-first --icons auto'
 alias la='ll -a'
 
+alias claude='claude -d'
+
 # Set EZA options for the exa module
 export EZA_ICON_SPACING=2
 

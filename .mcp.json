@@ -1,11 +1,5 @@
 {
   "mcpServers": {
-    "fetch": {
-      "command": "uvx",
-      "args": [
-        "mcp-server-fetch"
-      ]
-    },
     "sequential-thinking": {
       "command": "npx",
       "args": [
@@ -19,6 +13,18 @@
         "-y",
         "@modelcontextprotocol/server-memory"
       ]
+    },
+    "tavily": {
+      "command": "uvx",
+      "args": [
+        "mcp-tavily"
+      ]
+    },
+    "mcp-scholarly": {
+      "command": "uvx",
+      "args": [
+        "mcp-scholarly"
+      ]
     }
-  },"mcp-scholarly": { "command": "uvx", "args": [ "mcp-scholarly" ] }
+  }
 }

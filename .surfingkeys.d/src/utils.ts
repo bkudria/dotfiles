@@ -80,12 +80,18 @@ export const openStoryAndComments = ({
   link: Selector;
   comments: Selector;
 }) => {
-  api.Hints.create(story, (storyElement: HTMLElement) => {
-    dispatchMouseClicks([
-      getElement(`*[id="${storyElement.id}"] ${link}`) as HTMLAnchorElement,
-      getElement(`*[id="${storyElement.id}"] ${comments}`) as HTMLAnchorElement,
-    ]);
-  });
+  api.Hints.create(
+    story,
+    (storyElement: HTMLElement) => {
+      dispatchMouseClicks([
+        getElement(`*[id="${storyElement.id}"] ${link}`) as HTMLAnchorElement,
+        getElement(
+          `*[id="${storyElement.id}"] ${comments}`
+        ) as HTMLAnchorElement,
+      ]);
+    },
+    { active: false, tabbed: true }
+  );
 };
 
 export const createSuggestionItem = (html: string, props = {}) => {

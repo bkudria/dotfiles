@@ -30,7 +30,9 @@
 ;; available. You can either set `doom-theme' or manually load a theme with the
 ;; `load-theme' function. This is the default:
 (setq doom-theme 'doom-gruvbox
-      doom-gruvbox-dark-variant "medium")
+      doom-gruvbox-dark-variant "medium"
+      doom-gruvbox-light-variant "hard"
+      )
 
 (load-better-gruvbox)
 

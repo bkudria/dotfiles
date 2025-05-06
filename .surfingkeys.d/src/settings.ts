@@ -12,6 +12,6 @@ export const setSettings = () => {
   api.unmap('0');
 
   api.Hints.setCharacters(
-    'uyi cre mnh vbgt 6789 12345 olp wsxqaz'.replace(/\s/g, '')
+    'mvru dkcei slxwo qap10 ghtybn 47382956'.replace(/\s/g, '')
   );
 };

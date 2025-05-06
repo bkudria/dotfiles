@@ -1639,7 +1639,7 @@
 			<key>Faint Text Alpha</key>
 			<real>0.5</real>
 			<key>Faint Text Alpha (Dark)</key>
-			<real>0.5</real>
+			<real>0.47589285714285712</real>
 			<key>Faint Text Alpha (Light)</key>
 			<real>0.49737351190476198</real>
 			<key>Flashing Bell</key>
@@ -1885,6 +1885,8 @@
 				<real>0.17867125570774078</real>
 			</dict>
 			<key>Send Code When Idle</key>
+			<false/>
+			<key>Send Idle Alert</key>
 			<false/>
 			<key>Send Session Ended Alert</key>
 			<false/>
