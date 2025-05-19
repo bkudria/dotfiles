@@ -43,9 +43,7 @@ BODY=$(echo "$DIFF" |
   llm \
     -t git-prepare-commit-message-body \
     -p diff_cmd "$DIFF_CMD" \
-    -p msg "$MSG" \
-    -o prefill '<commit_analysis>' \
-    -o hide_prefill true)
+    -p msg "$MSG" )
 
 echo "Body:"
 echo "$BODY"
@@ -66,6 +64,4 @@ echo "$DIFF" |
     -p msg "$MSG" \
     -p prompt_commit_shas "$BODY_PROMPT_COMMIT_SHA $PROMPT_COMMIT_SHA" \
     -p branch "$()" \
-    -o prefill '<commit_analysis>' \
-    -o hide_prefill true \
     >"$COMMIT_MSG_FILE"

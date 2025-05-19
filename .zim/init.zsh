@@ -1,4 +1,4 @@
-# FILE AUTOMATICALLY GENERATED FROM /Users/bkudria/.zimrc
+# FILE AUTOMATICALLY GENERATED FROM /Users/ben.kudria/.zimrc
 # EDIT THE SOURCE FILE AND THEN RUN zimfw build. DO NOT DIRECTLY EDIT THIS FILE!
 
 if [[ -e ${ZIM_CONFIG_FILE:-${ZDOTDIR:-${HOME}}/.zimrc} ]] zimfw() { source "/opt/homebrew/opt/zimfw/share/zimfw.zsh" "${@}" }
@@ -17,7 +17,6 @@ source "${HOME}/.zim/modules/exa/init.zsh"
 source "${HOME}/.zim/modules/fzf/init.zsh"
 source "${HOME}/.zim/modules/magic-enter/init.zsh"
 source "${HOME}/.zim/modules/ruby/init.zsh"
-source "${HOME}/.zim/modules/ssh/init.zsh"
 source "${HOME}/.zim/modules/homebrew/init.zsh"
 source "${HOME}/.zim/modules/zim-github-cli/init.zsh"
 source "${HOME}/.zim/modules/zim-yq/init.zsh"

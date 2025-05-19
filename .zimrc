@@ -53,7 +53,7 @@ zmodule pvenv
 zmodule ruby
 
 # Provides a convenient way to load ssh-agent.
-zmodule ssh
+# zmodule ssh
 
 # Formats the current working directory to be used by prompts.
 zmodule prompt-pwd
