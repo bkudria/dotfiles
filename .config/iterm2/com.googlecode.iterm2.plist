@@ -1685,6 +1685,8 @@
 			<string>DD077EBD-4463-4AED-8D96-5483A5130C08</string>
 			<key>Horizontal Spacing</key>
 			<real>1</real>
+			<key>Icon</key>
+			<integer>1</integer>
 			<key>Idle Code</key>
 			<integer>0</integer>
 			<key>Initial Use Transparency</key>
@@ -2340,6 +2342,8 @@
 	<real>24</real>
 	<key>StatusBarPosition</key>
 	<integer>0</integer>
+	<key>StretchTabsToFillBar</key>
+	<true/>
 	<key>TabStyle</key>
 	<integer>1</integer>
 	<key>TabStyleWithAutomaticOption</key>
@@ -2357,6 +2361,8 @@
 	<key>UseCustomTabBarFontSize</key>
 	<true/>
 	<key>UseTmuxStatusBar</key>
+	<false/>
+	<key>UseUnevenTabs</key>
 	<false/>
 	<key>VisualIndicatorForEsc</key>
 	<false/>

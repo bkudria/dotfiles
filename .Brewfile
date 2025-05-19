@@ -2,16 +2,12 @@ tap "1password/tap"
 tap "candid82/brew" # joker for goku
 tap "d12frosted/emacs-plus"
 tap "homebrew/bundle"
-tap "homebrew/cask-drivers"
 tap "homebrew/cask-fonts"
 tap "homebrew/cask-versions"
 tap "homebrew/command-not-found"
 tap "homebrew/services"
-tap "keith/formulae" #reminders-cli
-tap "pulumi/tap"
 tap "saulpw/vd" # visidata
 tap "sourcegraph/src-cli"
-tap "xenodium/macosrec" # macosrec
 tap "yqrashawn/goku" # goku
 
 brew "awscli"
@@ -40,7 +36,6 @@ brew "hyperfine"
 brew "ispell"
 brew "jless"
 brew "jq"
-brew "keith/formulae/reminders-cli"
 brew "llm"
 brew "lua"
 brew "luarocks"
@@ -51,7 +46,6 @@ brew "node"
 brew "pgcli"
 brew "pipx"
 brew "protobuf", link: false
-brew "pulumi/tap/pulumi"
 brew "python@3.10"
 brew "python@3.11"
 brew "python@3.12"
@@ -73,7 +67,6 @@ brew "ugrep"
 brew "uv"
 brew "vhs"
 brew "wget"
-brew "xenodium/macosrec/macosrec"
 brew "yqrashawn/goku/goku"
 brew "zsh"
 brew "zstd"
@@ -98,17 +91,22 @@ cask "notion-calendar"
 cask "slack"
 cask "soulver"
 cask "yubico-yubikey-manager"
-cask "zoom"
-
-mas "Xcode", id: 497799835
 
 if ENV['PERSONAL_BREW']
+  tap "keith/formulae" #reminders-cli
+  tap "pulumi/tap"
+  tap "xenodium/macosrec" # macosrec
+
+  brew "keith/formulae/reminders-cli"
+  brew "pulumi/tap/pulumi"
+  brew "xenodium/macosrec/macosrec"
   brew "yt-dlp"
 
   cask "qflipper"
   cask "sparrow"
   cask "steam"
   cask "vlc"
+  cask "zoom"
 
   mas "Reeder", id: 1529448980
   mas "Wallpaper Wizard", id: 1266674560
