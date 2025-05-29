@@ -1,107 +1,103 @@
-# Sets sane Zsh built-in environment options.
-zmodule environment
+zmodule environment # Sets sane Zsh built-in environment options.
 
-# Provides handy git aliases and functions.
 zmodule git -c "zstyle ':zim:git' aliases-prefix 'g'"
-zmodule git
+zmodule git # Provides handy git aliases and functions.
 
-# Applies correct bindkeys for input events.
-zmodule input
+zmodule input # Applies correct bindkeys for input events.
 
-# Sets a custom terminal title.
 zmodule termtitle -c "zstyle ':zim:termtitle' hooks 'preexec' 'precmd'"
 zmodule termtitle -c "zstyle ':zim:termtitle:preexec' format '\${\${(A)=1}[1]}'"
 zmodule termtitle -c "zstyle ':zim:termtitle:precmd' format '%1~'"
-zmodule termtitle
+zmodule termtitle # Sets a custom terminal title.
 
+zmodule utility # Utility aliases and functions. Adds colour to ls, grep and less.
 
-# Utility aliases and functions. Adds colour to ls, grep and less.
-zmodule utility
-
-# Exposes to prompts how long the last command took to execute.
 zmodule duration-info -c "zstyle ':zim:duration-info' show-milliseconds yes"
-zmodule duration-info
+zmodule duration-info # Exposes to prompts how long the last command took to execute.
 
-# Exposes git repository status information to prompts.
-zmodule git-info
+zmodule git-info # Exposes git repository status information to prompts.
 
-# p10k
-zmodule romkatv/powerlevel10k
+zmodule romkatv/powerlevel10k # p10k
 
-# Figures out where to get the best help, and gets it.
-zmodule run-help
+zmodule run-help # Figures out where to get the best help, and gets it.
 
-# Provides archive and unarchive functions for easy archive manipulation.
-zmodule archive
+zmodule archive # Provides archive and unarchive functions for easy archive manipulation.
 
-# Sets up the direnv Zsh shell integration
-zmodule direnv
+zmodule direnv # Sets up the direnv Zsh shell integration
 
-# Adds aliases and better defaults for exa.
-zmodule exa
+zmodule exa # Adds aliases and better defaults for exa.
 
-# Configures fzf for faster fetching of files and directories names.
-zmodule fzf
+zmodule fzf # Configures fzf for faster fetching of files and directories names.
 
-# Shown when there is no command and user presses ENTER.
-zmodule magic-enter
+zmodule magic-enter # Shown when there is no command and user presses ENTER.
 
-# Manages all python venvs in one place.
-zmodule pvenv
+zmodule pvenv # Manages all python venvs in one place.
 
-# Provides ruby, bundler, rbenv and rvm aliases and initialization.
-zmodule ruby
+zmodule ruby # Provides ruby, bundler, rbenv and rvm aliases and initialization.
 
-# Provides a convenient way to load ssh-agent.
-# zmodule ssh
+zmodule ssh # Provides a convenient way to load ssh-agent.
 
-# Formats the current working directory to be used by prompts.
-zmodule prompt-pwd
+zmodule prompt-pwd # Formats the current working directory to be used by prompts.
 
-# Adds aliases for Homebrew.
-zmodule homebrew
+zmodule homebrew # Adds aliases for Homebrew.
 
-# Sets up github-cli in zsh.
-zmodule joke/zim-github-cli
+zmodule joke/zim-github-cli # Sets up github-cli in zsh.
 
-# Sets up yq in zsh.
-zmodule joke/zim-yq
+zmodule joke/zim-yq # Sets up yq in zsh.
 
-# Sets up zoxide in zsh.
-zmodule kiesman99/zim-zoxide
+zmodule kiesman99/zim-zoxide # Sets up zoxide in zsh.
 
 
-zmodule sorin-ionescu/prezto --root modules/command-not-found
+zmodule sorin-ionescu/prezto -n command-not-found --root modules/command-not-found
+
+# Auto start a session when Zsh is launched in a local terminal.
+zmodule sorin-ionescu/prezto -n tmux --root modules/tmux -c "zstyle ':prezto:module:tmux:auto-start' local 'yes'"
+
+# # Auto start a session when Zsh is launched in a SSH connection.
+zmodule sorin-ionescu/prezto -n tmux --root modules/tmux -c "zstyle ':prezto:module:tmux:auto-start' remote 'yes'"
+
+# # Integrate with iTerm2.
+zmodule sorin-ionescu/prezto -n tmux --root modules/tmux -c "zstyle ':prezto:module:tmux:iterm' integrate 'yes'"
+
+# # Set session name
+zmodule sorin-ionescu/prezto -n tmux --root modules/tmux -c "zstyle ':prezto:module:tmux:session' name 'main'"
+
+zmodule sorin-ionescu/prezto -n tmux --root modules/tmux
+
 
 zmodule belak/prezto-contrib --root alias-tips
 
+zmodule fdellwing/zsh-bat
 
-
-# Custom module
-zmodule ${ZDOTDIR:-${HOME}}/.zim/modules/bkudria
-
-
+zmodule ${ZDOTDIR:-${HOME}}/.zim/modules/bkudria # Custom module
 
 
 
-# Additional completion definitions for Zsh.
-zmodule zsh-users/zsh-completions --fpath src
 
-# Enables and configures smart and extensive tab completion.
+
+
+
+zmodule RobSis/zsh-completion-generator -c "zstyle :plugin:zsh-completion-generator programs rg fd llm"
+zmodule RobSis/zsh-completion-generator
+
+zmodule zsh-users/zsh-completions --fpath src # Additional completion definitions for Zsh.
+
+zmodule completion # Enables and configures smart and extensive tab completion.
 # completion must be sourced after all modules that add completion definitions.
-zmodule completion
 
-#
 # Modules that must be initialized last
-#
 
-# Fish-like syntax highlighting for Zsh.
+zmodule zdharma-continuum/fast-syntax-highlighting
+# zmodule zsh-users/zsh-syntax-highlighting # Fish-like syntax highlighting for Zsh.
 # zsh-users/zsh-syntax-highlighting must be sourced after completion
-zmodule zsh-users/zsh-syntax-highlighting
 
-# Fish-like history search (up arrow) for Zsh.
+
+zmodule zsh-users/zsh-history-substring-search # Fish-like history search (up arrow) for Zsh.
 # zsh-users/zsh-history-substring-search must be sourced after zsh-users/zsh-syntax-highlighting
-zmodule zsh-users/zsh-history-substring-search
 
-# Fish-like autosuggestions for Zsh.
-zmodule zsh-users/zsh-autosuggestions
+zmodule zsh-users/zsh-autosuggestions # Fish-like autosuggestions for Zsh.
+
+zmodule marlonrichert/zsh-autocomplete -c "zstyle -e ':autocomplete:*:*' list-lines 'reply=( \$(( LINES / 3)) )'"
+zmodule marlonrichert/zsh-autocomplete
+zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect  '^[[D' .backward-char  '^[OD' .backward-char"
+zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect  '^[[C' .forward-char  '^[OC'  .forward-char"
