@@ -95,6 +95,7 @@
        ;;editorconfig                                      ; let someone else argue about tabs vs spaces
        ;;ein                                               ; tame Jupyter notebooks with emacs
        (eval +overlay)                                     ; run code, run (also, repls)
+       llm
        (lookup +docsets +dictionary +offline)              ; navigate your code and its documentation
        (lsp +peek)                                                 ; M-x vscode
        (magit +forge)                                               ; a git porcelain for Emacs

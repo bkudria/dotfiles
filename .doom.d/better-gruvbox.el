@@ -130,6 +130,33 @@
             ("IDEATED" :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :inverse-video t)
             )))
 
+  (defun bk/org-modern--todo-fixed-width ()
+    "Override org-modern--todo to use fixed width labels."
+    (advice-add 'org-modern--todo :override
+                (lambda ()
+                  "Prettify todo keywords with fixed width matching progress bars."
+                  (let* ((todo (match-string-no-properties 1))
+                         (beg (match-beginning 1))
+                         (end (match-end 1))
+                         (width org-modern-progress)
+                         (todo-len (length todo))
+                         (pad-len (max 0 (- width todo-len)))
+                         (left-pad (/ pad-len 2))
+                         (right-pad (- pad-len left-pad))
+                         (padded-todo (concat (make-string left-pad ?\s)
+                                              todo
+                                              (make-string right-pad ?\s))))
+                    (put-text-property beg end 'display padded-todo)
+                    (put-text-property beg end 'face
+                      (if-let ((face (or (cdr (assoc todo org-modern-todo-faces))
+                                        (cdr (assq t org-modern-todo-faces)))))
+                          `(:inherit (,face org-modern-label))
+                        (if (string-match-p org-not-done-regexp todo)
+                            'org-modern-todo 'org-modern-done)))))))
+
+  ;; Apply the fixed-width advice
+  (bk/org-modern--todo-fixed-width)
+
   ;; Call it after both org-modern and doom-themes are loaded
   (after! doom-themes (bk/set-org-modern-todo-faces))
   ;; Also add it to doom-load-theme-hook to ensure it updates when theme changes
