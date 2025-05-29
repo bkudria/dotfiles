@@ -16,7 +16,6 @@ export VISUAL='emacsclient -q -r'
 # export TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
 
 # Aliases - only the unique ones not covered by other modules
-alias cat=bat
 alias less=glow
 alias mcp-cli='npx wong2/mcp-cli'
 alias env='env | sort'

@@ -71,21 +71,20 @@
       maximum-scroll-margin 0.5
       scroll-margin 99999)
 
+(global-subword-mode)
+
 (map!
  :leader
  :desc "directory" "-"     #'dired-jump
  :desc "other"     "<tab>" #'evil-switch-to-windows-last-buffer
  )
 
-
-(global-subword-mode)
-
+(move-text-default-bindings)
 
 (use-package! rainbow-identifiers :hook prog-mode)
 
 (use-package! dimmer
   :config (dimmer-mode))
-
 
 (use-package evil-extra-operator
   :bind
@@ -129,48 +128,54 @@
           )
         ))
 
-
 (use-package! doom-modeline
   :config
   (setq doom-modeline-buffer-file-name-style 'truncate-with-project)
-  (setq doom-modeline-buffer-encoding t)
-  )
+  (setq doom-modeline-buffer-encoding 'nondefault)
+  (setq doom-modeline-height 36)
+  (setq doom-modeline-hud t)
+  (setq doom-modeline-percent-position nil)
+  (setq doom-modeline-hud-min-height 1))
 
 (use-package! lsp-mode
   :config
   (setq lsp-disabled-clients '(semgrep-ls rubocop-ls)))
 
+
 (after! magit
+  (add-hook 'after-save-hook 'magit-after-save-refresh-status)
   (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")))
 
-(use-package! aidermacs
+;; (use-package! magit-filenotify
+;;   :config
+;;   (add-hook 'magit-status-mode-hook 'magit-filenotify-mode)
+;;   )
+
+(use-package! gptel
   :config
-  (setq aidermacs-backend 'vterm))
 
-;;   (setq
-;;    ;; Edit settings
-;;    ;; org-auto-align-tags nil
-;;    org-tags-column 0
-
-;;    ;; Org styling, hide markup etc.
-;;    org-hide-emphasis-markers t
-;;    org-pretty-entities t
-;;    org-ellipsis "…"
-
-;;    ;; Agenda styling
-;;    org-agenda-tags-column 0
-;;    org-agenda-block-separator ?─)
-
-;;   :hook
-;;   (org-mode . global-org-modern-mode))
-
+  ;; OPTIONAL configuration
+  (setq
+   gptel-model 'claude-3-sonnet-20240229 ;  "claude-3-opus-20240229" also available
+   gptel-backend (gptel-make-anthropic "Claude" :stream t ))
+  (gptel-make-anthropic "Claude-thinking" ;Any name you want
+    :key "your-API-key"
+    :stream t
+    :models '(claude-3-7-sonnet-20250219)
+    :header (lambda () (when-let* ((key (gptel--get-api-key)))
+                         `(("x-api-key" . ,key)
+                           ("anthropic-version" . "2023-06-01")
+                           ("anthropic-beta" . "pdfs-2024-09-25")
+                           ("anthropic-beta" . "output-128k-2025-02-19")
+                           ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+    :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
+                      :max_tokens 4096))
+  )
 
 ;; Apply vertico-posframe customizations after the package loads
 (after! vertico-posframe
   (load! "vertico-posframe-custom.el")
   (my-vertico-posframe-setup))
-
-
 
 (use-package! auto-dark
   :defer t

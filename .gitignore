@@ -29,6 +29,8 @@
 
 /.zsh_history
 
+/.zim/init.zsh
+
 .aider*
 !.aider.commands
 !.aider.conf.yml
@@ -112,6 +114,7 @@
 .vim/.netrwhist
 .vim/eclim
 .viminfo
+
 .zcompcache
 .zcompdump*
 .zhistory

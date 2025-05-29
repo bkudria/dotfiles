@@ -5,7 +5,7 @@
 	user = bkudria
 [core]
 	editor = vim
-	pager = less
+	pager = delta
 	whitespace = trailing-space,space-before-tab,cr-at-eol
 	excludesfile = /Users/bkudria/.gitignore_global
 [push]
@@ -84,8 +84,12 @@
 	autoStash = true
 	updateRefs = true
 [merge]
-	conflictstyle = zdiff3
+	conflictStyle = zdiff3
 [fetch]
 	prune = true
 	pruneTags = true
 	all = true
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
