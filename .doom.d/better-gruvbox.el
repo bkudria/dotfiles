@@ -5,6 +5,8 @@
   `(line-number             :background ,(doom-color 'bg) :foreground ,(doom-color 'base4))
   `(link        :overline t :background ,(doom-color 'bg) :foreground ,(doom-color 'green))
 
+  `(markdown-code-face        :background ,(doom-color 'bg-alt))
+
   `(org-block-end-line        :inherit org-block-begin-line)
   `(org-document-info-keyword :inherit shadow)
   `(org-meta-line             :inherit shadow)
@@ -41,17 +43,6 @@
   `(org-level-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
   `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'red)     :weight normal)
 
-  ;; `(+org-todo-active               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
-  ;; `(+org-todo-cancel               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
-  ;; `(+org-todo-onhold               :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
-  ;; `(+org-todo-project              :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight normal)
-
-  ;; `(org-headline-todo              :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-todo                       :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-done                       :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-checkbox-statistics-done   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-checkbox-statistics-todo   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-checkbox                   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
 
   `(org-modern-label               :height 1.0 :weight bold)
 
@@ -60,13 +51,6 @@
 
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
-
-  ;; `(org-archived                   :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-default                    :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-modern-symbol              :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-modern-tag                 :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-special-keyword            :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
-  ;; `(org-warning                    :height 1.0 :background ,(doom-color 'magenta) :foreground ,(doom-color 'cyan) :weight normal)
   )
 
 (custom-theme-set-faces! 'doom-gruvbox
@@ -148,11 +132,11 @@
                                               (make-string right-pad ?\s))))
                     (put-text-property beg end 'display padded-todo)
                     (put-text-property beg end 'face
-                      (if-let ((face (or (cdr (assoc todo org-modern-todo-faces))
-                                        (cdr (assq t org-modern-todo-faces)))))
-                          `(:inherit (,face org-modern-label))
-                        (if (string-match-p org-not-done-regexp todo)
-                            'org-modern-todo 'org-modern-done)))))))
+                                       (if-let ((face (or (cdr (assoc todo org-modern-todo-faces))
+                                                          (cdr (assq t org-modern-todo-faces)))))
+                                           `(:inherit (,face org-modern-label))
+                                         (if (string-match-p org-not-done-regexp todo)
+                                             'org-modern-todo 'org-modern-done)))))))
 
   ;; Apply the fixed-width advice
   (bk/org-modern--todo-fixed-width)

@@ -79,6 +79,24 @@
  :desc "other"     "<tab>" #'evil-switch-to-windows-last-buffer
  )
 
+(defun evil-join-reverse ()
+  "Join current line with previous line, placing previous line after current."
+  (interactive)
+  (when (> (line-number-at-pos) 1)
+    ;; Save the previous line content
+    (let ((prev-line (save-excursion
+                       (forward-line -1)
+                       (string-trim (thing-at-point 'line t)))))
+      ;; Delete the previous line
+      (save-excursion
+        (forward-line -1)
+        (delete-region (line-beginning-position) (1+ (line-end-position))))
+      ;; Append previous line content to current line
+      (end-of-line)
+      (insert " " prev-line))))
+
+(map! :n "K" #'evil-join-reverse)
+
 (move-text-default-bindings)
 
 (use-package! rainbow-identifiers :hook prog-mode)
