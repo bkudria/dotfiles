@@ -1641,7 +1641,7 @@
 			<key>Faint Text Alpha (Dark)</key>
 			<real>0.47589285714285712</real>
 			<key>Faint Text Alpha (Light)</key>
-			<real>0.49737351190476198</real>
+			<real>1</real>
 			<key>Flashing Bell</key>
 			<true/>
 			<key>Foreground Color</key>
@@ -1785,7 +1785,7 @@
 			<key>Minimum Contrast (Dark)</key>
 			<real>0.0</real>
 			<key>Minimum Contrast (Light)</key>
-			<real>0.12410714285714286</real>
+			<real>0.31726190476190474</real>
 			<key>Mouse Reporting</key>
 			<true/>
 			<key>Name</key>
