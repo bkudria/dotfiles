@@ -81,9 +81,7 @@ zmodule completion # Enables and configures smart and extensive tab completion.
 # completion must be sourced after all modules that add completion definitions.
 
 # Modules that must be initialized last
-
-zmodule zdharma-continuum/fast-syntax-highlighting
-# zmodule zsh-users/zsh-syntax-highlighting # Fish-like syntax highlighting for Zsh.
+zmodule zsh-users/zsh-syntax-highlighting # Fish-like syntax highlighting for Zsh.
 # zsh-users/zsh-syntax-highlighting must be sourced after completion
 
 zmodule marlonrichert/zsh-autocomplete -c "zstyle -e ':autocomplete:*:*' list-lines 'reply=( \$(( LINES / 4)) )'"

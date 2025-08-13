@@ -23,7 +23,8 @@ alias env='env | sort'
 alias ll='eza -lF  --group-directories-first --icons auto'
 alias la='ll -a'
 
-# alias claude='claude -d'
+alias json-summarize-structure='jq -rn --stream '\''reduce (inputs|select(.[1])[0]|map(if type=="number" then "[]" end)) as $_ (.; setpath($_; 1))|path(..)|join(".")/".[]"|"."+join("[]")'\'''
+alias json-squish="jq 'def w: arrays |= .[:1]|iterables[] |= w; w'"
 
 # Set EZA options for the exa module
 export EZA_ICON_SPACING=2
