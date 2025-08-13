@@ -13,6 +13,8 @@ export const applyMappings = () => {
   api.map('ge', ';U');
   api.map('gE', ';u');
 
+  api.map(',db', ';db');
+
   api.map('<Backspace>', 'S');
   api.map('h', 'E');
   api.map('l', 'R');
