@@ -202,6 +202,7 @@
          doom-gruvbox-dark-variant "soft"
          auto-dark-light-theme 'doom-gruvbox-light
          doom-gruvbox-light-variant "hard")
+
   ;; Inspired by doom-ui.el.
   ;; Note that server-after-make-frame-hook also avoids the issues with an early
   ;; start of the emacs daemon using systemd, which causes problems with the
@@ -214,5 +215,4 @@
     (add-hook hook #'auto-dark-mode -95)
     (add-hook hook #'load-better-gruvbox -96)))
 
-(load! "better-gruvbox.el")
-
+(load-better-gruvbox)
