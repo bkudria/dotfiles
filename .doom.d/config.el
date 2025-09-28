@@ -99,7 +99,9 @@
 
 (move-text-default-bindings)
 
-(use-package! rainbow-identifiers :hook prog-mode)
+(use-package! rainbow-identifiers
+  :custom  (rainbow-identifiers-choose-face-function 'rainbow-identifiers-cie-l*a*b*-choose-face)
+  :hook prog-mode)
 
 (use-package! dimmer
   :config (dimmer-mode))
