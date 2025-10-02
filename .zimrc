@@ -48,8 +48,6 @@ zmodule joke/zim-yq # Sets up yq in zsh.
 zmodule kiesman99/zim-zoxide # Sets up zoxide in zsh.
 
 
-zmodule sorin-ionescu/prezto -n command-not-found --root modules/command-not-found
-
 # Auto start a session when Zsh is launched in a local terminal.
 zmodule sorin-ionescu/prezto -n tmux --root modules/tmux -c "zstyle ':prezto:module:tmux:auto-start' local 'yes'"
 

@@ -23,20 +23,17 @@ alias env='env | sort'
 alias ll='eza -lF  --group-directories-first --icons auto'
 alias la='ll -a'
 
-alias json-summarize-structure='jq -rn --stream '\''reduce (inputs|select(.[1])[0]|map(if type=="number" then "[]" end)) as $_ (.; setpath($_; 1))|path(..)|join(".")/".[]"|"."+join("[]")'\'''
-alias json-squish="jq 'def w: arrays |= .[:1]|iterables[] |= w; w'"
-
 # Set EZA options for the exa module
 export EZA_ICON_SPACING=2
 
 # Path configuration - only add custom paths not handled by other modules
 path=(
-  "$HOME/bin"
-  "$HOME/.emacs.doom/bin"
-  "$HOME/.local/bin" # uv
-  "$HOME/.cargo/bin"
-  "/usr/local/opt/node@16/bin"
-  $path
+    "$HOME/bin"
+    "$HOME/.emacs.doom/bin"
+    "$HOME/.local/bin" # uv
+    "$HOME/.cargo/bin"
+    "/usr/local/opt/node@16/bin"
+    $path
 )
 
 # CD path
@@ -50,3 +47,10 @@ source ${0:h}/functions/__llm_cmdcomp
 
 # Key bindings
 bindkey '^[\t' __llm_cmdcomp
+
+# Homebrew
+# HOMEBREW_COMMAND_NOT_FOUND_HANDLER="$(brew --repository)/Library/Homebrew/command-not-found/handler.sh"
+# if [ -f "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER" ]; then
+#     source "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER"
+# fi
+source /opt/homebrew/Library/Homebrew/command-not-found/handler.sh

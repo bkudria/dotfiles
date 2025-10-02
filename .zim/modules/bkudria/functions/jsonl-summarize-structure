@@ -1,0 +1,26 @@
+#!/usr/bin/env zsh
+# Analyzes JSONL file structure showing path frequencies across all lines
+# Shows most common paths first to quickly identify patterns in the data
+
+jsonl-summarize-structure() {
+  jq -nr '
+    reduce (
+      inputs |
+      path(..) |
+      select(length > 0) |
+      map(if type=="number" then "[]" else . end) |
+      join(".")
+    ) as $path (
+      {};
+      .[$path] = (.[$path] // 0) + 1
+    ) |
+    to_entries |
+    map({count: .value, path: .key}) |
+    sort_by(-.count) |
+    .[] |
+    "   \(.count) \(.path)"
+  ' "$@"
+}
+
+# Make function available immediately when sourced
+jsonl-summarize-structure "$@"

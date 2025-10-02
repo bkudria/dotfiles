@@ -1,0 +1,370 @@
+#!/usr/bin/env zsh
+# Identifies and analyzes distinct structures in JSONL files
+# Groups lines by structure and shows statistics for each unique schema type
+#
+# Usage:
+#   jsonl-summarize-structures [options] [files...]
+#
+# Options:
+#   --strict        Use exact matching (array counts matter)
+#   --merge[=N]     Merge schemas with Jaccard similarity >= N% (default: 75)
+#   (no options)    Normalize array counts (default behavior)
+
+jsonl-summarize-structures() {
+  # Parse command-line arguments
+  local mode="normal"
+  local threshold=75
+  local -a files=()
+
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --strict)
+        mode="strict"
+        shift
+        ;;
+      --merge)
+        mode="merge"
+        shift
+        ;;
+      --merge=*)
+        mode="merge"
+        threshold="${1#--merge=}"
+        shift
+        ;;
+      -*)
+        echo "Unknown option: $1" >&2
+        return 1
+        ;;
+      *)
+        files+=("$1")
+        shift
+        ;;
+    esac
+  done
+
+  # Execute based on mode
+  case "$mode" in
+    strict)
+      # Original behavior: exact signature matching (array counts matter)
+      jq -nr '
+        reduce inputs as $item (
+          {};
+
+          # Generate signature from sorted paths (exact - duplicates preserved)
+          ($item |
+            [path(..) | select(length > 0) | map(if type=="number" then "[]" else . end) | join(".")] |
+            sort |
+            join("|")
+          ) as $sig |
+
+          # Initialize signature group
+          if has($sig) then
+            .
+          else
+            .[$sig] = {"count": 0, "paths": {}, "sample": null}
+          end |
+
+          # Update statistics
+          .[$sig].count += 1 |
+          (if .[$sig].sample == null then
+            .[$sig].sample = $item
+          else
+            .
+          end) |
+
+          # Count each path (exact counts)
+          reduce ($item | path(..) | select(length > 0) | map(if type=="number" then "[]" else . end) | join(".")) as $path (
+            .;
+            .[$sig].paths[$path] = (.[$sig].paths[$path] // 0) + 1
+          )
+        ) |
+
+        # Output grouped by schema
+        (to_entries |
+        sort_by(-.value.count) |
+        map(
+          .value as $schema |
+          "- " + ($schema.count | tostring) + " instances" +
+          (
+            if $schema.sample.type then
+              " [type: " + $schema.sample.type + "]"
+            elif $schema.sample.action then
+              " [action: " + $schema.sample.action + "]"
+            elif $schema.sample.level then
+              " [level: " + $schema.sample.level + "]"
+            elif $schema.sample.id then
+              " [id: " + ($schema.sample.id | tostring | .[0:20]) + "]"
+            else
+              ""
+            end
+          ) + "\n" +
+          (
+            $schema.paths |
+            to_entries |
+            map(.key) |
+            sort |
+            map("  - " + .) |
+            join("\n")
+          )
+        ) | join("\n\n"))
+      ' "${files[@]}"
+      ;;
+
+    normal)
+      # Default behavior: normalize array counts (deduplicate array paths in signature)
+      jq -nr '
+        reduce inputs as $item (
+          {};
+
+          # Generate signature from sorted paths (normalized - duplicates removed)
+          ($item |
+            [path(..) | select(length > 0) | map(if type=="number" then "[]" else . end) | join(".")] |
+            sort | unique |  # <-- Key difference: unique removes duplicate paths
+            join("|")
+          ) as $sig |
+
+          # Initialize signature group
+          if has($sig) then
+            .
+          else
+            .[$sig] = {"count": 0, "paths": {}, "sample": null}
+          end |
+
+          # Update statistics
+          .[$sig].count += 1 |
+          (if .[$sig].sample == null then
+            .[$sig].sample = $item
+          else
+            .
+          end) |
+
+          # Count each path (still exact counts for display)
+          reduce ($item | path(..) | select(length > 0) | map(if type=="number" then "[]" else . end) | join(".")) as $path (
+            .;
+            .[$sig].paths[$path] = (.[$sig].paths[$path] // 0) + 1
+          )
+        ) |
+
+        # Output grouped by schema
+        (to_entries |
+        sort_by(-.value.count) |
+        map(
+          .value as $schema |
+          "- " + ($schema.count | tostring) + " instances" +
+          (
+            if $schema.sample.type then
+              " [type: " + $schema.sample.type + "]"
+            elif $schema.sample.action then
+              " [action: " + $schema.sample.action + "]"
+            elif $schema.sample.level then
+              " [level: " + $schema.sample.level + "]"
+            elif $schema.sample.id then
+              " [id: " + ($schema.sample.id | tostring | .[0:20]) + "]"
+            else
+              ""
+            end
+          ) + "\n" +
+          (
+            $schema.paths |
+            to_entries |
+            map(.key) |
+            sort |
+            map("  - " + .) |
+            join("\n")
+          )
+        ) | join("\n\n"))
+      ' "${files[@]}"
+      ;;
+
+    merge)
+      # Similarity-based merging using Jaccard similarity
+      #
+      # OPTIMIZATION OPPORTUNITIES:
+      # 1. Path extraction optimization:
+      #    - Currently extracts paths twice (for signature and pathset)
+      #    - Could extract once and reuse the result
+      #
+      # 2. Similarity calculation efficiency:
+      #    - Currently O(n²) pairwise comparisons
+      #    - Could use locality-sensitive hashing (LSH) for large datasets
+      #    - Could use early termination if similarity clearly below threshold
+      #
+      # 3. Memory usage:
+      #    - Stores all instances in memory during initial grouping
+      #    - Could store only samples and counts, not all instances
+      #    - Could use streaming approach for very large files
+      #
+      # 4. Connected components algorithm:
+      #    - Current transitive closure is simple but inefficient
+      #    - Could implement proper union-find with path compression
+      #    - Currently does redundant group merging operations
+      #
+      jq -nr --argjson threshold "$threshold" '
+        # Jaccard similarity function
+        def jaccard:
+          .[0] as $a |
+          .[1] as $b |
+          ($a | keys) as $keys_a |
+          ($b | keys) as $keys_b |
+          ([$keys_a[] | select(. as $k | $b | has($k))] | length) as $intersection |
+          (($keys_a | length) + ($keys_b | length) - $intersection) as $union |
+          if $union == 0 then 100
+          else (($intersection * 100) / $union | floor)
+          end;
+
+        # Define threshold
+        ($threshold // 75) as $min_similarity |
+
+        # First pass: collect all unique schemas with path sets
+        reduce inputs as $item ({};
+          # Generate signature (for initial grouping)
+          ($item |
+            [path(..) | select(length > 0) | map(if type=="number" then "[]" else . end) | join(".")] |
+            sort | unique | join("|")
+          ) as $sig |
+
+          # Create path set as object (for similarity calculation)
+          ($item |
+            [path(..) | select(length > 0) | map(if type=="number" then "[]" else . end) | join(".")] |
+            sort | unique |
+            map({key: ., value: 1}) | from_entries
+          ) as $pathset |
+
+          # Initialize or update schema group
+          if has($sig) then
+            .[$sig].count += 1 |
+            if .[$sig].sample == null then
+              .[$sig].sample = $item
+            else . end
+          else
+            .[$sig] = {
+              "count": 1,
+              "pathset": $pathset,
+              "sample": $item,
+              "signature": $sig
+            }
+          end
+        ) |
+
+        # Convert to array with indices
+        to_entries | map(.value + {"id": .key[0:8]}) as $schemas |
+
+        # Build similarity matrix and group using simple transitive closure
+        ($schemas | length) as $n |
+
+        # Calculate all similarities
+        (reduce (range(0; $n) as $i | range($i+1; $n) as $j | {"i": $i, "j": $j}) as $pair ([];
+          ([ $schemas[$pair.i].pathset, $schemas[$pair.j].pathset ] | jaccard) as $sim |
+          if $sim >= $min_similarity then
+            . + [{"from": $pair.i, "to": $pair.j, "similarity": $sim}]
+          else .
+          end
+        )) as $edges |
+
+        # Simple grouping: each schema starts in its own group
+        (reduce range(0; $n) as $i ({}; .[$i | tostring] = [$i])) as $initial_groups |
+
+        # Merge groups connected by edges
+        (reduce $edges[] as $edge ($initial_groups;
+          (.[$edge.from | tostring] + .[$edge.to | tostring] | unique) as $merged |
+          # Update all schemas in the merged set to point to the same group
+          reduce $merged[] as $idx (.; .[$idx | tostring] = $merged)
+        )) as $groups_map |
+
+        # Deduplicate groups
+        (reduce ($groups_map | to_entries[]) as $entry ({};
+          ($entry.value | sort | join(",")) as $group_key |
+          .[$group_key] = $entry.value
+        )) as $unique_groups |
+
+        # FUTURE WORK:
+        # Phase 2: Add similarity context showing relationships within groups
+        # Phase 3: Smart labels using type/action values for variants
+        # Phase 4: Array statistics (min/max/avg lengths)
+
+        # Helper function: compute intersection of pathsets
+        def find_common_fields(variants):
+          if (variants | length) <= 1 then
+            {}
+          else
+            reduce variants[1:][] as $v (
+              variants[0].pathset;
+              . as $common |
+              ($common | keys) as $ckeys |
+              ($v.pathset | keys) as $vkeys |
+              ([$ckeys[] | select(. as $k | $vkeys | index($k))] |
+               map({key: ., value: 1}) | from_entries)
+            )
+          end;
+
+        # Build and output complete result as one string
+        "Merged at ≥" + ($min_similarity | tostring) + "% similarity\n" +
+
+        # Process all groups
+        ([$unique_groups | to_entries | sort_by(.value | map($schemas[.].count) | add) | reverse | .[] as $group |
+          # Get variants sorted by count
+          ($group.value | map($schemas[.]) | sort_by(-.count)) as $variants |
+          # Calculate total instances
+          ([$variants[].count] | add) as $total_instances |
+
+          # Single variant groups use simple format
+          if ($variants | length) == 1 then
+            "\n- " + ($total_instances | tostring) + " instances" +
+            # Show type/action if available
+            (($variants[0].sample) as $sample |
+              if $sample.type then " [type: " + $sample.type + "]"
+              elif $sample.action then " [action: " + $sample.action + "]"
+              elif $sample.level then " [level: " + $sample.level + "]"
+              elif $sample.id then " [id: " + ($sample.id | tostring | .[0:20]) + "]"
+              else ""
+              end) + "\n" +
+            # Show all paths
+            ($variants[0].pathset | keys | sort | map("  - " + .) | join("\n"))
+
+          # Multiple variants use new variant format
+          else
+            # Find common fields
+            (find_common_fields($variants)) as $common |
+            ($common | keys | sort) as $common_keys |
+
+            "\n- " + ($total_instances | tostring) + " instances, " +
+            ($variants | length | tostring) + " variants\n" +
+
+            # Show common fields
+            (if ($common_keys | length) > 0 then
+              ($common_keys | map("  - " + .) | join("\n")) + "\n"
+            else
+              ""
+            end) +
+
+            # Show variants section
+            "  \n  variants:\n" +
+            ([$variants | to_entries[] |
+              .key as $vidx |
+              .value as $variant |
+              # Get variant-specific fields (exclude common)
+              ([$variant.pathset | keys[] | select(. as $k | $common_keys | index($k) | not)] | sort) as $specific |
+
+              "    - " + ($variant.count | tostring) + " instances" +
+              # Add type/action label if available
+              (if $variant.sample.type then " [type: " + $variant.sample.type + "]"
+               elif $variant.sample.action then " [action: " + $variant.sample.action + "]"
+               else ""
+               end) +
+
+              # Show variant-specific fields
+              (if ($specific | length) > 0 then
+                "\n" + ($specific | map("      - " + .) | join("\n"))
+              else
+                ""
+              end)
+            ] | join("\n\n"))
+          end
+        ] | join("\n"))
+      ' "${files[@]}"
+      ;;
+  esac
+}
+
+# Make function available immediately when sourced
+jsonl-summarize-structures "$@"

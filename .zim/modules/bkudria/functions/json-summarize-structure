@@ -1,0 +1,18 @@
+#!/usr/bin/env zsh
+# Extracts and displays the complete schema/structure of any JSON document in path notation format
+# Uses streaming mode for memory-efficient processing of large files
+
+json-summarize-structure() {
+  jq -rn --stream '
+    reduce (inputs|select(.[1])[0]|map(if type=="number" then "[]" end)) as $_ (
+      .;
+      setpath($_; 1)
+    ) |
+    path(..) |
+    join(".")/".[]" |
+    "."+join("[]")
+  ' "$@"
+}
+
+# Make function available immediately when sourced
+json-summarize-structure "$@"
