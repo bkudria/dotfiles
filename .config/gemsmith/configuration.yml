@@ -1,0 +1,58 @@
+author:
+    handle: bkudria
+    uri: https://ben.kudria.net
+build:
+    amazing_print: true
+    bootsnap: false
+    caliber: true
+    circle_ci: false
+    citation: false
+    cli: false
+    community: false
+    conduct: false
+    console: true
+    contributions: false
+    dcoo: false
+    debug: true
+    devcontainer: false
+    docker: false
+    funding: false
+    git: true
+    git_hub: false
+    git_hub_ci: true
+    git_lint: true
+    irb_kit: true
+    license: true
+    maximum: false
+    minimum: false
+    monads: false
+    rake: true
+    readme: false
+    reek: true
+    refinements: false
+    rspec: true
+    rtc: true
+    security: false
+    setup: true
+    simple_cov: true
+    versions: true
+    zeitwerk: true
+citation:
+    affiliation: "%<organization_label>s"
+    message: Please use the following metadata when citing this project in your work.
+documentation:
+    format: "adoc"
+gems:
+    uri: https://rubygems.org
+license:
+    label: MIT
+    name: mit
+project:
+    uri:
+        download: "%<gems_uri>s/gems/%<project_name>s"
+        issues: "%<repository_uri>s/%<repository_handle>s/%<project_name>s/issues"
+        source: "%<repository_uri>s/%<repository_handle>s/%<project_name>s"
+    version: 0.0.0
+repository:
+    handle: "%<author_handle>s"
+    uri: https://github.com
