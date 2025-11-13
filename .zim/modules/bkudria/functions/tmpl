@@ -1,0 +1,48 @@
+# -*- mode: sh; -*-
+
+local subcommand=$1
+shift
+
+case "$subcommand" in
+new)
+    if [[ $# -lt 1 ]]; then
+        echo "Usage: tmpl new <path>" >&2
+        return 1
+    fi
+    local destination=$1
+    shift 1
+    command copier copy "$@" "$(command realpath ~/templates/template)" ~/templates/"$destination"
+    ;;
+copy)
+    if [[ $# -lt 2 ]]; then
+        echo "Usage: tmpl copy <template-path> <destination> [ARGS...]" >&2
+        return 1
+    fi
+    local template=$1
+    local destination=$2
+    shift 2
+    command copier copy "$@" "$(command realpath ~/templates/$template)" ~/code/"$destination"
+    ;;
+update)
+    if [[ $# -lt 1 ]]; then
+        echo "Usage: tmpl update <template-path> [ARGS...]" >&2
+        return 1
+    fi
+    local template=$1
+    shift 1
+    # Convert a/b/c to .a.b.c.yaml
+    local answers_file=".${template//\//.}.yaml"
+    if [[ ! -f "$answers_file" ]]; then
+        echo "Error: Answers file '$answers_file' not found in current directory" >&2
+        return 1
+    fi
+    command copier update -a "$answers_file" "$@" .
+    ;;
+*)
+    echo "Usage: tmpl <new|copy|update> ..." >&2
+    echo "  tmpl new <destination>                      - Create new template" >&2
+    echo "  tmpl copy <template> <destination> ...      - Copy template" >&2
+    echo "  tmpl update <template> ...                  - Update template" >&2
+    return 1
+    ;;
+esac

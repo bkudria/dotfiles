@@ -1,0 +1,39 @@
+#compdef tmpl
+
+local -a subcommands
+subcommands=(
+    'new:Create new template from base template'
+    'copy:Copy template to destination'
+    'update:Update template in place'
+)
+
+local curcontext="$curcontext" state line
+typeset -A opt_args
+
+_arguments -C \
+    '1: :->subcommand' \
+    '*::arg:->args'
+
+case $state in
+subcommand)
+    _describe -t commands 'tmpl subcommand' subcommands
+    ;;
+args)
+    case $line[1] in
+    new)
+        _arguments '1:template path:_files -W ~/templates -/'
+        ;;
+    copy)
+        _arguments \
+            '1:template path:_files -W ~/templates -/' \
+            '2:destination:_files -W ~/code -/' \
+            '*:additional arguments:'
+        ;;
+    update)
+        _arguments \
+            '1:template path:_files -W ~/templates -/' \
+            '*:additional arguments:'
+        ;;
+    esac
+    ;;
+esac
