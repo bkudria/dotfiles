@@ -1,15 +1,6 @@
-#!/usr/bin/env zsh
-# Compresses JSON by reducing arrays to their first element while preserving structure
-# Useful for creating sample/template data from large JSON files
-
-json-squish() {
-  jq '
-    def w:
-      arrays |= .[:1] |
-      iterables[] |= w;
-    w
-  ' "$@"
-}
-
-# Make function available immediately when sourced
-json-squish "$@"
+jq '
+  def w:
+    arrays |= .[:1] |
+    iterables[] |= w;
+  w
+' "$@"

@@ -47,7 +47,6 @@ zmodule joke/zim-yq # Sets up yq in zsh.
 
 zmodule kiesman99/zim-zoxide # Sets up zoxide in zsh.
 
-
 # Auto start a session when Zsh is launched in a local terminal.
 zmodule sorin-ionescu/prezto -n tmux --root modules/tmux -c "zstyle ':prezto:module:tmux:auto-start' local 'yes'"
 
@@ -86,5 +85,10 @@ zmodule marlonrichert/zsh-autocomplete -c "zstyle -e ':autocomplete:*:*' list-li
 zmodule marlonrichert/zsh-autocomplete
 zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect  '^[[D' .backward-char  '^[OD' .backward-char"
 zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect  '^[[C' .forward-char  '^[OC'  .forward-char"
+zmodule marlonrichert/zsh-autocomplete -c "bindkey              '^I' menu-complete"
+zmodule marlonrichert/zsh-autocomplete -c 'bindkey "$terminfo[kcbt]" menu-complete'
+zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect              '^I'         menu-complete"
+zmodule marlonrichert/zsh-autocomplete -c 'bindkey -M menuselect "$terminfo[kcbt]" reverse-menu-complete'
+# zmodule marlonrichert/zsh-autocomplete -c ""
 
 zmodule zsh-users/zsh-autosuggestions # Fish-like autosuggestions for Zsh.

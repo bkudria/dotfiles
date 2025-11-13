@@ -5,13 +5,14 @@ shift
 
 case "$subcommand" in
 new)
-    if [[ $# -lt 1 ]]; then
-        echo "Usage: tmpl new <path>" >&2
+    if [[ $# -lt 2 ]]; then
+        echo "Usage: tmpl new <template> <destination>" >&2
         return 1
     fi
-    local destination=$1
-    shift 1
-    command copier copy "$@" "$(command realpath ~/templates/template)" ~/templates/"$destination"
+    local template=$1
+    local destination=$2
+    shift 2
+    command copier copy "$@" "$(command realpath ~/templates/$template)" ~/templates/"$destination"
     ;;
 copy)
     if [[ $# -lt 2 ]]; then
@@ -40,7 +41,7 @@ update)
     ;;
 *)
     echo "Usage: tmpl <new|copy|update> ..." >&2
-    echo "  tmpl new <destination>                      - Create new template" >&2
+    echo "  tmpl new <template> <destination>           - Create new template" >&2
     echo "  tmpl copy <template> <destination> ...      - Copy template" >&2
     echo "  tmpl update <template> ...                  - Update template" >&2
     return 1

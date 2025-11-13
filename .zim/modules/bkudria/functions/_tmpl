@@ -21,7 +21,9 @@ subcommand)
 args)
     case $line[1] in
     new)
-        _arguments '1:template path:_files -W ~/templates -/'
+        _arguments \
+            '1:template path:_files -W ~/templates -/' \
+            '2:destination:_files -W ~/templates -/'
         ;;
     copy)
         _arguments \
