@@ -69,14 +69,17 @@
 (setq scroll-preserve-screen-position t
       scroll-conservatively 0
       maximum-scroll-margin 0.5
-      scroll-margin 99999)
+      scroll-margin 200)
 
 (global-subword-mode)
 
 (map!
  :leader
- :desc "directory" "-"     #'dired-jump
+ :desc "directory" "-"     #'dirvish
  :desc "other"     "<tab>" #'evil-switch-to-windows-last-buffer
+ :prefix "f"
+ :desc "yank file path from project"     "y" #'+default/yank-buffer-path-relative-to-project
+ :desc "yank file path"                  "Y" #'+default/yank-buffer-path
  )
 
 (defun evil-join-reverse ()
@@ -98,6 +101,8 @@
 (map! :n "K" #'evil-join-reverse)
 
 (move-text-default-bindings)
+
+
 
 (use-package! rainbow-identifiers
   :custom  (rainbow-identifiers-choose-face-function 'rainbow-identifiers-cie-l*a*b*-choose-face)
@@ -126,7 +131,6 @@
    ("gr" . evil-replace-with-register)
    :map evil-visual-state-map
    ("gr" . evil-replace-with-register)))
-
 
 (use-package emacs-everywhere
   :bind
@@ -161,6 +165,23 @@
   :config
   (setq lsp-disabled-clients '(semgrep-ls rubocop-ls)))
 
+(use-package! evil-textobj-line
+  :config
+  (setq evil-textobj-line-i-key "l")
+  (setq evil-textobj-line-a-key "l")
+  )
+
+(use-package! dirvish
+  :custom
+  (dirvish-quick-access-entries
+   '(
+     ("d" "~/Downloads/"                "Downloads")
+     ("c" "~/code/"                     "Code")
+     ("t" "~/templates/"                "Templates")))
+  :config
+  (dirvish-peek-mode)
+  (setq dirvish-default-layout '(3 0.15 0))
+  )
 
 (after! magit
   (add-hook 'after-save-hook 'magit-after-save-refresh-status)

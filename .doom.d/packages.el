@@ -13,6 +13,7 @@
 (package! evil-extra-operator)
 (package! evil-surround)
 (package! evil-matchit)
+(package! evil-textobj-line)
 ;; (package! mini-frame)
 (package! jsonnet-mode)
 (package! protobuf-mode)
