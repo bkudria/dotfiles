@@ -7,7 +7,7 @@
 	editor = vim
 	pager = delta
 	whitespace = trailing-space,space-before-tab,cr-at-eol
-	excludesfile = /Users/bkudria/.gitignore_global
+	excludesfile = /opt/me/.gitignore_global
 [push]
 	default = simple
 	all = true
