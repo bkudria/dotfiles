@@ -34,16 +34,6 @@
   `(org-date          :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :underline t)
   `(org-document-info :background ,(doom-color 'bg) :foreground ,(doom-color 'base5)   :weight bold)
   `(org-table         :background ,(doom-color 'bg) :foreground ,(doom-color 'base5))
-
-  `(org-level-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
-  `(org-level-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
-  `(org-level-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
-  `(org-level-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
-  `(org-level-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
-  `(org-level-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
-  `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'red)     :weight normal)
-
-
   `(org-modern-label               :height 1.0 :weight bold)
 
   `(org-modern-progress-incomplete :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'orange) :weight semi-light)
@@ -51,8 +41,6 @@
 
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
-
-
 
   `(cursor                  :background ,(doom-color 'yellow))
   `(shadow                  :background ,(doom-color 'bg) :foreground ,(doom-color 'base7) :weight ultralight)
@@ -73,6 +61,13 @@
 
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
+
+  `(markdown-header-face-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
+  `(markdown-header-face-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
+  `(markdown-header-face-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
+  `(markdown-header-face-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
+  `(markdown-header-face-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
+  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
   )
 
 (custom-theme-set-faces! 'doom-gruvbox-light
@@ -117,7 +112,6 @@
   `(org-level-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
   `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'red)     :weight normal)
 
-
   `(org-modern-label               :height 1.0 :weight bold)
 
   `(org-modern-progress-incomplete :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'orange) :weight semi-light)
@@ -126,28 +120,25 @@
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
 
-
-
   `(cursor                  :background ,(doom-color 'teal))
   `(shadow                  :background ,(doom-color 'bg) :foreground ,(doom-color 'base7) :weight ultralight)
 
   `(org-headline-done :overline nil :weight light :extend t)
   `(org-headline-todo :overline nil :weight light :extend t)
 
-  `(org-level-1  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'fg-alt)  :weight ultraheavy)
-  `(org-level-2  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'fg)      :weight heavy)
-  `(org-level-3  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'violet)  :weight extrabold)
-  `(org-level-4  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight bold)
-  `(org-level-5  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight demi)
-  `(org-level-6  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight medium)
-  `(org-level-7  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'teal)    :weight normal)
-  `(org-level-8  :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight normal)
-
   `(org-modern-progress-incomplete :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'orange) :weight semi-light)
   `(org-modern-done                :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'green) :weight semi-light)
 
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
+
+  `(markdown-header-face-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
+  `(markdown-header-face-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
+  `(markdown-header-face-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
+  `(markdown-header-face-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
+  `(markdown-header-face-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
+  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
+
   )
 
 
