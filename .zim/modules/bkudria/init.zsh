@@ -20,6 +20,9 @@ alias less=glow
 alias mcp-cli='npx wong2/mcp-cli'
 alias env='env | sort'
 
+alias rbbi='bundle install'
+alias rbbr='bundle exec rake'
+
 alias ll='eza -lF  --group-directories-first --icons auto'
 alias la='ll -a'
 alias lra='lr -a'
