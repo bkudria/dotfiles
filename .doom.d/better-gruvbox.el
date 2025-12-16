@@ -16,13 +16,13 @@
 
 (defvar bk/headline-colors-light
   '(
-    magenta
     blue
     cyan
     green
     yellow
     orange
     red
+    magenta
     )
   "Color sequence for headlines in light gruvbox mode (levels 1-7).")
 
@@ -92,6 +92,7 @@
   `(markdown-header-face-3       :extend t :height 1.3 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 2 bk/headline-colors-dark)) :weight extrabold)
   `(markdown-header-face-4       :extend t :height 1.2 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 3 bk/headline-colors-dark)) :weight bold)
   `(markdown-header-face-5       :extend t :height 1.1 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-dark)) :weight demi)
+  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-dark)) :weight medium)
   `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-dark)) :weight medium)
   )
 
