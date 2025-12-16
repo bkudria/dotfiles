@@ -8,6 +8,8 @@
   (load! "better-gruvbox.el")
   )
 
+(load! "markdown-evil-toggle.el")
+
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
 ;; clients, file templates and snippets.
 (setq user-full-name "Benjamin Kudria"
@@ -274,38 +276,4 @@
 
 (load-better-gruvbox)
 
-(after! markdown-mode
-  (defun bk/markdown-ensure-markup-hidden ()
-    "Ensure markdown markup is hidden in current buffer."
-    (when (and (derived-mode-p 'markdown-mode)
-               (not markdown-hide-markup)
-               (fboundp 'markdown-toggle-markup-hiding))
-      (markdown-toggle-markup-hiding 1)))
 
-  (defun bk/markdown-ensure-markup-shown ()
-    "Ensure markdown markup is shown in current buffer."
-    (when (and (derived-mode-p 'markdown-mode)
-               markdown-hide-markup
-               (fboundp 'markdown-toggle-markup-hiding))
-      (markdown-toggle-markup-hiding -1)))
-
-  (defun bk/markdown-sync-markup-to-evil-state ()
-    "Sync markup visibility to current evil state."
-    (when (derived-mode-p 'markdown-mode)
-      (if (memq evil-state '(insert replace))
-          (bk/markdown-ensure-markup-shown)
-        (bk/markdown-ensure-markup-hidden))))
-
-  (add-hook 'markdown-mode-hook
-            (defun bk/markdown-setup-evil-markup-hiding ()
-              "Setup evil state-dependent markup hiding for markdown."
-              ;; Buffer-local hooks for state transitions
-              (add-hook 'evil-normal-state-entry-hook #'bk/markdown-ensure-markup-hidden nil t)
-              (add-hook 'evil-visual-state-entry-hook #'bk/markdown-ensure-markup-hidden nil t)
-              (add-hook 'evil-insert-state-entry-hook #'bk/markdown-ensure-markup-shown nil t)
-              (add-hook 'evil-replace-state-entry-hook #'bk/markdown-ensure-markup-shown nil t)
-              ;; Handle evil activating after markdown-mode
-              (add-hook 'evil-local-mode-hook #'bk/markdown-sync-markup-to-evil-state nil t)
-              ;; Initialize if evil is already active
-              (when (bound-and-true-p evil-local-mode)
-                (bk/markdown-sync-markup-to-evil-state)))))

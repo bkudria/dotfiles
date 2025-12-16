@@ -1,6 +1,31 @@
 ;;; better-grubox.el -*- lexical-binding: t; -*-
 ;;; https://github.com/thriveth/Gruvbox-goodies/blob/master/Emacs/gruvbox-conf.el
 
+;; Headline color sequences - each index corresponds to headline level (0=level-1, etc.)
+(defvar bk/headline-colors-dark
+  '(
+    yellow
+    orange
+    red
+    magenta
+    blue
+    cyan
+    green
+    )
+  "Color sequence for headlines in dark gruvbox mode (levels 1-7).")
+
+(defvar bk/headline-colors-light
+  '(
+    magenta
+    blue
+    cyan
+    green
+    yellow
+    orange
+    red
+    )
+  "Color sequence for headlines in light gruvbox mode (levels 1-7).")
+
 (custom-theme-set-faces! 'doom-gruvbox
   `(line-number             :background ,(doom-color 'bg) :foreground ,(doom-color 'base4))
   `(link        :overline t :background ,(doom-color 'bg) :foreground ,(doom-color 'green))
@@ -48,13 +73,13 @@
   `(org-headline-done :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :overline nil :weight ultralight :extend t)
   `(org-headline-todo :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :overline nil :weight light :extend t)
 
-  `(org-level-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
-  `(org-level-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
-  `(org-level-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
-  `(org-level-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
-  `(org-level-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
-  `(org-level-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
-  `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'red)     :weight normal)
+  `(org-level-1       :extend t :height 1.13 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 0 bk/headline-colors-dark)) :weight ultraheavy)
+  `(org-level-2       :extend t :height 1.08 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 1 bk/headline-colors-dark)) :weight heavy)
+  `(org-level-3       :extend t :height 1.05 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 2 bk/headline-colors-dark)) :weight extrabold)
+  `(org-level-4       :extend t :height 1.03 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 3 bk/headline-colors-dark)) :weight bold)
+  `(org-level-5       :extend t :height 1.02 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-dark)) :weight demi)
+  `(org-level-6       :extend t :height 1.01 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-dark)) :weight medium)
+  `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 6 bk/headline-colors-dark)) :weight normal)
 
   `(org-modern-progress-incomplete :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'orange) :weight semi-light)
   `(org-modern-done                :height 1.0 :background ,(doom-color 'bg-alt) :foreground ,(doom-color 'green) :weight semi-light)
@@ -62,12 +87,12 @@
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
 
-  `(markdown-header-face-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
-  `(markdown-header-face-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
-  `(markdown-header-face-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
-  `(markdown-header-face-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
-  `(markdown-header-face-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
-  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
+  `(markdown-header-face-1       :extend t :height 1.8 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 0 bk/headline-colors-dark)) :weight ultraheavy)
+  `(markdown-header-face-2       :extend t :height 1.5 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 1 bk/headline-colors-dark)) :weight heavy)
+  `(markdown-header-face-3       :extend t :height 1.3 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 2 bk/headline-colors-dark)) :weight extrabold)
+  `(markdown-header-face-4       :extend t :height 1.2 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 3 bk/headline-colors-dark)) :weight bold)
+  `(markdown-header-face-5       :extend t :height 1.1 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-dark)) :weight demi)
+  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-dark)) :weight medium)
   )
 
 (custom-theme-set-faces! 'doom-gruvbox-light
@@ -104,13 +129,13 @@
   `(org-document-info :background ,(doom-color 'bg) :foreground ,(doom-color 'base5)   :weight bold)
   `(org-table         :background ,(doom-color 'bg) :foreground ,(doom-color 'base5))
 
-  `(org-level-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
-  `(org-level-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
-  `(org-level-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
-  `(org-level-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
-  `(org-level-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
-  `(org-level-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
-  `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'red)     :weight normal)
+  `(org-level-1       :extend t :height 1.13 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 0 bk/headline-colors-light)) :weight ultraheavy)
+  `(org-level-2       :extend t :height 1.08 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 1 bk/headline-colors-light)) :weight heavy)
+  `(org-level-3       :extend t :height 1.05 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 2 bk/headline-colors-light)) :weight extrabold)
+  `(org-level-4       :extend t :height 1.03 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 3 bk/headline-colors-light)) :weight bold)
+  `(org-level-5       :extend t :height 1.02 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-light)) :weight demi)
+  `(org-level-6       :extend t :height 1.01 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-light)) :weight medium)
+  `(org-level-7       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 6 bk/headline-colors-light)) :weight normal)
 
   `(org-modern-label               :height 1.0 :weight bold)
 
@@ -132,13 +157,12 @@
   `(org-modern-todo                :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'orange) :weight bold :inverse-video t)
   `(org-modern-progress-complete   :height 1.0 :background ,(doom-color 'bg) :foreground ,(doom-color 'green) :weight bold :inverse-video t)
 
-  `(markdown-header-face-1       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'magenta) :weight ultraheavy)
-  `(markdown-header-face-2       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'blue)    :weight heavy)
-  `(markdown-header-face-3       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'cyan)    :weight extrabold)
-  `(markdown-header-face-4       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'green)   :weight bold)
-  `(markdown-header-face-5       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'yellow)  :weight demi)
-  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color 'orange)  :weight medium)
-
+  `(markdown-header-face-1       :extend t :height 1.8 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 0 bk/headline-colors-light)) :weight ultraheavy)
+  `(markdown-header-face-2       :extend t :height 1.5 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 1 bk/headline-colors-light)) :weight heavy)
+  `(markdown-header-face-3       :extend t :height 1.3 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 2 bk/headline-colors-light)) :weight extrabold)
+  `(markdown-header-face-4       :extend t :height 1.2 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 3 bk/headline-colors-light)) :weight bold)
+  `(markdown-header-face-5       :extend t :height 1.1 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-light)) :weight demi)
+  `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-light)) :weight medium)
   )
 
 
