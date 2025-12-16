@@ -8,6 +8,7 @@
 
 ;; To install SOME-PACKAGE from MELPA, ELPA or emacsmirror:
 (package! rainbow-identifiers)
+(package! kdl-mode)
 (package! dimmer)
 (package! evil-replace-with-register)
 (package! evil-extra-operator)
@@ -39,10 +40,15 @@
 (package! golden
   :recipe (:type git :repo "https://git.sr.ht/~wklew/golden"))
 
+(package! monet
+  :recipe (:type git :repo "https://github.com/stevemolitor/monet"))
+
+(package! claude-code
+  :recipe (:type git :host github :repo "stevemolitor/claude-code.el" :branch "main" :depth 1
+           :files ("*.el" (:exclude "images/*"))))
+
 (package! yuescript
   :recipe (:type git :repo "https://github.com/bkudria/yuescript-mode"))
-
-(package! aidermacs :recipe (:host github :repo "MatthewZMD/aidermacs" :files ("*.el")))
 
 (package! auto-dark)
 

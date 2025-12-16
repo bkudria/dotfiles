@@ -65,6 +65,8 @@
 (setq initial-frame-alist '((fullscreen . maximized)))
 (setq server-client-instructions 'nil)
 (setq-default fill-column 140)
+(setq-default tab-width 2)
+(setq-default standard-indent 2)
 
 (setq scroll-preserve-screen-position t
       scroll-conservatively 0
@@ -77,10 +79,34 @@
  :leader
  :desc "directory" "-"     #'dirvish
  :desc "other"     "<tab>" #'evil-switch-to-windows-last-buffer
+
  :prefix "f"
  :desc "yank file path from project"     "y" #'+default/yank-buffer-path-relative-to-project
  :desc "yank file path"                  "Y" #'+default/yank-buffer-path
  )
+
+
+(use-package! claude-code
+  :config
+  ;; optional IDE integration with Monet
+  (add-hook 'claude-code-process-environment-functions #'monet-start-server-function)
+
+  (monet-mode 1)
+
+  (setq claude-code-terminal-backend 'vterm)
+
+
+  (claude-code-mode)
+
+  (map! :leader
+        :prefix "c"
+        :desc "+claude" "c" claude-code-command-map)
+
+  ;; Optionally define a repeat map so that "M" will cycle thru Claude auto-accept/plan/confirm modes after invoking claude-code-cycle-mode / C-c M.
+  ;; :bind
+  ;; (:repeat-map my-claude-code-map ("M" . claude-code-cycle-mode))
+  )
+
 
 (defun evil-join-reverse ()
   "Join current line with previous line, placing previous line after current."
@@ -102,6 +128,11 @@
 
 (move-text-default-bindings)
 
+
+(use-package! dired
+  :config
+  (setq dired-kill-when-opening-new-dired-buffer 't)
+  )
 
 
 (use-package! rainbow-identifiers
@@ -163,7 +194,9 @@
 
 (use-package! lsp-mode
   :config
-  (setq lsp-disabled-clients '(semgrep-ls rubocop-ls)))
+  (setq lsp-auto-guess-root 't)
+  (setq lsp-disabled-clients '(semgrep-ls rubocop-ls))
+  )
 
 (use-package! evil-textobj-line
   :config
@@ -187,31 +220,32 @@
   (add-hook 'after-save-hook 'magit-after-save-refresh-status)
   (setq magit-revision-show-gravatars '("^Author:     " . "^Commit:     ")))
 
-;; (use-package! magit-filenotify
-;;   :config
-;;   (add-hook 'magit-status-mode-hook 'magit-filenotify-mode)
-;;   )
-
 (use-package! gptel
   :config
+  (gptel-make-preset 'claude
+    :description "Anthropic Claude Models"
+    :backend "Claude"
 
-  ;; OPTIONAL configuration
+    :gptel-cache t
+    :gptel-backend (gptel-make-anthropic "Claude"
+                     :stream t
+                     :key gptel-api-key
+                     :header (lambda () (when-let* ((key (gptel--get-api-key)))
+                                          `(("x-api-key" . ,key)
+                                            ("anthropic-version" . "2023-06-01")
+                                            ("anthropic-beta" . "pdfs-2024-09-25")
+                                            ("anthropic-beta" . "output-128k-2025-02-19")
+                                            ("anthropic-beta" . "prompt-caching-2024-07-31"))))
+                     :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
+                                       :max_tokens 4096))
+    )
+  (gptel-make-preset 'sonnet
+    :description "Claude Sonnet"
+    :gptel-model 'claude-sonnet-4-5
+    )
   (setq
-   gptel-model 'claude-3-sonnet-20240229 ;  "claude-3-opus-20240229" also available
-   gptel-backend (gptel-make-anthropic "Claude" :stream t ))
-  (gptel-make-anthropic "Claude-thinking" ;Any name you want
-    :key "your-API-key"
-    :stream t
-    :models '(claude-3-7-sonnet-20250219)
-    :header (lambda () (when-let* ((key (gptel--get-api-key)))
-                         `(("x-api-key" . ,key)
-                           ("anthropic-version" . "2023-06-01")
-                           ("anthropic-beta" . "pdfs-2024-09-25")
-                           ("anthropic-beta" . "output-128k-2025-02-19")
-                           ("anthropic-beta" . "prompt-caching-2024-07-31"))))
-    :request-params '(:thinking (:type "enabled" :budget_tokens 2048)
-                      :max_tokens 4096))
-  )
+   gptel-default-mode #'org-mode
+   ))
 
 ;; Apply vertico-posframe customizations after the package loads
 (after! vertico-posframe
@@ -239,3 +273,39 @@
     (add-hook hook #'load-better-gruvbox -96)))
 
 (load-better-gruvbox)
+
+(after! markdown-mode
+  (defun bk/markdown-ensure-markup-hidden ()
+    "Ensure markdown markup is hidden in current buffer."
+    (when (and (derived-mode-p 'markdown-mode)
+               (not markdown-hide-markup)
+               (fboundp 'markdown-toggle-markup-hiding))
+      (markdown-toggle-markup-hiding 1)))
+
+  (defun bk/markdown-ensure-markup-shown ()
+    "Ensure markdown markup is shown in current buffer."
+    (when (and (derived-mode-p 'markdown-mode)
+               markdown-hide-markup
+               (fboundp 'markdown-toggle-markup-hiding))
+      (markdown-toggle-markup-hiding -1)))
+
+  (defun bk/markdown-sync-markup-to-evil-state ()
+    "Sync markup visibility to current evil state."
+    (when (derived-mode-p 'markdown-mode)
+      (if (memq evil-state '(insert replace))
+          (bk/markdown-ensure-markup-shown)
+        (bk/markdown-ensure-markup-hidden))))
+
+  (add-hook 'markdown-mode-hook
+            (defun bk/markdown-setup-evil-markup-hiding ()
+              "Setup evil state-dependent markup hiding for markdown."
+              ;; Buffer-local hooks for state transitions
+              (add-hook 'evil-normal-state-entry-hook #'bk/markdown-ensure-markup-hidden nil t)
+              (add-hook 'evil-visual-state-entry-hook #'bk/markdown-ensure-markup-hidden nil t)
+              (add-hook 'evil-insert-state-entry-hook #'bk/markdown-ensure-markup-shown nil t)
+              (add-hook 'evil-replace-state-entry-hook #'bk/markdown-ensure-markup-shown nil t)
+              ;; Handle evil activating after markdown-mode
+              (add-hook 'evil-local-mode-hook #'bk/markdown-sync-markup-to-evil-state nil t)
+              ;; Initialize if evil is already active
+              (when (bound-and-true-p evil-local-mode)
+                (bk/markdown-sync-markup-to-evil-state)))))
