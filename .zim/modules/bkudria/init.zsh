@@ -27,6 +27,8 @@ alias ll='eza -lF  --group-directories-first --icons auto'
 alias la='ll -a'
 alias lra='lr -a'
 
+unalias gh
+
 # Set EZA options for the exa module
 export EZA_ICON_SPACING=2
 
