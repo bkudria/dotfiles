@@ -8,8 +8,8 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 [[ -f ~/.vterm.zsh ]] && source ~/.vterm.zsh
 
 # Environment variables
-export EDITOR='emacsclient -q -r'
-export VISUAL='emacsclient -q -r'
+export EDITOR='emacs-client-frame'
+export VISUAL='emacs-client-frame'
 # export PAGE=glow
 # export TERM=xterm-256color
 # export GOPATH=~/.go
