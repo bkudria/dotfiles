@@ -88,6 +88,11 @@
  )
 
 
+(use-package! markdown-mode
+  :config
+  (add-hook 'markdown-mode-hook #'valign-mode)
+  )
+
 (use-package! claude-code
   :config
   ;; optional IDE integration with Monet
