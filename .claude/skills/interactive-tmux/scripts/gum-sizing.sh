@@ -106,9 +106,32 @@ _calculate_choose_filter_sizing() {
 
     gum_item_count=$item_count
 
+    # Count actual visual lines (multi-line items like descriptions take >1 line each)
+    local visual_lines=0
+    local skip_next_v=false
+    for (( i=2; i<${#args[@]}; i++ )); do
+        if [[ "$skip_next_v" == true ]]; then
+            skip_next_v=false
+            continue
+        fi
+        case "${args[$i]}" in
+            --header|--cursor|--cursor-prefix|--selected-prefix|--unselected-prefix|--height|--limit|--timeout|--cursor.foreground|--header.foreground|--item.foreground|--selected.foreground|--label-delimiter)
+                skip_next_v=true
+                ;;
+            --*)
+                ;;
+            *)
+                # Count newlines in this option string + 1 for the line itself
+                local newline_count
+                newline_count=$(printf '%s' "${args[$i]}" | grep -c $'\n' || true)
+                visual_lines=$((visual_lines + newline_count + 1))
+                ;;
+        esac
+    done
+
     # Pane needs room for: items + header(1) + help line(1) + prompt(1) + margins(3)
     local padding=6
-    local desired=$((item_count + padding))
+    local desired=$((visual_lines + padding))
 
     local min_lines=5
     local max_lines=$((window_height * 80 / 100))
@@ -122,8 +145,11 @@ _calculate_choose_filter_sizing() {
         pane_lines=$desired
     fi
 
-    # gum --height = visible items = pane_lines - padding
+    # gum --height = visible item lines = pane_lines - padding
     gum_height=$((pane_lines - padding))
+    if [[ $gum_height -lt $visual_lines ]]; then
+        gum_height=$visual_lines
+    fi
     if [[ $gum_height -lt 1 ]]; then
         gum_height=1
     fi
