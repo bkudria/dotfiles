@@ -30,6 +30,8 @@ Use this skill when you need to run interactive TUI commands that require user i
 | `start-interaction.sh` | Start a persistent pane for multiple commands |
 | `run-interaction.sh` | Run a command in an existing interaction |
 | `end-interaction.sh` | Close an interaction pane |
+| `session-lib.sh` | Shared session lifecycle (create/destroy pane + runner) |
+| `gum-sizing.sh` | Shared library for dynamic pane/gum height calculation |
 
 ## Basic Usage (One-off Commands)
 
@@ -92,7 +94,9 @@ name=$("$ASK/ask-input.sh" --header "Name")
 
 ## Behavior
 
+- **Dynamic pane sizing**: For `gum choose`/`gum filter`, automatically sizes the pane height and gum `--height` to match the number of options (capped at 80% of window height). Works for both one-off panes and interactions (pane resizes between questions).
 - **Auto-detects terminal orientation**: Splits horizontally (side-by-side) in landscape mode, vertically (stacked) in portrait mode
+- **Nesting prevention**: Scripts that call `run-interactive.sh` internally (like `advanced-ask` scripts) can themselves be wrapped in `run-interactive.sh` without creating double panes
 - **Clean UX**: The user only sees the TUI, not any setup commands
 - **Auto-closes**: One-off panes close automatically; interactions close when ended
 - **Captures output**: Returns stdout from the command

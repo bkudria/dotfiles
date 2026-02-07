@@ -7,92 +7,68 @@
 # runs in that existing pane. Otherwise, creates a one-off pane.
 #
 # Automatically detects terminal aspect ratio and splits accordingly:
-#   - Landscape (wide): horizontal split (side by side)
-#   - Portrait (tall): vertical split (stacked)
+#   - Landscape (wide): horizontal split (side by side), 50% width
+#   - Portrait (tall): vertical split (stacked), dynamic height
+#
+# For gum choose/filter commands, automatically sizes the pane and sets
+# --height to match the number of options (clamped to 20%-80% of window).
 #
 # Outputs the command's stdout and exits with the command's exit code.
 
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/gum-sizing.sh"
+source "$SCRIPT_DIR/session-lib.sh"
 
 if [ $# -eq 0 ]; then
     echo "Usage: run-interactive.sh <command> [args...]" >&2
     exit 1
 fi
 
-# If we're already inside an interactive-tmux pane, just run the command directly
+# Path 1: Nesting prevention
+# If we're already inside an interactive-tmux pane, resize + run directly
 # (prevents double-pane nesting when scripts like ask-choose.sh call us internally)
 if [[ "${INTERACTIVE_TMUX_PANE:-}" == "1" ]]; then
+    if calculate_gum_sizing "$@"; then
+        # Resize the current pane to fit
+        tmux resize-pane -y "$pane_lines" 2>/dev/null || true
+        # Inject --height for choose/filter commands
+        if [[ -n "${gum_height:-}" ]]; then
+            inject_gum_height "$gum_height" "$@"
+            exec "${injected_args[@]}"
+        fi
+    fi
     exec "$@"
 fi
 
-# Check if there's an active interaction we should use
+# Path 2: Active interaction delegation
 active_interaction=$(tmux show-environment -g ACTIVE_INTERACTION_ID 2>/dev/null | cut -d= -f2- || echo "")
 
 if [[ -n "$active_interaction" && -f "/tmp/$active_interaction.dir" ]]; then
-    # Use the existing interaction pane
     exec "$SCRIPT_DIR/run-interaction.sh" "$active_interaction" "$@"
 fi
 
-# No active interaction - create a one-off pane (original behavior)
-
-# Get current pane dimensions
-width=$(tmux display-message -p '#{pane_width}')
-height=$(tmux display-message -p '#{pane_height}')
-
-# Character aspect ratio adjustment (chars are ~2x taller than wide)
-char_ratio=2
-
-# Determine split direction based on physical aspect ratio
-# If width > height * char_ratio, terminal is landscape → horizontal split
-if [ "$width" -gt $((height * char_ratio)) ]; then
-    split_flag="-h"
-else
-    split_flag="-v"
+# Path 3: One-off command via unified session lifecycle
+size_flag=""
+if calculate_gum_sizing "$@"; then
+    # Check split direction to decide if size_flag applies
+    local_width=$(tmux display-message -p '#{pane_width}')
+    local_height=$(tmux display-message -p '#{pane_height}')
+    if [ "$local_width" -le $((local_height * 2)) ]; then
+        # Portrait mode: set pane height directly
+        size_flag="-l $pane_lines"
+    fi
 fi
 
-# Generate unique channel name for this invocation
-channel="interactive-$$-$RANDOM"
+id=$(create_session "$size_flag")
+trap 'destroy_session "$id"' EXIT
 
-# Create a temporary script that will run in the pane
-# This keeps the pane clean - user only sees the TUI, not our bookkeeping
-wrapper_script=$(mktemp)
-cat > "$wrapper_script" << 'WRAPPER_EOF'
-#!/bin/bash
-export INTERACTIVE_TMUX_PANE=1
-channel="$1"
-shift
-clear
-__result=$("$@")
-__exit_code=$?
-tmux set-environment -g INTERACTIVE_RESULT "$__result"
-tmux set-environment -g INTERACTIVE_EXIT_CODE "$__exit_code"
-tmux wait-for -S "$channel"
-WRAPPER_EOF
-chmod +x "$wrapper_script"
+set +e
+"$SCRIPT_DIR/run-interaction.sh" "$id" "$@"
+run_exit=$?
+set -e
 
-# Create the pane running our wrapper script
-# The pane will close automatically when the wrapper exits
-pane=$(tmux split-window $split_flag -P -F '#{pane_id}' "$wrapper_script" "$channel" "$@")
-
-# Wait for the command to complete (blocks until user interaction finishes)
-tmux wait-for "$channel"
-
-# Retrieve results from tmux environment
-result=$(tmux show-environment -g INTERACTIVE_RESULT 2>/dev/null | cut -d= -f2- || echo "")
-exit_code=$(tmux show-environment -g INTERACTIVE_EXIT_CODE 2>/dev/null | cut -d= -f2- || echo "0")
-
-# Clean up: kill the pane (should already be closed, but just in case)
-tmux kill-pane -t "$pane" 2>/dev/null || true
-
-# Clean up: remove environment variables and temp script
-tmux set-environment -g -u INTERACTIVE_RESULT 2>/dev/null || true
-tmux set-environment -g -u INTERACTIVE_EXIT_CODE 2>/dev/null || true
-rm -f "$wrapper_script"
-
-# Output the result
-echo "$result"
-
-# Exit with the command's exit code
-exit "${exit_code:-0}"
+destroy_session "$id"
+trap - EXIT
+exit "$run_exit"
