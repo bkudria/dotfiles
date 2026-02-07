@@ -1,12 +1,18 @@
 ---
 name: interactive-tmux
 description: Run interactive TUI commands (like gum, fzf, etc.) in a tmux pane and capture their output. Use when you need user input from an interactive terminal UI. Supports persistent interactions for multi-command sequences.
-allowed-tools: Bash
 ---
 
 # Interactive Tmux
 
 Use this skill when you need to run interactive TUI commands that require user input and capture the result. This is essential for commands like `gum choose`, `gum input`, `fzf`, or any other interactive terminal application.
+
+## Dependencies
+
+| Dependency | Required | Notes |
+|------------|----------|-------|
+| `tmux` | Yes | Must be running inside a tmux session |
+| `gum`, `fzf`, etc. | No | The TUI commands themselves — install whichever ones are needed |
 
 ## When to Use
 
@@ -34,17 +40,23 @@ Use this skill when you need to run interactive TUI commands that require user i
 ### Examples
 
 ```bash
+SCRIPTS=~/.claude/skills/interactive-tmux/scripts
+
 # Get user choice from a list
-~/.claude/skills/interactive-tmux/scripts/run-interactive.sh gum choose "option1" "option2" "option3"
+framework=$("$SCRIPTS/run-interactive.sh" gum choose "React" "Vue" "Svelte" "Angular")
 
 # Get text input from user
-~/.claude/skills/interactive-tmux/scripts/run-interactive.sh gum input --placeholder "Enter your name"
+project_name=$("$SCRIPTS/run-interactive.sh" gum input --placeholder "Enter project name")
 
-# Get confirmation
-~/.claude/skills/interactive-tmux/scripts/run-interactive.sh gum confirm "Are you sure?"
+# Get confirmation (check exit code)
+if "$SCRIPTS/run-interactive.sh" gum confirm "Delete all test fixtures?"; then
+    echo "User confirmed"
+else
+    echo "User declined"
+fi
 
 # Use fzf to select a file
-~/.claude/skills/interactive-tmux/scripts/run-interactive.sh fzf
+file=$("$SCRIPTS/run-interactive.sh" fzf --preview 'cat {}')
 ```
 
 ## Interactions (Multiple Commands, Same Pane)
@@ -58,9 +70,9 @@ SCRIPTS=~/.claude/skills/interactive-tmux/scripts
 id=$("$SCRIPTS/start-interaction.sh")
 
 # Run multiple commands - pane stays open!
-result1=$("$SCRIPTS/run-interactive.sh" gum choose "a" "b" "c")
-result2=$("$SCRIPTS/run-interactive.sh" gum input --placeholder "Name")
-result3=$("$SCRIPTS/run-interactive.sh" gum confirm "Proceed?")
+db_type=$("$SCRIPTS/run-interactive.sh" gum choose "PostgreSQL" "MySQL" "SQLite")
+db_name=$("$SCRIPTS/run-interactive.sh" gum input --placeholder "Database name")
+"$SCRIPTS/run-interactive.sh" gum confirm "Create $db_type database '$db_name'?"
 
 # End interaction (closes pane)
 "$SCRIPTS/end-interaction.sh" "$id"
@@ -86,22 +98,3 @@ name=$("$ASK/ask-input.sh" --header "Name")
 - **Captures output**: Returns stdout from the command
 - **Preserves exit code**: Exits with the same exit code as the command
 - **Auto-detects interactions**: `run-interactive.sh` reuses active interactions
-
-## Output
-
-The script outputs the command's stdout and exits with the command's exit code:
-
-```bash
-result=$(~/.claude/skills/interactive-tmux/scripts/run-interactive.sh gum choose "a" "b" "c")
-echo "User chose: $result"
-```
-
-Check exit code for commands like `gum confirm`:
-
-```bash
-if ~/.claude/skills/interactive-tmux/scripts/run-interactive.sh gum confirm "Proceed?"; then
-    echo "User confirmed"
-else
-    echo "User declined"
-fi
-```

@@ -38,6 +38,7 @@ mkfifo "$interaction_dir/cmd_fifo"
 runner_script="$interaction_dir/runner.sh"
 cat > "$runner_script" << 'RUNNER_EOF'
 #!/bin/bash
+export INTERACTIVE_TMUX_PANE=1
 interaction_dir="$1"
 interaction_id="$2"
 

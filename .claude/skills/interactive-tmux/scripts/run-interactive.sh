@@ -21,6 +21,12 @@ if [ $# -eq 0 ]; then
     exit 1
 fi
 
+# If we're already inside an interactive-tmux pane, just run the command directly
+# (prevents double-pane nesting when scripts like ask-choose.sh call us internally)
+if [[ "${INTERACTIVE_TMUX_PANE:-}" == "1" ]]; then
+    exec "$@"
+fi
+
 # Check if there's an active interaction we should use
 active_interaction=$(tmux show-environment -g ACTIVE_INTERACTION_ID 2>/dev/null | cut -d= -f2- || echo "")
 
@@ -54,6 +60,7 @@ channel="interactive-$$-$RANDOM"
 wrapper_script=$(mktemp)
 cat > "$wrapper_script" << 'WRAPPER_EOF'
 #!/bin/bash
+export INTERACTIVE_TMUX_PANE=1
 channel="$1"
 shift
 clear

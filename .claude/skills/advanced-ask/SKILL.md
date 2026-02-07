@@ -1,6 +1,6 @@
 ---
 name: advanced-ask
-description: This skill should be used when the built-in AskUserQuestion tool is insufficient - specifically when needing to ask more than 4 questions, present more than 4 options, get direct text input without "Other" workaround, pick files/directories, or fuzzy-filter through long lists. Complements gum and interactive-tmux skills.
+description: This skill should be used when the built-in AskUserQuestion tool is insufficient - specifically when needing to ask more than 4 questions, present more than 4 options, get direct text input without "Other" workaround, pick files/directories, or fuzzy-filter through long lists. IMPORTANT - when any AskUserQuestion limit is hit (>4 options, >4 questions, need text input, need file picker), automatically use this skill instead of degrading the question. Complements gum and interactive-tmux skills.
 ---
 
 # Advanced Ask
@@ -21,7 +21,7 @@ Use `advanced-ask` when `AskUserQuestion` cannot handle the scenario:
 | Fuzzy filter list | No | Yes (`ask-filter`) |
 | Custom confirm labels | No | Yes (`ask-confirm`) |
 
-**Prefer AskUserQuestion** for simple cases (≤4 questions, ≤4 options) as it has better integration with Claude Code's UI.
+**Prefer AskUserQuestion** for simple cases (≤4 questions, ≤4 options) as it has better integration with Claude Code's UI. When AskUserQuestion limits are hit, switch to this skill automatically — do not degrade the question to fit AskUserQuestion's constraints.
 
 ## Quick Reference
 
@@ -89,9 +89,12 @@ Note: Uses `fzf` instead of `gum file` due to [gum display bugs](https://github.
 ~/.claude/skills/advanced-ask/scripts/ask-filter.sh --header "Search" \
     "item1" "item2" "item3" ...
 
-# From stdin
-git branch | ~/.claude/skills/advanced-ask/scripts/ask-filter.sh --header "Select branch"
+# From stdin (e.g., git branches, docker containers, file lists)
+git branch --format='%(refname:short)' | \
+    ~/.claude/skills/advanced-ask/scripts/ask-filter.sh --header "Select branch"
 ```
+
+See [references/patterns.md](references/patterns.md) for more dynamic option examples (docker containers, npm packages, etc.).
 
 ### Confirmation
 ```bash
@@ -117,6 +120,8 @@ git branch | ~/.claude/skills/advanced-ask/scripts/ask-filter.sh --header "Selec
 }'
 # Returns JSON: {"name": "...", "lang": "...", "features": [...], "desc": "..."}
 ```
+
+For multi-step wizards, conditional follow-ups, and progressive disclosure forms, see [references/patterns.md](references/patterns.md).
 
 ## Script Reference
 
@@ -152,50 +157,16 @@ git branch | ~/.claude/skills/advanced-ask/scripts/ask-filter.sh --header "Selec
 
 ## Form JSON Schema
 
+For the complete schema reference with all fields and a full-featured example, see [references/form-schema.md](references/form-schema.md).
+
+Quick inline example:
+
 ```json
 {
   "questions": [
-    {
-      "question": "Display text for the question",
-      "type": "input|choose|multi|write|file|filter|confirm",
-      "key": "result_key_name",
-      "options": ["for choose/multi/filter types"],
-      "placeholder": "optional hint text",
-      "default": "optional default value",
-      "yes": "optional yes label (confirm only)",
-      "no": "optional no label (confirm only)",
-      "descriptions": true,
-      "other": true,
-      "skippable": true,
-      "chattable": true,
-      "limit": 3
-    }
-  ]
-}
-```
-
-### Form Options (choose/multi types)
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `descriptions` | boolean | Parse options as "label\|description" |
-| `other` | boolean | Add "Other..." for custom input |
-| `skippable` | boolean | Add "Skip" option |
-| `chattable` | boolean | Add "Chat about this" (exits form with code 2) |
-| `limit` | number | (multi only) Max selections |
-
-Example with descriptions:
-```json
-{
-  "questions": [
-    {
-      "question": "Favorite language?",
-      "type": "choose",
-      "key": "lang",
-      "descriptions": true,
-      "other": true,
-      "options": ["Python|Great for scripting", "Go|Fast compiled", "Rust|Memory safe"]
-    }
+    {"question": "Project name?", "type": "input", "key": "name"},
+    {"question": "Language?", "type": "choose", "options": ["TypeScript", "Python", "Go"], "key": "lang"},
+    {"question": "Features?", "type": "multi", "options": ["Tests", "CI", "Docker"], "key": "features"}
   ]
 }
 ```
@@ -211,4 +182,7 @@ This skill depends on:
 
 ## Additional Resources
 
-For advanced patterns and examples, see [references/patterns.md](references/patterns.md).
+| File | Purpose |
+|------|---------|
+| [references/patterns.md](references/patterns.md) | Advanced patterns: conditional follow-ups, validation loops, wizards with back navigation, dynamic options |
+| [references/form-schema.md](references/form-schema.md) | Complete form JSON schema with all fields and examples |
