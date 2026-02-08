@@ -123,7 +123,7 @@ _calculate_choose_filter_sizing() {
             *)
                 # Count newlines in this option string + 1 for the line itself
                 local newline_count
-                newline_count=$(printf '%s' "${args[$i]}" | grep -c $'\n' || true)
+                newline_count=$(printf '%s' "${args[$i]}" | wc -l | tr -d ' ')
                 visual_lines=$((visual_lines + newline_count + 1))
                 ;;
         esac
@@ -145,10 +145,15 @@ _calculate_choose_filter_sizing() {
         pane_lines=$desired
     fi
 
-    # gum --height = visible item lines = pane_lines - padding
-    gum_height=$((pane_lines - padding))
-    if [[ $gum_height -lt $visual_lines ]]; then
-        gum_height=$visual_lines
+    # gum --height = number of visible ITEMS (not terminal lines).
+    # Convert available terminal lines to item count based on lines-per-item.
+    local available_lines=$((pane_lines - padding))
+    if [[ $visual_lines -gt 0 && $visual_lines -gt $item_count ]]; then
+        # Multi-line items: scale down to number of items that fit
+        gum_height=$((available_lines * item_count / visual_lines))
+    else
+        # Single-line items: 1 item = 1 line
+        gum_height=$available_lines
     fi
     if [[ $gum_height -lt 1 ]]; then
         gum_height=1

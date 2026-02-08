@@ -83,11 +83,27 @@ ask_once() {
 
     if [[ "$with_descriptions" == true ]]; then
         cmd+=(--label-delimiter="|")
+
+        # Wrap descriptions to fit the terminal width (with a readability cap)
+        # TODO: For side-by-side (landscape) splits, pane width is ~half window
+        # width. Query actual pane width inside the interactive pane instead.
+        local wrap_width
+        local window_width
+        window_width=$(tmux display-message -p '#{window_width}' 2>/dev/null || echo 80)
+        local effective=$((window_width - 6))  # 6 = cursor(2) + indent(4)
+        if [[ $effective -gt 120 ]]; then
+            wrap_width=120
+        else
+            wrap_width=$effective
+        fi
+
         for opt in "${options[@]}"; do
             if [[ "$opt" == *"|"* ]]; then
                 local label="${opt%%|*}"
                 local desc="${opt#*|}"
-                formatted_options+=("$(printf '%s\n    %s|%s' "$label" "$desc" "$label")")
+                local wrapped
+                wrapped=$(printf '%s' "$desc" | fmt -w "$wrap_width" | awk 'NR>1{$0="    "$0} {print}')
+                formatted_options+=("$(printf '%s\n    %s|%s' "$label" "$wrapped" "$label")")
             else
                 formatted_options+=("${opt}|${opt}")
             fi
@@ -111,6 +127,7 @@ ask_once() {
         fi
     fi
 
+    cmd+=("--")
     cmd+=("${formatted_options[@]}")
     "$RUN_INTERACTIVE" "${cmd[@]}"
 }

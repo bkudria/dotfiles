@@ -123,6 +123,7 @@ ask_once() {
         fi
     fi
 
+    cmd+=("--")
     cmd+=("${formatted_options[@]}")
     "$RUN_INTERACTIVE" "${cmd[@]}"
 }
@@ -177,7 +178,7 @@ while true; do
         # Build context header showing the question and what was already selected
         other_header="${header:-Enter your choice}"
         if [[ ${#normal_choices[@]} -gt 0 ]]; then
-            selected_list=$(printf '%s, ' "${normal_choices[@]}")
+            selected_list=$(printf '%s, ' ${normal_choices[@]+"${normal_choices[@]}"})
             selected_list="${selected_list%, }"  # Remove trailing comma
             other_header="$other_header"$'\n'"Already selected: $selected_list"
         fi
@@ -188,7 +189,7 @@ while true; do
     fi
 
     # Output all normal choices (skip just means no special handling needed)
-    for choice in "${normal_choices[@]}"; do
+    for choice in ${normal_choices[@]+"${normal_choices[@]}"}; do
         echo "$choice"
     done
     exit 0
