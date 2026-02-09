@@ -48,19 +48,22 @@ Run `TaskList` to check for existing progress from a previous invocation or comp
 **Before each item**, run `TaskList` to confirm current state. Then for each pending item:
 
 1. **Mark in-progress**: `TaskUpdate` the task to `in_progress`
-2. **Restate** the problem and proposed improvement with complete detail and context, incorporating any user-provided guidance
-3. **Assess complexity**:
-   - **3a. Trivial changes:**
-     - Ask a quick confirmation question; implement on approval
-     - On decline: `TaskUpdate` the task subject to `[DECLINED] <original subject>` and mark `completed`
-   - **3b. Non-trivial changes:**
-     - Enter plan mode and plan the proposed improvement, incorporating user-provided context
-     - Use sub-agents as needed to explore, research, or otherwise support planning
-     - Use `AskUserQuestion` as many times as needed for questions, design decisions, or other choices
-     - Exit plan mode and implement
-     - On decline: `TaskUpdate` the task subject to `[DECLINED] <original subject>` and mark `completed`
-4. **Mark completed**: `TaskUpdate` the task to `completed` (immediately — never batch updates)
-5. **Repeat** from step 1 for the next pending item
+2. **Explore the item** — Before presenting anything to the user, use sub-agents or direct reads to investigate the item. Read relevant source files, understand current state, check for complications, and gather concrete context. The goal is to give the user an informed summary, not just parrot back the task description.
+3. **Present the item** — Summarize what you found: the current state, what the proposed change involves concretely, any complications or trade-offs discovered, and your assessment of complexity. This should give the user enough context to make an informed decision.
+4. **Ask the user how to proceed** — use `AskUserQuestion` with these options for **every** item, regardless of complexity:
+   - **Implement** — Proceed directly (for straightforward items)
+   - **Plan first, then implement** — Enter plan mode, design the approach, get approval, then implement (for items needing design decisions or exploration)
+   - **Skip** — `TaskUpdate` the task subject to `[DECLINED] <original subject>` and mark `completed`; move to next item
+5. **If "Implement"**: Implement the change directly
+6. **If "Plan first"**:
+   - Enter plan mode and plan the proposed improvement, incorporating user-provided context
+   - Use sub-agents as needed to explore, research, or otherwise support planning
+   - Use `AskUserQuestion` as many times as needed for questions, design decisions, or other choices
+   - Exit plan mode and implement
+7. **Mark completed**: `TaskUpdate` the task to `completed` (immediately — never batch updates)
+8. **Repeat** from step 1 for the next pending item
+
+**IMPORTANT**: Never skip the `AskUserQuestion` in step 4. Every item must be explicitly approved or declined by the user before any implementation work begins.
 
 ---
 

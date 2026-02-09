@@ -2,6 +2,7 @@
 # ask-choose.sh - Select a single option from a list (supports >4 options)
 #
 # Usage: ask-choose.sh [options] option1 option2 ...
+#        printf '%s\n' option1 option2 ... | ask-choose.sh [options]
 #
 # Options:
 #   --header "text"       Header text shown above choices
@@ -11,10 +12,14 @@
 #   --chattable           Add "Chat about this" option (exits with code 2)
 #   --options-file FILE   Read options from file (one per line, UTF-8)
 #
+# Options can also be piped via stdin (one per line). Stdin options are
+# appended to any positional args and --options-file entries.
+#
 # Examples:
 #   ask-choose.sh "Red" "Green" "Blue"
 #   ask-choose.sh --descriptions "Red|A warm color" "Green|Nature's color"
 #   ask-choose.sh --other --skippable "Option1" "Option2"
+#   printf '%s\n' "Red" "Green" "Blue" | ask-choose.sh --header "Pick a color"
 #
 # Returns: selected label to stdout
 # Exit codes:
@@ -78,6 +83,13 @@ if [[ -n "$options_file" ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
         [[ -n "$line" ]] && options+=("$line")
     done < "$options_file"
+fi
+
+# Load options from stdin if piped
+if [[ ! -t 0 ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -n "$line" ]] && options+=("$line")
+    done
 fi
 
 if [[ ${#options[@]} -eq 0 ]]; then

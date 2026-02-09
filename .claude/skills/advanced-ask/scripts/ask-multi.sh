@@ -2,6 +2,7 @@
 # ask-multi.sh - Select multiple options from a list
 #
 # Usage: ask-multi.sh [options] option1 option2 ...
+#        printf '%s\n' option1 option2 ... | ask-multi.sh [options]
 #
 # Options:
 #   --header "text"       Header text shown above choices
@@ -12,10 +13,14 @@
 #   --chattable           Add "Chat about this" option (exits with code 2)
 #   --options-file FILE   Read options from file (one per line, UTF-8)
 #
+# Options can also be piped via stdin (one per line). Stdin options are
+# appended to any positional args and --options-file entries.
+#
 # Examples:
 #   ask-multi.sh "Tests" "CI" "Docker"
 #   ask-multi.sh --descriptions "Tests|Unit and integration tests" "CI|GitHub Actions"
 #   ask-multi.sh --other --skippable "Option1" "Option2"
+#   printf '%s\n' "Tests" "CI" "Docker" | ask-multi.sh --header "Select features"
 #
 # Returns: newline-separated selections to stdout (may include custom "Other" input)
 # Exit codes:
@@ -84,6 +89,13 @@ if [[ -n "$options_file" ]]; then
     while IFS= read -r line || [[ -n "$line" ]]; do
         [[ -n "$line" ]] && options+=("$line")
     done < "$options_file"
+fi
+
+# Load options from stdin if piped
+if [[ ! -t 0 ]]; then
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -n "$line" ]] && options+=("$line")
+    done
 fi
 
 if [[ ${#options[@]} -eq 0 ]]; then
