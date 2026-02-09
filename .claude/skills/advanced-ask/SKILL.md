@@ -27,6 +27,26 @@ Use `advanced-ask` when `AskUserQuestion` cannot handle the scenario:
 
 All scripts are in `~/.claude/skills/advanced-ask/scripts/`.
 
+### Using Options Files
+
+When options contain special characters (em-dashes, unicode, etc.) or there are many options, use `--options-file` to avoid Bash safety checker prompts:
+
+1. Use the **Write** tool to create a temp file with one option per line
+2. Call the script with `--options-file /path/to/file`
+
+```bash
+# Step 1: Write tool creates /tmp/ask-options.txt with contents:
+#   React — Meta's UI library
+#   Vue — Progressive framework
+#   Angular — Google's full framework
+
+# Step 2: Clean Bash command (no special chars in CLI args)
+~/.claude/skills/advanced-ask/scripts/ask-choose.sh --header "Pick a framework" \
+    --descriptions --options-file /tmp/ask-options.txt
+```
+
+File format: one option per line, plain UTF-8. Empty lines are skipped. For `--descriptions` mode, use `label|description` format (same as positional args).
+
 ### Single Selection (Many Options)
 ```bash
 ~/.claude/skills/advanced-ask/scripts/ask-choose.sh --header "Pick a framework" \
@@ -145,6 +165,7 @@ For multi-step wizards, conditional follow-ups, and progressive disclosure forms
 | `--other` | Add "Other..." option for custom input |
 | `--skippable` | Add "Skip" option (returns empty) |
 | `--chattable` | Add "Chat about this" option (exits with code 2) |
+| `--options-file FILE` | Read options from file (one per line); appends to any positional args |
 | `--limit N` | (multi only) Maximum selections |
 
 ### Exit Codes

@@ -4,12 +4,13 @@
 # Usage: ask-multi.sh [options] option1 option2 ...
 #
 # Options:
-#   --header "text"    Header text shown above choices
-#   --limit N          Maximum number of selections (default: unlimited)
-#   --descriptions     Enable descriptions: options are "label|description" format
-#   --other            Add "Other..." option for custom input
-#   --skippable        Add "Skip" option to allow skipping (same as selecting nothing)
-#   --chattable        Add "Chat about this" option (exits with code 2)
+#   --header "text"       Header text shown above choices
+#   --limit N             Maximum number of selections (default: unlimited)
+#   --descriptions        Enable descriptions: options are "label|description" format
+#   --other               Add "Other..." option for custom input
+#   --skippable           Add "Skip" option to allow skipping (same as selecting nothing)
+#   --chattable           Add "Chat about this" option (exits with code 2)
+#   --options-file FILE   Read options from file (one per line, UTF-8)
 #
 # Examples:
 #   ask-multi.sh "Tests" "CI" "Docker"
@@ -34,6 +35,7 @@ with_descriptions=false
 with_other=false
 skippable=false
 chattable=false
+options_file=""
 options=()
 
 while [[ $# -gt 0 ]]; do
@@ -62,6 +64,10 @@ while [[ $# -gt 0 ]]; do
             chattable=true
             shift
             ;;
+        --options-file)
+            options_file="$2"
+            shift 2
+            ;;
         *)
             options+=("$1")
             shift
@@ -69,8 +75,19 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Load options from file if specified
+if [[ -n "$options_file" ]]; then
+    if [[ ! -f "$options_file" ]]; then
+        echo "Error: Options file not found: $options_file" >&2
+        exit 1
+    fi
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -n "$line" ]] && options+=("$line")
+    done < "$options_file"
+fi
+
 if [[ ${#options[@]} -eq 0 ]]; then
-    echo "Usage: ask-multi.sh [--header \"text\"] [--limit N] [--descriptions] [--other] [--skippable] [--chattable] option1 option2 ..." >&2
+    echo "Usage: ask-multi.sh [--header \"text\"] [--limit N] [--descriptions] [--other] [--skippable] [--chattable] [--options-file FILE] option1 option2 ..." >&2
     exit 1
 fi
 

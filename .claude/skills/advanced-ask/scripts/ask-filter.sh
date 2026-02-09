@@ -1,7 +1,7 @@
 #!/bin/bash
 # ask-filter.sh - Fuzzy filter through a list of items
 #
-# Usage: ask-filter.sh [--header "text"] [--limit N] [--placeholder "hint"] item1 item2 ...
+# Usage: ask-filter.sh [--header "text"] [--limit N] [--placeholder "hint"] [--options-file FILE] item1 item2 ...
 #    OR: echo -e "item1\nitem2" | ask-filter.sh [--header "text"] [--limit N]
 # Returns: selected item(s) to stdout
 # Exit: 0 on selection, 1 on cancel/error
@@ -15,6 +15,7 @@ RUN_INTERACTIVE="$HOME/.claude/skills/interactive-tmux/scripts/run-interactive.s
 header=""
 limit=""
 placeholder=""
+options_file=""
 items=()
 
 while [[ $# -gt 0 ]]; do
@@ -31,12 +32,27 @@ while [[ $# -gt 0 ]]; do
             placeholder="$2"
             shift 2
             ;;
+        --options-file)
+            options_file="$2"
+            shift 2
+            ;;
         *)
             items+=("$1")
             shift
             ;;
     esac
 done
+
+# Load items from file if specified
+if [[ -n "$options_file" ]]; then
+    if [[ ! -f "$options_file" ]]; then
+        echo "Error: Options file not found: $options_file" >&2
+        exit 1
+    fi
+    while IFS= read -r line || [[ -n "$line" ]]; do
+        [[ -n "$line" ]] && items+=("$line")
+    done < "$options_file"
+fi
 
 # Build gum command
 cmd=(gum filter)
