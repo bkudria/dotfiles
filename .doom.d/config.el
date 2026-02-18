@@ -8,6 +8,8 @@
   (load! "better-gruvbox.el")
   )
 
+(setq evil-respect-visual-line-mode t)
+
 (load! "markdown-evil-toggle.el")
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
