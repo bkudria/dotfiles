@@ -215,7 +215,10 @@
      ("t" "~/templates/"                "Templates")))
   :config
   (dirvish-peek-mode)
-  (setq dirvish-default-layout '(3 0.15 0))
+  (setq dirvish-default-layout
+        (if (> (frame-pixel-width) (frame-pixel-height))
+            '(1 0.08 0.618)   ; landscape
+          '(3 0.15 0)))        ; portrait
   )
 
 (after! magit
