@@ -8,8 +8,8 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 [[ -f ~/.vterm.zsh ]] && source ~/.vterm.zsh
 
 # Environment variables
-export EDITOR='emacsclient -q -r'
-export VISUAL='emacsclient -q -r'
+export EDITOR='emacs-client-frame'
+export VISUAL='emacs-client-frame'
 # export PAGE=glow
 # export TERM=xterm-256color
 # export GOPATH=~/.go
@@ -26,8 +26,6 @@ alias rbbr='bundle exec rake'
 alias ll='eza -lF  --group-directories-first --icons auto'
 alias la='ll -a'
 alias lra='lr -a'
-
-unalias gh
 
 # Set EZA options for the exa module
 export EZA_ICON_SPACING=2

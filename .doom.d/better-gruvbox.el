@@ -94,6 +94,8 @@
   `(markdown-header-face-5       :extend t :height 1.1 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-dark)) :weight demi)
   `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-dark)) :weight medium)
   `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-dark)) :weight medium)
+
+  `(markdown-link-face       :background ,(doom-color 'bg) :foreground ,(doom-color 'blue) :weight medium :underline t)
   )
 
 (custom-theme-set-faces! 'doom-gruvbox-light
@@ -164,6 +166,8 @@
   `(markdown-header-face-4       :extend t :height 1.2 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 3 bk/headline-colors-light)) :weight bold)
   `(markdown-header-face-5       :extend t :height 1.1 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 4 bk/headline-colors-light)) :weight demi)
   `(markdown-header-face-6       :extend t :height 1.0 :overline nil :background ,(doom-color 'bg) :foreground ,(doom-color (nth 5 bk/headline-colors-light)) :weight medium)
+
+  `(markdown-link-face       :background ,(doom-color 'bg) :foreground ,(doom-color 'blue) :weight medium :underline t)
   )
 
 

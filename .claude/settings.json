@@ -2,10 +2,20 @@
   "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "cleanupPeriodDays": 365,
   "model": "us.anthropic.claude-opus-4-6-v1",
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "statusLine": {
     "type": "command",
     "command": "npx ccstatusline",
     "padding": 0
   },
-  "alwaysThinkingEnabled": true
+  "enabledPlugins": {
+    "security-guidance@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
+  },
+  "alwaysThinkingEnabled": true,
+  "skipDangerousModePermissionPrompt": true
 }

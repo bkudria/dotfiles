@@ -1,6 +1,6 @@
 zmodule environment # Sets sane Zsh built-in environment options.
 
-zmodule git -c "zstyle ':zim:git' aliases-prefix 'g'"
+zmodule git -c "zstyle ':zim:git' aliases-prefix 'G'"
 zmodule git # Provides handy git aliases and functions.
 
 zmodule input # Applies correct bindkeys for input events.
@@ -74,14 +74,13 @@ zmodule RobSis/zsh-completion-generator
 
 zmodule zsh-users/zsh-completions --fpath src # Additional completion definitions for Zsh.
 
-zmodule completion # Enables and configures smart and extensive tab completion.
-# completion must be sourced after all modules that add completion definitions.
 
 # Modules that must be initialized last
 zmodule zsh-users/zsh-syntax-highlighting # Fish-like syntax highlighting for Zsh.
 # zsh-users/zsh-syntax-highlighting must be sourced after completion
 
 zmodule marlonrichert/zsh-autocomplete -c "zstyle -e ':autocomplete:*:*' list-lines 'reply=( \$(( LINES / 4)) )'"
+zmodule marlonrichert/zsh-autocomplete -c "zstyle ':autocomplete:*complete*:*' insert-unambiguous yes"
 zmodule marlonrichert/zsh-autocomplete
 zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect  '^[[D' .backward-char  '^[OD' .backward-char"
 zmodule marlonrichert/zsh-autocomplete -c "bindkey -M menuselect  '^[[C' .forward-char  '^[OC'  .forward-char"
@@ -92,3 +91,7 @@ zmodule marlonrichert/zsh-autocomplete -c 'bindkey -M menuselect "$terminfo[kcbt
 # zmodule marlonrichert/zsh-autocomplete -c ""
 
 zmodule zsh-users/zsh-autosuggestions # Fish-like autosuggestions for Zsh.
+
+
+zmodule completion # Enables and configures smart and extensive tab completion.
+# completion must be sourced after all modules that add completion definitions.

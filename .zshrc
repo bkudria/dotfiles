@@ -5,7 +5,7 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
   source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 fi
 
-zstyle ':zim:git' aliases-prefix 'g'
+zstyle ':zim:git' aliases-prefix 'G'
 
 ZIM_HOME=~/.zim
 # Install missing modules and update ${ZIM_HOME}/init.zsh if missing or outdated.

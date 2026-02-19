@@ -8,6 +8,8 @@
   (load! "better-gruvbox.el")
   )
 
+(setq evil-respect-visual-line-mode t)
+
 (load! "markdown-evil-toggle.el")
 
 ;; Some functionality uses this to identify you, e.g. GPG configuration, email
@@ -87,6 +89,11 @@
  :desc "yank file path"                  "Y" #'+default/yank-buffer-path
  )
 
+
+(use-package! markdown-mode
+  :config
+  (add-hook 'markdown-mode-hook #'valign-mode)
+  )
 
 (use-package! claude-code
   :config
