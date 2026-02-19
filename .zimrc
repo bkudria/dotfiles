@@ -35,7 +35,7 @@ zmodule pvenv # Manages all python venvs in one place.
 
 zmodule ruby # Provides ruby, bundler, rbenv and rvm aliases and initialization.
 
-zmodule ssh # Provides a convenient way to load ssh-agent.
+# zmodule ssh # Provides a convenient way to load ssh-agent.
 
 zmodule prompt-pwd # Formats the current working directory to be used by prompts.
 
