@@ -789,15 +789,15 @@
 			<key>ASCII Ligatures</key>
 			<false/>
 			<key>AWDS Pane Directory</key>
-			<string></string>
+			<string>/opt/me</string>
 			<key>AWDS Pane Option</key>
-			<string>No</string>
+			<string>Yes</string>
 			<key>AWDS Tab Directory</key>
-			<string></string>
+			<string>/opt/me</string>
 			<key>AWDS Tab Option</key>
-			<string>No</string>
+			<string>Yes</string>
 			<key>AWDS Window Directory</key>
-			<string></string>
+			<string>/opt/me</string>
 			<key>AWDS Window Option</key>
 			<string>Yes</string>
 			<key>Ambiguous Double Width</key>
@@ -1661,7 +1661,7 @@
 			<key>Custom Command</key>
 			<string>No</string>
 			<key>Custom Directory</key>
-			<string>Yes</string>
+			<string>Advanced</string>
 			<key>Default Bookmark</key>
 			<string>No</string>
 			<key>Description</key>
