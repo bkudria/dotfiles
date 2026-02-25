@@ -1,6 +1,8 @@
 # Gum Command Reference
 
 Complete reference for all gum commands with flags and examples.
+Consult this file when constructing gum invocations to verify available
+flags, default values, and correct syntax for a specific command.
 
 ---
 

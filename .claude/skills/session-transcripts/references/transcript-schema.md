@@ -11,7 +11,7 @@ Claude Code stores session transcripts as JSONL files (one JSON object per line)
 ### Path Encoding
 
 Project paths are encoded by replacing `/` with `-` and prepending `-`:
-- `/Users/bkudria/code/myproject` → `-Users-bkudria-code-myproject`
+- `/home/user/code/myproject` → `-home-user-code-myproject`
 
 ## Entry Types
 
@@ -43,7 +43,7 @@ Present on most/all entry types:
   "sessionId": "session-uuid",
   "parentUuid": "parent-entry-uuid (null for first entry)",
   "isSidechain": false,
-  "cwd": "/Users/bkudria/project",
+  "cwd": "/home/user/project",
   "version": "2.1.37",
   "gitBranch": "develop"
 }
@@ -239,7 +239,7 @@ A separate, lightweight format — NOT full transcripts:
   "display": "user message or command text",
   "pastedContents": {},
   "timestamp": 1759092762410,
-  "project": "/Users/bkudria/code/project-name",
+  "project": "/home/user/code/project-name",
   "sessionId": "session-uuid"
 }
 ```

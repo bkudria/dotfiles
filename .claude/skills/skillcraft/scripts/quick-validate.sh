@@ -222,7 +222,7 @@ validate_skill() {
         local scripts_without_usage=0
         for script in "$skill_dir"/scripts/*; do
             [[ ! -f "$script" ]] && continue
-            if ! head -5 "$script" | grep -qi 'usage\|Usage' 2>/dev/null; then
+            if ! head -10 "$script" | grep -qi 'usage\|Usage' 2>/dev/null; then
                 warn "P5" "No usage header: scripts/$(basename "$script")"
                 scripts_without_usage=$((scripts_without_usage + 1))
             fi

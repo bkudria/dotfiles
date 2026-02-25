@@ -33,6 +33,12 @@ Run interactive TUI commands that require user input and capture the result. Ess
 | `session-lib.sh` | Shared session lifecycle (create/destroy pane + runner) |
 | `gum-sizing.sh` | Shared library for dynamic pane/gum height calculation |
 
+## Reference Files
+
+| File | Contents |
+|------|----------|
+| `references/architecture.md` | Three-path design, gum sizing algorithm, session lifecycle, eval rationale |
+
 ## Basic Usage (One-off Commands)
 
 ```bash
@@ -82,10 +88,11 @@ db_name=$("$SCRIPTS/run-interactive.sh" gum input --placeholder "Database name")
 
 ### Auto-Detection
 
-When an interaction is active, `run-interactive.sh` **automatically detects and reuses it**. This means scripts that use `run-interactive.sh` (like the `advanced-ask` scripts) work seamlessly with interactions - no code changes needed.
+When an interaction is active, `run-interactive.sh` **automatically detects and reuses it**. This means scripts that use `run-interactive.sh` (like the `~/.claude/skills/advanced-ask/scripts/ask-*.sh` scripts) work seamlessly with interactions -- no code changes needed.
 
 ```bash
 # These ask-* scripts automatically use the interaction!
+ASK=~/.claude/skills/advanced-ask/scripts
 id=$("$SCRIPTS/start-interaction.sh")
 color=$("$ASK/ask-choose.sh" --header "Color" "Red" "Green" "Blue")
 name=$("$ASK/ask-input.sh" --header "Name")
@@ -96,7 +103,7 @@ name=$("$ASK/ask-input.sh" --header "Name")
 
 - **Dynamic pane sizing**: For `gum choose`/`gum filter`, automatically sizes the pane height and gum `--height` to match the number of options (capped at 80% of window height). Works for both one-off panes and interactions (pane resizes between questions).
 - **Auto-detects terminal orientation**: Splits horizontally (side-by-side) in landscape mode, vertically (stacked) in portrait mode
-- **Nesting prevention**: Scripts that call `run-interactive.sh` internally (like `advanced-ask` scripts) can themselves be wrapped in `run-interactive.sh` without creating double panes
+- **Nesting prevention**: Scripts that call `run-interactive.sh` internally (like `~/.claude/skills/advanced-ask/scripts/ask-*.sh`) can themselves be wrapped in `run-interactive.sh` without creating double panes
 - **Clean UX**: The user only sees the TUI, not any setup commands
 - **Auto-closes**: One-off panes close automatically; interactions close when ended
 - **Captures output**: Returns stdout from the command

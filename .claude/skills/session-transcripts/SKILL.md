@@ -131,6 +131,10 @@ Then read specific line ranges from the temp file.
 - **Schema details**: See `references/transcript-schema.md` for full JSONL field documentation.
 - **Subagents**: For transcript summarization tasks, pipe `extract-conversation.jq` output to a temp file, then read it — avoids the multi-chunk problem entirely.
 
+## Dependencies
+
+- **jq** — JSON processor (`brew install jq`), required by all `.jq` scripts
+
 ## Reference Files
 
 | File | Contents |

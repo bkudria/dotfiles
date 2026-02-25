@@ -45,6 +45,14 @@ Run `TaskList` to check for existing progress from a previous invocation or comp
 
 ## Step 1: Process Items One-by-One
 
+### Per-Item Decision Matrix
+
+| User Choice | Action | Tools Used |
+|-------------|--------|------------|
+| Implement | Execute the change directly | Edit, Bash, Write |
+| Plan first, then implement | Design approach in plan mode, get approval, then execute | EnterPlanMode, ExitPlanMode, AskUserQuestion |
+| Skip | Mark task as `[DECLINED]` and move to next | TaskUpdate |
+
 **Before each item**, run `TaskList` to confirm current state. Then for each pending item:
 
 1. **Mark in-progress**: `TaskUpdate` the task to `in_progress`

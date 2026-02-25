@@ -7,6 +7,13 @@ description: Reference for using the `gum` CLI tool from Charmbracelet to create
 
 Gum is a tool for glamorous shell scripts, providing interactive TUI components and text styling.
 
+## When to Use
+
+- Building interactive shell prompts (choose, confirm, input, filter)
+- Styling terminal output with colors, borders, and formatting
+- Creating user-facing CLI experiences with spinners or progress indicators
+- Writing scripts that need structured text display (tables, logs, joined blocks)
+
 ## Critical: Interactive vs Non-Interactive Commands
 
 **INTERACTIVE (block for user input - cannot be used directly by Claude):**

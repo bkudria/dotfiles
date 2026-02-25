@@ -35,6 +35,8 @@ Yuescript (Yue) is a dynamic language that compiles to Lua. It emphasizes expres
 
 ## Quick Syntax Cheat Sheet
 
+Key syntax at a glance. Consult `references/syntax-basics.md` for complete details.
+
 ```yue
 -- Assignment (local by default)
 name = "world"

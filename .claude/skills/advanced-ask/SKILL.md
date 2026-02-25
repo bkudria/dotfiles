@@ -1,6 +1,6 @@
 ---
 name: advanced-ask
-description: This skill should be used when the built-in AskUserQuestion tool is insufficient - specifically when needing to ask more than 4 questions, present more than 4 options, get direct text input without "Other" workaround, pick files/directories, or fuzzy-filter through long lists. IMPORTANT - when any AskUserQuestion limit is hit (>4 options, >4 questions, need text input, need file picker), automatically use this skill instead of degrading the question. Complements gum and interactive-tmux skills.
+description: Use when the built-in AskUserQuestion tool is insufficient - specifically when needing to ask more than 4 questions, present more than 4 options, get direct text input without "Other" workaround, pick files/directories, or fuzzy-filter through long lists. IMPORTANT - when any AskUserQuestion limit is hit (>4 options, >4 questions, need text input, need file picker), automatically use this skill instead of degrading the question. Complements gum and interactive-tmux skills.
 ---
 
 # Advanced Ask
@@ -89,6 +89,16 @@ The `--options-file` flag is still available when options are already in a file 
 ~/.claude/skills/advanced-ask/scripts/ask-input.sh \
     --header "Configuration" \
     --placeholder "Enter API key"
+
+# With a default value pre-filled
+~/.claude/skills/advanced-ask/scripts/ask-input.sh \
+    --header "Server port" \
+    --value "8080"
+
+# Password mode (input masked)
+~/.claude/skills/advanced-ask/scripts/ask-input.sh \
+    --header "Enter secret" \
+    --password
 ```
 
 ### Multi-line Text

@@ -1,6 +1,8 @@
 # Gum Common Patterns
 
 Reusable patterns combining multiple gum commands.
+Consult this file for proven recipes that chain gum commands together
+into multi-step interactive workflows such as wizards, dashboards, and prompts.
 
 ---
 

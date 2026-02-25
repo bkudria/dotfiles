@@ -103,7 +103,7 @@ Output:
   "lang": "TypeScript",
   "features": ["Tests", "CI/CD", "Docker"],
   "desc": "A web service for...",
-  "config": "/Users/me/project/config.yaml",
+  "config": "~/project/config.yaml",
   "proceed": true
 }
 ```
