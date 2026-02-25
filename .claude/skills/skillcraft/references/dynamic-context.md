@@ -1,3 +1,6 @@
+> Sources: official-docs, compound-engineering | Decision: synthesized
+> Last curated: 2026-02-24. See provenance.yml for full mapping.
+
 # Dynamic Context in Skills
 
 Guide to string substitutions, backtick-bang commands, and argument handling in SKILL.md files.
@@ -11,7 +14,8 @@ Placeholders in the SKILL.md **body text** that are replaced at skill load time.
 | Placeholder | Replaced With | Notes |
 |-------------|--------------|-------|
 | `$ARGUMENTS` | Full text after `/skill-name ` | Empty string if no arguments given |
-| `$1`, `$2`, ... `$N` | Positional args (space-separated) | Undefined if not enough args provided |
+| `$ARGUMENTS[N]` | Specific argument by 0-based index | Undefined if not enough args provided |
+| `$1`, `$2`, ... `$N` | Shorthand for `$ARGUMENTS[N]` | Same as above |
 | `${CLAUDE_SESSION_ID}` | Current session UUID | Stable for the session lifetime |
 
 ### Example Usage in Body
@@ -30,47 +34,55 @@ Full input was: $ARGUMENTS
 Temp file: /tmp/lookup-${CLAUDE_SESSION_ID}.md
 ```
 
-**Where substitutions work**: Body text only. They do **not** expand in frontmatter fields (except `description` has limited support for `$ARGUMENTS`).
+**Where substitutions work**: Body text only. They do **not** expand in frontmatter fields.
 
 ---
 
 ## Backtick-Bang Dynamic Context
 
-Run shell commands at skill load time and inject their output as context. Declared in the `context` frontmatter field.
+Run shell commands at skill load time and inject their output into the skill content. The command output replaces the placeholder so Claude receives actual data, not the command itself.
 
 ### Syntax
 
-```yaml
+Use `` !`command` `` directly in the **body text** of SKILL.md:
+
+```markdown
 ---
-name: my-skill
-context:
-  - "`!git log --oneline -5`"
-  - "`!cat package.json`"
-  - "static-file.md"
+name: pr-summary
+description: Summarize changes in a pull request
+context: fork
+agent: Explore
 ---
+
+## Pull request context
+- PR diff: !`gh pr diff`
+- PR comments: !`gh pr view --comments`
+- Changed files: !`gh pr diff --name-only`
+
+## Your task
+Summarize this pull request...
 ```
 
 ### How It Works
 
-1. At skill load, each `context` entry is evaluated
-2. Entries matching `` `!command` `` run the command in the working directory
-3. Plain strings are treated as file paths (relative to skill directory)
-4. All outputs become part of the skill's loaded context
+1. At skill load time, each `` !`command` `` in the body is evaluated
+2. The command runs in the current working directory
+3. The command output replaces the `` !`command` `` placeholder
+4. Claude receives the fully-rendered prompt with actual data
 
-### Examples
+This is **preprocessing** — Claude only sees the final result, not the commands.
 
-```yaml
-# Load project config
-context: ["`!cat package.json`"]
+### More Examples
 
-# Get current git state
-context: ["`!git status --short`"]
+```markdown
+# Current project state
+- Branch: !`git branch --show-current`
+- Status: !`git status --short`
+- Recent commits: !`git log --oneline -5`
 
-# Combine static and dynamic
-context:
-  - "references/api-spec.md"
-  - "`!git branch --show-current`"
-  - "`!ls src/`"
+# Package info
+- Node version: !`node --version`
+- Dependencies: !`cat package.json | jq '.dependencies | keys[]'`
 ```
 
 ---
@@ -79,10 +91,10 @@ context:
 
 | Pattern | Syntax | When to Use |
 |---------|--------|-------------|
-| Load config file | `context: ["\`!cat .config\`"]` | Skill needs project configuration |
-| Get git state | `context: ["\`!git status\`"]` | Skill operates on current repo state |
-| List files | `context: ["\`!ls src/\`"]` | Skill needs directory listing |
-| Env detection | `context: ["\`!node --version\`"]` | Skill adapts to runtime environment |
+| Load config file | `` !`cat .config` `` in body | Skill needs project configuration |
+| Get git state | `` !`git status` `` in body | Skill operates on current repo state |
+| List files | `` !`ls src/` `` in body | Skill needs directory listing |
+| Env detection | `` !`node --version` `` in body | Skill adapts to runtime environment |
 | Pass user input | `$ARGUMENTS` in body | Skill processes user-provided text |
 | Route by position | `$1`, `$2` in body | Skill has sub-commands or structured args |
 | Unique temp files | `${CLAUDE_SESSION_ID}` in body | Skill needs session-scoped scratch space |
@@ -92,15 +104,15 @@ context:
 ## Best Practices
 
 - **Keep commands fast** — backtick-bang commands block skill loading. Target < 1 second.
-- **Use static context for stable content** — if a file rarely changes, list it as a plain path instead of `` `!cat file` ``.
 - **Limit output size** — large command outputs pollute context. Pipe through `head` or `tail` if needed.
 - **Handle empty `$ARGUMENTS`** — always include fallback instructions when no arguments are provided:
   ```markdown
   If no arguments were provided ($ARGUMENTS is empty), ask the user what to look up.
   ```
 - **Test both paths** — invoke the skill with and without arguments to verify behavior.
-- **Combine static and dynamic** — use static files for reference material, dynamic commands for current state.
 - **Quote arguments in bash** — if passing `$ARGUMENTS` to a bash command in instructions, remind Claude to quote it.
+
+**Tip**: Include "ultrathink" anywhere in skill content to enable extended thinking.
 
 ---
 
@@ -109,8 +121,7 @@ context:
 | Mistake | Problem | Fix |
 |---------|---------|-----|
 | `$ARGUMENTS` in frontmatter `description` | Not reliably substituted | Use `$ARGUMENTS` in body text only |
-| Slow command in `context` | Blocks skill loading for seconds | Use fast commands or move to body instructions |
+| Slow backtick-bang command | Blocks skill loading for seconds | Use fast commands or pipe through `head` |
 | Assuming `$1` exists | Breaks when invoked without args | Check for empty and prompt user |
 | Unquoted `$ARGUMENTS` in bash | Word splitting on spaces | Always wrap in double quotes |
-| Huge command output in context | Wastes context window | Pipe through `head -20` or similar |
-| Using backtick-bang in body | Wrong location — only works in `context` frontmatter | Move to `context:` field in frontmatter |
+| Huge command output | Wastes context window | Pipe through `head -20` or similar |

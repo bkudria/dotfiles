@@ -51,4 +51,4 @@ Based on skill type, recommend invocation settings:
 | Tool Integration | Auto-trigger (default) | Should load when tool is mentioned |
 | Hybrid | Depends on weight | Light → auto, heavy → manual |
 
-**Next**: Proceed to Phase 3 (read `workflows/phase3-scaffold.md`)
+**Next**: Proceed to Phase 3 (read `workflows/create-phase3-scaffold.md`)

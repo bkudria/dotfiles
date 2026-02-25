@@ -1,3 +1,6 @@
+> Sources: official-docs, anthropic-skills, compound-engineering | Decision: synthesized
+> Last curated: 2026-02-24. See provenance.yml for full mapping.
+
 # Skill Frontmatter Reference
 
 Complete catalog of all valid YAML frontmatter fields for Claude Code SKILL.md files.
@@ -48,7 +51,7 @@ description: What this skill does
 
 - **Type**: boolean
 - **Default**: `true`
-- **Description**: When `true`, the skill appears as a `/skill-name` command. When `false`, the skill can only be auto-triggered by Claude (or referenced by other skills).
+- **Description**: When `true`, the skill appears as a `/skill-name` command. When `false`, the skill is hidden from the `/` menu but Claude can still auto-trigger it. Note: `user-invocable` only controls menu visibility, not Skill tool access. Use `disable-model-invocation: true` to block programmatic invocation.
 - **When to use**: Set `false` for internal/helper skills that other skills depend on but users shouldn't invoke directly.
 - **Example**: `user-invocable: false`
 - **Trade-offs**: Non-user-invocable skills are invisible to the user. Combined with `disable-model-invocation: true`, the skill becomes completely invisible (anti-pattern #10).
@@ -139,16 +142,16 @@ If arguments were provided, parse them as: ...
 
 ## Dynamic Context
 
-Embed command output in SKILL.md using backtick-bang syntax. The command runs at load time and its output is injected.
+Embed command output in the SKILL.md **body text** using backtick-bang syntax (`` !`command` ``). Commands run at load time as preprocessing — their output replaces the placeholder before Claude sees the content.
 
 ```markdown
 Current git branch: !`git branch --show-current`
+Recent commits: !`git log --oneline -5`
 ```
 
 **Guidelines**:
 - Commands must be fast (< 1 second)
-- Commands must be portable (macOS + Linux)
-- Handle command failure gracefully
+- Limit output size — pipe through `head` or `tail` if needed
 - Use for: current state (branch, directory), available tools, environment detection
 
 ---

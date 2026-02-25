@@ -43,4 +43,4 @@ Before proceeding, verify:
 - At least 2 use cases provided
 - At least 3 trigger phrases
 
-**Next**: Proceed to Phase 2 (read `workflows/phase2-design.md`)
+**Next**: Proceed to Phase 2 (read `workflows/create-phase2-design.md`)

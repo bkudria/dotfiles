@@ -5,7 +5,7 @@ Run the scaffolding script to create the skill directory and initial files in on
 ## Run Scaffold Script
 
 ```bash
-~/.claude/skills/skill-create/scripts/scaffold.sh \
+scripts/scaffold.sh \
     "{name}" --path "{location}" --type "{type}" \
     [--references] [--scripts] [--assets]
 ```
@@ -25,4 +25,4 @@ After the script runs, update the generated SKILL.md:
 2. **Add selected features** — From Phase 2 frontmatter feature selections (allowed-tools, model, context, hooks, agent, etc.)
 3. **Rename placeholder files** — Rename `references/TODO-rename-me.md` and `scripts/TODO-rename-me.sh` to meaningful names
 
-**Next**: Proceed to Phase 4 (read `workflows/phase4-author.md`)
+**Next**: Proceed to Phase 4 (read `workflows/create-phase4-author.md`)

@@ -1,3 +1,6 @@
+> Sources: original (not derived from upstream)
+> Created: 2026-02-06
+
 # Skill Dependencies Guide
 
 How to declare, check, and manage dependencies in Claude Code skills.
@@ -58,7 +61,7 @@ Common dependencies across skills:
 |-------|----------|
 | `advanced-ask` | Interactive prompts beyond AskUserQuestion limits |
 | `interactive-tmux` | TUI infrastructure for running interactive tools |
-| `skill-improve` | Validation and auditing in creation workflows |
+| `skillcraft` | Validation and auditing in creation workflows |
 | `gum` | Reference for TUI component usage |
 
 **Avoid circular dependencies.** If skill A depends on skill B, skill B must not depend on skill A. Keep the dependency graph a DAG.

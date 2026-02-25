@@ -1,3 +1,6 @@
+> Sources: official-docs, compound-engineering | Decision: synthesized
+> Last curated: 2026-02-06. See provenance.yml for full mapping.
+
 # Skill Naming Conventions
 
 ## Skill Name Rules
@@ -12,7 +15,7 @@
 | `docker-helper` | `DockerHelper` | No uppercase |
 | `pr-review` | `my_skill` | No underscores |
 | `api-reference` | `tool` | Too generic |
-| `skill-create` | `helper` | Not descriptive |
+| `skillcraft` | `helper` | Not descriptive |
 | `kdl-syntax-reference` | `PR--Review` | Consecutive hyphens, uppercase |
 
 ## Naming Patterns
@@ -20,7 +23,7 @@
 | Pattern | Example | When to Use |
 |---------|---------|-------------|
 | `{tool}-reference` | `gum`, `kdl-syntax-reference` | Tool documentation and API surfaces |
-| `{action}-{target}` | `skill-create`, `pr-review` | Workflow automation skills |
+| `{action}-{target}` | `skillcraft`, `pr-review` | Workflow automation skills |
 | `{domain}-{aspect}` | `api-reference`, `git-workflow` | Domain knowledge skills |
 | `{adjective}-{noun}` | `interactive-tmux`, `advanced-ask` | Enhanced or specialized capabilities |
 

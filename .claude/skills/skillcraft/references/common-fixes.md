@@ -1,3 +1,6 @@
+> Sources: original (not derived from upstream)
+> Created: 2026-02-06
+
 # Common Fixes Cookbook
 
 Concrete before/after fixes for frequently failed checklist items. For design-level anti-patterns, see `anti-patterns.md`.

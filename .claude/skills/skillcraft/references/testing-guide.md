@@ -1,3 +1,6 @@
+> Sources: original (not derived from upstream)
+> Created: 2026-02-06
+
 # Skill Testing & Iteration Guide
 
 Quick reference for testing Claude Code skills after creation or modification.
@@ -81,7 +84,7 @@ Interactive prompts require `interactive-tmux`. Verify SKILL.md specifies this i
 ### Standard cycle
 
 ```
-Edit SKILL.md --> test manually --> run /skill-improve --> fix findings --> repeat
+Edit SKILL.md --> test manually --> run /skillcraft --improve --> fix findings --> repeat
 ```
 ### When to restart the conversation
 
@@ -99,12 +102,12 @@ Edit SKILL.md --> test manually --> run /skill-improve --> fix findings --> repe
 |---------|-------|
 | Trigger tuning | Edit `description` -> restart -> test phrases -> repeat |
 | Script debugging | Run in terminal -> fix -> test via skill -> repeat |
-| Reference extraction | Move to references/ -> link from SKILL.md -> `/skill-improve` |
+| Reference extraction | Move to references/ -> link from SKILL.md -> `/skillcraft --improve` |
 | Tool restriction | Add `allowed-tools` -> invoke -> fix permission errors -> repeat |
 
 ### Post-iteration validation
 
-- [ ] Run `/skill-improve` with full audit -- all checks pass
+- [ ] Run `/skillcraft --improve` with full audit -- all checks pass
 - [ ] Invoke skill manually -- produces expected output
 - [ ] Trigger phrases work (if auto-invocable)
 - [ ] Edge cases handled gracefully

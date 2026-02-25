@@ -1,7 +1,7 @@
-# Official Anthropic Skill Specification
+> Sources: official-docs | Decision: simplified
+> Last curated: 2026-02-24. See provenance.yml for full mapping.
 
-> Source: https://code.claude.com/docs/en/skills
-> Curated: 2026-02-06. Trimmed visualization example and troubleshooting for brevity.
+# Official Anthropic Skill Specification
 
 ## Overview
 
@@ -39,6 +39,8 @@ Reference supporting files from `SKILL.md` so Claude knows what they contain and
 When skills share the same name across levels, higher-priority locations win: enterprise > personal > project. Plugin skills use a `plugin-name:skill-name` namespace, so they cannot conflict.
 
 Automatic discovery from nested directories: when working with files in subdirectories, Claude Code also looks for skills in nested `.claude/skills/` directories (e.g., `packages/frontend/.claude/skills/`). This supports monorepo setups.
+
+Skills from additional directories: skills defined in `.claude/skills/` within directories added via `--add-dir` are loaded automatically and support live change detection — you can edit them during a session without restarting.
 
 ## Frontmatter Reference
 
@@ -131,6 +133,16 @@ Warning: `context: fork` only makes sense for skills with explicit task instruct
 
 The `agent` field specifies the execution environment. Options: built-in (`Explore`, `Plan`, `general-purpose`) or custom from `.claude/agents/`. Default: `general-purpose`.
 
+## Restricting Skill Access
+
+Three ways to control which skills Claude can invoke:
+
+1. **Disable all skills**: Deny the `Skill` tool in `/permissions`
+2. **Allow/deny specific skills**: Use permission rules — `Skill(commit)` for exact match, `Skill(review-pr *)` for prefix match with any arguments
+3. **Hide individual skills**: Add `disable-model-invocation: true` to frontmatter
+
+Note: `user-invocable` only controls menu visibility, not Skill tool access. Use `disable-model-invocation: true` to block programmatic invocation.
+
 ## Sharing & Distribution
 
 - **Project skills**: Commit `.claude/skills/` to version control
@@ -143,4 +155,4 @@ Skills can bundle and run scripts in any language. A powerful pattern is generat
 
 ## Skill Description Budget
 
-Skill descriptions are loaded into context so Claude knows what's available. Many skills may exceed the character budget (default 15,000 characters). Check with `/context` for warnings about excluded skills. Increase with `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable.
+Skill descriptions are loaded into context so Claude knows what's available. The budget scales dynamically at 2% of the context window, with a fallback of 16,000 characters. Many skills may exceed this budget. Check with `/context` for warnings about excluded skills. Override with `SLASH_COMMAND_TOOL_CHAR_BUDGET` environment variable.

@@ -45,4 +45,4 @@ If the skill uses external tools or other skills, add a Dependencies section. Se
 
 If the skill uses interactive TUI prompts, see `references/interactive-tui.md` for integration patterns.
 
-**Next**: Proceed to Phase 5 (read `workflows/phase5-validate.md`)
+**Next**: Proceed to Phase 5 (read `workflows/create-phase5-validate.md`)

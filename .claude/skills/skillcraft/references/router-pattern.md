@@ -1,3 +1,6 @@
+> Sources: original (not derived from upstream)
+> Created: 2026-02-06
+
 # Router Pattern Guide
 
 When and how to upgrade a skill from a monolithic SKILL.md to the router pattern.

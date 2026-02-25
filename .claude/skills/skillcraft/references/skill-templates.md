@@ -1,3 +1,6 @@
+> Sources: original (not derived from upstream)
+> Created: 2026-02-06
+
 # Skill Templates
 
 Starter templates for four common skill types. Apply the matching template in Phase 3 (Scaffold), then customize in Phase 4 (Author).

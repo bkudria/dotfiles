@@ -77,7 +77,7 @@ references/
 
 ## Step 5: Create Router SKILL.md
 
-Domain expertise skills should always use the **router pattern** (see `~/.claude/skills/skill-improve/references/router-pattern.md`).
+Domain expertise skills should always use the **router pattern** (see `references/router-pattern.md`).
 
 The SKILL.md should contain:
 1. **Essential principles** — 3-5 core rules that always apply, regardless of workflow
@@ -134,4 +134,4 @@ Before finishing, verify:
 - [ ] At least 3 concrete examples exist across the workflows
 - [ ] Essential principles section captures domain-specific rules
 
-**Next**: Proceed to Phase 5 for validation (read `workflows/phase5-validate.md`)
+**Next**: Proceed to Phase 5 for validation (read `workflows/create-phase5-validate.md`)
