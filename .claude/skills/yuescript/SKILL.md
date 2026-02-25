@@ -99,6 +99,11 @@ import insert, concat from table
 export class MyModule
 ```
 
+## Dependencies
+
+- **yuescript** compiler — `brew install yuescript` or build from [source](https://github.com/pigpigyyy/Yuescript)
+- **Lua** runtime — Yue compiles to Lua 5.1+ / LuaJIT
+
 ## Reference Files
 
 Read these for detailed syntax and examples on specific topics.

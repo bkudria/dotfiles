@@ -1,11 +1,11 @@
 ---
 name: interactive-tmux
-description: Run interactive TUI commands (like gum, fzf, etc.) in a tmux pane and capture their output. Use when you need user input from an interactive terminal UI. Supports persistent interactions for multi-command sequences.
+description: Run interactive TUI commands (like gum, fzf, etc.) in a tmux pane and capture their output. Use when running gum, fzf, or other commands that require a TTY for user input. Supports persistent interactions for multi-command sequences.
 ---
 
 # Interactive Tmux
 
-Use this skill when you need to run interactive TUI commands that require user input and capture the result. This is essential for commands like `gum choose`, `gum input`, `fzf`, or any other interactive terminal application.
+Run interactive TUI commands that require user input and capture the result. Essential for commands like `gum choose`, `gum input`, `fzf`, or any other interactive terminal application.
 
 ## Dependencies
 
@@ -16,11 +16,11 @@ Use this skill when you need to run interactive TUI commands that require user i
 
 ## When to Use
 
-- When running `gum` commands that need user interaction (choose, input, confirm, filter, etc.)
-- When running `fzf` or similar fuzzy finders
-- When running any command that requires a TTY for user input
-- When you need to capture the output of an interactive command
-- When you need multiple interactive commands in the same pane (use interactions)
+- Running `gum` commands that need user interaction (choose, input, confirm, filter, etc.)
+- Running `fzf` or similar fuzzy finders
+- Running any command that requires a TTY for user input
+- Capturing the output of an interactive command
+- Running multiple interactive commands in the same pane (use interactions)
 
 ## Scripts
 
