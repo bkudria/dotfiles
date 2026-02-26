@@ -74,8 +74,8 @@ if [[ "$file_count" -gt 50 ]]; then
   echo "($file_count sessions — skipping message previews for speed)" >&2
 fi
 
-printf "%-40s %-18s %8s  %s\n" "SESSION ID" "DATE" "SIZE" "FIRST MESSAGE"
-printf "%-40s %-18s %8s  %s\n" "$(printf '%0.s-' {1..40})" "$(printf '%0.s-' {1..18})" "--------" "$(printf '%0.s-' {1..40})"
+printf "%-8s  %-18s %8s  %s\n" "SESSION" "DATE" "SIZE" "FIRST MESSAGE"
+printf "%-8s  %-18s %8s  %s\n" "--------" "$(printf '%0.s-' {1..18})" "--------" "$(printf '%0.s-' {1..40})"
 
 # Build output lines with timestamp prefix for sorting
 {
@@ -104,6 +104,6 @@ printf "%-40s %-18s %8s  %s\n" "$(printf '%0.s-' {1..40})" "$(printf '%0.s-' {1.
       preview=""
     fi
 
-    printf '%s\t%-40s %-18s %8s  %s\n' "$file_ts" "$session_id" "$date_str" "$size_str" "$preview"
+    printf '%s\t%-8s  %-18s %8s  %s\n' "$file_ts" "${session_id:0:8}" "$date_str" "$size_str" "$preview"
   done < <(find "$project_dir" -maxdepth 1 -name '*.jsonl' -type f 2>/dev/null)
 } | sort -t$'\t' -k1 -rn | cut -f2-

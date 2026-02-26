@@ -32,6 +32,17 @@ first_user_message() {
     | cut -c1-100
 }
 
+# Print a match result
+print_match() {
+  local file="$1" decoded="$2"
+  local preview
+  preview="$(first_user_message "$file")"
+  echo "  ${file}"
+  echo "    Project: ${decoded}"
+  echo "    Preview: ${preview}"
+  echo ""
+}
+
 if [[ "$1" == "-s" ]]; then
   # Content search mode
   shift
@@ -46,12 +57,7 @@ if [[ "$1" == "-s" ]]; then
 
     while IFS= read -r file; do
       if grep -q "$search_term" "$file" 2>/dev/null; then
-        session_id="$(basename "$file" .jsonl)"
-        preview="$(first_user_message "$file")"
-        echo "  ${file}"
-        echo "    Project: ${decoded}"
-        echo "    Preview: ${preview}"
-        echo ""
+        print_match "$file" "$decoded"
         found=$((found + 1))
       fi
     done < <(find "$project_dir" -maxdepth 1 -name '*.jsonl' -type f 2>/dev/null)
@@ -64,28 +70,40 @@ if [[ "$1" == "-s" ]]; then
   echo "Found $found session(s)." >&2
 
 else
-  # UUID search mode
+  # UUID search mode — prefix match first (fast), then substring fallback
   uuid_pattern="$1"
   echo "Searching for session matching '$uuid_pattern'..." >&2
 
   found=0
+
+  # Fast path: prefix glob (handles truncated UUIDs like "b366b3b0")
   for project_dir in "$PROJECTS_DIR"/*/; do
     [[ -d "$project_dir" ]] || continue
     project_name="$(basename "$project_dir")"
     decoded="$(decode_path "$project_name")"
 
     while IFS= read -r file; do
-      session_id="$(basename "$file" .jsonl)"
-      if [[ "$session_id" == *"$uuid_pattern"* ]] || [[ "$(basename "$file")" == *"$uuid_pattern"* ]]; then
-        preview="$(first_user_message "$file")"
-        echo "  ${file}"
-        echo "    Project: ${decoded}"
-        echo "    Preview: ${preview}"
-        echo ""
-        found=$((found + 1))
-      fi
-    done < <(find "$project_dir" -maxdepth 1 -name '*.jsonl' -type f 2>/dev/null)
+      print_match "$file" "$decoded"
+      found=$((found + 1))
+    done < <(find "$project_dir" -maxdepth 1 -name "${uuid_pattern}*.jsonl" -type f 2>/dev/null)
   done
+
+  # Fallback: substring match (for patterns appearing mid-UUID)
+  if [[ $found -eq 0 ]]; then
+    for project_dir in "$PROJECTS_DIR"/*/; do
+      [[ -d "$project_dir" ]] || continue
+      project_name="$(basename "$project_dir")"
+      decoded="$(decode_path "$project_name")"
+
+      while IFS= read -r file; do
+        session_id="$(basename "$file" .jsonl)"
+        if [[ "$session_id" == *"$uuid_pattern"* ]]; then
+          print_match "$file" "$decoded"
+          found=$((found + 1))
+        fi
+      done < <(find "$project_dir" -maxdepth 1 -name '*.jsonl' -type f 2>/dev/null)
+    done
+  fi
 
   if [[ $found -eq 0 ]]; then
     echo "No sessions found matching '$uuid_pattern'" >&2

@@ -4,29 +4,24 @@
     [
       {
         "id": "7b052110-78f4-4e6f-bf75-2c992255ecca",
-        "type": "model",
+        "type": "custom-command",
         "color": "brightWhite",
         "backgroundColor": "bgRed",
-        "rawValue": true
+        "commandPath": "$HOME/.config/ccstatusline/scripts/model-name.jq"
       },
       {
         "id": "27cf83f3-1ada-41d6-98b5-529822fc4c8d",
-        "type": "context-percentage-usable",
+        "type": "custom-command",
         "color": "black",
         "backgroundColor": "bgBrightYellow",
-        "rawValue": true,
-        "customText": " ",
-        "metadata": {
-          "inverse": "false"
-        }
+        "commandPath": "$HOME/.config/ccstatusline/scripts/context-bar.jq"
       },
       {
         "id": "a6de6cd0-6df6-4a49-8b3a-435e8d82d4b2",
-        "type": "claude-session-id",
+        "type": "custom-command",
         "color": "brightWhite",
         "backgroundColor": "bgGreen",
-        "rawValue": true,
-        "customText": " "
+        "commandPath": "$HOME/.config/ccstatusline/scripts/session-id.jq"
       },
       {
         "id": "73d3f910-0d52-4e39-b573-67c7a61ce758",

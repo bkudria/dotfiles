@@ -125,6 +125,7 @@ Then read specific line ranges from the temp file.
 
 ## Workflow Tips
 
+- **Truncated UUIDs**: `find-session.sh` accepts truncated UUIDs (first segment only, e.g. `b366b3b0`). This matches the short format shown by ccstatusline. Prefix matching is tried first (fast), with substring fallback.
 - **Large transcripts** (>256KB): Use `extract-conversation.jq` first to get a readable version, then read that with the Read tool. This is far more efficient than chunked reading.
 - **Quick stats**: Use `session-overview.jq` before reading a transcript to understand its scope.
 - **Ad-hoc queries**: See `references/jq-recipes.md` for common jq one-liners.
