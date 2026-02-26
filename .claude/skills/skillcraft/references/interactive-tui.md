@@ -1,4 +1,4 @@
-# Interactive TUI Best Practices
+# Skill Interactive TUI Guide
 
 Guide for using interactive TUI tools (gum, fzf, advanced-ask) within Claude Code skills.
 

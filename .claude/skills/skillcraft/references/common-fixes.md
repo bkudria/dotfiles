@@ -1,4 +1,4 @@
-# Common Fixes Cookbook
+# Skill Common Fixes
 
 Concrete before/after fixes for frequently failed checklist items. For design-level anti-patterns, see `anti-patterns.md`.
 

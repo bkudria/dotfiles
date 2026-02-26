@@ -1,4 +1,4 @@
-# Dynamic Context in Skills
+# Skill Dynamic Context
 
 Guide to string substitutions, backtick-bang commands, and argument handling in SKILL.md files.
 

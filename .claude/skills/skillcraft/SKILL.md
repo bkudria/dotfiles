@@ -1,6 +1,6 @@
 ---
 name: skillcraft
-description: "IMPORTANT - this skill MUST be loaded ANY time a SKILL.md file is being edited, created, or reviewed, even as part of other work. Create new skills with an interactive wizard, audit and improve existing skills, or update skillcraft from upstream sources. Use when creating a skill, crafting a skill, making a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, updating skillcraft, syncing skillcraft from sources, or checking for upstream changes to skills."
+description: "IMPORTANT - this skill MUST be loaded ANY time a SKILL.md file is being edited, created, or reviewed, even as part of other work. Create new skills with an interactive wizard, audit and improve existing skills, or update skillcraft from upstream sources. Use when creating a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, updating skillcraft, syncing skillcraft from sources, or checking for upstream changes to skills."
 argument-hint: "[skill name, path, or 'update']"
 ---
 

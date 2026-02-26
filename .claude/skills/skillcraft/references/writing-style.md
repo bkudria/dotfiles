@@ -1,4 +1,4 @@
-# Writing Style Guide for Skills
+# Skill Writing Style Guide
 
 Voice, tone, and formatting rules for authoring Claude Code skill content.
 

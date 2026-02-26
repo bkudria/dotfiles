@@ -1,4 +1,4 @@
-# Router Pattern Guide
+# Skill Router Pattern Guide
 
 When and how to upgrade a skill from a monolithic SKILL.md to the router pattern.
 

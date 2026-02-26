@@ -1,4 +1,4 @@
-# Resource Directory Usage Guide
+# Skill Resource Usage Guide
 
 How to effectively use the `references/`, `scripts/`, and `assets/` directories within a Claude Code skill.
 
