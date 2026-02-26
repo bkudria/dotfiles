@@ -1,6 +1,6 @@
 ---
 name: session-transcripts
-description: "Claude Code session transcript tools and schema reference. Use when working with session transcripts, finding past sessions, reading .jsonl transcript files, searching session history, analyzing token usage, extracting conversation from transcripts, summarizing past sessions, or reviewing sessions for issues, missteps, and improvements."
+description: "Search and analyze past Claude Code sessions to understand what happened, trace decisions, and investigate history. IMPORTANT: Always load this skill before searching session history or working with transcripts — it provides optimized jq scripts and shell tools that are far more efficient than raw grep. Use when searching session history, finding past sessions or conversations, tracing how something was created or built, investigating what happened in a previous session, reviewing sessions for issues or missteps, reading .jsonl transcript files, analyzing token usage, extracting conversation from transcripts, or summarizing past sessions."
 ---
 
 # Session Transcripts
@@ -9,12 +9,14 @@ Tools and schema reference for working with Claude Code session transcript JSONL
 
 ## When to Use
 
+- Searching session history to find past work or conversations
+- Tracing how something was created, built, or decided in a past session
+- Investigating what happened in a previous session
 - Finding a past session by UUID or content search
-- Reading or summarizing a session transcript
-- Extracting the conversation flow from a large transcript
+- Reviewing a session for errors, missteps, or improvement opportunities
+- Summarizing or extracting the conversation flow from a session
 - Analyzing token usage or tool usage in a session
 - Listing projects or sessions
-- Reviewing a session for errors, missteps, or improvement opportunities
 - Any task involving `~/.claude/projects/` JSONL files
 
 ## Storage Layout
