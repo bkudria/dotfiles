@@ -1,6 +1,3 @@
-> Sources: official-docs, compound-engineering | Decision: synthesized
-> Last curated: 2026-02-24. See provenance.yml for full mapping.
-
 # Dynamic Context in Skills
 
 Guide to string substitutions, backtick-bang commands, and argument handling in SKILL.md files.

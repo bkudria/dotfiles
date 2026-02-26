@@ -1,6 +1,3 @@
-> Sources: compound-engineering, anthropic-plugin | Decision: altered
-> Last curated: 2026-02-06. See provenance.yml for full mapping.
-
 # Skill Anti-Patterns
 
 Common problems in Claude Code skills with diagnosis and fixes.

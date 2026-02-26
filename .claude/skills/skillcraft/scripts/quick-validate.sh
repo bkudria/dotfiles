@@ -20,6 +20,10 @@
 #   M2: Description present and within length bounds
 #   M5: argument-hint present if $ARGUMENTS used
 #   P5: Scripts have usage headers
+#
+# Provenance checks (only when provenance.yml exists):
+#   PV1: Files in curation_decisions exist
+#   PV2: Provenance staleness (warn if >30 days since last check)
 
 set -euo pipefail
 shopt -s nullglob
@@ -232,6 +236,48 @@ validate_skill() {
         fi
     else
         pass "P5" "No scripts/ directory (check N/A)"
+    fi
+
+    # --- Provenance checks (only when provenance.yml exists) ---
+
+    local prov="$skill_dir/provenance.yml"
+    if [[ -f "$prov" ]]; then
+        if ! command -v yq &>/dev/null; then
+            fail "PV0" "provenance.yml found but yq not installed (brew install yq)"
+        else
+            # PV1: Every file in curation_decisions exists
+            local pv1_missing=0
+            local pv1_checked=0
+            while IFS= read -r file; do
+                [[ -z "$file" ]] && continue
+                pv1_checked=$((pv1_checked + 1))
+                if [[ ! -f "$skill_dir/$file" ]]; then
+                    fail "PV1" "File in curation_decisions not found: $file"
+                    pv1_missing=$((pv1_missing + 1))
+                fi
+            done < <(yq '.curation_decisions | keys | .[]' "$prov")
+            if [[ $pv1_checked -gt 0 && $pv1_missing -eq 0 ]]; then
+                pass "PV1" "All $pv1_checked files in curation_decisions exist"
+            fi
+
+            # PV2: Staleness check
+            local last_update
+            last_update=$(yq '.last_full_update' "$prov" | tr -d '"')
+            local last_epoch now_epoch days_ago
+            last_epoch=$(date -j -f "%Y-%m-%d" "$last_update" +%s 2>/dev/null || date -d "$last_update" +%s 2>/dev/null || echo 0)
+            now_epoch=$(date +%s)
+            if [[ "$last_epoch" -gt 0 ]]; then
+                days_ago=$(( (now_epoch - last_epoch) / 86400 ))
+                if [[ $days_ago -gt 30 ]]; then
+                    warn "PV2" "Provenance last checked $days_ago days ago ($last_update). Run check-upstream.sh"
+                else
+                    pass "PV2" "Provenance checked $days_ago days ago ($last_update)"
+                fi
+            else
+                warn "PV2" "Could not parse last_full_update date: $last_update"
+            fi
+
+        fi
     fi
 
     echo ""

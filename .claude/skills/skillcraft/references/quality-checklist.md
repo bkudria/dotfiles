@@ -1,6 +1,3 @@
-> Sources: compound-engineering, anthropic-plugin | Decision: altered
-> Last curated: 2026-02-06. See provenance.yml for full mapping.
-
 # Skill Quality Checklist
 
 32 checks across 6 categories. Each item has: ID, description, pass/fail criteria, fix guidance.

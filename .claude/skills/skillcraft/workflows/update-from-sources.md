@@ -19,46 +19,30 @@ gh auth status && command -v yq
 Read `provenance.yml` from this skill's root directory. Build a mental model of:
 - All upstream sources and their last-checked dates/SHAs
 - All `curation_decisions` mappings (file → source → decision → rationale)
-- Any `watch` entries (content we excluded but want to monitor)
 
-## Step 2: Check GitHub Sources for Changes
+## Step 2: Check All Sources for Changes
 
-Check all GitHub sources **in parallel** for efficiency.
-
-For each source with `type: github`, check if there are changes since the stored commit SHA:
+Run the automated detection script:
 
 ```bash
-gh api "repos/{owner}/{repo}/compare/{last_checked_sha}...HEAD" \
-  --jq '.files[] | select(.filename | startswith("{path}/")) | {filename, status, patch}'
+scripts/check-upstream.sh <skill-directory>
 ```
 
-If the compare returns no matching files, the source has not changed — skip it.
-The stored SHA is still current; no need to re-fetch it.
+This checks all GitHub sources via `gh api compare` and flags web sources for manual review. The output shows which sources have changes, which files changed, and new HEAD SHAs.
 
-If the compare returns changes:
-
-1. Note which upstream files changed
-2. Fetch their current content:
-   ```bash
-   gh api "repos/{owner}/{repo}/contents/{path}/{filename}" \
-     --jq '.content' | base64 -d
-   ```
-   Or use WebFetch on `https://raw.githubusercontent.com/{owner}/{repo}/HEAD/{path}/{filename}`.
-
-3. Capture the new HEAD SHA (only needed when changes were found):
-   ```bash
-   gh api "repos/{owner}/{repo}/commits?path={path}&per_page=1" --jq '.[0].sha'
-   ```
-
-## Step 3: Check Web Source for Changes
-
-For sources with `type: web` (e.g., official-docs):
-
-1. WebFetch the URL
+For any web sources flagged as `MANUAL`:
+1. WebFetch the URL shown in the output
 2. Read the corresponding curated file (e.g., `references/official-spec.md`)
 3. Compare the fetched content against the curated content
 4. Identify: new sections, removed content, changed guidance, new fields, updated examples
 5. Ignore: formatting-only changes, minor rewording with same meaning
+
+For GitHub sources marked `CHANGED`, fetch the changed file contents:
+```bash
+gh api "repos/{owner}/{repo}/contents/{path}/{filename}" \
+  --jq '.content' | base64 -d
+```
+Or use WebFetch on `https://raw.githubusercontent.com/{owner}/{repo}/HEAD/{path}/{filename}`.
 
 ## Step 4: Map Changes to Curated Files
 
@@ -74,14 +58,13 @@ Categorize each change:
 | Category | Meaning | Action |
 |----------|---------|--------|
 | **Relevant** | Affects content we `kept` or `synthesized` | Present for review |
-| **Watch** | Affects a `watch` entry we're monitoring | Present as FYI |
 | **Elided** | Changes to content we chose to `elide` | Present as FYI (rationale may need revisiting) |
 | **New** | Content that didn't exist when we last curated | Present for decision |
 | **Original scope** | Changes to upstream content we `altered` significantly | Flag — may want to re-evaluate our alteration |
 
 ## Step 5: Present Changes
 
-Label each change with its category from Step 4 (Relevant, Watch, Elided, New, Original scope).
+Label each change with its category from Step 4 (Relevant, Elided, New, Original scope).
 
 For each affected curated file, present a summary:
 
@@ -100,7 +83,7 @@ For each affected curated file, present a summary:
 [Incorporate] [Skip] [Discuss]
 ```
 
-Group changes by curated file. Show elided/watch changes in a separate "FYI" section — these are informational and do not require action, but the user may want to revisit their exclusion decision.
+Group changes by curated file. Show elided changes in a separate "FYI" section — these are informational and do not require action, but the user may want to revisit their exclusion decision.
 
 For `New` upstream content that doesn't map to any existing curated file:
 
@@ -125,7 +108,6 @@ For each approved change:
    - **simplified**: Add with appropriate simplification (trim examples, condense prose)
    - **synthesized**: Integrate into the existing synthesis (maintain voice and structure)
    - **altered**: Consider whether our alteration still makes sense given the upstream change
-3. Update the file's provenance header date (`> Last curated:` line)
 
 **Full rewrites**: If a change is large enough to require rewriting the entire file
 (e.g., correcting a fundamental error), show the user a summary of what will change
@@ -134,44 +116,35 @@ change fundamentally.
 
 If creating a new curated file for `New` content:
 1. Write the file with appropriate content
-2. Add provenance header
-3. Add entry to `curation_decisions` in provenance.yml
+2. Add entry to `curation_decisions` in provenance.yml
 4. Add row to the Reference Files table in SKILL.md
 
 ## Step 7: Update Provenance Metadata
 
-**CRITICAL — do not skip any of these.** This step is easy to overlook after
-the substantive work of Steps 5-6. Complete every item in the checklist.
-
-First, determine today's date in UTC:
+Run the automated metadata update:
 
 ```bash
-date -u +%Y-%m-%d
+scripts/check-upstream.sh <skill-directory> --update-metadata
 ```
 
-Use this UTC date for all updates below. Do NOT use the `currentDate` from
-conversation context — it may reflect a different timezone and be off by a day.
+This updates `last_full_update`, all `sources.*.last_checked` dates, and
+`last_checked_sha` values for GitHub sources with changes.
 
-Update `provenance.yml` with the following checklist:
+Then manually update `curation_decisions` in provenance.yml:
 
-- [ ] `last_full_update` → today's UTC date
-- [ ] `sources.*.last_checked` → today's UTC date (for every source checked, even if unchanged)
-- [ ] `sources.*.last_checked_sha` → current HEAD SHA (for each GitHub source — capture these in Step 2)
-- [ ] `curation_decisions` — add/update entries for any newly incorporated content
-- [ ] `curation_decisions` — update rationale text if the curation approach changed
-- [ ] Provenance headers (`> Last curated:` line) updated on all modified curated files
+- [ ] Add/update entries for any newly incorporated content
+- [ ] Update rationale text if the curation approach changed
 
 ## Step 8: Verify Provenance Updates
 
-**Do not skip this step.** Re-read `provenance.yml` in full after editing.
-Confirm every item:
+Run the detection script again to confirm all dates are current:
 
-1. All `last_checked` dates match the UTC date from Step 7
-2. `last_full_update` matches the UTC date from Step 7
-3. All `last_checked_sha` values are current HEAD SHAs (not the old values)
-4. Any new curation decisions are present and have rationale text
+```bash
+scripts/check-upstream.sh <skill-directory>
+```
 
-If anything is stale or missing, fix it now before reporting.
+Verify that all `last_checked` dates show today's UTC date. Also confirm
+any new curation decisions are present and have rationale text.
 
 Report summary:
 - Sources checked: N
@@ -191,4 +164,3 @@ Report summary:
 | `altered` | Changed in meaning | Re-evaluate alteration against new upstream |
 | `synthesized` | Combined from multiple sources | Integrate maintaining existing synthesis |
 | `original` | Not from any source | No upstream to check |
-| `watch` | Monitoring only | Present as FYI |

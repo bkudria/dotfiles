@@ -1,6 +1,3 @@
-> Sources: original (not derived from upstream)
-> Created: 2026-02-06
-
 # Skill Testing & Iteration Guide
 
 Quick reference for testing Claude Code skills after creation or modification.

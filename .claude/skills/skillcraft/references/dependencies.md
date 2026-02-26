@@ -1,6 +1,3 @@
-> Sources: original (not derived from upstream)
-> Created: 2026-02-06
-
 # Skill Dependencies Guide
 
 How to declare, check, and manage dependencies in Claude Code skills.

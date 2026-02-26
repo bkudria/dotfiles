@@ -8,6 +8,7 @@
 # Examples:
 #   scaffold.sh docker-helper --path ~/.claude/skills --type tool --references
 #   scaffold.sh pr-review --path .claude/skills --type workflow --references --scripts
+#   scaffold.sh rust-ref --path ~/.claude/skills --type knowledge --references --provenance
 
 set -euo pipefail
 
@@ -19,6 +20,7 @@ SKILL_TYPE=""
 WANT_REFERENCES=false
 WANT_SCRIPTS=false
 WANT_ASSETS=false
+WANT_PROVENANCE=false
 
 usage() {
   cat <<'USAGE'
@@ -31,6 +33,7 @@ Arguments:
   --references    Create references/ directory with placeholder
   --scripts       Create scripts/ directory with placeholder
   --assets        Create assets/ directory with placeholder
+  --provenance    Create provenance.yml template for tracking upstream sources
 USAGE
   exit 1
 }
@@ -47,6 +50,7 @@ while [[ $# -gt 0 ]]; do
     --references) WANT_REFERENCES=true; shift ;;
     --scripts)    WANT_SCRIPTS=true; shift ;;
     --assets)     WANT_ASSETS=true; shift ;;
+    --provenance) WANT_PROVENANCE=true; shift ;;
     *)            echo "Unknown option: $1"; usage ;;
   esac
 done
@@ -346,6 +350,53 @@ fi
 if $WANT_ASSETS; then
   mkdir -p "$SKILL_DIR/assets"
   echo "Created: assets/"
+fi
+
+if $WANT_PROVENANCE; then
+  TODAY=$(date -u +%Y-%m-%d)
+  cat > "$SKILL_DIR/provenance.yml" <<EOF
+schema_version: 1
+skill: ${SKILL_NAME}
+last_full_update: "${TODAY}"
+
+# Upstream sources this skill was curated from.
+# GitHub sources track commit SHAs for diffing. Web sources use WebFetch + comparison.
+sources:
+  # TODO: Add your upstream sources. Examples:
+  #
+  # official-docs:
+  #   url: https://example.com/docs
+  #   type: web
+  #   last_checked: "${TODAY}"
+  #
+  # upstream-repo:
+  #   url: https://github.com/org/repo
+  #   type: github
+  #   owner: org
+  #   repo: repo
+  #   path: path/to/relevant/dir
+  #   last_checked_sha: "TODO"
+  #   last_checked: "${TODAY}"
+
+# Maps each curated file to its upstream source(s) and curation decision.
+#
+# Decision taxonomy:
+#   kept        - Taken as-is (formatting changes only)
+#   simplified  - Reduced complexity while preserving meaning
+#   elided      - Intentionally excluded (rationale required)
+#   altered     - Changed in meaning or approach from source
+#   synthesized - Combined from multiple sources into something new
+#   original    - Not derived from any upstream source
+curation_decisions: {}
+  # TODO: Add entries for each curated file. Example:
+  #
+  # references/api-reference.md:
+  #   - source: upstream-repo
+  #     sections: ["README.md"]
+  #     decision: simplified
+  #     rationale: Condensed API docs into quick-reference format.
+EOF
+  echo "Created: provenance.yml (upstream source tracking)"
 fi
 
 echo ""

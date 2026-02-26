@@ -132,3 +132,4 @@ Consult `references/anti-patterns.md` for common problems. When an anti-pattern 
 | `references/testing-guide.md` | How to test skills after creation or editing |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
+| `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |

@@ -1,6 +1,3 @@
-> Sources: official-docs, compound-engineering | Decision: synthesized
-> Last curated: 2026-02-06. See provenance.yml for full mapping.
-
 # Skill Naming Conventions
 
 ## Skill Name Rules

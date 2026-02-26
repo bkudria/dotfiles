@@ -1,6 +1,3 @@
-> Sources: official-docs, anthropic-skills, compound-engineering | Decision: synthesized
-> Last curated: 2026-02-24. See provenance.yml for full mapping.
-
 # Skill Frontmatter Reference
 
 Complete catalog of all valid YAML frontmatter fields for Claude Code SKILL.md files.

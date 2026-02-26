@@ -1,6 +1,3 @@
-> Sources: anthropic-skills | Decision: altered
-> Last curated: 2026-02-06. See provenance.yml for full mapping.
-
 # Resource Directory Usage Guide
 
 How to effectively use the `references/`, `scripts/`, and `assets/` directories within a Claude Code skill.

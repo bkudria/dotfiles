@@ -1,7 +1,6 @@
 schema_version: 1
 skill: skillcraft
 last_full_update: "2026-02-24"
-
 # Upstream sources this skill was curated from.
 # GitHub sources track commit SHAs for diffing. Web sources use WebFetch + comparison.
 sources:
@@ -9,7 +8,6 @@ sources:
     url: https://code.claude.com/docs/en/skills
     type: web
     last_checked: "2026-02-24"
-
   anthropic-skills:
     url: https://github.com/anthropics/skills/tree/main/skills/skill-creator
     type: github
@@ -18,7 +16,6 @@ sources:
     path: skills/skill-creator
     last_checked_sha: "1ed29a03dc852d30fa6ef2ca53a67dc2c2c2c563"
     last_checked: "2026-02-24"
-
   anthropic-plugin:
     url: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator
     type: github
@@ -27,7 +24,6 @@ sources:
     path: plugins/skill-creator
     last_checked_sha: "aecd4c852f10b466245f18383fa6aad8c0b10d57"
     last_checked: "2026-02-24"
-
   compound-engineering:
     url: https://github.com/EveryInc/compound-engineering-plugin
     type: github
@@ -36,7 +32,6 @@ sources:
     path: plugins/compound-engineering/skills/create-agent-skills
     last_checked_sha: "f744b797efca368c986e4c8595e09a4f75e57a11"
     last_checked: "2026-02-24"
-
 # Maps each curated file to its upstream source(s) and curation decision.
 #
 # Decision taxonomy:
@@ -46,28 +41,20 @@ sources:
 #   altered     - Changed in meaning or approach from source
 #   synthesized - Combined from multiple sources into something new
 #   original    - Not derived from any upstream source
-#   watch       - Monitoring only, no content taken (yet)
 curation_decisions:
-
   # ── Reference files ──────────────────────────────────────────────
-
   references/official-spec.md:
     - source: official-docs
       sections: ["*"]
       decision: simplified
       rationale: >-
-        Kept all spec content. Trimmed visualization walkthrough example
-        and troubleshooting section for brevity. Added --add-dir section,
-        skill access restriction section, updated budget description
-        (2026-02-24).
-
+        Kept all spec content. Trimmed visualization walkthrough example and troubleshooting section for brevity. Added --add-dir section, skill access restriction section, updated budget description (2026-02-24).
   references/frontmatter-reference.md:
     - source: official-docs
       sections: [frontmatter-reference, string-substitutions]
       decision: kept
       rationale: >-
-        Core field table and substitutions from official docs.
-        Added user-invocable clarification (2026-02-24).
+        Core field table and substitutions from official docs. Added user-invocable clarification (2026-02-24).
     - source: anthropic-skills
       sections: [SKILL.md#progressive-disclosure]
       decision: synthesized
@@ -76,20 +63,16 @@ curation_decisions:
       sections: [references/official-spec.md, references/skill-structure.md]
       decision: synthesized
       rationale: Added trade-off notes and common field combinations.
-
   references/writing-style.md:
     - source: anthropic-skills
       sections: [SKILL.md#writing-guidelines]
       decision: altered
       rationale: >-
-        Expanded from terse 'use imperative/infinitive form' into comprehensive
-        style guide with voice/tone table, formatting rules, code example
-        requirements, and content length guidelines.
+        Expanded from terse 'use imperative/infinitive form' into comprehensive style guide with voice/tone table, formatting rules, code example requirements, and content length guidelines.
     - source: compound-engineering
       sections: [references/be-clear-and-direct.md]
       decision: synthesized
       rationale: Voice/tone rules and common mistakes table.
-
   references/naming-conventions.md:
     - source: official-docs
       sections: [frontmatter-reference#name]
@@ -99,64 +82,46 @@ curation_decisions:
       sections: [SKILL.md#effective-descriptions, references/best-practices.md]
       decision: synthesized
       rationale: Description construction pattern and trigger phrase design.
-
   references/skill-templates.md:
     - decision: original
       rationale: >-
-        Templates are original. Inspired by compound-engineering templates
-        but fully rewritten as generic skill-type starters (knowledge,
-        workflow, tool, hybrid).
-    - source: compound-engineering
-      sections: [templates/*]
-      decision: watch
-      rationale: Monitor for new generic template patterns worth incorporating.
-
+        Templates are original. Inspired by compound-engineering templates but fully rewritten as generic skill-type starters (knowledge, workflow, tool, hybrid).
   references/interactive-tui.md:
     - decision: original
       rationale: >-
         Original content based on our interactive-tmux and gum skills.
-
   references/dependencies.md:
     - decision: original
       rationale: >-
-        Original content. Some dependency concepts from anthropic-skills
-        but fully rewritten.
-
+        Original content. Some dependency concepts from anthropic-skills but fully rewritten.
   references/resource-usage.md:
     - source: anthropic-skills
       sections: [SKILL.md#bundled-resources]
       decision: altered
       rationale: Restructured and expanded resource type guidance.
-
   references/dynamic-context.md:
     - source: official-docs
       sections: [dynamic-context-injection, string-substitutions]
       decision: synthesized
       rationale: >-
-        Backtick-bang syntax and string substitutions from official docs.
-        Corrected 2026-02-24: backtick-bang works in body text, not in a
-        context frontmatter array. Removed incorrect context-array pattern.
+        Backtick-bang syntax and string substitutions from official docs. Corrected 2026-02-24: backtick-bang works in body text, not in a context frontmatter array. Removed incorrect context-array pattern.
     - source: compound-engineering
       sections: [SKILL.md#dynamic-features]
       decision: synthesized
       rationale: Use case patterns and best practices.
-
   references/anti-patterns.md:
     - source: compound-engineering
       sections: [SKILL.md#anti-patterns, references/best-practices.md]
       decision: altered
       rationale: >-
-        Expanded from brief list to 10 named anti-patterns with
-        before/after fixes.
+        Expanded from brief list to 10 named anti-patterns with before/after fixes.
     - source: anthropic-plugin
       sections: [references/eval-mode.md]
       decision: synthesized
       rationale: Iteration patterns for skill quality.
-
   references/common-fixes.md:
     - decision: original
       rationale: Concrete fix cookbook built from checklist failure patterns.
-
   references/quality-checklist.md:
     - source: compound-engineering
       sections: [SKILL.md#audit-checklist]
@@ -166,59 +131,44 @@ curation_decisions:
       sections: [references/schemas.md]
       decision: synthesized
       rationale: Added advanced feature checks (A1-A5).
-
   references/router-pattern.md:
     - decision: original
       rationale: Original architecture guidance for when/how to upgrade to router pattern.
-
   references/testing-guide.md:
     - decision: original
       rationale: Original testing framework covering 6 testing areas.
-
   # ── Workflow files (all original) ────────────────────────────────
-
   workflows/create-phase1-discovery.md:
     - decision: original
       rationale: Original interview-driven discovery process.
-
   workflows/create-phase2-design.md:
     - decision: original
       rationale: Original design phase with type/feature selection.
-
   workflows/create-phase3-scaffold.md:
     - decision: original
       rationale: Original scaffolding workflow.
-
   workflows/create-phase4-author.md:
     - decision: original
       rationale: Original collaborative authoring process.
-
   workflows/create-phase5-validate.md:
     - decision: original
       rationale: Original validation phase using quality checklist.
-
   workflows/create-domain-expertise.md:
     - decision: original
       rationale: Original alternative path for broad domain skills.
-
   workflows/improve-standard.md:
     - decision: original
       rationale: Original 6-step audit workflow.
-
   workflows/improve-bulk.md:
     - decision: original
       rationale: Original bulk audit with summary table.
-
   workflows/update-from-sources.md:
     - decision: original
       rationale: Self-update mechanism. Not derived from any source.
-
   # ── Scripts (all original) ──────────────────────────────────────
-
   scripts/scaffold.sh:
     - decision: original
       rationale: Original scaffolding script.
-
   scripts/quick-validate.sh:
     - decision: original
       rationale: Original structural validation script.

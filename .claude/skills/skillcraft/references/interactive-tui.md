@@ -1,6 +1,3 @@
-> Sources: original (not derived from upstream)
-> Created: 2026-02-06
-
 # Interactive TUI Best Practices
 
 Guide for using interactive TUI tools (gum, fzf, advanced-ask) within Claude Code skills.

@@ -1,6 +1,3 @@
-> Sources: official-docs | Decision: simplified
-> Last curated: 2026-02-24. See provenance.yml for full mapping.
-
 # Official Anthropic Skill Specification
 
 ## Overview

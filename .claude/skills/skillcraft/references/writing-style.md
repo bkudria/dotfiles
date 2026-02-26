@@ -1,6 +1,3 @@
-> Sources: anthropic-skills, compound-engineering | Decision: synthesized
-> Last curated: 2026-02-06. See provenance.yml for full mapping.
-
 # Writing Style Guide for Skills
 
 Voice, tone, and formatting rules for authoring Claude Code skill content.
