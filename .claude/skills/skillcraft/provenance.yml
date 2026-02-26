@@ -165,6 +165,9 @@ curation_decisions:
   workflows/update-from-sources.md:
     - decision: original
       rationale: Self-update mechanism. Not derived from any source.
+  workflows/add-provenance.md:
+    - decision: original
+      rationale: Workflow for adding provenance tracking to existing skills.
   # ── Scripts (all original) ──────────────────────────────────────
   scripts/scaffold.sh:
     - decision: original

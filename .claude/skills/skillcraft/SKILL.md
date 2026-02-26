@@ -27,8 +27,9 @@ Create, audit, improve, and update Claude Code skills.
 | Improve | `/skillcraft --improve [path]`, or "audit/improve a skill" | `workflows/improve-standard.md` |
 | Bulk Audit | `/skillcraft --all`, or "audit all skills" | `workflows/improve-bulk.md` |
 | Update | `/skillcraft update`, or "update skillcraft", "sync from sources", "check upstream" | `workflows/update-from-sources.md` |
+| Provenance | "add provenance", "track sources", "add upstream sources" | `workflows/add-provenance.md` |
 
-**Mode selection**: If the request mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "improve", "review", or "fix" an existing skill, use **Improve**. Otherwise default to **Create**.
+**Mode selection**: If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "improve", "review", or "fix" an existing skill, use **Improve**. Otherwise default to **Create**.
 
 ## Lightweight Mode (Auto-trigger)
 
@@ -112,6 +113,7 @@ Consult `references/anti-patterns.md` for common problems. When an anti-pattern 
 | `workflows/improve-standard.md` | Full audit of one skill (6-step workflow) |
 | `workflows/improve-bulk.md` | Audit every installed skill with summary table |
 | `workflows/update-from-sources.md` | Sync curated content from upstream sources |
+| `workflows/add-provenance.md` | Add provenance tracking to an existing skill |
 
 ## Reference Files
 
