@@ -277,6 +277,77 @@ validate_skill() {
                 warn "PV2" "Could not parse last_full_update date: $last_update"
             fi
 
+            # PV3: Source reference integrity — every source: ref in curation_decisions exists in sources
+            local pv3_bad=0
+            local pv3_checked=0
+            local source_keys
+            source_keys=$(yq '.sources | keys | .[]' "$prov" 2>/dev/null)
+            while IFS= read -r src_ref; do
+                [[ -z "$src_ref" ]] && continue
+                pv3_checked=$((pv3_checked + 1))
+                if ! echo "$source_keys" | grep -qxF "$src_ref"; then
+                    fail "PV3" "Source ref '$src_ref' in curation_decisions not found in sources"
+                    pv3_bad=$((pv3_bad + 1))
+                fi
+            done < <(yq '.curation_decisions[][] | select(.source) | .source' "$prov" 2>/dev/null | sort -u)
+            if [[ $pv3_checked -gt 0 && $pv3_bad -eq 0 ]]; then
+                pass "PV3" "All $pv3_checked source refs resolve to entries in sources"
+            elif [[ $pv3_checked -eq 0 ]]; then
+                pass "PV3" "No source refs to check (all entries are original)"
+            fi
+
+            # PV4: No orphan sources — every source in sources is referenced by at least one curation_decisions entry
+            local pv4_orphan=0
+            local pv4_checked=0
+            local used_sources
+            used_sources=$(yq '.curation_decisions[][] | select(.source) | .source' "$prov" 2>/dev/null | sort -u)
+            while IFS= read -r src_name; do
+                [[ -z "$src_name" ]] && continue
+                pv4_checked=$((pv4_checked + 1))
+                if ! echo "$used_sources" | grep -qxF "$src_name"; then
+                    fail "PV4" "Source '$src_name' defined but never referenced in curation_decisions"
+                    pv4_orphan=$((pv4_orphan + 1))
+                fi
+            done < <(yq '.sources | keys | .[]' "$prov" 2>/dev/null)
+            if [[ $pv4_checked -gt 0 && $pv4_orphan -eq 0 ]]; then
+                pass "PV4" "All $pv4_checked sources are referenced in curation_decisions"
+            fi
+
+            # PV5: Decision taxonomy validation — every decision value is from the allowed set
+            local pv5_bad=0
+            local pv5_checked=0
+            local valid_decisions="kept simplified elided altered synthesized original"
+            while IFS= read -r decision; do
+                [[ -z "$decision" ]] && continue
+                pv5_checked=$((pv5_checked + 1))
+                if ! echo "$valid_decisions" | grep -qwF "$decision"; then
+                    fail "PV5" "Invalid decision value: '$decision' (expected: $valid_decisions)"
+                    pv5_bad=$((pv5_bad + 1))
+                fi
+            done < <(yq '.curation_decisions[][].decision' "$prov" 2>/dev/null | sort -u)
+            if [[ $pv5_checked -gt 0 && $pv5_bad -eq 0 ]]; then
+                pass "PV5" "All $pv5_checked decision values are valid"
+            fi
+
+            # PV6: No orphan files — every skill file should have a curation_decisions entry (warn only)
+            local pv6_missing=0
+            local pv6_checked=0
+            local curated_files
+            curated_files=$(yq '.curation_decisions | keys | .[]' "$prov" 2>/dev/null)
+            for f in "$skill_dir"/SKILL.md "$skill_dir"/references/*.md "$skill_dir"/scripts/*; do
+                [[ -f "$f" ]] || continue
+                local rel_path="${f#$skill_dir/}"
+                [[ "$rel_path" == "provenance.yml" ]] && continue
+                pv6_checked=$((pv6_checked + 1))
+                if ! echo "$curated_files" | grep -qxF "$rel_path"; then
+                    warn "PV6" "File '$rel_path' has no curation_decisions entry"
+                    pv6_missing=$((pv6_missing + 1))
+                fi
+            done
+            if [[ $pv6_checked -gt 0 && $pv6_missing -eq 0 ]]; then
+                pass "PV6" "All $pv6_checked skill files have curation_decisions entries"
+            fi
+
         fi
     fi
 

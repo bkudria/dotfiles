@@ -37,7 +37,7 @@ List all files in the skill directory (SKILL.md, references/*, scripts/*). These
 
 Ask the user about the skill's origins. Key questions:
 
-1. **What are the upstream sources?** — URLs of documentation, blog posts, GitHub repos, or other materials this skill was derived from
+1. **What sources contributed content to this skill?** — URLs of documentation, blog posts, GitHub repos, or other materials that content was actually derived from. Only include sources whose content made it into the skill — provenance tracks derivation, not bibliography.
 2. **Source types** — For each source: is it a GitHub repository or a web page?
 3. **Which files came from which sources?** — Map each skill file to its upstream source(s)
 4. **What curation was applied?** — For each file-source mapping, what was the decision?
@@ -52,6 +52,8 @@ Use the curation decision taxonomy:
 | `altered` | Changed in meaning or approach from source |
 | `synthesized` | Combined from multiple sources into something new |
 | `original` | Not derived from any upstream source |
+
+**Note on `elided`**: This applies to sections *within* a source that was partially used — e.g., "used sections A and B, elided section C." If an entire source was considered but not used at all, simply omit it from `sources:`. Provenance tracks what IS in the skill, not what was considered and rejected.
 
 If the user is unsure about specific mappings, help by reading the skill files and comparing against the upstream sources (use WebFetch for web sources, `gh api` for GitHub sources).
 
@@ -111,6 +113,7 @@ curation_decisions:
 Guidelines:
 - Every file in the skill should have at least one curation decision entry
 - Files not derived from any source use `decision: original` (no `source` field needed)
+- Only list sources in `sources:` that contributed content to at least one curated file. If a source was considered but not used, omit it entirely.
 - The `sections` field maps which parts of the upstream source contributed to this file
 - Use `"*"` for sections when the entire source document was used
 - Rationale should be concise but explain WHY the curation choice was made

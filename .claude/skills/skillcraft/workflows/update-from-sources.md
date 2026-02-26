@@ -44,7 +44,7 @@ gh api "repos/{owner}/{repo}/contents/{path}/{filename}" \
 ```
 Or use WebFetch on `https://raw.githubusercontent.com/{owner}/{repo}/HEAD/{path}/{filename}`.
 
-## Step 4: Map Changes to Curated Files
+## Step 3: Map Changes to Curated Files
 
 Cross-reference upstream changes against `curation_decisions` in provenance.yml.
 
@@ -58,13 +58,13 @@ Categorize each change:
 | Category | Meaning | Action |
 |----------|---------|--------|
 | **Relevant** | Affects content we `kept` or `synthesized` | Present for review |
-| **Elided** | Changes to content we chose to `elide` | Present as FYI (rationale may need revisiting) |
+| **Elided** | Changes to sections within a source that we chose to `elide` | Present as FYI (rationale may need revisiting) |
 | **New** | Content that didn't exist when we last curated | Present for decision |
 | **Original scope** | Changes to upstream content we `altered` significantly | Flag — may want to re-evaluate our alteration |
 
-## Step 5: Present Changes
+## Step 4: Present Changes
 
-Label each change with its category from Step 4 (Relevant, Elided, New, Original scope).
+Label each change with its category from Step 3 (Relevant, Elided, New, Original scope).
 
 For each affected curated file, present a summary:
 
@@ -83,7 +83,7 @@ For each affected curated file, present a summary:
 [Incorporate] [Skip] [Discuss]
 ```
 
-Group changes by curated file. Show elided changes in a separate "FYI" section — these are informational and do not require action, but the user may want to revisit their exclusion decision.
+Group changes by curated file. Show elided changes in a separate "FYI" section — these are changes to sections within a used source that were intentionally excluded (section-level elision). They are informational and do not require action, but the user may want to revisit their exclusion decision.
 
 For `New` upstream content that doesn't map to any existing curated file:
 
@@ -98,7 +98,7 @@ Covers structured output patterns for skills.
 [Create new reference file] [Incorporate into existing file] [Skip]
 ```
 
-## Step 6: Apply Approved Changes
+## Step 5: Apply Approved Changes
 
 For each approved change:
 
@@ -117,9 +117,9 @@ change fundamentally.
 If creating a new curated file for `New` content:
 1. Write the file with appropriate content
 2. Add entry to `curation_decisions` in provenance.yml
-4. Add row to the Reference Files table in SKILL.md
+3. Add row to the Reference Files table in SKILL.md
 
-## Step 7: Update Provenance Metadata
+## Step 6: Update Provenance Metadata
 
 Run the automated metadata update:
 
@@ -135,7 +135,7 @@ Then manually update `curation_decisions` in provenance.yml:
 - [ ] Add/update entries for any newly incorporated content
 - [ ] Update rationale text if the curation approach changed
 
-## Step 8: Verify Provenance Updates
+## Step 7: Verify Provenance Updates
 
 Run the detection script again to confirm all dates are current:
 
@@ -160,7 +160,7 @@ Report summary:
 |----------|---------|-----------------|
 | `kept` | Taken as-is | Add new upstream content as-is |
 | `simplified` | Reduced complexity | Add with similar simplification |
-| `elided` | Intentionally excluded | Skip unless user revisits decision |
+| `elided` | Sections intentionally excluded | Skip unless user revisits decision |
 | `altered` | Changed in meaning | Re-evaluate alteration against new upstream |
 | `synthesized` | Combined from multiple sources | Integrate maintaining existing synthesis |
 | `original` | Not from any source | No upstream to check |
