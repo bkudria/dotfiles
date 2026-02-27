@@ -50,6 +50,10 @@ sources:
 #   synthesized - Combined from multiple sources into something new
 #   original    - Not derived from any upstream source
 curation_decisions:
+  # ── Root files ──────────────────────────────────────────────────
+  SKILL.md:
+    - decision: original
+      rationale: Original router-pattern entry point. Not derived from any upstream source.
   # ── Reference files ──────────────────────────────────────────────
   references/official-spec.md:
     - source: official-docs
@@ -182,6 +186,9 @@ curation_decisions:
         Added T1-T5 TDD Compliance category (baseline tested, rationalizations
         captured, compliance verified, loopholes closed, skill type testing).
         Total now 37 checks across 7 categories.
+  references/source-integration.md:
+    - decision: original
+      rationale: Templates and frameworks for source integration workflow.
   references/router-pattern.md:
     - decision: original
       rationale: Original architecture guidance for when/how to upgrade to router pattern.
@@ -231,6 +238,9 @@ curation_decisions:
   workflows/update-from-sources.md:
     - decision: original
       rationale: Self-update mechanism. Not derived from any source.
+  workflows/integrate-source.md:
+    - decision: original
+      rationale: Workflow for folding content from external sources into existing skills.
   workflows/add-provenance.md:
     - decision: original
       rationale: Workflow for adding provenance tracking to existing skills.
@@ -241,3 +251,9 @@ curation_decisions:
   scripts/quick-validate.sh:
     - decision: original
       rationale: Original structural validation script.
+  scripts/post-integration-check.sh:
+    - decision: original
+      rationale: Post-integration content quality validation script.
+  scripts/check-upstream.sh:
+    - decision: original
+      rationale: Original upstream source checking script.

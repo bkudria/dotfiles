@@ -1,6 +1,6 @@
 ---
 name: skillcraft
-description: "IMPORTANT - this skill MUST be loaded ANY time a SKILL.md file is being edited, created, or reviewed, even as part of other work. Create new skills with an interactive wizard, audit and improve existing skills, or update skillcraft from upstream sources. Use when creating a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, updating skillcraft, syncing skillcraft from sources, or checking for upstream changes to skills."
+description: "IMPORTANT - this skill MUST be loaded ANY time a SKILL.md file is being edited, created, or reviewed, even as part of other work. Create new skills with an interactive wizard, audit and improve existing skills, integrate content from external sources, or update skillcraft from upstream sources. Use when creating a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, updating skillcraft, syncing skillcraft from sources, checking for upstream changes to skills, folding in a source, integrating a source, or merging content from an external source."
 argument-hint: "[skill name, path, or 'update']"
 ---
 
@@ -16,6 +16,7 @@ Create, audit, improve, and update Claude Code skills.
 - Fixing broken frontmatter or references
 - Optimizing a skill's description for better auto-triggering
 - Maintaining a collection of skills
+- Integrating content from external sources into existing skills
 - Updating skills from upstream sources
 
 ## Modes
@@ -28,8 +29,9 @@ Create, audit, improve, and update Claude Code skills.
 | Bulk Audit | `/skillcraft --all`, or "audit all skills" | `workflows/improve-bulk.md` |
 | Update | `/skillcraft update`, or "update skillcraft", "sync from sources", "check upstream" | `workflows/update-from-sources.md` |
 | Provenance | "add provenance", "track sources", "add upstream sources" | `workflows/add-provenance.md` |
+| Integrate | "fold in source", "integrate source", "merge content from" | `workflows/integrate-source.md` |
 
-**Mode selection**: If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "improve", "review", or "fix" an existing skill, use **Improve**. Otherwise default to **Create**.
+**Mode selection**: If the request mentions "fold in", "integrate source", or "merge content from" an external source into an existing skill, use **Integrate** mode. If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "improve", "review", or "fix" an existing skill, use **Improve**. Otherwise default to **Create**.
 
 ## Lightweight Mode (Auto-trigger)
 
@@ -117,6 +119,7 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `workflows/improve-bulk.md` | Audit every installed skill with summary table |
 | `workflows/update-from-sources.md` | Sync curated content from upstream sources |
 | `workflows/add-provenance.md` | Add provenance tracking to an existing skill |
+| `workflows/integrate-source.md` | Fold content from an external source into an existing skill |
 
 ## Reference Files
 
@@ -138,4 +141,6 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/testing-guide.md` | How to test skills after creation or editing |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
+| `references/source-integration.md` | Templates and frameworks for source integration |
 | `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
+| `scripts/post-integration-check.sh` | Post-integration content quality validation |

@@ -22,12 +22,58 @@ Set `SKILL_DIR` to the skill's root directory.
 
 ## Step 2: Check for Existing Provenance
 
-If `$SKILL_DIR/provenance.yml` already exists, inform the user and redirect:
+If `$SKILL_DIR/provenance.yml` already exists, determine the user's intent:
 
-> This skill already has provenance tracking. To check for upstream changes, use the **Update** workflow instead:
-> Read `workflows/update-from-sources.md`
+- **Add initial provenance** (file exists but is incomplete or the user wants to redo it) → continue to Step 3
+- **Add a new source to existing provenance** → go to Step 2b
+- **Check for upstream changes** → redirect to `workflows/update-from-sources.md`
+- **Integrate content from a source** → redirect to `workflows/integrate-source.md`
 
-Stop here if provenance.yml exists.
+Ask the user which path applies. If provenance.yml does not exist, continue to Step 3.
+
+### Step 2b: Identify the New Source
+
+Gather information about the source to add:
+
+1. **URL** — Where is the source? (GitHub repo URL, web page URL, or local path)
+2. **Source type** — `github` or `web`
+3. **Source ID** — A short identifier for use in provenance.yml (e.g., `pcvelz-superpowers`, `official-docs`)
+
+### Step 2c: Research Source Metadata
+
+**GitHub sources:**
+```bash
+# Get latest commit SHA for the relevant path
+gh api "repos/{owner}/{repo}/commits?path={path}&per_page=1" --jq '.[0].sha'
+```
+
+**Web sources:**
+- Record the URL
+- Note today's date as `last_checked`
+
+### Step 2d: Add Source to `sources:` Section
+
+Append the new source entry to `provenance.yml`:
+
+```yaml
+  <source-id>:
+    url: <url>
+    type: <web|github>
+    last_checked: "<today>"
+    # GitHub sources only:
+    owner: <org>
+    repo: <repo>
+    path: <path/to/relevant/dir>
+    last_checked_sha: "<sha>"
+```
+
+### Step 2e: Add Curation Decisions
+
+For each file in the skill that is affected by this source, add or update its `curation_decisions` entry. Use the curation decision taxonomy from Step 4.
+
+If the file already has entries, append the new source entry to the list. If the file is new, create a fresh entry.
+
+After completing Steps 2b-2e, skip to Step 7 (Validate).
 
 ## Step 3: Inventory Skill Files
 
