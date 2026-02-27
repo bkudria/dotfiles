@@ -136,6 +136,44 @@ jq -r 'select(.type == "user") | .message.content | if type == "string" then sel
 jq -r 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use" and .name == "Task") | "\(.input.description // "?")\t\(.input.subagent_type // "?")\tprompt_len=\(.input.prompt | length)"' "$FILE" | sort -t$'\t' -k3 -rn
 ```
 
+## Session Discovery
+
+**Find sessions modified on a specific date:**
+```bash
+SCRIPTS=~/.claude/skills/session-transcripts/scripts
+$SCRIPTS/list-sessions.sh /Users/bkudria/code/myproject | grep "2026-02-25"
+```
+
+**Find sessions modified in the last N days:**
+```bash
+$SCRIPTS/list-sessions.sh /Users/bkudria/code/myproject \
+  | awk -v cutoff="$(date -v-7d '+%Y-%m-%d')" '$2 >= cutoff'
+```
+(On Linux, use `date -d '7 days ago' '+%Y-%m-%d'` instead.)
+
+**Find sessions by date range:**
+```bash
+$SCRIPTS/list-sessions.sh /Users/bkudria/code/myproject \
+  | awk '$2 >= "2026-02-20" && $2 <= "2026-02-25"'
+```
+
+## Reading Specific Ranges
+
+**Read a specific entry by index (0-based) with full detail:**
+```bash
+jq -s '.[42]' "$FILE"
+```
+
+**Read entries N through M (0-based) with parsed content:**
+```bash
+jq -s '.[9:19] | .[] | {type, timestamp, text: (if .type == "user" then (.message.content | if type == "string" then . elif type == "array" then [.[] | select(.type == "text") | .text] | join("\n") else "" end) elif .type == "assistant" then [.message.content[]? | select(.type == "text") | .text] | join("\n") else null end)}' "$FILE"
+```
+
+**Read entries between two timestamps:**
+```bash
+jq 'select(.timestamp >= "2026-02-25T10:00:00" and .timestamp <= "2026-02-25T11:00:00")' "$FILE"
+```
+
 ## Working with lib.jq
 
 Use the shared library for cleaner queries:

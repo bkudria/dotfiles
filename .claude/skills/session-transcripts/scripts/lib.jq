@@ -105,3 +105,50 @@ def tool_result_count:
     [ .message.content[] | select(.type == "tool_result") ] | length
   else 0
   end;
+
+# Check if a JSONL entry is an agent progress entry (sub-agent activity).
+def is_agent_progress:
+  .type == "progress" and (.data.type // "") == "agent_progress";
+
+# Extract tool_use blocks from an agent_progress entry.
+# Progress entries nest content at: .data.message.message.content[]
+def progress_tool_blocks:
+  [ .data.message.message.content // [] | .[] | select(.type == "tool_use") ];
+
+# Extract the primary path/target from a tool_use block's input.
+def tool_file_path:
+  if .name == "Read" or .name == "Write" or .name == "Edit" then
+    .input.file_path // null
+  elif .name == "Grep" or .name == "Glob" then
+    .input.path // null
+  elif .name == "Bash" then
+    .input.command // null
+  elif .name == "Task" then
+    .input.description // null
+  elif .name == "WebFetch" then
+    .input.url // null
+  elif .name == "WebSearch" then
+    .input.query // null
+  else null
+  end;
+
+# Content preview for a tool_use block — more detail than brief_tool_desc.
+# Shows substantive content (file content for Write, strings for Edit, command for Bash).
+def tool_content_preview(n):
+  if .name == "Write" then
+    (.input.content // "" | gsub("\n"; " ") | truncate(n))
+  elif .name == "Edit" then
+    "old: \(.input.old_string // "" | gsub("\n"; " ") | truncate(n/2 | floor)) -> new: \(.input.new_string // "" | gsub("\n"; " ") | truncate(n/2 | floor))"
+  elif .name == "Bash" then
+    (.input.command // "" | gsub("\n"; " ") | truncate(n))
+  elif .name == "Task" then
+    "desc: \(.input.description // "" | truncate(n/3 | floor))  prompt: \(.input.prompt // "" | gsub("\n"; " ") | truncate(n*2/3 | floor))"
+  elif .name == "Read" then
+    (.input.file_path // "?")
+  elif .name == "Grep" then
+    "\(.input.pattern // "?") in \(.input.path // ".")"
+  elif .name == "Glob" then
+    "\(.input.pattern // "?") in \(.input.path // ".")"
+  else
+    (.input | keys | join(", ") | truncate(n))
+  end;

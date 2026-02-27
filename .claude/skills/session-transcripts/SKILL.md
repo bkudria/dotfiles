@@ -49,6 +49,9 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 | `extract-errors.jq` | Pure jq | Find tool errors and failures |
 | `extract-changes.jq` | Pure jq | File operations and tool usage log |
 | `extract-agents.jq` | Pure jq | Sub-agent (Task) spawns with prompts |
+| `extract-subagent-commands.jq` | Pure jq | Sub-agent tool uses from progress entries |
+| `find-tool-calls.sh <file> [--path P] [--tools T]` | Shell | Find tool calls by path/tool filter |
+| `search-session.sh <file> <keyword> [--context N]` | Shell | Search session content with highlighting |
 | `lib.jq` | jq module | Shared helper functions |
 
 ### Usage Examples
@@ -76,6 +79,21 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 **List sessions for a project:**
 ```bash
 ~/.claude/skills/session-transcripts/scripts/list-sessions.sh /Users/bkudria/code/myproject
+```
+
+**Search within a session:**
+```bash
+~/.claude/skills/session-transcripts/scripts/search-session.sh /path/to/session.jsonl "authentication" --context 3
+```
+
+**Find all Write/Edit operations on a specific file:**
+```bash
+~/.claude/skills/session-transcripts/scripts/find-tool-calls.sh /path/to/session.jsonl --tools "Write,Edit" --path "lib.jq"
+```
+
+**See what sub-agents did:**
+```bash
+~/.claude/skills/session-transcripts/scripts/extract-subagent-commands.jq < /path/to/session.jsonl
 ```
 
 ## Reviewing a Session
