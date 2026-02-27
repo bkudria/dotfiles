@@ -15,7 +15,7 @@ Fix any structural issues before proceeding to the full audit.
 ## Full Audit
 
 1. Read `references/quality-checklist.md`
-2. Apply all 32 checks to the new skill
+2. Apply all 37 structural checks (S-Q categories) to the new skill
 3. For any failures, fix immediately (no need to ask — this is a fresh skill)
 4. Re-validate until all checks pass
 
@@ -30,7 +30,7 @@ Location: {path}
 Type: {skill-type}
 Files: {count}
 
-Quality: {score}/32 checks passed
+Quality: {score}/37 structural checks passed
 
 ### Files Created
 - SKILL.md (N lines)
@@ -39,6 +39,7 @@ Quality: {score}/32 checks passed
 
 ### Next Steps
 - Test with: /skill-name
+- Evaluate with: Read `workflows/create-phase6-eval.md` for behavioral testing
 - Improve later with: /skillcraft improve path/to/skill
 ```
 

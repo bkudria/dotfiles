@@ -21,6 +21,7 @@ WANT_REFERENCES=false
 WANT_SCRIPTS=false
 WANT_ASSETS=false
 WANT_PROVENANCE=false
+WANT_EVALS=false
 
 usage() {
   cat <<'USAGE'
@@ -34,6 +35,7 @@ Arguments:
   --scripts       Create scripts/ directory with placeholder
   --assets        Create assets/ directory with placeholder
   --provenance    Create provenance.yml template for tracking upstream sources
+  --evals         Create evals/ directory with template evals.yml for behavioral testing
 USAGE
   exit 1
 }
@@ -51,6 +53,7 @@ while [[ $# -gt 0 ]]; do
     --scripts)    WANT_SCRIPTS=true; shift ;;
     --assets)     WANT_ASSETS=true; shift ;;
     --provenance) WANT_PROVENANCE=true; shift ;;
+    --evals)      WANT_EVALS=true; shift ;;
     *)            echo "Unknown option: $1"; usage ;;
   esac
 done
@@ -397,6 +400,31 @@ curation_decisions: {}
   #     rationale: Condensed API docs into quick-reference format.
 EOF
   echo "Created: provenance.yml (upstream source tracking)"
+fi
+
+if $WANT_EVALS; then
+  mkdir -p "$SKILL_DIR/evals"
+  cat > "$SKILL_DIR/evals/evals.yml" <<EOF
+# Eval scenarios for ${SKILL_NAME}
+# See references/eval-guide.md in the skillcraft skill for schema details.
+skill: ${SKILL_NAME}
+scenarios:
+  - id: scenario-1
+    name: "TODO - Descriptive name"
+    prompt: |
+      TODO - The user task/prompt to test.
+      This prompt is given to both a subagent with the skill loaded
+      and a baseline subagent without it.
+    assertions:
+      - "TODO - Objectively verifiable assertion"
+      - "TODO - Another assertion"
+      - "TODO - A third assertion"
+    rubric: |
+      1. Did the output follow the skill's primary instruction?
+      2. Was the output format correct?
+      3. Were common pitfalls avoided?
+EOF
+  echo "Created: evals/ (with template evals.yml)"
 fi
 
 echo ""

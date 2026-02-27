@@ -135,7 +135,24 @@ Then manually update `curation_decisions` in provenance.yml:
 - [ ] Add/update entries for any newly incorporated content
 - [ ] Update rationale text if the curation approach changed
 
-## Step 7: Verify Provenance Updates
+## Step 7: Regression Check (Optional)
+
+If the skill has `evals/evals.yml`, verify the update didn't degrade behavior:
+
+1. Before applying changes (Step 5), note the latest benchmark in `evals/`:
+   ```bash
+   scripts/run-eval.sh status <skill-directory>
+   ```
+2. After applying changes, create a new iteration and re-run evals:
+   ```bash
+   scripts/run-eval.sh new-iteration <skill-directory>
+   ```
+3. Follow `workflows/create-phase6-eval.md` Steps 3-5 (run subagents, grade, aggregate)
+4. Compare new benchmark against previous — flag any regressions (negative delta change)
+
+If regressions are found, review the upstream changes that caused them and consider reverting or adjusting.
+
+## Step 8: Verify Provenance Updates
 
 Run the detection script again to confirm all dates are current:
 

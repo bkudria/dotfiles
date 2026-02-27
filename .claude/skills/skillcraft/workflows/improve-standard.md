@@ -40,6 +40,8 @@ Run all checks from `references/quality-checklist.md` across six categories:
 | Progressive Disclosure | P1-P5 | Body vs references balance |
 | Advanced Features | A1-A5 | Dynamic context, hooks, agents |
 | Quality | Q1-Q5 | Dedup, formatting, consistency |
+| TDD Compliance | T1-T5 | Baseline testing, skill type testing |
+| Eval Pipeline | E1-E5 | Behavioral testing & benchmarks |
 
 ## Step 4: Present Findings
 
@@ -85,6 +87,13 @@ For each issue (critical first), present the fix and ask:
 ## Step 6: Re-validate
 
 After all fixes, re-run the checklist. Report final score.
+
+## Step 7: Behavioral Eval (Optional)
+
+If the skill has `evals.yml`, re-run the eval pipeline to verify improvements:
+
+Read `workflows/create-phase6-eval.md` and run through Steps 2-5.
+Compare benchmark.json before and after improvements.
 
 ## Anti-Pattern Detection
 

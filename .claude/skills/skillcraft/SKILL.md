@@ -54,6 +54,7 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 | 3. Scaffold | Create directory and files | `scripts/scaffold.sh` | `workflows/create-phase3-scaffold.md` |
 | 4. Author | Write content collaboratively | Edit tool | `workflows/create-phase4-author.md` |
 | 5. Validate | Run quality checklist | `scripts/quick-validate.sh` | `workflows/create-phase5-validate.md` |
+| 6. Eval | Behavioral testing & iteration | Task tool (subagents), `scripts/run-eval.sh` | `workflows/create-phase6-eval.md` |
 
 ### How to Create
 
@@ -65,12 +66,13 @@ Read the workflow file for the current phase. Start at Phase 0 and proceed seque
 3. Read `workflows/create-phase3-scaffold.md` — Run scaffold script to create directory and files
 4. Read `workflows/create-phase4-author.md` — Write content section by section
 5. Read `workflows/create-phase5-validate.md` — Validate against quality checklist
+6. Read `workflows/create-phase6-eval.md` — Run eval scenarios, grade, iterate
 
 If `$ARGUMENTS` is provided (and is not `update`, `--improve`, or `--all`), pre-fill the name/topic and start Phase 1 with that context.
 
 ### Alternative: Domain Expertise Skills
 
-If the skill covers a broad domain (framework, platform, API, language ecosystem) and requires exhaustive research and multiple workflows, use `workflows/create-domain-expertise.md` instead of the standard 5-phase path.
+If the skill covers a broad domain (framework, platform, API, language ecosystem) and requires exhaustive research and multiple workflows, use `workflows/create-domain-expertise.md` instead of the standard 6-phase path.
 
 ## Improve Quick Reference
 
@@ -103,6 +105,7 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 - **gum** — Interactive TUI components (`brew install gum`)
 - **jq** — JSON processing (`brew install jq`)
 - **fzf** — File picking (`brew install fzf`)
+- **yq** — YAML processing (`brew install yq`)
 
 ## Workflows
 
@@ -114,6 +117,7 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `workflows/create-phase3-scaffold.md` | Run scaffold script, post-scaffold updates |
 | `workflows/create-phase4-author.md` | Section-by-section content authoring |
 | `workflows/create-phase5-validate.md` | Structural check + full audit |
+| `workflows/create-phase6-eval.md` | Behavioral eval: paired runs, grading, iteration |
 | `workflows/create-domain-expertise.md` | Domain expertise skill creation (research-intensive, router-pattern) |
 | `workflows/improve-standard.md` | Full audit of one skill (6-step workflow) |
 | `workflows/improve-bulk.md` | Audit every installed skill with summary table |
@@ -139,8 +143,13 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/bulletproofing.md` | Rationalization resistance for discipline-enforcing skills |
 | `references/common-fixes.md` | Concrete fix examples for common checklist failures |
 | `references/testing-guide.md` | How to test skills after creation or editing |
+| `references/eval-guide.md` | Writing eval scenarios, assertions, and rubrics |
+| `agents/grader.md` | Subagent definition for auto-grading eval outputs |
+| `agents/analyzer.md` | Subagent definition for benchmark analysis |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
 | `references/source-integration.md` | Templates and frameworks for source integration |
 | `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
+| `scripts/run-eval.sh` | Eval orchestration: init, status, new-iteration, show |
+| `scripts/aggregate-results.sh` | Aggregate grading results into benchmark.json |
 | `scripts/post-integration-check.sh` | Post-integration content quality validation |

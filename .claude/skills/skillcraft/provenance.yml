@@ -185,7 +185,7 @@ curation_decisions:
       rationale: >-
         Added T1-T5 TDD Compliance category (baseline tested, rationalizations
         captured, compliance verified, loopholes closed, skill type testing).
-        Total now 37 checks across 7 categories.
+        Total now 42 checks across 8 categories (added E1-E5 eval pipeline category).
   references/source-integration.md:
     - decision: original
       rationale: Templates and frameworks for source integration workflow.
@@ -254,6 +254,43 @@ curation_decisions:
   scripts/post-integration-check.sh:
     - decision: original
       rationale: Post-integration content quality validation script.
+  scripts/run-eval.sh:
+    - decision: original
+      rationale: Eval pipeline orchestration script (init, status, new-iteration, show, scenarios).
+  scripts/aggregate-results.sh:
+    - decision: original
+      rationale: Aggregates grading.json files into benchmark.json with summary statistics.
   scripts/check-upstream.sh:
     - decision: original
       rationale: Original upstream source checking script.
+  # ── Eval pipeline files (original, inspired by Anthropic skill-creator) ──
+  references/eval-guide.md:
+    - source: anthropic-skills
+      sections: [skills/skill-creator/SKILL.md]
+      decision: synthesized
+      rationale: >-
+        Eval concepts inspired by Anthropic's skill-creator eval pipeline (paired runs,
+        assertions, grading). Schema and guide content are original; decision framework
+        and directory structure adapted from Anthropic's approach.
+  agents/grader.md:
+    - source: anthropic-skills
+      sections: [skills/skill-creator/agents/grader.md]
+      decision: altered
+      rationale: >-
+        Grading approach inspired by Anthropic's grader agent. Simplified to work within
+        Claude Code's Task tool (no separate API). Added discrimination assessment and
+        structured JSON output format. Assertion evaluation and rubric scoring are original.
+  agents/analyzer.md:
+    - source: anthropic-skills
+      sections: [skills/skill-creator/agents/analyzer.md]
+      decision: altered
+      rationale: >-
+        Analysis patterns inspired by Anthropic's analyzer agent. Simplified for bash+jq
+        pipeline. Original output format and suggestion categories.
+  workflows/create-phase6-eval.md:
+    - source: anthropic-skills
+      sections: [skills/skill-creator/SKILL.md]
+      decision: synthesized
+      rationale: >-
+        Phase 6 workflow synthesized from Anthropic's skill-creator eval pipeline design.
+        Adapted for skillcraft's sequential phase model and bash+jq toolchain.

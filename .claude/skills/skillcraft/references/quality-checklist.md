@@ -1,6 +1,6 @@
 # Skill Quality Checklist
 
-37 checks across 7 categories. Each item has: ID, description, pass/fail criteria, fix guidance.
+42 checks across 8 categories. Each item has: ID, description, pass/fail criteria, fix guidance.
 
 Apply all checks when running a full audit. For lightweight mode, apply only S1, S3, M1, M2, M3 and scan for anti-patterns.
 
@@ -284,3 +284,37 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 - **Pass**: Test approach matches skill type per `references/testing-guide.md` (discipline → pressure, technique → application, pattern → recognition, reference → retrieval)
 - **Fail**: Wrong test approach (e.g., pressure-testing a reference skill)
 - **Fix**: Review testing-by-type guidance and re-test with appropriate approach
+
+---
+
+## Eval Pipeline (E1-E5)
+
+### E1: Eval Scenarios Defined
+- **Check**: Skill has evals.yml with ≥3 scenarios
+- **Pass**: evals.yml exists with id, prompt, assertions for each scenario
+- **Fail**: No evals.yml or <3 scenarios
+- **Fix**: Create evals.yml following `references/eval-guide.md`
+
+### E2: Assertions Discriminate
+- **Check**: Assertions pass with skill but fail without
+- **Pass**: benchmark.json shows measurable pass_rate delta (≥20%)
+- **Fail**: No delta, or all assertions trivially pass both variants
+- **Fix**: Revise assertions to target skill-specific improvements
+
+### E3: Baseline Established
+- **Check**: At least one iteration has both with_skill and without_skill outputs
+- **Pass**: iteration-1/ contains both output variants for all scenarios
+- **Fail**: Missing baseline data
+- **Fix**: Run Phase 6 eval workflow (`workflows/create-phase6-eval.md`)
+
+### E4: Iteration Completed
+- **Check**: At least one full eval cycle completed (run → grade → review)
+- **Pass**: benchmark.json exists with graded results
+- **Fail**: Eval started but not graded, or never run
+- **Fix**: Complete the Phase 6 workflow through grading
+
+### E5: Production Readiness
+- **Check**: Final benchmark shows meaningful improvement
+- **Pass**: With-skill pass_rate ≥80% AND delta over baseline ≥20%
+- **Fail**: Marginal improvement or regression
+- **Fix**: Revise skill content, re-run eval, iterate

@@ -61,10 +61,26 @@ Proceed to Phase 1 (Discovery) only after documenting:
 
 ---
 
+## Using the Eval Pipeline (Optional)
+
+If eval scenarios are already defined (from a previous skill version or pre-planned), use the eval infrastructure to structure baseline testing:
+
+1. Run `scripts/run-eval.sh init <skill-dir>` to create the evals/ directory
+2. Write scenarios in `evals/evals.yml` (these same scenarios will be reused in Phase 6)
+3. Run `scripts/run-eval.sh new-iteration <skill-dir>` to create iteration-1/
+4. Execute only the **without_skill** subagent runs (skip with_skill for now)
+5. Save outputs to `evals/iteration-1/<scenario-id>/without_skill/output.md`
+
+This creates a structured baseline that Phase 6 can later compare against. The without-skill outputs from Phase 0 become the baseline data for benchmark.json.
+
+---
+
 ## Cross-References
 
 - `references/testing-guide.md` — Testing by skill type, TDD cycle details
 - `references/bulletproofing.md` — Rationalization resistance for discipline-enforcing skills
+- `workflows/create-phase6-eval.md` — Phase 6 uses baseline data for with/without comparison
+- `references/eval-guide.md` — Writing eval scenarios and assertions
 
 ## After Phase 0
 

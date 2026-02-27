@@ -123,22 +123,54 @@ For auto-invocable skills, trigger by mentioning relevant phrases in conversatio
 
 ## 2. Trigger Phrase Testing
 
-Test that `description` field drives correct auto-invocation.
+Test that the `description` field drives correct auto-invocation.
 
-| Direction | What to test | Example |
-|-----------|-------------|---------|
-| Positive | Exact phrases from description | "audit this skill" |
-| Positive | Synonyms and rephrasings | "review my skill quality" |
-| Positive | Partial matches | "check skill frontmatter" |
-| Negative | Related but different topic | "audit this code" (not a skill) |
-| Negative | Shared keywords, different intent | "improve performance" vs "improve skills" |
+### Step 1: Generate Test Prompts
+
+Create two lists of 10 prompts each:
+
+**Should-trigger prompts** (skill should load):
+- 3 prompts using exact phrases from the description
+- 3 prompts using synonyms or rephrasings
+- 2 prompts using partial matches or related terminology
+- 2 prompts describing the problem the skill solves (not the skill itself)
+
+**Should-NOT-trigger prompts** (skill should NOT load):
+- 3 prompts on related but different topics (shared keywords, different intent)
+- 3 prompts that a different installed skill should handle instead
+- 2 prompts using the same domain but outside this skill's scope
+- 2 general prompts with no relation to the skill
+
+### Step 2: Test Each Prompt
+
+For each prompt, start a new conversation (or use a subagent) and observe:
+- Does the skill auto-load? (Check system messages or skill loading indicators)
+- If it loads, was that correct?
+- If it doesn't load, was that correct?
+
+### Step 3: Score
+
+| Metric | Formula | Target |
+|--------|---------|--------|
+| Recall | (correct triggers) / (total should-trigger) | ≥ 0.7 |
+| Precision | (correct triggers) / (total actual triggers) | ≥ 0.8 |
+| Specificity | (correct non-triggers) / (total should-NOT-trigger) | ≥ 0.8 |
+
+### Step 4: Iterate Description
+
+If recall < 0.7: Add more specific trigger phrases matching the missed prompts.
+If precision < 0.8: Make trigger phrases more specific (verb+noun pairs, not single keywords).
+If specificity < 0.8: Remove overly generic terms that cause false triggers.
+
+Repeat Steps 2-4 up to 3 iterations. Restart the conversation after each description change (description is cached at load time).
+
+### Quick Checklist
 
 - [ ] Fires on 3+ distinct positive trigger phrasings
+- [ ] Fires on synonym/rephrasings (not just exact matches)
 - [ ] Does NOT fire on 3+ unrelated topics sharing keywords
 - [ ] Does NOT fire when another skill is more appropriate
 - [ ] `disable-model-invocation: true` skills never auto-trigger
-
-If triggers are too broad or too narrow, revise `description`. More specific verb+noun phrases improve precision.
 
 ## 3. Edge Case Testing
 
