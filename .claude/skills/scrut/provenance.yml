@@ -1,0 +1,82 @@
+schema_version: 1
+skill: scrut
+last_full_update: "2026-02-26"
+
+# Upstream sources this skill was curated from.
+sources:
+  scrut-website-docs:
+    url: https://github.com/facebookincubator/scrut/tree/main/website/docs
+    type: github
+    owner: facebookincubator
+    repo: scrut
+    path: website/docs
+    last_checked: "2026-02-26"
+    last_checked_sha: "b306c8116af533ccb9443edfa47d22d849fc9e3e"
+
+# Maps each curated file to its upstream source(s) and curation decision.
+#
+# Decision taxonomy:
+#   kept        - Taken as-is (formatting changes only)
+#   simplified  - Reduced complexity while preserving meaning
+#   elided      - Intentionally excluded (rationale required)
+#   altered     - Changed in meaning or approach from source
+#   synthesized - Combined from multiple sources into something new
+#   original    - Not derived from any upstream source
+curation_decisions:
+  SKILL.md:
+    - source: scrut-website-docs
+      sections:
+        - "getting-started/*"
+        - "reference/fundamentals/*"
+        - "tutorial/*"
+      decision: synthesized
+      rationale: >-
+        Overview, quick-reference table, quick-start example, and key
+        caveats distilled from getting-started guides, reference
+        fundamentals, and tutorial content into a concise entry point.
+
+  references/reference.md:
+    - source: scrut-website-docs
+      sections:
+        - "reference/fundamentals/shell-expression.md"
+        - "reference/fundamentals/output-expectations.md"
+        - "reference/fundamentals/test-case.md"
+        - "reference/fundamentals/test-document.md"
+        - "reference/fundamentals/environment-variables.md"
+        - "reference/fundamentals/inline-configuration.md"
+        - "reference/fundamentals/test-output.md"
+        - "reference/formats/markdown-format.md"
+        - "reference/formats/cram-format.md"
+        - "reference/behavior/execution-model.md"
+        - "reference/behavior/exit-codes.md"
+        - "reference/behavior/newline-handling.md"
+        - "reference/behavior/stdout-and-stderr.md"
+        - "reference/behavior/working-directory.md"
+        - "reference/custom-shell.md"
+        - "tutorial/02-create-test.md"
+        - "tutorial/03-basic-expectations.md"
+        - "tutorial/04-output-expectations.md"
+        - "tutorial/05-test-environment.md"
+        - "tutorial/06-test-configuration.md"
+        - "tutorial/07-test-bootstrapping.md"
+        - "tutorial/08-test-maintenance.md"
+      decision: synthesized
+      rationale: >-
+        All reference, behavior, and tutorial docs condensed into a
+        single flat reference optimized for AI-agent consumption.
+        Structure reorganized around use-case sections (commands,
+        expectations, configuration, patterns) rather than mirroring
+        the upstream doc hierarchy.
+
+    - source: scrut-website-docs
+      sections:
+        - "integration/docker.md"
+        - "integration/dotslash.md"
+        - "integration/github-action.md"
+        - "tutorial/01-what-to-test.md"
+      decision: elided
+      rationale: >-
+        Integration guides (Docker, DotSlash, GitHub Action) and
+        the "what to test" philosophy doc omitted — not needed for
+        an AI agent writing scrut tests; the agent needs syntax and
+        semantics, not CI setup or testing motivation.
