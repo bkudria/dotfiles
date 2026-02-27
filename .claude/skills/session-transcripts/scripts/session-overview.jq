@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -srf
 # session-overview.jq — Quick stats summary of a session transcript.
-# Usage: ./session-overview.jq < session.jsonl
+# Usage: ./session-overview.jq session.jsonl
 #        jq -sf session-overview.jq session.jsonl
 #
 # Slurps entire file to compute aggregates.

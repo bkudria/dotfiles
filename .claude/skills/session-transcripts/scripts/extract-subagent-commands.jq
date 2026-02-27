@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -L ~/.claude/skills/session-transcripts/scripts -rf
 # extract-subagent-commands.jq — Extract sub-agent tool uses from progress entries.
-# Usage: ./extract-subagent-commands.jq < session.jsonl
+# Usage: ./extract-subagent-commands.jq session.jsonl
 #        jq -L ~/.claude/skills/session-transcripts/scripts -rf extract-subagent-commands.jq session.jsonl
 #
 # Streams line-by-line (no slurp) for memory efficiency.

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -L ~/.claude/skills/session-transcripts/scripts -rf
 # extract-changes.jq — Extract file operations from a session transcript.
-# Usage: ./extract-changes.jq < session.jsonl
+# Usage: ./extract-changes.jq session.jsonl
 #        jq -L ~/.claude/skills/session-transcripts/scripts -rf extract-changes.jq session.jsonl
 #
 # Streams line-by-line (no slurp) for memory efficiency.

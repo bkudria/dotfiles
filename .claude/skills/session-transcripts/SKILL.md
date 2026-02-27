@@ -63,12 +63,12 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 
 **Extract readable conversation from a transcript:**
 ```bash
-~/.claude/skills/session-transcripts/scripts/extract-conversation.jq < /path/to/session.jsonl
+~/.claude/skills/session-transcripts/scripts/extract-conversation.jq /path/to/session.jsonl
 ```
 
 **Get session stats:**
 ```bash
-~/.claude/skills/session-transcripts/scripts/session-overview.jq < /path/to/session.jsonl
+~/.claude/skills/session-transcripts/scripts/session-overview.jq /path/to/session.jsonl
 ```
 
 **List all projects:**
@@ -93,7 +93,7 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 
 **See what sub-agents did:**
 ```bash
-~/.claude/skills/session-transcripts/scripts/extract-subagent-commands.jq < /path/to/session.jsonl
+~/.claude/skills/session-transcripts/scripts/extract-subagent-commands.jq /path/to/session.jsonl
 ```
 
 ## Reviewing a Session
@@ -105,13 +105,13 @@ Structured approach for reviewing what happened in a past session — find error
 ```bash
 SCRIPTS=~/.claude/skills/session-transcripts/scripts
 FILE=$($SCRIPTS/find-session.sh <uuid> 2>/dev/null | head -1 | awk '{print $1}')
-$SCRIPTS/session-overview.jq < "$FILE"
+$SCRIPTS/session-overview.jq "$FILE"
 ```
 
 ### Step 2: Scan the timeline
 
 ```bash
-$SCRIPTS/session-activity.jq < "$FILE"
+$SCRIPTS/session-activity.jq "$FILE"
 ```
 
 One line per turn — scan for patterns: long gaps, repeated tool calls, pivots in approach.
@@ -119,8 +119,8 @@ One line per turn — scan for patterns: long gaps, repeated tool calls, pivots 
 ### Step 3: Find problems
 
 ```bash
-$SCRIPTS/extract-errors.jq < "$FILE"
-$SCRIPTS/extract-agents.jq < "$FILE"
+$SCRIPTS/extract-errors.jq "$FILE"
+$SCRIPTS/extract-agents.jq "$FILE"
 ```
 
 Errors show tool failures. Agents show Task spawns with prompt previews — look for expensive delegation that could be avoided.
@@ -128,7 +128,7 @@ Errors show tool failures. Agents show Task spawns with prompt previews — look
 ### Step 4: Trace file changes
 
 ```bash
-$SCRIPTS/extract-changes.jq < "$FILE"
+$SCRIPTS/extract-changes.jq "$FILE"
 ```
 
 Every Read/Write/Edit/Bash/Grep/Glob operation, chronologically. Spot wasted reads, unnecessary writes, repeated searches.
@@ -138,7 +138,7 @@ Every Read/Write/Edit/Bash/Grep/Glob operation, chronologically. Spot wasted rea
 For full conversation context on specific sections identified above:
 
 ```bash
-$SCRIPTS/extract-conversation.jq < "$FILE" > /tmp/conversation.md
+$SCRIPTS/extract-conversation.jq "$FILE" > /tmp/conversation.md
 ```
 
 Then read specific line ranges from the temp file.

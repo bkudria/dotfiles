@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -L ~/.claude/skills/session-transcripts/scripts -rf
 # extract-errors.jq — Extract errors and failures from a session transcript.
-# Usage: ./extract-errors.jq < session.jsonl
+# Usage: ./extract-errors.jq session.jsonl
 #        jq -L ~/.claude/skills/session-transcripts/scripts -rf extract-errors.jq session.jsonl
 #
 # Streams line-by-line (no slurp) for memory efficiency.

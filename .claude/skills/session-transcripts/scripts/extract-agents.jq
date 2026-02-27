@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -L ~/.claude/skills/session-transcripts/scripts -rf
 # extract-agents.jq — Extract sub-agent (Task tool) spawns from a session transcript.
-# Usage: ./extract-agents.jq < session.jsonl
+# Usage: ./extract-agents.jq session.jsonl
 #        jq -L ~/.claude/skills/session-transcripts/scripts -rf extract-agents.jq session.jsonl
 #
 # Streams line-by-line (no slurp) for memory efficiency.

@@ -1,6 +1,6 @@
 #!/usr/bin/env -S jq -rf
 # extract-conversation.jq — Extract readable conversation from a session transcript.
-# Usage: ./extract-conversation.jq < session.jsonl
+# Usage: ./extract-conversation.jq session.jsonl
 #        jq -rf extract-conversation.jq session.jsonl
 #
 # Streams line-by-line (no slurp) for memory efficiency on large files.
