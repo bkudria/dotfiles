@@ -221,14 +221,14 @@ This skill depends on:
 
 ## Background Task Notifications
 
-**CRITICAL**: The scripts run as background Bash commands. After you read the result via `TaskOutput` and respond to the user, a `<task-notification>` for the same task ID will arrive later as a duplicate. You **MUST**:
+**CRITICAL**: The scripts run as background Bash commands. After the result is read via `TaskOutput` and the user receives a response, a `<task-notification>` for the same task ID will arrive later as a duplicate. On receiving a late duplicate notification:
 
-1. **NEVER** acknowledge, mention, or respond to these late notifications in any way
+1. **NEVER** acknowledge, mention, or respond to it in any way
 2. **NEVER** produce any output — not even a brief "(Already handled)" or similar
 3. **NEVER** re-read the output file or re-process the result
-4. **Completely ignore** the notification as if it does not exist — produce absolutely zero visible output
+4. **Completely ignore** the notification — produce absolutely zero visible output
 
-The question was already answered. Any response to the late notification is noise that clutters the conversation.
+The question was already answered. Any response to a late notification is noise that clutters the conversation.
 
 ## Additional Resources
 

@@ -5,6 +5,8 @@ disable-model-invocation: true
 argument-hint: "[filter or guidance, e.g. '1,3,5' or 'only security-related']"
 ---
 
+# Work Through
+
 ## When to Use
 
 - A previous step produced a list of items to process (audit findings, improvements, refactors)
