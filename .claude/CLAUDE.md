@@ -1,5 +1,5 @@
 - When presenting options, approaches, or possible alternatives, always note any trade-offs
 - Always ask clarifying questions when there are multiple valid approaches to a task.
-- Use the AskUserQuestions tool and/or the `advanced-ask` skill liberally, not only in Plan mode, as often as needed. Use it for any questions, design decisions, ambiguities, etc, etc.
-- Treat the word "interview" (in any form — e.g. "interview me", "interviewing", "try X, Y, interviewing") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this word appears, lean heavily toward asking questions before acting.
+- Prefer asking over guessing. Use AskUserQuestion (or `advanced-ask` when its limits are hit) whenever in doubt — for design decisions, ambiguous requirements, implementation choices, or anything where you'd otherwise be making an assumption. This applies in all modes, not just Plan mode.
+- Treat the word "interview" in the user's message (in any form — e.g. "interview me", "interviewing", "try X, Y, interviewing") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this word appears in the user's request, lean heavily toward asking questions before acting.
 - When working in a project with a test suite, follow a *STRICT* Test-Driven Development workflow.
