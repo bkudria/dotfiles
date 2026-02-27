@@ -1,0 +1,122 @@
+schema_version: 1
+skill: testing-strategy
+last_full_update: "2026-02-26"
+
+# Upstream sources this skill was curated from.
+# matklad posts are by Alex Kladov, author of rust-analyzer.
+# pcvelz TDD skill is from the superpowers skill collection.
+sources:
+  how-to-test:
+    url: https://matklad.github.io/2021/05/31/how-to-test.html
+    type: github
+    owner: matklad
+    repo: matklad.github.io
+    path: content/posts/2021-05-31-how-to-test.dj
+    last_checked: "2026-02-26"
+    last_checked_sha: "4cb7d36d4c11884d420e6e1463a014e3c55f2c27"
+
+  unit-and-integration-tests:
+    url: https://matklad.github.io/2022/07/04/unit-and-integration-tests.html
+    type: github
+    owner: matklad
+    repo: matklad.github.io
+    path: content/posts/2022-07-04-unit-and-integration-tests.dj
+    last_checked: "2026-02-26"
+    last_checked_sha: "c15606598169b15d37874b5c161098a1b1fedbec"
+
+  pcvelz-tdd:
+    url: https://github.com/pcvelz/superpowers/tree/main/skills/test-driven-development
+    type: github
+    owner: pcvelz
+    repo: superpowers
+    path: skills/test-driven-development
+    last_checked: "2026-02-26"
+    last_checked_sha: "0acbd4e4a98c50cf359f4c17ae8f2123808f64e2"
+
+
+# Maps each curated file to its upstream source(s) and curation decision.
+#
+# Decision taxonomy:
+#   kept        - Taken as-is (formatting changes only)
+#   simplified  - Reduced complexity while preserving meaning
+#   elided      - Intentionally excluded (rationale required)
+#   altered     - Changed in meaning or approach from source
+#   synthesized - Combined from multiple sources into something new
+#   original    - Not derived from any upstream source
+curation_decisions:
+  SKILL.md:
+    - source: how-to-test
+      sections: ["neural network test", "refactoring test", "tests as specification", "fixtures as truth"]
+      decision: synthesized
+      rationale: >-
+        Core principles and test design guidance distilled from the post's
+        feature-testing philosophy. The neural network test and refactoring
+        test concepts are preserved; data-driven testing architecture,
+        property-based testing, concurrency, and meta-testing sections
+        were excluded as implementation-specific techniques.
+    - source: unit-and-integration-tests
+      sections: ["purity", "extent", "prescriptive recommendations"]
+      decision: synthesized
+      rationale: >-
+        The purity-vs-extent framework and test-level selection guidance
+        are summarized in the core principles and "Choosing Test Level"
+        sections. The SWE book comparison was dropped.
+    - source: pcvelz-tdd
+      sections: ["Red-Green-Refactor", "overview", "exceptions"]
+      decision: synthesized
+      rationale: >-
+        The TDD cycle summary and test-first core principle were added
+        to the SKILL.md body. The dogmatic tone was replaced with
+        analytical framing. TypeScript examples were replaced with
+        language-agnostic pseudocode. The exceptions list was preserved.
+        Verification checklist, red flags, and common rationalizations
+        table were excluded from the body (rationalizations are covered
+        in the reference file instead).
+
+  references/tdd-workflow.md:
+    - source: pcvelz-tdd
+      sections: ["Red-Green-Refactor", "verify RED", "verify GREEN", "why order matters", "common rationalizations", "when stuck", "debugging integration"]
+      decision: synthesized
+      rationale: >-
+        The full TDD cycle with mandatory verification steps was preserved.
+        The dogmatic tone ("Delete it. Start over.") was rewritten in
+        analytical voice. TypeScript examples were replaced with
+        language-agnostic pseudocode. The "Common Rationalizations" table
+        was reworked into a "Common objections analyzed" section with
+        more nuanced rebuttals. The "Iron Law" language was softened to
+        "Strict rule." The testing-anti-patterns.md content was excluded
+        as the existing Neural Network Test and Refactoring Test concepts
+        in decision-framework.md already cover that ground. The
+        verification checklist and red flags list were excluded as too
+        prescriptive for the analytical tone.
+
+  references/purity-vs-extent.md:
+    - source: unit-and-integration-tests
+      sections: ["purity", "extent", "prescriptive recommendations"]
+      decision: simplified
+      rationale: >-
+        The 5-rung purity ladder was reduced to 4 levels (multi-threaded
+        and concurrent merged). The extent discussion was condensed.
+        The SWE book comparison section was dropped entirely.
+
+  references/decision-framework.md:
+    - source: how-to-test
+      sections: ["neural network test", "refactoring test"]
+      decision: synthesized
+      rationale: >-
+        The refactoring test and neural network test are preserved as
+        named heuristics with concrete pass/fail examples. Reframed
+        from narrative blog style into a decision-flow table format.
+    - source: unit-and-integration-tests
+      sections: ["purity", "prescriptive recommendations"]
+      decision: synthesized
+      rationale: >-
+        The behavioral-vs-internal-logic distinction and test-level
+        decision flow were derived from the post's prescriptive
+        recommendations about purity and natural extent.
+    - decision: original
+      sections: ["test economy"]
+      rationale: >-
+        The test economy guidance (prefer extending existing scenarios
+        over creating new infrastructure) is not directly from any
+        single source, though it echoes themes across multiple posts.
