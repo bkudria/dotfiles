@@ -59,10 +59,16 @@ Always specify the language tag on fenced code blocks.
 
 ## Code Examples
 
+### Philosophy
+
+**One excellent example beats many mediocre ones.** Choose the most relevant language for the skill's domain and write one complete, realistic example rather than implementing in multiple languages.
+
 ### Requirements
 
 - Realistic and runnable. Never use `foo`, `bar`, `baz`, `example.com`, or `test123` as placeholders.
 - Drawn from the skill's actual use cases collected in Phase 1.
+- Complete and copy-pasteable, not fill-in-the-blank templates.
+- Well-commented explaining WHY, not WHAT.
 - Show basic usage first, then advanced variations.
 - Include expected output when it clarifies behavior.
 
@@ -89,13 +95,14 @@ docker build --target builder -t myapp:builder .
 
 ## Content Length
 
-| File | Target Length | Hard Limit |
-|------|-------------|------------|
-| SKILL.md (knowledge type) | 50-100 lines | 300 lines |
-| SKILL.md (workflow type) | 150-250 lines | 300 lines |
-| SKILL.md (tool integration) | 100-200 lines | 300 lines |
-| Reference files | Unlimited | Focused on one topic |
-| Frontmatter `description` | 50-200 chars | 1024 chars |
+| Skill Frequency | Word Target | Rationale |
+|----------------|-------------|-----------|
+| Frequently-loaded / getting-started | <200 words | Loaded in every conversation — minimize token cost |
+| Standard skills | <500 words | Loaded on demand — be concise |
+| Reference-heavy skills | SKILL.md <500 words, references/ unlimited | Body stays lean, detail in references/ |
+| Frontmatter `description` | 50-200 chars (hard limit 1024) | Brief but keyword-rich |
+
+See `references/naming-conventions.md` for token compression techniques and CSO guidance.
 
 ### Paragraph Discipline
 

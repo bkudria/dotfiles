@@ -1,6 +1,113 @@
 # Skill Testing & Iteration Guide
 
-Quick reference for testing Claude Code skills after creation or modification.
+Skill creation IS Test-Driven Development applied to documentation. Test before writing, test after writing, and iterate until bulletproof.
+
+---
+
+## The Iron Law
+
+```
+NO SKILL WITHOUT A FAILING TEST FIRST
+```
+
+This applies to new skills AND edits to existing skills. Write skill before testing? Delete it. Start over. Edit skill without testing? Same violation.
+
+**No exceptions:**
+- Not for "simple additions"
+- Not for "just adding a section"
+- Not for "documentation updates"
+- Don't keep untested changes as "reference"
+- Don't "adapt" while running tests
+- Delete means delete
+
+---
+
+## TDD Cycle for Skills
+
+| TDD Concept | Skill Creation |
+|-------------|----------------|
+| **Test case** | Pressure scenario with subagent |
+| **Production code** | Skill document (SKILL.md) |
+| **Test fails (RED)** | Agent violates rule without skill (baseline) |
+| **Test passes (GREEN)** | Agent complies with skill present |
+| **Refactor** | Close loopholes while maintaining compliance |
+| **Write test first** | Run baseline scenario BEFORE writing skill |
+| **Watch it fail** | Document exact rationalizations agent uses |
+| **Minimal code** | Write skill addressing those specific violations |
+| **Watch it pass** | Verify agent now complies |
+| **Refactor cycle** | Find new rationalizations → plug → re-verify |
+
+See `workflows/create-phase0-baseline.md` for the RED phase workflow.
+
+---
+
+## Testing by Skill Type
+
+Different skill types need different test approaches.
+
+### Discipline-Enforcing Skills
+
+Skills that enforce rules: TDD, verification-before-completion, design-before-coding.
+
+**Test with:**
+- Academic questions: Do agents understand the rules?
+- Pressure scenarios: Do agents comply under stress?
+- Combined pressures: time + sunk cost + exhaustion + authority
+- Identify rationalizations and add explicit counters
+
+**Success criteria:** Agent follows rule under maximum pressure.
+
+See `references/bulletproofing.md` for rationalization resistance techniques.
+
+### Technique Skills
+
+Skills that teach methods: condition-based-waiting, root-cause-tracing, defensive-programming.
+
+**Test with:**
+- Application scenarios: Can agents apply the technique correctly?
+- Variation scenarios: Do agents handle edge cases?
+- Missing information tests: Do instructions have gaps?
+
+**Success criteria:** Agent successfully applies technique to new scenario.
+
+### Pattern Skills
+
+Skills that teach mental models: reducing-complexity, information-hiding, flatten-with-flags.
+
+**Test with:**
+- Recognition scenarios: Do agents recognize when pattern applies?
+- Application scenarios: Can agents use the mental model?
+- Counter-examples: Do agents know when NOT to apply?
+
+**Success criteria:** Agent correctly identifies when and how to apply pattern.
+
+### Reference Skills
+
+Skills that document APIs or tools: command references, library guides, syntax references.
+
+**Test with:**
+- Retrieval scenarios: Can agents find the right information?
+- Application scenarios: Can agents use what they found correctly?
+- Gap testing: Are common use cases covered?
+
+**Success criteria:** Agent finds and correctly applies reference information.
+
+---
+
+## Common Rationalizations for Skipping Testing
+
+| Excuse | Reality |
+|--------|---------|
+| "Skill is obviously clear" | Clear to you ≠ clear to other agents. Test it. |
+| "It's just a reference" | References can have gaps, unclear sections. Test retrieval. |
+| "Testing is overkill" | Untested skills have issues. Always. 15 min testing saves hours. |
+| "I'll test if problems emerge" | Problems = agents can't use skill. Test BEFORE deploying. |
+| "Too tedious to test" | Testing is less tedious than debugging bad skill in production. |
+| "I'm confident it's good" | Overconfidence guarantees issues. Test anyway. |
+| "Academic review is enough" | Reading ≠ using. Test application scenarios. |
+| "No time to test" | Deploying untested skill wastes more time fixing it later. |
+
+---
 
 ## 1. Manual Invocation Testing
 

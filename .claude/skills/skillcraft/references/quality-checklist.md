@@ -1,6 +1,6 @@
 # Skill Quality Checklist
 
-32 checks across 6 categories. Each item has: ID, description, pass/fail criteria, fix guidance.
+37 checks across 7 categories. Each item has: ID, description, pass/fail criteria, fix guidance.
 
 Apply all checks when running a full audit. For lightweight mode, apply only S1, S3, M1, M2, M3 and scan for anti-patterns.
 
@@ -249,3 +249,38 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 - **Pass**: Examples reflect actual use cases for the skill
 - **Fail**: Generic placeholder examples
 - **Fix**: Replace with examples matching the skill's actual use cases
+
+---
+
+## TDD Compliance (T1-T5)
+
+### T1: Baseline Tested
+- **Check**: Skill was tested without being present before writing (RED phase)
+- **Pass**: Phase 0 baseline testing completed; agent behavior documented
+- **Fail**: Skill written without observing what agents do without it
+- **Fix**: Run `workflows/create-phase0-baseline.md`. Delete untested skill content and start over.
+
+### T2: Rationalizations Captured
+- **Check**: Baseline agent rationalizations documented verbatim
+- **Pass**: Exact agent excuses and failure patterns recorded from Phase 0
+- **Fail**: No record of what agents said/did without the skill
+- **Fix**: Re-run baseline scenarios and record verbatim agent responses
+
+### T3: Compliance Verified
+- **Check**: Skill tested with presence — agents now follow the guidance (GREEN phase)
+- **Pass**: Same scenarios from T1 re-run with skill loaded; agents comply
+- **Fail**: Skill present but agents still fail scenarios
+- **Fix**: Revise skill content to address specific failures. Do not add speculative content.
+
+### T4: Loopholes Closed
+- **Check**: REFACTOR iterations completed; rationalization table populated (discipline skills)
+- **Pass**: For discipline-enforcing skills: rationalization table has entries, red flags list created, no new rationalizations found in 2+ test runs
+- **Fail**: Discipline skill has no rationalization resistance
+- **Fix**: See `references/bulletproofing.md` for techniques. Add loophole counters iteratively.
+- **Note**: Non-discipline skills (technique, pattern, reference) may skip this check.
+
+### T5: Skill Type Testing
+- **Check**: Appropriate test approach used for the skill's type
+- **Pass**: Test approach matches skill type per `references/testing-guide.md` (discipline → pressure, technique → application, pattern → recognition, reference → retrieval)
+- **Fail**: Wrong test approach (e.g., pressure-testing a reference skill)
+- **Fix**: Review testing-by-type guidance and re-test with appropriate approach

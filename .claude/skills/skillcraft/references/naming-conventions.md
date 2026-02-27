@@ -88,6 +88,87 @@ or configuring cluster networking.
 | `new-thing` | Temporal; "new" becomes stale | Describe the thing itself |
 | `misc-utils` | Grab-bag; split into focused skills | One skill per domain |
 
+---
+
+## Claude Search Optimization (CSO)
+
+Optimize skills for discovery by future Claude instances.
+
+### The Description Pitfall
+
+**Critical finding:** Descriptions that summarize a skill's workflow cause Claude to follow the description instead of reading the full skill body.
+
+```yaml
+# BAD: Summarizes workflow — Claude may follow this instead of reading skill
+description: Use when executing plans — dispatches subagent per task with code review between tasks
+
+# BAD: Too much process detail
+description: Use for TDD — write test first, watch it fail, write minimal code, refactor
+
+# GOOD: Just triggering conditions, no workflow summary
+description: Use when executing implementation plans with independent tasks in the current session
+
+# GOOD: Triggering conditions only
+description: Use when implementing any feature or bugfix, before writing implementation code
+```
+
+**Why this matters:** When a description summarizes the skill's workflow, Claude may follow the description instead of reading the full skill content. A description saying "code review between tasks" caused Claude to do ONE review, even though the skill's body clearly showed TWO reviews. When the description was changed to just triggering conditions, Claude correctly read and followed the full body.
+
+**Rule:** Description = when to use. Never what the skill does step-by-step.
+
+### Keyword Coverage
+
+Use words Claude would search for when encountering the problem:
+
+| Keyword Type | Examples |
+|-------------|----------|
+| Error messages | "Hook timed out", "ENOTEMPTY", "race condition" |
+| Symptoms | "flaky", "hanging", "zombie", "pollution" |
+| Synonyms | "timeout/hang/freeze", "cleanup/teardown/afterEach" |
+| Tools | Actual commands, library names, file types |
+
+### Token Efficiency Targets
+
+Every token in a frequently-loaded skill costs context across every conversation.
+
+| Skill Frequency | Target | Rationale |
+|----------------|--------|-----------|
+| Frequently-loaded / getting-started | <200 words | Loaded in every conversation — minimize |
+| Standard skills | <500 words | Loaded on demand — be concise |
+| Reference-heavy skills | Unlimited (in references/) | SKILL.md body stays lean, detail in references/ |
+
+**Compression techniques:**
+- Move flag/option details to `--help` references instead of documenting inline
+- Use cross-references to other skills instead of repeating content
+- Compress examples: one realistic example, not three verbose ones
+- Eliminate redundancy: don't repeat what cross-referenced skills cover
+
+See `references/writing-style.md` for word count targets by skill type.
+
+### Discovery Workflow
+
+How future Claude finds a skill:
+
+1. **Encounters problem** — "tests are flaky", "need to parse KDL"
+2. **Finds skill** — description matches the problem's keywords
+3. **Scans overview** — reads title + "When to Use" to confirm relevance
+4. **Reads patterns** — quick reference tables for immediate use
+5. **Loads detail** — reference files only when implementing
+
+Optimize for this flow: searchable terms early, quick confirmation of relevance, progressive detail.
+
+### Descriptive Naming
+
+**Use active voice, verb-first naming:**
+- `creating-skills` not `skill-creation`
+- `condition-based-waiting` not `async-test-helpers`
+- `flatten-with-flags` not `data-structure-refactoring`
+
+**Gerunds (-ing) work well for processes:**
+- `creating-skills`, `testing-skills`, `debugging-with-logs`
+
+---
+
 ## Quick Checklist
 
 - [ ] Name is hyphen-case, under 64 characters
@@ -96,3 +177,6 @@ or configuring cluster networking.
 - [ ] Description includes 3--5 specific trigger phrases
 - [ ] Trigger phrases are verb+noun pairs at the right specificity
 - [ ] No vague words, no version suffixes, no grab-bag naming
+- [ ] Description does NOT summarize the skill's workflow (CSO pitfall)
+- [ ] Keywords cover error messages, symptoms, and synonyms
+- [ ] Word count within target for skill frequency tier

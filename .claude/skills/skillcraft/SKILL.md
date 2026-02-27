@@ -46,6 +46,7 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 
 | Phase | Purpose | Key Tools | Workflow |
 |-------|---------|-----------|----------|
+| 0. Baseline | Test without skill (RED phase) | Task tool (subagents) | `workflows/create-phase0-baseline.md` |
 | 1. Discovery | Interview: name, purpose, use cases | `ask-form.sh` | `workflows/create-phase1-discovery.md` |
 | 2. Design | Select features and skill type | `ask-multi.sh`, `ask-choose.sh` | `workflows/create-phase2-design.md` |
 | 3. Scaffold | Create directory and files | `scripts/scaffold.sh` | `workflows/create-phase3-scaffold.md` |
@@ -54,8 +55,9 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 
 ### How to Create
 
-Read the workflow file for the current phase. Start at Phase 1 and proceed sequentially.
+Read the workflow file for the current phase. Start at Phase 0 and proceed sequentially.
 
+0. Read `workflows/create-phase0-baseline.md` — Baseline testing: observe what agents do WITHOUT the skill
 1. Read `workflows/create-phase1-discovery.md` — Gather name, purpose, use cases, triggers
 2. Read `workflows/create-phase2-design.md` — Select skill type, resources, frontmatter features
 3. Read `workflows/create-phase3-scaffold.md` — Run scaffold script to create directory and files
@@ -90,7 +92,7 @@ Read `workflows/update-from-sources.md` for the full process. See `provenance.ym
 
 ## Anti-Pattern Detection
 
-Consult `references/anti-patterns.md` for common problems. When an anti-pattern is detected, cite it by name and show the before/after fix.
+Consult `references/anti-patterns.md` for 15 common problems across 4 categories. When an anti-pattern is detected, cite it by name and show the before/after fix.
 
 ## Dependencies
 
@@ -104,6 +106,7 @@ Consult `references/anti-patterns.md` for common problems. When an anti-pattern 
 
 | File | Purpose |
 |------|---------|
+| `workflows/create-phase0-baseline.md` | Baseline testing: RED phase before writing |
 | `workflows/create-phase1-discovery.md` | Concrete examples, interview, validation |
 | `workflows/create-phase2-design.md` | Skill type, resources, frontmatter features |
 | `workflows/create-phase3-scaffold.md` | Run scaffold script, post-scaffold updates |
@@ -128,8 +131,9 @@ Consult `references/anti-patterns.md` for common problems. When an anti-pattern 
 | `references/dynamic-context.md` | Backtick-bang syntax, $ARGUMENTS, and string substitutions |
 | `references/naming-conventions.md` | Skill naming, description construction, trigger phrase design |
 | `references/dependencies.md` | Handling inter-skill and external tool dependencies |
-| `references/quality-checklist.md` | Complete 32-item validation checklist |
-| `references/anti-patterns.md` | 10 common anti-patterns with fixes |
+| `references/quality-checklist.md` | Complete 37-item validation checklist (7 categories) |
+| `references/anti-patterns.md` | 15 common anti-patterns across 4 categories |
+| `references/bulletproofing.md` | Rationalization resistance for discipline-enforcing skills |
 | `references/common-fixes.md` | Concrete fix examples for common checklist failures |
 | `references/testing-guide.md` | How to test skills after creation or editing |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |

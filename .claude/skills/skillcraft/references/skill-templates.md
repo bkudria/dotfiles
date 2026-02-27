@@ -1,6 +1,18 @@
 # Skill Templates
 
-Starter templates for four common skill types. Apply the matching template in Phase 3 (Scaffold), then customize in Phase 4 (Author).
+Starter templates for seven skill types. Apply the matching template in Phase 3 (Scaffold), then customize in Phase 4 (Author).
+
+## Type Comparison
+
+| Type | Purpose | Body Size | Auto-trigger | Key Feature |
+|------|---------|-----------|-------------|-------------|
+| Knowledge | Curated reference on a topic | 50-100 lines | Yes | Summary + references/ |
+| Workflow | Multi-step procedure | 150-250 lines | Usually no | Phased steps, interactive |
+| Tool Integration | CLI tool documentation | 200-400 lines | Yes | Command reference, examples |
+| Hybrid | Combines knowledge + workflow | 200-300 lines | Maybe | Multiple resource types |
+| Technique | Concrete reusable method | 100-200 lines | Yes | Before/after comparison |
+| Pattern | Mental model / way of thinking | 50-150 lines | Yes | Recognition criteria |
+| Reference | Exhaustive API/syntax docs | 50-100 lines (body) | Yes | Large references/ directory |
 
 ---
 
@@ -276,3 +288,150 @@ argument-hint: "[{expected argument}]"
 ```
 
 **Characteristics**: Medium body (~200-300 lines), may or may not auto-trigger, combines multiple resource types, scripts directory.
+
+---
+
+## 5. Technique Skill
+
+Concrete, reusable method with steps. Differs from Workflow in being context-independent — a technique applies across projects, not as a fixed procedure.
+
+```markdown
+---
+name: {name}
+description: {purpose}. Use when {trigger1}, {trigger2}, or {trigger3}.
+---
+
+# {Technique Name}
+
+{One-sentence core principle.}
+
+## When to Use
+
+- {Symptom or situation 1}
+- {Symptom or situation 2}
+- {Symptom or situation 3}
+
+## The Pattern
+
+### Before
+```{lang}
+{Code showing the problem or naive approach}
+```
+
+### After
+```{lang}
+{Code showing the technique applied}
+```
+
+## Implementation Steps
+
+1. {Step 1 — identify the condition}
+2. {Step 2 — apply the technique}
+3. {Step 3 — verify the result}
+
+## Common Mistakes
+
+| Mistake | Fix |
+|---------|-----|
+| {Mistake 1} | {How to fix} |
+| {Mistake 2} | {How to fix} |
+```
+
+**Characteristics**: Medium body (~100-200 lines), auto-triggers on symptoms, before/after comparison is central, reusable across contexts.
+
+---
+
+## 6. Pattern Skill
+
+Mental model or way of thinking about problems. Lighter than a Technique — focuses on the insight rather than specific implementation steps.
+
+```markdown
+---
+name: {name}
+description: {purpose}. Use when {trigger1}, {trigger2}, or {trigger3}.
+---
+
+# {Pattern Name}
+
+{One-sentence insight — the core mental model.}
+
+## When This Pattern Applies
+
+- {Recognition signal 1}
+- {Recognition signal 2}
+- {Recognition signal 3}
+
+## When NOT to Apply
+
+- {Counter-example 1 — looks similar but this pattern is wrong}
+- {Counter-example 2}
+
+## The Insight
+
+{2-3 paragraphs explaining the mental model. Why it works. What it changes about how you think about the problem.}
+
+## Application
+
+### Recognizing the Pattern
+{How to identify when this pattern is relevant.}
+
+### Applying the Pattern
+{How to use the mental model in practice.}
+
+## Examples
+
+### Applies
+{Scenario where the pattern correctly applies, with brief explanation.}
+
+### Does NOT Apply
+{Scenario that looks similar but where the pattern would be wrong.}
+```
+
+**Characteristics**: Short-medium body (~50-150 lines), auto-triggers, focuses on recognition and judgment, counter-examples are essential.
+
+---
+
+## 7. Reference Skill
+
+Exhaustive API documentation, syntax guide, or tool reference. Differs from Knowledge in being comprehensive rather than curated — the value is completeness, not brevity.
+
+```markdown
+---
+name: {name}
+description: {purpose} reference. Use when {trigger1}, {trigger2}, or {trigger3}.
+---
+
+# {Subject} Reference
+
+{One-sentence summary of what this reference covers.}
+
+## Quick Reference
+
+| Area | Description | Detail |
+|------|-------------|--------|
+| {Topic 1} | {Brief summary} | `references/{topic1}.md` |
+| {Topic 2} | {Brief summary} | `references/{topic2}.md` |
+| {Topic 3} | {Brief summary} | `references/{topic3}.md` |
+
+## Common Operations
+
+### {Operation 1}
+```{lang}
+{Minimal working example}
+```
+
+### {Operation 2}
+```{lang}
+{Minimal working example}
+```
+
+## Reference Files
+
+| File | Purpose |
+|------|---------|
+| `references/{topic1}.md` | {Comprehensive docs for topic 1} |
+| `references/{topic2}.md` | {Comprehensive docs for topic 2} |
+| `references/{topic3}.md` | {Comprehensive docs for topic 3} |
+```
+
+**Characteristics**: Short body (~50-100 lines), large references/ directory, auto-triggers on subject keywords, read-only safe, value is in completeness of reference files.

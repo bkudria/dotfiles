@@ -1,6 +1,6 @@
 schema_version: 1
 skill: skillcraft
-last_full_update: "2026-02-24"
+last_full_update: "2026-02-26"
 # Upstream sources this skill was curated from.
 # GitHub sources track commit SHAs for diffing. Web sources use WebFetch + comparison.
 sources:
@@ -32,6 +32,14 @@ sources:
     path: plugins/compound-engineering/skills/create-agent-skills
     last_checked_sha: "f744b797efca368c986e4c8595e09a4f75e57a11"
     last_checked: "2026-02-24"
+  pcvelz-superpowers:
+    url: https://github.com/pcvelz/superpowers/blob/main/skills/writing-skills/SKILL.md
+    type: github
+    owner: pcvelz
+    repo: superpowers
+    path: skills/writing-skills
+    last_checked_sha: "fa95056af301b5c60d0a437d77c4a7a0d2c94cde"
+    last_checked: "2026-02-26"
 # Maps each curated file to its upstream source(s) and curation decision.
 #
 # Decision taxonomy:
@@ -73,6 +81,13 @@ curation_decisions:
       sections: [references/be-clear-and-direct.md]
       decision: synthesized
       rationale: Voice/tone rules and common mistakes table.
+    - source: pcvelz-superpowers
+      sections: [Code-Examples, Token-Efficiency]
+      decision: synthesized
+      rationale: >-
+        Added "one excellent example beats many" philosophy to code examples section.
+        Replaced line-based content length targets with word-based targets matching
+        CSO token efficiency guidance.
   references/naming-conventions.md:
     - source: official-docs
       sections: [frontmatter-reference#name]
@@ -82,10 +97,23 @@ curation_decisions:
       sections: [SKILL.md#effective-descriptions, references/best-practices.md]
       decision: synthesized
       rationale: Description construction pattern and trigger phrase design.
+    - source: pcvelz-superpowers
+      sections: [CSO, Token-Efficiency, Discovery-Workflow]
+      decision: synthesized
+      rationale: >-
+        Added Claude Search Optimization (CSO) section: description pitfall finding,
+        keyword coverage strategies, word-based token efficiency targets, compression
+        techniques, and discovery workflow. Descriptive naming guidance.
   references/skill-templates.md:
     - decision: original
       rationale: >-
         Templates are original. Inspired by compound-engineering templates but fully rewritten as generic skill-type starters (knowledge, workflow, tool, hybrid).
+    - source: pcvelz-superpowers
+      sections: [Skill-Types]
+      decision: synthesized
+      rationale: >-
+        Added Technique, Pattern, and Reference skill types from writing-skills
+        taxonomy. Added type comparison table. Original 4 types unchanged.
   references/interactive-tui.md:
     - decision: original
       rationale: >-
@@ -114,11 +142,27 @@ curation_decisions:
       sections: [SKILL.md#anti-patterns, references/best-practices.md]
       decision: altered
       rationale: >-
-        Expanded from brief list to 10 named anti-patterns with before/after fixes.
+        Expanded from brief list to named anti-patterns with before/after fixes.
     - source: anthropic-plugin
       sections: [references/eval-mode.md]
       decision: synthesized
       rationale: Iteration patterns for skill quality.
+    - source: pcvelz-superpowers
+      sections: [Anti-Patterns, CSO]
+      decision: synthesized
+      rationale: >-
+        Added 5 new anti-patterns (Narrative Example, Multi-Language Dilution,
+        Workflow Summary Description, Code in Flowcharts, Generic Labels).
+        Reorganized all 15 into 4 categories (Structural, Content, Naming &
+        Discovery, Examples & Formatting).
+  references/bulletproofing.md:
+    - source: pcvelz-superpowers
+      sections: [Bulletproofing, Persuasion-Principles, RED-GREEN-REFACTOR]
+      decision: synthesized
+      rationale: >-
+        Synthesized from writing-skills rationalization resistance techniques,
+        persuasion principles (Cialdini 2021, Meincke 2025), loophole closing
+        patterns, and red flags list approach. Adapted to skillcraft's structure.
   references/common-fixes.md:
     - decision: original
       rationale: Concrete fix cookbook built from checklist failure patterns.
@@ -131,13 +175,35 @@ curation_decisions:
       sections: [references/schemas.md]
       decision: synthesized
       rationale: Added advanced feature checks (A1-A5).
+    - source: pcvelz-superpowers
+      sections: [Skill-Creation-Checklist]
+      decision: synthesized
+      rationale: >-
+        Added T1-T5 TDD Compliance category (baseline tested, rationalizations
+        captured, compliance verified, loopholes closed, skill type testing).
+        Total now 37 checks across 7 categories.
   references/router-pattern.md:
     - decision: original
       rationale: Original architecture guidance for when/how to upgrade to router pattern.
   references/testing-guide.md:
     - decision: original
       rationale: Original testing framework covering 6 testing areas.
+    - source: pcvelz-superpowers
+      sections: [TDD-Mapping, Iron-Law, Testing-All-Skill-Types, Common-Rationalizations]
+      decision: synthesized
+      rationale: >-
+        Added TDD Iron Law, RED-GREEN-REFACTOR cycle mapping, testing-by-skill-type
+        (discipline/technique/pattern/reference), and rationalization table. Original
+        6 testing areas preserved intact.
   # ── Workflow files (all original) ────────────────────────────────
+  workflows/create-phase0-baseline.md:
+    - source: pcvelz-superpowers
+      sections: [RED-GREEN-REFACTOR, Testing-All-Skill-Types]
+      decision: synthesized
+      rationale: >-
+        New mandatory Phase 0 workflow synthesized from writing-skills RED phase
+        baseline testing approach. Adapted to skillcraft's phase structure with
+        cross-references to testing-guide.md and bulletproofing.md.
   workflows/create-phase1-discovery.md:
     - decision: original
       rationale: Original interview-driven discovery process.
