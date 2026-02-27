@@ -1,11 +1,11 @@
 ---
-name: work-through
+name: iterate
 description: Iterate through a list of items, planning and implementing each one-by-one. Use when batch-processing improvements, applying a series of changes, working through audit findings, or implementing multiple enhancements from a review.
 disable-model-invocation: true
 argument-hint: "[filter or guidance, e.g. '1,3,5' or 'only security-related']"
 ---
 
-# Work Through
+# Iterate
 
 ## When to Use
 
