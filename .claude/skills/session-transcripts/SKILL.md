@@ -24,11 +24,14 @@ Tools and schema reference for working with Claude Code session transcript JSONL
 ```
 ~/.claude/
 ├── projects/
-│   └── <encoded-project-path>/       # e.g., -Users-bkudria-code-myproject
-│       ├── <session-uuid>.jsonl      # Full session transcripts
-│       ├── agent-<agent-id>.jsonl    # Sub-agent transcripts
-│       └── CLAUDE.md                 # Project instructions (not a transcript)
-└── history.jsonl                     # Lightweight global history index
+│   └── <encoded-project-path>/              # e.g., -Users-bkudria-code-myproject
+│       ├── <session-uuid>.jsonl             # Full session transcripts
+│       ├── agent-<agent-id>.jsonl           # Sub-agent transcripts (old format)
+│       ├── <session-uuid>/
+│       │   └── subagents/
+│       │       └── agent-<agent-id>.jsonl   # Sub-agent transcripts (new format)
+│       └── CLAUDE.md                        # Project instructions (not a transcript)
+└── history.jsonl                            # Lightweight global history index
 ```
 
 Path encoding: `/Users/bkudria/code/foo` → `-Users-bkudria-code-foo`
@@ -48,9 +51,11 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 | `session-activity.jq` | Pure jq | Chronological turn-by-turn timeline |
 | `extract-errors.jq` | Pure jq | Find tool errors and failures |
 | `extract-changes.jq` | Pure jq | File operations and tool usage log |
-| `extract-agents.jq` | Pure jq | Sub-agent (Task) spawns with prompts |
+| `extract-agents.jq` | Pure jq | Sub-agent (Task/Agent) spawns with prompts and model |
+| `extract-compaction.jq` | Pure jq | Extract compaction events with before/after stats |
 | `extract-subagent-commands.jq` | Pure jq | Sub-agent tool uses from progress entries |
-| `find-tool-calls.sh <file> [--path P] [--tools T]` | Shell | Find tool calls by path/tool filter |
+| `find-subagent-files.sh <session.jsonl>` | Shell | Find all subagent transcript files for a session |
+| `find-tool-calls.sh <file> [--path P] [--tools T] [--commands-only]` | Shell | Find tool calls by path/tool filter |
 | `search-session.sh <file> <keyword> [--context N]` | Shell | Search session content with highlighting |
 | `lib.jq` | jq module | Shared helper functions |
 
@@ -91,6 +96,21 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 ~/.claude/skills/session-transcripts/scripts/find-tool-calls.sh /path/to/session.jsonl --tools "Write,Edit" --path "lib.jq"
 ```
 
+**Extract compaction events:**
+```bash
+~/.claude/skills/session-transcripts/scripts/extract-compaction.jq /path/to/session.jsonl
+```
+
+**Find all subagent transcript files:**
+```bash
+~/.claude/skills/session-transcripts/scripts/find-subagent-files.sh /path/to/session.jsonl
+```
+
+**Extract just file paths from tool calls:**
+```bash
+~/.claude/skills/session-transcripts/scripts/find-tool-calls.sh /path/to/session.jsonl --tools Read --commands-only
+```
+
 **See what sub-agents did:**
 ```bash
 ~/.claude/skills/session-transcripts/scripts/extract-subagent-commands.jq /path/to/session.jsonl
@@ -121,9 +141,10 @@ One line per turn — scan for patterns: long gaps, repeated tool calls, pivots 
 ```bash
 $SCRIPTS/extract-errors.jq "$FILE"
 $SCRIPTS/extract-agents.jq "$FILE"
+$SCRIPTS/extract-compaction.jq "$FILE"
 ```
 
-Errors show tool failures. Agents show Task spawns with prompt previews — look for expensive delegation that could be avoided.
+Errors show tool failures. Agents show sub-agent spawns with prompt previews. Compaction shows where context was summarized and how many messages were compressed.
 
 ### Step 4: Trace file changes
 

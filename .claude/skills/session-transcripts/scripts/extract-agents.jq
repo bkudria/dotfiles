@@ -12,7 +12,7 @@ select(.type == "assistant")
 
 | (.timestamp | lib::format_time_only) as $time
 | lib::tool_use_blocks[]
-| select(.name == "Task")
+| select(.name == "Task" or .name == "Agent")
 
 | .input as $in
 | ($in.subagent_type // "?") as $type
@@ -21,6 +21,7 @@ select(.type == "assistant")
 | ($in.max_turns // "?" | tostring) as $turns
 | (if $in.resume then " resume=\($in.resume | lib::truncate(16))" else "" end) as $resume
 | (if $in.run_in_background == true then " bg" else "" end) as $bg
+| ($in.model // "default") as $model
 
-| "\($time)  Task  \"\($desc)\" (\($type), max_turns=\($turns)\($resume)\($bg))"
+| "\($time)  Task  \"\($desc)\" (\($type), model=\($model), max_turns=\($turns)\($resume)\($bg))"
 + "\n              prompt: \"\($prompt)\""

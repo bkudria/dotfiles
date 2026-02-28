@@ -5,8 +5,11 @@ Claude Code stores session transcripts as JSONL files (one JSON object per line)
 ## File Locations
 
 - Session transcripts: `~/.claude/projects/<encoded-project-path>/<session-uuid>.jsonl`
-- Agent sub-sessions: `~/.claude/projects/<encoded-project-path>/agent-<agent-id>.jsonl`
+- Agent sub-sessions (old format): `~/.claude/projects/<encoded-project-path>/agent-<8-hex-id>.jsonl`
+- Agent sub-sessions (new format): `~/.claude/projects/<encoded-project-path>/<session-uuid>/subagents/agent-<17-hex-id>.jsonl`
 - Global history index: `~/.claude/history.jsonl` (lightweight, different format)
+
+Both agent formats coexist. Use `find-subagent-files.sh` to discover all sub-agent files for a session.
 
 ### Path Encoding
 
@@ -21,7 +24,7 @@ Every JSONL line is a JSON object with a `type` field. The main types are:
 |------|-------------|
 | `user` | User message (text input or tool results) |
 | `assistant` | Assistant response (text, thinking, tool_use) |
-| `system` | System events (commands like /feedback, /clear) |
+| `system` | System events (subtypes: `local_command`, `compact_boundary`, `turn_duration`) |
 | `progress` | Progress updates (bash output, etc.) |
 | `agent_progress` | Sub-agent progress |
 | `hook_progress` | Git hook progress |
@@ -68,7 +71,8 @@ Present on most/all entry types:
     "interrupted": false,
     "isImage": false
   },
-  "sourceToolAssistantUUID": "uuid (when this is a tool result response)"
+  "sourceToolAssistantUUID": "uuid (when this is a tool result response)",
+  "isCompactSummary": false
 }
 ```
 
@@ -158,7 +162,7 @@ Tool result content can also be an array of blocks (e.g., image results):
 }
 ```
 
-Tool input fields vary by tool name (Read, Write, Edit, Grep, Glob, Bash, Task, etc.).
+Tool input fields vary by tool name (Read, Write, Edit, Grep, Glob, Bash, Agent, etc.). Note: older transcripts use `Task` instead of `Agent` for sub-agent spawns.
 
 ### Usage Stats
 
@@ -190,6 +194,42 @@ Tool input fields vary by tool name (Read, Write, Edit, Grep, Glob, Bash, Task, 
   "isMeta": false
 }
 ```
+
+### Compaction Boundary (`subtype: "compact_boundary"`)
+
+Emitted when the conversation is compacted (context summarized to free tokens).
+
+```json
+{
+  "type": "system",
+  "subtype": "compact_boundary",
+  "content": "Conversation compacted",
+  "level": "info",
+  "isMeta": false,
+  "compactMetadata": {
+    "trigger": "auto",
+    "preTokens": 167011
+  }
+}
+```
+
+- `compactMetadata.trigger`: `"auto"` (context limit reached) or `"manual"` (`/compact` command)
+- `compactMetadata.preTokens`: token count before compaction
+- Always followed by a user entry with `"isCompactSummary": true` containing the compaction summary text
+
+### Turn Duration (`subtype: "turn_duration"`)
+
+Emitted after each assistant turn; records wall-clock duration.
+
+```json
+{
+  "type": "system",
+  "subtype": "turn_duration",
+  "durationMs": 43115
+}
+```
+
+- `durationMs`: wall-clock milliseconds for the preceding assistant turn
 
 ## Progress Entries (`type: "progress"`)
 
@@ -226,9 +266,33 @@ These entries track file state for undo/rollback. They are very common and conta
 
 ## Agent Sub-sessions
 
-Agent transcript files (named `agent-<id>.jsonl`) follow the same schema but entries include:
-- `agentId`: Short hex ID of the agent
+Sub-agent transcripts follow the same JSONL schema as main sessions. Two storage formats exist:
+
+| Format | Path | ID Length |
+|--------|------|-----------|
+| Old (flat) | `<project-dir>/agent-<id>.jsonl` | 8-char hex |
+| New (nested) | `<project-dir>/<session-uuid>/subagents/agent-<id>.jsonl` | 17-char hex |
+
+Entries in agent transcripts include:
+- `agentId`: Hex ID of the agent
 - `isSidechain`: `true` for sub-agent work
+
+### Agent Progress in Parent Session
+
+The parent session tracks sub-agent activity via `progress` entries:
+
+```json
+{
+  "type": "progress",
+  "data": {
+    "type": "agent_progress",
+    "agentId": "a9648966df7979f35",
+    "tool": null
+  }
+}
+```
+
+Use `find-subagent-files.sh` to discover all sub-agent files for a given session, handling both formats.
 
 ## Global History (`~/.claude/history.jsonl`)
 
