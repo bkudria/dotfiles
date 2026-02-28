@@ -47,7 +47,7 @@ debug("ANTHROPIC_API_KEY exists: #{ENV['ANTHROPIC_API_KEY'] ? 'yes' : 'no'}", op
 
 # Function to get token count
 def get_token_count(content, system_prompt = nil, verbose = false)
-  model = "claude-3-7-sonnet-20250219"
+  model = "claude-opus-4-6"
   
   # Create appropriate JSON payload
   payload = if system_prompt && !system_prompt.empty?
