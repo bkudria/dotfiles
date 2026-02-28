@@ -38,7 +38,7 @@ REFACTOR → clean up duplication, improve names, extract helpers
            verify all tests still pass
 ```
 
-**Strict rule**: no new behavior without a failing test first. If code is written before a test, delete it and start the cycle from Red.
+**Strict rule**: no new behavior without a failing test first. If code is written before a test, delete it and start the cycle from Red. See `references/implementation-protocol.md` for during-coding guardrails and red flags.
 
 **Exceptions** (confirm with your collaborator before applying):
 - Throwaway prototypes explicitly intended to be discarded
@@ -46,6 +46,32 @@ REFACTOR → clean up duplication, improve names, extract helpers
 - Configuration files
 
 See `references/tdd-workflow.md` for the complete workflow with examples, verification steps, and guidance on why test-first order matters.
+
+## Planning for TDD
+
+Plans encode execution order. A plan that lists code changes first and tests second will be executed code-first -- violating TDD even when the author intends to follow it.
+
+**Rule**: Each planned change is a test-code pair. The test comes first.
+
+| Anti-pattern | Correct |
+|-------------|---------|
+| "Changes" section (all code), then separate "Tests" section | Each change specifies: (1) which test fails first (RED), (2) which code makes it pass (GREEN) |
+| "Fix the bug in X, then add tests for X" | "Write a test reproducing the bug in X, then fix X to make it pass" |
+| Tests grouped at the bottom of the plan | Tests interleaved with each change, always preceding the code |
+
+Before finalizing any implementation plan, verify: *Does every planned change specify which test will fail first?* If any change lacks a RED phase, restructure before proceeding.
+
+See `references/tdd-workflow.md` § Plan Review Checklist for the full verification checklist.
+
+## Bug Fix Workflow
+
+Bug investigations that lead to code changes are the highest-risk scenario for skipping TDD, because the fix often seems obvious after investigation. Follow this sequence:
+
+1. **Investigate** the bug (read code, run experiments, trace the cause) -- this phase produces understanding, not code edits
+2. **Write a failing test** that reproduces the bug -- the first edit is always to a test file
+3. **Fix** the bug with minimal production code, verify all tests pass
+
+Never fix a bug without first writing a failing test that demonstrates it. See `references/tdd-workflow.md` § Bug Fix Workflow and `references/implementation-protocol.md` § Bug Fix Protocol for full details.
 
 ## Test Design: Interfaces Over Implementation
 
@@ -92,3 +118,4 @@ See `references/decision-framework.md` for detailed guidance.
 | `references/tdd-workflow.md` | Complete Red-Green-Refactor cycle, verification steps, why test-first matters, bug fix workflow |
 | `references/purity-vs-extent.md` | Purity levels, extent misconceptions, correct optimization strategies |
 | `references/decision-framework.md` | Refactoring test, neural network test, behavioral vs internal logic, test economy |
+| `references/implementation-protocol.md` | Pre-edit gate, per-task ordering, red flags for TDD violations |

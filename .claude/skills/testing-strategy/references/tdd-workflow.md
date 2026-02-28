@@ -169,3 +169,17 @@ When debugging reveals a problem:
 - The test prevents the bug from silently recurring.
 
 If the bug is in code without tests, this is an opportunity to add test coverage for the area. Write a test for the correct behavior, watch it fail (confirming the bug), then fix it.
+
+## Plan Review Checklist
+
+Before finalizing an implementation plan, verify each item. Any failure means the plan encodes a code-first workflow and must be restructured.
+
+| # | Check | Pass | Fail |
+|---|-------|------|------|
+| 1 | Each planned change specifies which test fails first (RED phase) | Change says "write test for X, then implement X" | Change describes code first with tests as a follow-up or separate section |
+| 2 | Tests are interleaved with code changes, not grouped separately | Each change is a test-code pair in sequence | Plan has a "Changes" section and a separate "Tests" section |
+| 3 | Bug fixes start with a reproducing test | "Write a test that reproduces the bug, then fix it" | "Fix the bug in X, then add tests for X" |
+| 4 | Task descriptions use test-first language | "Write failing test for round-trip safety, then fix needs_quoting?" | "Fix needs_quoting?, then add round-trip tests" |
+| 5 | No change lacks a corresponding test | Every non-exception change has a RED phase | Code changes exist without any test specified (unless config or generated code) |
+
+If any item fails, restructure the plan before proceeding to implementation. The ordering in the plan determines the ordering of execution.

@@ -120,3 +120,14 @@ curation_decisions:
         The test economy guidance (prefer extending existing scenarios
         over creating new infrastructure) is not directly from any
         single source, though it echoes themes across multiple posts.
+
+  references/implementation-protocol.md:
+    - source: pcvelz-tdd
+      sections: ["Red-Green-Refactor", "common rationalizations"]
+      decision: synthesized
+      rationale: >-
+        The per-task implementation ordering and rationalization table
+        build on pcvelz-tdd's TDD enforcement approach. The pre-edit
+        gate, red flags list, and bug fix protocol are original content
+        derived from analyzing session 358ef5c6 where TDD was not
+        followed. Bulletproofing techniques from skillcraft were applied.
