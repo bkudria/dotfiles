@@ -18,8 +18,11 @@
 #   S7: No orphan files
 #   M1: Name format (hyphen-case, ≤64 chars)
 #   M2: Description present and within length bounds
+#   M9: CSO red-flag detection (workflow summary warning)
 #   M5: argument-hint present if $ARGUMENTS used
 #   P5: Scripts have usage headers
+#   C1: Second-person voice detection
+#   C2: Wall of text (body >500 lines, no references/)
 #
 # Provenance checks (only when provenance.yml exists):
 #   PV1: Files in curation_decisions exist
@@ -144,6 +147,29 @@ validate_skill() {
             fi
         fi
 
+        # M9: CSO red-flag detection — warn if description looks like a workflow summary
+        # Note: "before"/"after"/"between" omitted — too common in legitimate trigger phrases
+        if [[ -n "$desc" ]]; then
+            local cso_flags=""
+            # Process-sequence words that strongly suggest step ordering
+            if echo "$desc" | grep -iE '(^| )(then |first |next |finally )' >/dev/null 2>&1; then
+                cso_flags="process-sequence words"
+            fi
+            # Orchestration verbs
+            if echo "$desc" | grep -iE '(dispatches|orchestrates|coordinates|delegates|routes to)' >/dev/null 2>&1; then
+                cso_flags="${cso_flags:+$cso_flags, }orchestration verbs"
+            fi
+            # Step indicators
+            if echo "$desc" | grep -iE '(step [0-9]|phase [0-9]|stage [0-9])' >/dev/null 2>&1; then
+                cso_flags="${cso_flags:+$cso_flags, }step indicators"
+            fi
+            if [[ -n "$cso_flags" ]]; then
+                warn "M9" "Description may contain workflow summary ($cso_flags) — review for CSO pitfall"
+            else
+                pass "M9" "No workflow-summary red flags in description"
+            fi
+        fi
+
         # M5: argument-hint if $ARGUMENTS used
         local uses_args=false
         if grep -q '\$ARGUMENTS\|{{ARGUMENTS}}' "$skill_md" 2>/dev/null; then
@@ -236,6 +262,33 @@ validate_skill() {
         fi
     else
         pass "P5" "No scripts/ directory (check N/A)"
+    fi
+
+    # C2: Wall of text — body >500 lines with no references/ directory
+    local body_text
+    body_text=$(awk '/^---$/{if(++c==2){found=1;next}} found{print}' "$skill_md")
+    local body_lines body_words approx_tokens
+    body_lines=$(echo "$body_text" | wc -l | tr -d ' ')
+    body_words=$(echo "$body_text" | wc -w | tr -d ' ')
+    approx_tokens=$(( body_words * 13 / 10 ))  # words × 1.3
+    if [[ $body_lines -gt 500 ]] && [[ ! -d "$skill_dir/references" ]]; then
+        warn "C2" "Body is $body_lines lines, ~${approx_tokens} tokens with no references/ directory (wall of text)"
+    elif [[ $body_lines -gt 500 ]]; then
+        pass "C2" "Body is $body_lines lines, ~${approx_tokens} tokens (references/ exists)"
+    else
+        pass "C2" "Body length OK ($body_lines lines, ~${approx_tokens} tokens)"
+    fi
+
+    # C1: Second-person voice — "you should/can/will/need" in body
+    # Exclude lines inside code blocks or that document the pattern itself
+    local voice_count
+    voice_count=$(awk '/^---$/{if(++c==2){found=1;next}} found{print}' "$skill_md" \
+        | awk '/^```/{code=!code} !code{print}' \
+        | grep -ciE '(you should|you can|you will|you need|you must)' || true)
+    if [[ "$voice_count" -gt 0 ]]; then
+        warn "C1" "Second-person voice found ($voice_count occurrences of 'you should/can/will/need/must')"
+    else
+        pass "C1" "No second-person voice detected"
     fi
 
     # --- Provenance checks (only when provenance.yml exists) ---

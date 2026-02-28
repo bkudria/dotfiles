@@ -59,6 +59,8 @@ Proceed to Phase 1 (Discovery) only after documenting:
 - [ ] Rationalizations cataloged (for discipline skills)
 - [ ] Clear picture of what the skill must teach
 
+**Save scenarios for Phase 6:** Phase 0 scenarios become Phase 6 eval scenarios. Preserve the prompts, pressure descriptions, and observed failure behaviors — they form the "red tests" that Phase 6 confirms have turned green.
+
 ---
 
 ## Using the Eval Pipeline (Optional)

@@ -116,6 +116,32 @@ description: Use when implementing any feature or bugfix, before writing impleme
 
 **Rule:** Description = when to use. Never what the skill does step-by-step.
 
+### Red-Flag Words in Descriptions
+
+These words in a description suggest workflow summary rather than triggering conditions. Their presence is not always wrong, but warrants review.
+
+| Category | Red-Flag Words | Why Suspicious |
+|----------|---------------|----------------|
+| Process sequence | "then", "first", "next", "finally" | Implies step ordering |
+| Orchestration verbs | "dispatches", "orchestrates", "coordinates", "delegates", "routes" | Describes internal mechanics |
+| Step indicators | "step 1", "phase N", "stage N" | Enumerates a procedure |
+| Multi-action chains | 3+ verbs joined by commas (e.g., "reads X, transforms Y, and writes Z") | Summarizes what the skill does, not when to use it |
+
+**Note:** Words like "before", "after", "between" are common in legitimate trigger conditions ("Use before deploying", "converting between formats") and are NOT red flags on their own.
+
+**Self-check:** Read the description aloud. If it answers "what does this skill do?" more than "when should Claude load this?", rewrite it.
+
+### Exemplar Descriptions
+
+These real skills demonstrate excellent CSO — study their descriptions as models:
+
+| Skill | Why It Works |
+|-------|-------------|
+| `jq` | Tool name + action verbs + concrete contexts ("writing jq commands, building jq pipelines") |
+| `testing-strategy` | Decision-oriented triggers ("deciding between unit and integration tests, choosing what level to test at") |
+| `session-transcripts` | Problem-oriented triggers + IMPORTANT annotation for critical guidance |
+| `advanced-ask` | Specific boundary condition ("when AskUserQuestion tool is insufficient") + concrete limits listed |
+
 ### Keyword Coverage
 
 Use words Claude would search for when encountering the problem:

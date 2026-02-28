@@ -40,7 +40,9 @@ When loaded during SKILL.md editing, apply only these quick checks:
 1. **Valid frontmatter** — YAML between `---` delimiters, `name` field present
 2. **Name matches directory** — `name` field matches parent directory name
 3. **Description present** — Non-empty, 10-1024 characters
-4. **Obvious anti-patterns** — Scan for second-person voice ("You should..."), wall-of-text body (>500 lines with no references/), missing "When to Use" section
+4. **Second-person voice** — Flag second-person directives (phrases addressing the reader) in body text
+5. **Body length** — Warn if body >500 lines with no `references/` directory (wall-of-text)
+6. **Missing "When to Use"** — Flag if no `## When to Use` heading exists
 
 Report issues inline as suggestions. Do NOT run the full checklist or restructure the skill.
 

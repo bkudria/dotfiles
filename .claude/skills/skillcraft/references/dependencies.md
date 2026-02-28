@@ -63,6 +63,40 @@ Common dependencies across skills:
 
 **Avoid circular dependencies.** If skill A depends on skill B, skill B must not depend on skill A. Keep the dependency graph a DAG.
 
+## Composition Patterns
+
+Skills interact through three patterns:
+
+| Pattern | How It Works | Example |
+|---------|-------------|---------|
+| **Script wrapping** | Skill A's scripts call Skill B's scripts at runtime | `advanced-ask` scripts invoke `interactive-tmux` for TUI execution |
+| **Workflow invocation** | Skill A's docs instruct Claude to invoke Skill B | `skillcraft` workflows use `advanced-ask` forms for user input |
+| **Implicit coordination** | Skill A auto-detects Skill B's state via environment | `interactive-tmux` reuses active pane when called from within one |
+
+### Path Resolution
+
+Reference other skills by name, not by hard-coded absolute path. Resolve paths at runtime:
+
+```bash
+# Good — skill name as variable, resolved at runtime
+SKILL_DIR="$HOME/.claude/skills/interactive-tmux"
+"$SKILL_DIR/scripts/run-interactive.sh" gum choose "A" "B"
+```
+
+```bash
+# Bad — path repeated and buried across many scripts
+"$HOME/.claude/skills/interactive-tmux/scripts/run-interactive.sh" gum choose "A" "B"
+```
+
+### When to Inline vs. Depend
+
+| Situation | Approach |
+|-----------|----------|
+| Logic is <20 lines and unlikely to change | Inline it |
+| Another skill handles this better | Depend on it |
+| Multiple skills need the same capability | Factor into a shared skill |
+| The dependency adds install friction | Inline or make it optional |
+
 ## Best Practices
 
 1. **Minimize dependencies** — each one is a potential failure point
