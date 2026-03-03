@@ -84,6 +84,7 @@ def brief_tool_desc:
   elif .name == "Bash" then "Bash \(.input.command // "?" | truncate(60))"
   elif .name == "Grep" then "Grep \(.input.pattern // "?" | truncate(30)) in \(.input.path // "." | truncate(30))"
   elif .name == "Glob" then "Glob \(.input.pattern // "?" | truncate(40)) in \(.input.path // "." | truncate(20))"
+  elif .name == "Skill" then "Skill \(.input.skill // "?")\(if .input.args then " \(.input.args | truncate(30))" else "" end)"
   elif .name == "Task" then "Task \(.input.description // "?" | truncate(40)) (\(.input.subagent_type // "?"))"
   elif .name == "WebFetch" then "WebFetch \(.input.url // "?" | truncate(50))"
   elif .name == "WebSearch" then "WebSearch \(.input.query // "?" | truncate(50))"
@@ -123,6 +124,8 @@ def tool_file_path:
     .input.path // null
   elif .name == "Bash" then
     .input.command // null
+  elif .name == "Skill" then
+    .input.skill // null
   elif .name == "Task" then
     .input.description // null
   elif .name == "WebFetch" then
@@ -141,6 +144,8 @@ def tool_content_preview(n):
     "old: \(.input.old_string // "" | gsub("\n"; " ") | truncate(n/2 | floor)) -> new: \(.input.new_string // "" | gsub("\n"; " ") | truncate(n/2 | floor))"
   elif .name == "Bash" then
     (.input.command // "" | gsub("\n"; " ") | truncate(n))
+  elif .name == "Skill" then
+    "\(.input.skill // "?")\(if .input.args then "  args: \(.input.args | truncate(n - 20))" else "" end)"
   elif .name == "Task" then
     "desc: \(.input.description // "" | truncate(n/3 | floor))  prompt: \(.input.prompt // "" | gsub("\n"; " ") | truncate(n*2/3 | floor))"
   elif .name == "Read" then

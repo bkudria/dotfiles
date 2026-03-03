@@ -1,20 +1,25 @@
 ---
 name: scrut
-description: Scrut CLI snapshot testing framework reference. Use when writing scrut test files (.t or .md with scrut code blocks), debugging scrut test failures, creating CLI snapshot tests, understanding scrut output expectations (glob, regex, quantifiers), configuring scrut test documents (front matter, timeouts, environment variables), or working with scrut update/create commands.
+description: "Scrut CLI snapshot testing framework reference. Use when writing, reading, or editing scrut test files (.md with scrut code blocks), debugging scrut test failures, creating CLI snapshot tests, understanding scrut output expectations (glob, regex, quantifiers), configuring scrut test documents (front matter, timeouts, environment variables), or working with scrut update/create commands. TRIGGER when: encountering .t files (deprecated Cram format — migrate to Markdown), working with CLI snapshot or integration tests, or examining test failures in projects that use scrut. DO NOT use Cram/.t format for new tests — always use Markdown."
 ---
 
 # Scrut CLI Testing Reference
 
 Reference for the Scrut CLI snapshot testing framework — tests terminal programs using Markdown or Cram files.
 
-## When This Skill Applies
+## When to Use
 
-- Writing or editing scrut test files (`.t` or `.md` with `scrut` code blocks)
+- Writing, reading, or editing scrut test files (`.md` with `scrut` code blocks)
 - Debugging scrut test failures or unexpected output
 - Creating new CLI snapshot tests
 - Understanding output expectation syntax (glob, regex, quantifiers, escaped)
 - Configuring test documents (front matter, timeouts, environment, output streams)
 - Using `scrut update` or `scrut create` commands
+- Encountering `.t` files (deprecated Cram format) — migrate to Markdown
+
+## Important: Cram/.t Format Is Deprecated
+
+**Never create new `.t` (Cram) test files.** Always use Markdown (`.md`) format. When encountering existing `.t` files, migrate them to Markdown. Cram format lacks inline configuration support and defaults to combined stdout/stderr, making tests harder to maintain.
 
 ## Quick Reference
 

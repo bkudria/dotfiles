@@ -1,6 +1,6 @@
 ---
 name: skillcraft
-description: "IMPORTANT - this skill MUST be loaded ANY time a SKILL.md file is being edited, created, or reviewed, even as part of other work. Create new skills with an interactive wizard, audit and improve existing skills, integrate content from external sources, or update skillcraft from upstream sources. Use when creating a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, updating skillcraft, syncing skillcraft from sources, checking for upstream changes to skills, folding in a source, integrating a source, or merging content from an external source."
+description: "IMPORTANT - this skill MUST be loaded ANY time any file within a skill directory (~/.claude/skills/*/) is being edited, created, or reviewed, even as part of other work — not just SKILL.md but also scripts, references, workflows, and other skill files. Create new skills with an interactive wizard, audit and improve existing skills, integrate content from external sources, or update skillcraft from upstream sources. Use when creating a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, editing skill scripts or references, adding scripts to a skill, updating skillcraft, syncing skillcraft from sources, checking for upstream changes to skills, folding in a source, integrating a source, or merging content from an external source."
 argument-hint: "[skill name, path, or 'update']"
 ---
 
@@ -10,7 +10,7 @@ Create, audit, improve, and update Claude Code skills.
 
 ## When to Use
 
-- **ANY time a SKILL.md file is being edited** — even as a side effect of other work. Load this skill first so lightweight checks apply automatically.
+- **ANY time any file within a skill directory** (`~/.claude/skills/*/`) **is being edited** — not just SKILL.md, but also scripts, references, workflows, and other skill files. Load this skill first so lightweight checks apply automatically.
 - Creating a brand new Claude Code skill
 - Auditing a skill for quality issues
 - Fixing broken frontmatter or references
@@ -23,7 +23,7 @@ Create, audit, improve, and update Claude Code skills.
 
 | Mode | Trigger | Workflow |
 |------|---------|----------|
-| Lightweight | Auto-loaded during SKILL.md editing | (inline below) |
+| Lightweight | Auto-loaded during skill file editing | (inline below) |
 | Create | `/skillcraft` or `/skillcraft <name>`, or "create a skill" | See Create Quick Reference |
 | Improve | `/skillcraft --improve [path]`, or "audit/improve a skill" | `workflows/improve-standard.md` |
 | Bulk Audit | `/skillcraft --all`, or "audit all skills" | `workflows/improve-bulk.md` |
@@ -35,7 +35,7 @@ Create, audit, improve, and update Claude Code skills.
 
 ## Lightweight Mode (Auto-trigger)
 
-When loaded during SKILL.md editing, apply only these quick checks:
+When loaded during editing of any file within a skill directory, apply only these quick checks:
 
 1. **Valid frontmatter** — YAML between `---` delimiters, `name` field present
 2. **Name matches directory** — `name` field matches parent directory name

@@ -1,6 +1,6 @@
 ---
 name: session-transcripts
-description: "Search and analyze past Claude Code sessions to understand what happened, trace decisions, and investigate history. IMPORTANT: Always load this skill before searching session history or working with transcripts — it provides optimized jq scripts and shell tools that are far more efficient than raw grep. Use when searching session history, finding past sessions or conversations, tracing how something was created or built, investigating what happened in a previous session, reviewing sessions for issues or missteps, reading .jsonl transcript files, analyzing token usage, extracting conversation from transcripts, or summarizing past sessions."
+description: "Search and analyze past Claude Code sessions to understand what happened, trace decisions, and investigate history. IMPORTANT: Always load this skill before searching session history or working with transcripts — it provides optimized jq scripts and shell tools that are far more efficient than raw grep. Use when searching session history, finding past sessions or conversations, tracing how something was created or built, investigating what happened in a previous session, reviewing sessions for issues or missteps, reading .jsonl transcript files, analyzing token usage, extracting conversation from transcripts, summarizing past sessions, or finding which sessions loaded or used a particular skill."
 ---
 
 # Session Transcripts
@@ -17,6 +17,7 @@ Tools and schema reference for working with Claude Code session transcript JSONL
 - Summarizing or extracting the conversation flow from a session
 - Analyzing token usage or tool usage in a session
 - Listing projects or sessions
+- Finding which sessions loaded or used a particular skill
 - Any task involving `~/.claude/projects/` JSONL files
 
 ## Storage Layout
@@ -55,8 +56,10 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 | `extract-compaction.jq` | Pure jq | Extract compaction events with before/after stats |
 | `extract-subagent-commands.jq` | Pure jq | Sub-agent tool uses from progress entries |
 | `find-subagent-files.sh <session.jsonl>` | Shell | Find all subagent transcript files for a session |
+| `find-skill-usage.sh <skill-name> [--project <path>]` | Shell | Find sessions that loaded a specific skill |
 | `find-tool-calls.sh <file> [--path P] [--tools T] [--commands-only]` | Shell | Find tool calls by path/tool filter |
 | `search-session.sh <file> <keyword> [--context N]` | Shell | Search session content with highlighting |
+| `extract-skill-usage.jq` | Pure jq | Skill invocations with timestamps and args |
 | `lib.jq` | jq module | Shared helper functions |
 
 ### Usage Examples
@@ -104,6 +107,21 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 **Find all subagent transcript files:**
 ```bash
 ~/.claude/skills/session-transcripts/scripts/find-subagent-files.sh /path/to/session.jsonl
+```
+
+**Find all sessions that used a specific skill:**
+```bash
+~/.claude/skills/session-transcripts/scripts/find-skill-usage.sh skillcraft
+```
+
+**Find skill usage within a specific project:**
+```bash
+~/.claude/skills/session-transcripts/scripts/find-skill-usage.sh jq --project /Users/bkudria/code/myproject
+```
+
+**List all skill invocations in a session:**
+```bash
+~/.claude/skills/session-transcripts/scripts/extract-skill-usage.jq /path/to/session.jsonl
 ```
 
 **Extract just file paths from tool calls:**

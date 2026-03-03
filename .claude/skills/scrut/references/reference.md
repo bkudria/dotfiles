@@ -436,8 +436,8 @@ $ set -e; false || true
 ## Format Notes
 
 ### Markdown vs Cram
-- **Markdown**: Preferred, supports inline config, STDOUT-only default
-- **Cram**: Legacy, no inline config, combined output default
+- **Markdown**: Required for all new tests, supports inline config, STDOUT-only default
+- **Cram (`.t`)**: **Deprecated** — do not create new `.t` files. Lacks inline config, defaults to combined output. Migrate existing `.t` files to Markdown format.
 - Both share working directory per document
 - Both support prepend/append
 
