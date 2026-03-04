@@ -248,3 +248,75 @@ Edit SKILL.md --> test manually --> run /skillcraft --improve --> fix findings -
 - [ ] Trigger phrases work (if auto-invocable)
 - [ ] Edge cases handled gracefully
 - [ ] Scripts exit cleanly with correct codes
+
+---
+
+## 7. Eval Bootstrapping Protocol
+
+When a behavioral edit targets a skill with no `evals/` directory, bootstrap baseline evals before the edit proceeds. This is **blocking** — the edit cannot complete without eval coverage.
+
+### Tiered Approach
+
+| Tier | Condition | Action | Time |
+|------|-----------|--------|------|
+| 1 | `evals/` exists, scenario covers edit | Run matching scenarios pre/post | ~2 min |
+| 2 | `evals/` exists, no scenario covers edit | Add 1 edit-specific scenario, run pre/post | ~5 min |
+| 3 | No `evals/` directory | Bootstrap interview + Tier 1 or 2 | ~10 min |
+
+Determine the tier at the start of every behavioral edit. Tier 3 happens at most **once per skill** — after bootstrap, all future edits are Tier 1 or 2.
+
+### Tier 3: Bootstrap Interview
+
+When a skill has no `evals/` at all:
+
+**Step 1 — Read the skill.** Read all files in the skill directory. Classify the skill type (discipline, technique, pattern, reference) per § Testing by Skill Type above.
+
+**Step 2 — Propose scenarios.** Generate 3 scenario proposals matching the skill type:
+
+| Skill Type | Scenario Mix |
+|------------|-------------|
+| Discipline | 1 pressure, 1 compliance, 1 edge case |
+| Technique | 1 application, 1 variation, 1 gap |
+| Pattern | 1 recognition, 1 application, 1 counter-example |
+| Reference | 1 retrieval, 1 application, 1 completeness |
+
+For each proposed scenario, draft: `id`, `name`, `prompt`, 3 `assertions`, and a `rubric`. Make scenarios realistic and specific to the skill's actual content — not generic templates. Consult `references/eval-guide.md` for assertion quality rules.
+
+**Step 3 — Interview the user.** Present the proposals and ask:
+
+1. "Here are 3 proposed eval scenarios for [skill-name]. For each: approve as-is, suggest changes, or replace?"
+2. "What behaviors are most critical to verify? Anything I missed?"
+
+Revise scenarios based on feedback. Two questions is the target; three is the maximum.
+
+**Step 4 — Write evals.yml.** Create `<skill-dir>/evals/evals.yml` with the finalized scenarios, following the schema in `references/eval-guide.md`.
+
+**Step 5 — Baseline iteration (optional).** If time permits and the user agrees, run a without-skill-only iteration to establish benchmark baseline data. This creates `evals/iteration-1/` with without_skill outputs that future Phase 6 runs can compare against.
+
+### Tier 2: Edit-Specific Scenario
+
+When `evals/` exists but no scenario covers the behavior being edited:
+
+1. Identify the specific behavior the edit changes.
+2. Draft 1 new scenario exercising that behavior — with `id`, `prompt`, `assertions`, `rubric`.
+3. Present to user: "This edit changes [behavior]. I propose this eval scenario: [summary]. Approve or modify?"
+4. Append the scenario to `evals.yml`.
+
+### Pre/Post Edit Verification with Evals
+
+Once eval scenarios exist (from any tier), use them for Lightweight Mode items 7-9:
+
+| Lightweight Mode Item | Eval-Based Execution |
+|----------------------|---------------------|
+| 7. Pre-edit snapshot | Run edit-relevant scenario(s) with current skill as a subagent; save output |
+| 8. Post-edit verification | Re-run same scenarios with edited skill; compare outputs |
+| 9. Bug fix validation | Ensure at least one scenario reproduces the reported bug pre-edit |
+
+This replaces informal "run 1-2 scenarios" with structured, repeatable eval execution. Outputs can optionally be saved into an `evals/iteration-N/` directory for long-term tracking.
+
+### Quick Path
+
+To minimize bootstrap time:
+- Accept proposed scenarios without modification (skip interview question 2)
+- Skip the optional baseline iteration (Step 5)
+- Minimum viable bootstrap: ~5 minutes for Tier 3

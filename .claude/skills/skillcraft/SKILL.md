@@ -31,7 +31,11 @@ Create, audit, improve, and update Claude Code skills.
 | Provenance | "add provenance", "track sources", "add upstream sources" | `workflows/add-provenance.md` |
 | Integrate | "fold in source", "integrate source", "merge content from" | `workflows/integrate-source.md` |
 
-**Mode selection**: If the request mentions "fold in", "integrate source", or "merge content from" an external source into an existing skill, use **Integrate** mode. If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "improve", "review", or "fix" an existing skill, use **Improve**. Otherwise default to **Create**.
+**Mode selection**: If the request mentions "fold in", "integrate source", or "merge content from" an external source into an existing skill, use **Integrate** mode. If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "review", or "fix" an existing skill without specifying a particular change, use **Improve**. If the request specifies a concrete change to make (e.g., "improve skill X to do Y", "add Z to skill"), use **Lightweight** mode — the edit will be covered by its Behavioral Edit Testing protocol. Otherwise default to **Create**.
+
+### Testing Discipline
+
+**Iron Law**: No skill ships untested — new or edited. Behavioral edits require pre/post verification. See `references/testing-guide.md` for the full TDD framework; see Lightweight Mode below for the edit protocol.
 
 ## Lightweight Mode (Auto-trigger)
 
@@ -43,6 +47,33 @@ When loaded during editing of any file within a skill directory, apply only thes
 4. **Second-person voice** — Flag second-person directives (phrases addressing the reader) in body text
 5. **Body length** — Warn if body >500 lines with no `references/` directory (wall-of-text)
 6. **Missing "When to Use"** — Flag if no `## When to Use` heading exists
+
+### Behavioral Edit Testing
+
+**Trivial edits** (typo/spelling, whitespace/formatting, reordering without changing meaning, path updates) skip this section entirely.
+
+**Behavioral edits** (changes to instructions/guidance/rules, adding/removing/modifying sections, changing routing or triggers, modifying scripts, changing `description` or `allowed-tools`) must pass the gate below. When in doubt, it is behavioral.
+
+**GATE — Eval coverage required. Do NOT plan, analyze, or edit until this gate is satisfied.**
+
+1. Check: does the skill have `evals/evals.yml` with scenarios?
+2. If NO evals exist: **STOP.** Bootstrap evals before proceeding:
+   a. Read all skill files; classify skill type (discipline/technique/pattern/reference)
+   b. Draft 3 eval scenarios matching the type (see `references/testing-guide.md` § Eval Bootstrapping Protocol for scenario design by type)
+   c. Present scenarios to user for approval via AskUserQuestion
+   d. Create `<skill-dir>/evals/evals.yml` with approved scenarios
+   e. **Checkpoint**: verify `evals/evals.yml` exists with ≥3 scenarios before continuing
+3. If evals exist but no scenario covers the behavior being changed: draft and add 1 scenario targeting that behavior; present to user for approval
+4. Run edit-relevant scenario(s) with the current skill loaded; capture output as pre-edit snapshot
+5. **NOW** make the edits
+6. Re-run the same scenarios; confirm intended improvement without regression
+7. If fixing a reported bug, include a scenario that reproduces the original bug pre-edit
+
+**Red flags — STOP if you catch yourself doing any of these before step 5:**
+- Listing or analyzing what needs to change
+- "The changes are straightforward"
+- "I'll create evals after the edit"
+- "This is too simple for evals"
 
 Report issues inline as suggestions. Do NOT run the full checklist or restructure the skill.
 

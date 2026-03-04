@@ -88,12 +88,11 @@ For each issue (critical first), present the fix and ask:
 
 After all fixes, re-run the checklist. Report final score.
 
-## Step 7: Behavioral Eval (Optional)
+## Step 7: Behavioral Eval
 
-If the skill has `evals.yml`, re-run the eval pipeline to verify improvements:
+If the skill has no `evals/` directory, bootstrap baseline evals using the Eval Bootstrapping Protocol in `references/testing-guide.md`. All skills should have eval coverage.
 
-Read `workflows/create-phase6-eval.md` and run through Steps 2-5.
-Compare benchmark.json before and after improvements.
+Then re-run edit-relevant scenarios to verify improvements haven't introduced regressions. For a full benchmark comparison, read `workflows/create-phase6-eval.md` and run Steps 2-5.
 
 ## Anti-Pattern Detection
 
