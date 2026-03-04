@@ -21,11 +21,30 @@ node-name arg1 arg2 prop=value {
 
 ### Strings
 
-**Bare identifiers**: `foo`, `my-value` - unquoted strings (same rules as identifier names)
+**Prefer bare strings.** Use bare identifiers as the default for string values. Only quote when the value requires it (contains spaces, restricted characters, reserved words, or starts with a digit).
 
-**Quoted**: `"hello\nworld"` - supports escapes
+**Bare identifiers**: `foo`, `my-value`, `localhost`, `my_app` - unquoted strings (same rules as identifier names)
 
-**Raw**: `#"C:\path"#` - no escape processing; add `#` to disambiguate: `##"has "# inside"##`; cannot represent disallowed code points
+```kdl
+// GOOD — bare strings where valid
+host localhost
+name my-app
+mode production
+
+// BAD — unnecessary quoting
+host "localhost"
+name "my-app"
+mode "production"
+
+// Quoting required — these cannot be bare
+title "Hello World"
+reserved "true"
+path "foo/bar"
+```
+
+**Quoted**: `"hello\nworld"` - supports escapes. Use when value contains spaces, restricted characters (`= { } ( ) [ ] / \ " # ;`), starts with a digit, or is a reserved word (`true`, `false`, `null`, `inf`, `-inf`, `nan`).
+
+**Raw**: `#"C:\path"#` - no escape processing; add `#` to disambiguate: `##"has "# inside"##`; cannot represent disallowed code points. Use for paths with backslashes, regexes, or strings with many quotes.
 
 **Multiline** (quoted and raw): literal newline required after opening `"""`; closing `"""` must be on whitespace-only line
 

@@ -34,15 +34,15 @@ This skill helps with:
 ### Node with arguments and properties
 ```kdl
 title "Hello World"
-server "main" port=8080 tls=true
+server main port=8080 tls=true
 ```
 
 ### Node with children
 ```kdl
 database {
-  host "localhost"
+  host localhost
   port 5432
-  name "myapp"
+  name myapp
 }
 ```
 
@@ -72,8 +72,9 @@ node "value" /* inline comment */ key="val"
 1. Consult `references/reference.md` for complete KDL v2 syntax details before writing KDL
 2. Provide code examples using `kdl` code blocks
 3. Reference specific sections when citing syntax rules
-4. Common gotchas: `.1` is illegal (use `0.1`), bare identifiers have restrictions
-5. Consult `references/json-in-kdl.md` when encoding JSON in KDL, converting between JSON and JiK, or using `(array)`/`(object)` type annotations for JiK
+4. **Prefer bare strings** — use unquoted bare identifiers for values whenever valid (see bare identifier restrictions in reference). Only use quoted strings when the value contains spaces, restricted characters, or is a reserved word. This applies to arguments, property values, node names, and property keys.
+5. Common gotchas: `.1` is illegal (use `0.1`), bare identifiers have restrictions
+6. Consult `references/json-in-kdl.md` when encoding JSON in KDL, converting between JSON and JiK, or using `(array)`/`(object)` type annotations for JiK
 
 ## Dependencies
 

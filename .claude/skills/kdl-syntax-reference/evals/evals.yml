@@ -1,0 +1,43 @@
+skill: kdl-syntax-reference
+scenarios:
+  - id: write-kdl-config
+    name: "Write a KDL configuration file"
+    prompt: |
+      Write a KDL config file for a database connection with host, port,
+      username, password, and a pool section with max and min connections.
+    assertions:
+      - "Output is valid KDL v2 syntax with nodes using arguments or properties"
+      - "Uses children block {} for nested structure (pool section)"
+      - "Properties use key=value syntax"
+    rubric: |
+      1. Is the KDL syntactically correct per v2 spec?
+      2. Are node names, properties, and values formatted idiomatically?
+      3. Does it demonstrate proper nesting with children blocks?
+
+  - id: kdl-string-forms
+    name: "Explain KDL string types with examples"
+    prompt: |
+      Explain the different string types in KDL v2 and when to use each.
+      Show examples of each form.
+    assertions:
+      - "Covers bare identifiers, quoted strings, and raw strings"
+      - "Mentions multiline strings with triple-quote syntax"
+      - "Includes correct syntax examples for each string form"
+    rubric: |
+      1. Are all string forms covered accurately?
+      2. Are the use cases for each form clearly distinguished?
+      3. Are the examples syntactically correct per the KDL v2 spec?
+
+  - id: kdl-type-annotations
+    name: "Use KDL type annotations correctly"
+    prompt: |
+      Write KDL nodes that use type annotations for a UUID, a date,
+      an integer constraint, and a custom type.
+    assertions:
+      - "Uses (type)value annotation syntax with parentheses"
+      - "References at least 2 reserved type names from the spec (e.g., uuid, date)"
+      - "Shows annotation on both arguments and properties"
+    rubric: |
+      1. Are the type annotations syntactically correct?
+      2. Are reserved types used appropriately per the KDL v2 spec?
+      3. Does it show annotations can apply to nodes, arguments, and properties?
