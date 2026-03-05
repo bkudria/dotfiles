@@ -171,6 +171,32 @@ Every token in a frequently-loaded skill costs context across every conversation
 
 See `references/writing-style.md` for word count targets by skill type.
 
+### Testing Description Triggering
+
+To verify a description triggers correctly, create a set of 20 eval queries — a mix of should-trigger (8-10) and should-not-trigger (8-10). The quality of these queries determines the quality of the optimization.
+
+**What makes a good eval query:**
+- Realistic and detailed — the kind of thing a real user would type
+- Include context: file paths, personal situation, column names, company names
+- Mix of lengths, some lowercase/casual/abbreviated
+- Focus on edge cases rather than clear-cut matches
+
+**Bad eval queries:** `"Format this data"`, `"Create a chart"`, `"Help with Docker"`
+
+**Good eval queries:** `"ok so my boss just sent me this xlsx file (its in my downloads, called something like 'Q4 sales final FINAL v2.xlsx') and she wants me to add a column that shows the profit margin as a percentage"`
+
+**Should-trigger queries (8-10):**
+- Different phrasings of the same intent — formal and casual
+- Cases where the user doesn't name the skill/file type but clearly needs it
+- Uncommon use cases and competitive scenarios where this skill should win
+
+**Should-not-trigger queries (8-10):**
+- **Near-misses** are the most valuable — queries that share keywords but actually need something different
+- Adjacent domains, ambiguous phrasing where naive keyword matching would incorrectly trigger
+- NOT obviously irrelevant queries ("write a fibonacci function" is too easy — it tests nothing)
+
+**How skill triggering works:** Skills appear in Claude's available skills list with name + description. Claude only consults skills for tasks it can't easily handle on its own — simple one-step queries may not trigger even with a perfect description match. Eval queries should be substantive enough that Claude would benefit from consulting a skill.
+
 ### Discovery Workflow
 
 How future Claude finds a skill:

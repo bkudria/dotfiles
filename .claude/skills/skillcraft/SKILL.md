@@ -178,6 +178,7 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/testing-guide.md` | How to test skills after creation or editing |
 | `references/eval-guide.md` | Writing eval scenarios, assertions, and rubrics |
 | `agents/grader.md` | Subagent definition for auto-grading eval outputs |
+| `agents/comparator.md` | Subagent definition for blind A/B comparison |
 | `agents/analyzer.md` | Subagent definition for benchmark analysis |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |

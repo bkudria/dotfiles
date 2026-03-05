@@ -8,6 +8,15 @@ Custom slash commands have been merged into skills. A file at `.claude/commands/
 
 Claude Code skills follow the Agent Skills open standard, which works across multiple AI tools. Claude Code extends the standard with additional features like invocation control, subagent execution, and dynamic context injection.
 
+## Bundled Skills
+
+Bundled skills ship with Claude Code and are available in every session. Unlike built-in commands, bundled skills are prompt-based: they give Claude a detailed playbook and let it orchestrate the work using its tools.
+
+- **`/simplify`**: Reviews recently changed files for code reuse, quality, and efficiency, then fixes them
+- **`/batch <instruction>`**: Orchestrates large-scale changes across a codebase in parallel using git worktrees
+- **`/debug [description]`**: Troubleshoots your current session by reading the debug log
+- **`/claude-api`**: Loads Claude API reference material for your project's language and Agent SDK reference
+
 ## Skill Directory Structure
 
 Each skill is a directory with `SKILL.md` as the entrypoint:
@@ -64,6 +73,7 @@ YAML frontmatter fields between `---` markers at the top of `SKILL.md`:
 | `$ARGUMENTS[N]`        | Specific argument by 0-based index (e.g., `$ARGUMENTS[0]`).                                                 |
 | `$N`                   | Shorthand for `$ARGUMENTS[N]` (e.g., `$0`, `$1`).                                                   |
 | `${CLAUDE_SESSION_ID}` | Current session ID.                      |
+| `${CLAUDE_SKILL_DIR}`  | Directory containing the skill's SKILL.md. Use in `!`command`` to reference bundled scripts/files regardless of CWD. |
 
 ## Types of Skill Content
 

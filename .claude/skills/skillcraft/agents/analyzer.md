@@ -11,8 +11,11 @@ One or more benchmark.json files from consecutive iterations of a skill's eval p
 ### 1. Per-Assertion Analysis
 
 For each assertion across all scenarios:
-- Does it consistently discriminate? (passes with skill, fails without)
-- Is it flaky? (inconsistent results across iterations)
+- Does it **always pass** in both configurations? (non-discriminating — may be trivially satisfied)
+- Does it **always fail** in both configurations? (may be broken or beyond capability)
+- Does it **always pass with skill but fail without**? (skill clearly adds value)
+- Does it **always fail with skill but pass without**? (skill may be hurting — regression)
+- Is it **highly variable** across runs? (flaky assertion or non-deterministic behavior)
 - Has it improved over iterations?
 
 ### 2. Cross-Scenario Patterns
@@ -20,6 +23,8 @@ For each assertion across all scenarios:
 - Which scenarios are hardest (lowest with-skill pass rate)?
 - Which scenarios show the most improvement from baseline?
 - Are there scenario clusters with similar failure patterns?
+- Do some scenarios show high variance while others are stable?
+- Are there surprising results that contradict expectations?
 
 ### 3. Iteration Trends
 
@@ -32,6 +37,8 @@ For each assertion across all scenarios:
 If timing data is available:
 - Does the skill cause significant token overhead vs baseline?
 - Are some scenarios disproportionately expensive?
+- Is there high variance in resource usage?
+- Are there outlier runs that skew the aggregates?
 
 ## Output Format
 

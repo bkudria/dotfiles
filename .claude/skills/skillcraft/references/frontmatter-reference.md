@@ -126,6 +126,7 @@ Use these placeholders in SKILL.md body text — they're replaced at load time.
 | `$ARGUMENTS` or `{{ARGUMENTS}}` | Text after `/skill-name ` | Pre-fill inputs from user's command |
 | `$1`, `$2`, etc. | Positional arguments (space-separated) | Parse structured arguments |
 | `${CLAUDE_SESSION_ID}` | Current session UUID | Generate unique temp files |
+| `${CLAUDE_SKILL_DIR}` | Directory containing the skill's SKILL.md | Reference bundled scripts/files regardless of CWD |
 
 ### Usage Pattern
 

@@ -1,37 +1,37 @@
 schema_version: 1
 skill: skillcraft
-last_full_update: "2026-02-26"
+last_full_update: "2026-03-05"
 # Upstream sources this skill was curated from.
 # GitHub sources track commit SHAs for diffing. Web sources use WebFetch + comparison.
 sources:
   official-docs:
     url: https://code.claude.com/docs/en/skills
     type: web
-    last_checked: "2026-02-24"
+    last_checked: "2026-03-05"
   anthropic-skills:
     url: https://github.com/anthropics/skills/tree/main/skills/skill-creator
     type: github
     owner: anthropics
     repo: skills
     path: skills/skill-creator
-    last_checked_sha: "1ed29a03dc852d30fa6ef2ca53a67dc2c2c2c563"
-    last_checked: "2026-02-24"
+    last_checked_sha: "3d5951151859"
+    last_checked: "2026-03-05"
   anthropic-plugin:
     url: https://github.com/anthropics/claude-plugins-official/tree/main/plugins/skill-creator
     type: github
     owner: anthropics
     repo: claude-plugins-official
     path: plugins/skill-creator
-    last_checked_sha: "aecd4c852f10b466245f18383fa6aad8c0b10d57"
-    last_checked: "2026-02-24"
+    last_checked_sha: "e05013d229d3"
+    last_checked: "2026-03-05"
   compound-engineering:
     url: https://github.com/EveryInc/compound-engineering-plugin
     type: github
     owner: EveryInc
     repo: compound-engineering-plugin
     path: plugins/compound-engineering/skills/create-agent-skills
-    last_checked_sha: "f744b797efca368c986e4c8595e09a4f75e57a11"
-    last_checked: "2026-02-24"
+    last_checked_sha: "c8ebc5b2d516"
+    last_checked: "2026-03-05"
   pcvelz-superpowers:
     url: https://github.com/pcvelz/superpowers/blob/main/skills/writing-skills/SKILL.md
     type: github
@@ -39,7 +39,7 @@ sources:
     repo: superpowers
     path: skills/writing-skills
     last_checked_sha: "fa95056af301b5c60d0a437d77c4a7a0d2c94cde"
-    last_checked: "2026-02-26"
+    last_checked: "2026-03-05"
 # Maps each curated file to its upstream source(s) and curation decision.
 #
 # Decision taxonomy:
@@ -61,6 +61,7 @@ curation_decisions:
       decision: simplified
       rationale: >-
         Kept all spec content. Trimmed visualization walkthrough example and troubleshooting section for brevity. Added --add-dir section, skill access restriction section, updated budget description (2026-02-24).
+        Added bundled skills section and ${CLAUDE_SKILL_DIR} substitution (2026-03-05).
   references/frontmatter-reference.md:
     - source: official-docs
       sections: [frontmatter-reference, string-substitutions]
@@ -108,6 +109,13 @@ curation_decisions:
         Added Claude Search Optimization (CSO) section: description pitfall finding,
         keyword coverage strategies, word-based token efficiency targets, compression
         techniques, and discovery workflow. Descriptive naming guidance.
+    - source: anthropic-skills
+      sections: [skills/skill-creator/SKILL.md#description-optimization]
+      decision: synthesized
+      rationale: >-
+        Added description trigger testing section with eval query design guidance from
+        Anthropic's description optimization workflow. Kept query design principles,
+        elided Python tooling (2026-03-05).
   references/skill-templates.md:
     - decision: original
       rationale: >-
@@ -280,6 +288,14 @@ curation_decisions:
         Grading approach inspired by Anthropic's grader agent. Simplified to work within
         Claude Code's Task tool (no separate API). Added discrimination assessment and
         structured JSON output format. Assertion evaluation and rubric scoring are original.
+        Added claims extraction/verification and eval feedback concepts from upstream (2026-03-05).
+  agents/comparator.md:
+    - source: anthropic-skills
+      sections: [skills/skill-creator/agents/comparator.md]
+      decision: simplified
+      rationale: >-
+        Blind A/B comparison agent from Anthropic's skill-creator. Simplified rubric
+        structure and output format. Core blind comparison approach kept intact (2026-03-05).
   agents/analyzer.md:
     - source: anthropic-skills
       sections: [skills/skill-creator/agents/analyzer.md]
@@ -287,6 +303,7 @@ curation_decisions:
       rationale: >-
         Analysis patterns inspired by Anthropic's analyzer agent. Simplified for bash+jq
         pipeline. Original output format and suggestion categories.
+        Refined per-assertion analysis patterns from upstream (2026-03-05).
   workflows/create-phase6-eval.md:
     - source: anthropic-skills
       sections: [skills/skill-creator/SKILL.md]

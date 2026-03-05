@@ -1,0 +1,44 @@
+skill: skillcraft
+scenarios:
+  - id: bundled-script-reference
+    name: "Guidance for referencing bundled scripts from a skill"
+    prompt: |
+      I'm creating a skill that bundles a Python validation script. The skill
+      needs to call this script regardless of what directory the user is in.
+      How should I reference it?
+    assertions:
+      - "Output mentions ${CLAUDE_SKILL_DIR} as the way to reference bundled scripts"
+      - "Output explains that the variable resolves to the skill's directory at load time"
+      - "Output does not suggest hardcoding absolute paths"
+    rubric: |
+      1. Is the guidance correct and actionable?
+      2. Does it cover the CWD-independence use case?
+      3. Does it show a concrete example of usage?
+
+  - id: eval-grading-quality
+    name: "Improving eval assertion quality beyond pass rates"
+    prompt: |
+      I ran evals for my skill and the pass rate is high, but I'm not confident
+      the assertions are testing the right things. How can I improve the eval quality?
+    assertions:
+      - "Output mentions checking for non-discriminating assertions (pass in both variants)"
+      - "Output mentions claims extraction or verifying implicit claims beyond explicit assertions"
+      - "Output suggests the grader should critique or provide feedback on the assertions themselves"
+    rubric: |
+      1. Does the guidance go beyond just "write better assertions"?
+      2. Are the suggestions actionable and specific?
+      3. Does it mention the discrimination assessment pattern?
+
+  - id: description-trigger-optimization
+    name: "Optimizing skill description for better auto-triggering"
+    prompt: |
+      My skill works great when invoked directly but Claude rarely auto-triggers
+      it. How can I improve the description?
+    assertions:
+      - "Output mentions creating realistic eval queries (should-trigger and should-not-trigger)"
+      - "Output advises making queries substantive and detailed, not generic one-liners"
+      - "Output mentions near-miss negative cases that share keywords but need different tools"
+    rubric: |
+      1. Is the guidance specific about what makes good vs bad eval queries?
+      2. Does it cover both positive and negative test cases?
+      3. Does it mention the keyword/trigger phrase design approach?

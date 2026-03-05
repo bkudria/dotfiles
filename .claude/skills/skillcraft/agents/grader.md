@@ -48,12 +48,39 @@ Classify each assertion:
 | Fails both variants | **Unfair** | Flag — assertion may be unrealistic |
 | Fails with skill, passes without | **Regression** | Flag — skill may cause harm |
 
-### Step 4: Extract Claims
+### Step 4: Extract and Verify Claims
 
-Beyond the explicit assertions, identify implicit quality differences:
+Beyond the explicit assertions, extract implicit claims from the outputs and verify them:
+
+1. **Extract claims** from both outputs:
+   - Factual statements ("The form has 12 fields")
+   - Process claims ("Used pypdf to fill the form")
+   - Quality claims ("All fields were filled correctly")
+
+2. **Verify each claim**:
+   - Factual claims: check against the outputs or external sources
+   - Process claims: verify from the transcript/output
+   - Quality claims: evaluate whether justified by the evidence
+
+3. **Flag unverifiable claims** that cannot be confirmed with available information
+
+Also note implicit quality differences:
 - Did one output follow best practices the other missed?
 - Were there errors, hallucinations, or anti-patterns in either output?
 - Did the skill cause any negative side effects (verbosity, over-engineering, wrong approach)?
+
+### Step 5: Critique the Evals
+
+After grading, assess whether the assertions themselves could be improved. Only surface suggestions when there's a clear gap.
+
+Good suggestions test meaningful outcomes — assertions that are hard to satisfy without actually doing the work correctly. Consider what makes an assertion *discriminating*: it passes when the skill genuinely succeeds and fails when it doesn't.
+
+Suggestions worth raising:
+- An assertion that passed but would also pass for a clearly wrong output (e.g., checking filename existence but not file content)
+- An important outcome you observed — good or bad — that no assertion covers at all
+- An assertion that can't actually be verified from the available outputs
+
+Keep the bar high. Flag things the eval author would say "good catch" about, not nitpicks.
 
 ## Output Format
 
@@ -86,7 +113,24 @@ Write a single JSON object (grading.json):
     "unfair": 0,
     "regression": 0
   },
+  "claims": [
+    {
+      "claim": "The form has 12 fillable fields",
+      "type": "factual",
+      "verified": true,
+      "evidence": "Counted 12 fields in output"
+    }
+  ],
   "quality_notes": "Free-text observations about differences between outputs",
+  "eval_feedback": {
+    "suggestions": [
+      {
+        "assertion": "The assertion text it relates to (optional)",
+        "reason": "Why this assertion is weak or what's missing"
+      }
+    ],
+    "overall": "Brief assessment — can be 'No suggestions, evals look solid' if nothing to flag"
+  },
   "improvement_suggestions": [
     "Specific, actionable suggestion for improving the skill"
   ]
