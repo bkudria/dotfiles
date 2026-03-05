@@ -81,13 +81,13 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 
 | Phase | Purpose | Key Tools | Workflow |
 |-------|---------|-----------|----------|
-| 0. Baseline | Test without skill (RED phase) | Task tool (subagents) | `workflows/create-phase0-baseline.md` |
+| 0. Baseline | Test without skill (RED phase) | `run-eval.sh run` | `workflows/create-phase0-baseline.md` |
 | 1. Discovery | Interview: name, purpose, use cases | `ask-form.sh` | `workflows/create-phase1-discovery.md` |
 | 2. Design | Select features and skill type | `ask-multi.sh`, `ask-choose.sh` | `workflows/create-phase2-design.md` |
 | 3. Scaffold | Create directory and files | `scripts/scaffold.sh` | `workflows/create-phase3-scaffold.md` |
 | 4. Author | Write content collaboratively | Edit tool | `workflows/create-phase4-author.md` |
 | 5. Validate | Run quality checklist | `scripts/quick-validate.sh` | `workflows/create-phase5-validate.md` |
-| 6. Eval | Behavioral testing & iteration | Task tool (subagents), `scripts/run-eval.sh` | `workflows/create-phase6-eval.md` |
+| 6. Eval | Behavioral testing & iteration | `run-eval.sh run` | `workflows/create-phase6-eval.md` |
 
 ### How to Create
 
@@ -177,13 +177,13 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/common-fixes.md` | Concrete fix examples for common checklist failures |
 | `references/testing-guide.md` | How to test skills after creation or editing |
 | `references/eval-guide.md` | Writing eval scenarios, assertions, and rubrics |
-| `agents/grader.md` | Subagent definition for auto-grading eval outputs |
-| `agents/comparator.md` | Subagent definition for blind A/B comparison |
-| `agents/analyzer.md` | Subagent definition for benchmark analysis |
+| `agents/grader.md` | Agent prompt for auto-grading eval outputs |
+| `agents/comparator.md` | Agent prompt for blind A/B comparison |
+| `agents/analyzer.md` | Agent prompt for benchmark analysis |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
 | `references/source-integration.md` | Templates and frameworks for source integration |
 | `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
-| `scripts/run-eval.sh` | Eval orchestration: init, status, new-iteration, show |
+| `scripts/run-eval.sh` | Eval pipeline: run, init, status, new-iteration, show, scenarios |
 | `scripts/aggregate-results.sh` | Aggregate grading results into benchmark.json |
 | `scripts/post-integration-check.sh` | Post-integration content quality validation |

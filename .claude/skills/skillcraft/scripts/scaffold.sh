@@ -413,8 +413,8 @@ scenarios:
     name: "TODO - Descriptive name"
     prompt: |
       TODO - The user task/prompt to test.
-      This prompt is given to both a subagent with the skill loaded
-      and a baseline subagent without it.
+      This prompt is given to both a with-skill and without-skill
+      eval run via run-eval.sh run.
     assertions:
       - "TODO - Objectively verifiable assertion"
       - "TODO - Another assertion"

@@ -7,8 +7,8 @@ Grade skill eval outputs against defined assertions and rubrics. Produce structu
 Three pieces of information are provided:
 
 1. **Eval scenario** — prompt, assertions, rubric from evals.yml
-2. **With-skill output** — The subagent's output when the skill was loaded
-3. **Without-skill output** — The baseline subagent's output without the skill
+2. **With-skill output** — The output from the eval run with the skill loaded
+3. **Without-skill output** — The baseline output from the eval run without the skill
 
 ## Grading Process
 

@@ -1,6 +1,6 @@
 # Phase 6: Eval & Iterate
 
-Run behavioral evaluation to verify the skill actually improves Claude's output. Spawn paired subagents (with and without the skill), grade results, and iterate.
+Run behavioral evaluation to verify the skill actually improves Claude's output. The headless eval runner spawns paired `claude -p` sessions (with and without the skill), grades results, and aggregates a benchmark.
 
 ## When to Do This
 
@@ -14,6 +14,7 @@ Run behavioral evaluation to verify the skill actually improves Claude's output.
 - Skill passes Phase 5 structural validation
 - `yq` installed (`brew install yq`)
 - `jq` installed (`brew install jq`)
+- `claude` CLI installed
 
 ---
 
@@ -31,7 +32,7 @@ Edit `evals/evals.yml` to define 3-10 scenarios. Each scenario needs:
 |-------|-------------|
 | `id` | Unique kebab-case identifier |
 | `name` | Human-readable description |
-| `prompt` | The exact task for both subagents |
+| `prompt` | The exact task for both with-skill and without-skill runs |
 | `assertions` | 3-5 objectively verifiable pass/fail checks |
 | `rubric` | Qualitative grading criteria (numbered list) |
 
@@ -48,88 +49,41 @@ Consult `references/eval-guide.md` for assertion design patterns and examples by
 
 ---
 
-## Step 2: Create Iteration Directory
+## Step 2: Run the Eval
 
 ```bash
-~/.claude/skills/skillcraft/scripts/run-eval.sh new-iteration <skill-directory>
+~/.claude/skills/skillcraft/scripts/run-eval.sh run <skill-directory>
 ```
 
-This creates `evals/iteration-N/` with subdirectories for each scenario.
+Options:
+- `--model MODEL` — Use a specific model (e.g., `claude-haiku-4-5` for cost savings)
+- `--parallel` — Run with/without skill variants in parallel
+- `--iteration N` — Reuse an existing iteration directory
+- `--skip-grading` — Run scenarios only, skip grading
+- `--skip-aggregate` — Skip aggregation step
 
----
+The script handles all steps automatically:
+1. Creates the iteration directory
+2. Runs paired with/without-skill scenarios via `claude -p`
+3. Grades each scenario using the grader agent
+4. Aggregates results into `benchmark.json`
 
-## Step 3: Run Paired Subagents
+For without-skill runs, it temporarily hides SKILL.md to prevent skill loading.
 
-For each scenario in evals.yml, spawn **two subagents in parallel**:
-
-### With-Skill Subagent
-
-Use the Task tool with `subagent_type: "general-purpose"`. The prompt should:
-1. Load the skill being evaluated (read the SKILL.md)
-2. Execute the scenario prompt
-3. Save the full output
-
-Write the subagent's output to: `evals/iteration-N/<scenario-id>/with_skill/output.md`
-
-### Without-Skill Subagent
-
-Use the Task tool with `subagent_type: "general-purpose"`. The prompt should:
-1. **Not** load the skill
-2. Execute the same scenario prompt
-3. Save the full output
-
-Write the subagent's output to: `evals/iteration-N/<scenario-id>/without_skill/output.md`
-
-### Parallelization
-
-Spawn both subagents for a scenario in the same turn to minimize iteration time. Process multiple scenarios in parallel when possible.
-
----
-
-## Step 4: Grade
-
-For each completed scenario, spawn a **grader subagent**:
-
-1. Read `agents/grader.md` for grading instructions
-2. Provide the grader with:
-   - The scenario definition (prompt, assertions, rubric) from evals.yml
-   - The with-skill output (`with_skill/output.md`)
-   - The without-skill output (`without_skill/output.md`)
-3. The grader writes `grading.json` in the scenario directory
-
-The grader evaluates:
-- Each assertion against both outputs (pass/fail with evidence)
-- Rubric dimensions on a 1-5 scale
-- Assertion discrimination (does it differentiate with vs without skill?)
-- Implicit quality claims beyond explicit assertions
-
----
-
-## Step 5: Aggregate
-
-After all scenarios are graded:
-
+After the run completes, review results with:
 ```bash
-~/.claude/skills/skillcraft/scripts/aggregate-results.sh <skill-directory> <iteration-number>
+~/.claude/skills/skillcraft/scripts/run-eval.sh show <skill-directory>
 ```
-
-This produces `benchmark.json` with:
-- Per-scenario pass rates and deltas
-- Overall summary statistics
-- Discrimination ratios
-- A verdict (PASS / PARTIAL / WEAK / REGRESSION)
-
-Review the benchmark table output.
 
 ---
 
-## Step 6: Review & Iterate
+## Step 3: Review & Iterate
 
 ### Decision Framework
 
 | Result | Action |
 |--------|--------|
-| PASS (delta ≥ 0.2, rate ≥ 0.8) | Skill is effective — done |
+| PASS (delta >= 0.2, rate >= 0.8) | Skill is effective — done |
 | PARTIAL (good delta, low rate) | Revise skill content to address failures, re-run |
 | WEAK (low delta) | Assertions may be wrong, or skill needs major revision |
 | REGRESSION (negative delta) | Skill is harmful — investigate and fix |
@@ -138,10 +92,9 @@ Review the benchmark table output.
 
 1. Review failing scenarios — identify what the skill should have caused
 2. Revise the skill content to address specific failures
-3. Run `new-iteration` to create the next iteration directory
-4. Re-run Steps 3-5
-5. Compare benchmark.json across iterations
-6. Stop when: PASS verdict, or plateau (delta improvement < 0.05 for 2 iterations)
+3. Re-run the headless eval (it creates a new iteration automatically)
+4. Compare benchmark.json across iterations
+5. Stop when: PASS verdict, or plateau (delta improvement < 0.05 for 2 iterations)
 
 ### Checking Status
 

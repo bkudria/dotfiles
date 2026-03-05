@@ -147,7 +147,7 @@ If the skill has `evals/evals.yml`, verify the update didn't degrade behavior:
    ```bash
    scripts/run-eval.sh new-iteration <skill-directory>
    ```
-3. Follow `workflows/create-phase6-eval.md` Steps 3-5 (run subagents, grade, aggregate)
+3. Run `scripts/run-eval.sh run <skill-directory>` to execute paired runs, grading, and aggregation
 4. Compare new benchmark against previous — flag any regressions (negative delta change)
 
 If regressions are found, review the upstream changes that caused them and consider reverting or adjusting.

@@ -35,9 +35,13 @@ For discipline-enforcing skills, combine multiple pressures:
 
 ### 2. Run Baseline (Without Skill)
 
-Launch a subagent for each scenario WITHOUT the skill loaded. Use the Task tool with an isolated agent.
+Use the headless eval runner with `--skip-grading` to run only the without-skill variants:
 
-Record verbatim:
+```bash
+~/.claude/skills/skillcraft/scripts/run-eval.sh run <skill-dir> --skip-grading --skip-aggregate
+```
+
+Or manually inspect the without-skill outputs. Record verbatim:
 - What choices the agent made
 - Exact rationalizations used (copy word-for-word)
 - Which pressures triggered which failures
@@ -70,8 +74,8 @@ If eval scenarios are already defined (from a previous skill version or pre-plan
 1. Run `scripts/run-eval.sh init <skill-dir>` to create the evals/ directory
 2. Write scenarios in `evals/evals.yml` (these same scenarios will be reused in Phase 6)
 3. Run `scripts/run-eval.sh new-iteration <skill-dir>` to create iteration-1/
-4. Execute only the **without_skill** subagent runs (skip with_skill for now)
-5. Save outputs to `evals/iteration-1/<scenario-id>/without_skill/output.md`
+4. Run the headless eval: `scripts/run-eval.sh run <skill-dir> --skip-grading --skip-aggregate`
+5. Inspect the without-skill outputs at `evals/iteration-1/<scenario-id>/without_skill/output.md`
 
 This creates a structured baseline that Phase 6 can later compare against. The without-skill outputs from Phase 0 become the baseline data for benchmark.json.
 

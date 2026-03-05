@@ -11,7 +11,7 @@ skill: skill-name                    # must match the skill's name field
 scenarios:
   - id: descriptive-kebab-id         # unique identifier, used as directory name
     name: "Human-readable name"      # displayed in benchmark reports
-    prompt: |                        # the task given to both subagents
+    prompt: |                        # the task for both with/without-skill runs
       Write a jq filter that extracts all email addresses
       from this JSON structure: {"users": [{"email": "a@b.com"}, ...]}
     assertions:                      # objectively verifiable checks (3-5 per scenario)
@@ -32,7 +32,7 @@ scenarios:
 | `scenarios` | Yes | List of eval scenarios (minimum 3) |
 | `scenarios[].id` | Yes | Unique kebab-case identifier. Used as directory name in evals/ |
 | `scenarios[].name` | Yes | Human-readable description for reports |
-| `scenarios[].prompt` | Yes | The exact task given to both with-skill and without-skill subagents |
+| `scenarios[].prompt` | Yes | The exact task for both with-skill and without-skill eval runs |
 | `scenarios[].assertions` | Yes | List of objectively verifiable pass/fail checks (3-5 recommended) |
 | `scenarios[].rubric` | Yes | Qualitative grading criteria for the grader agent (numbered list) |
 
@@ -170,7 +170,7 @@ skill-name/
     ├── iteration-1/                       # first eval run
     │   ├── descriptive-kebab-id/          # one dir per scenario
     │   │   ├── with_skill/
-    │   │   │   └── output.md              # subagent output
+    │   │   │   └── output.md              # with-skill output
     │   │   ├── without_skill/
     │   │   │   └── output.md              # baseline output
     │   │   └── grading.json               # grader results
