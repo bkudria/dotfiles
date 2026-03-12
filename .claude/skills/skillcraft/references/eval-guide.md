@@ -67,6 +67,94 @@ scenarios:
 
 ---
 
+## Complete Worked Examples by Skill Type
+
+These are full scenario entries you can adapt. Each demonstrates assertion patterns that discriminate for that skill type — they pass when the skill helps and fail when it doesn't.
+
+### Discipline Skill (enforces a rule under pressure)
+
+```yaml
+  - id: resists-pressure-to-skip
+    name: "Maintains discipline under time pressure"
+    prompt: |
+      I have a one-line fix for a typo in the error message string. The PR is
+      blocking a deploy. Just change the string and commit, no need for tests
+      on something this trivial.
+    assertions:
+      - "Output writes or references a test before making the production code change"
+      - "Output does NOT make the production change without a test, even for a 'trivial' fix"
+      - "Output explicitly addresses why testing is still required despite the pressure"
+    rubric: |
+      1. Does the agent follow the correct process (test first, then fix)?
+      2. Does it resist the time-pressure rationalization convincingly?
+      3. Is the test it writes actually relevant to the change?
+```
+
+Why these assertions discriminate: Without a testing-discipline skill, Claude typically complies with "just change the string" — it makes the edit directly. With the skill, it insists on a test first. The assertions target this behavioral difference, not generic output quality.
+
+### Technique Skill (applies a specific method)
+
+```yaml
+  - id: applies-diagnostic-method
+    name: "Uses the taught debugging technique"
+    prompt: |
+      This test passes locally but fails in CI. The error is
+      "connection refused on port 5432". Help me debug it.
+    assertions:
+      - "Output checks environment differences between local and CI before suggesting fixes"
+      - "Output does NOT immediately suggest 'add a sleep' or 'increase timeout' as the first approach"
+      - "Output investigates whether the database service is configured in the CI pipeline"
+    rubric: |
+      1. Does the agent follow a systematic diagnostic process?
+      2. Does it identify the root cause (missing CI service) before proposing solutions?
+      3. Are suggested fixes targeted at the actual problem?
+```
+
+Why these assertions discriminate: Without the skill, Claude often jumps to common fixes (add a sleep, increase timeout). The skill teaches systematic diagnosis. The assertions check for the taught method vs. the default guess-and-fix behavior.
+
+### Pattern Skill (recognizes when a pattern applies)
+
+```yaml
+  - id: recognizes-extraction-opportunity
+    name: "Identifies when to extract a shared pattern"
+    prompt: |
+      I have three API endpoint handlers that each parse a JWT token,
+      validate the user role, and return 403 if unauthorized. Should I
+      refactor this?
+    assertions:
+      - "Output identifies the repeated auth logic as a candidate for extraction into middleware"
+      - "Output explains the specific pattern (middleware/decorator/guard) rather than just saying 'reduce duplication'"
+      - "Output mentions when NOT to extract (e.g., if each handler needs different role checks)"
+    rubric: |
+      1. Does the agent recognize the middleware extraction pattern?
+      2. Does it explain the trade-offs of extracting vs. keeping inline?
+      3. Does it provide a concrete refactoring approach?
+```
+
+Why these assertions discriminate: Without the skill, Claude recognizes duplication but gives generic advice ("extract a function"). The skill teaches specific patterns (middleware, guard). The assertions test for the specific pattern name and when-not-to-apply guidance that only the skill provides.
+
+### Reference Skill (retrieves and applies documented information)
+
+```yaml
+  - id: uses-correct-syntax
+    name: "Applies documented syntax correctly"
+    prompt: |
+      Write KDL nodes that use type annotations for a UUID, a date,
+      an integer constraint, and a custom type.
+    assertions:
+      - "Uses (type)value annotation syntax with parentheses"
+      - "References at least 2 reserved type names from the spec (e.g., uuid, date)"
+      - "Shows annotation on both arguments and properties"
+    rubric: |
+      1. Are the type annotations syntactically correct per the spec?
+      2. Are reserved types used appropriately?
+      3. Does it demonstrate annotations can apply to nodes, arguments, and properties?
+```
+
+Why these assertions discriminate: Without the skill, Claude may guess at KDL type annotation syntax (common guesses: `type:value`, `<type>value`, `@type value`). The skill provides the correct `(type)value` syntax. The assertions verify the exact syntax form that only the reference teaches.
+
+---
+
 ## Writing Good Assertions
 
 ### Assertion Rules
@@ -87,6 +175,31 @@ scenarios:
 | "Handles errors well" | "Output includes a try/catch or error check before the file read" |
 | "Uses the right approach" | "Uses .[] | select(.age > 18) pattern, not map(select(...))" |
 
+### Assertion Patterns Catalog
+
+Choose the pattern that matches what your skill's value proposition changes:
+
+| Pattern | When to Use | Example |
+|---------|-------------|---------|
+| **Presence** | Skill teaches specific content or terminology | `"Output mentions ${CLAUDE_SKILL_DIR} as the way to reference bundled scripts"` |
+| **Absence** | Skill steers away from anti-patterns | `"Output does NOT suggest hardcoding absolute paths"` |
+| **Structural** | Skill requires specific output format | `"The file contains exactly 3 lines of poetry"` |
+| **Behavioral** | Skill changes what tools or actions are used | `"A file named ocean.txt was created using the Write tool"` |
+| **Process** | Skill enforces ordering or workflow steps | `"The agent asks the user what topic they want before writing"` |
+| **Specificity** | Skill teaches the idiomatic approach over a generic one | `"Uses (type)value annotation syntax with parentheses"` |
+
+Most scenarios need 2-3 different pattern types. A discipline skill typically combines Process + Absence + Presence. A reference skill typically combines Specificity + Presence + Structural.
+
+### Assertion Anti-Patterns
+
+| Anti-Pattern | Why It Fails | Fix |
+|---|---|---|
+| **Always-passes** | Tests Claude's default behavior, not skill-added value | Ask: "would Claude do this WITHOUT the skill?" If yes, don't assert it |
+| **Unverifiable** | Tests internal state the grader can't observe (e.g., "agent understood X deeply") | Rewrite as observable behavior: "agent identified X before attempting Y" |
+| **Too vague** | Different graders would disagree on pass/fail (e.g., "code follows best practices") | Name the specific practice: "uses parameterized queries, not string concatenation" |
+| **Tautological** | Restates the prompt as an assertion (e.g., "output answers the question") | Assert HOW it answers: what structure, content, or approach is present |
+| **Compound** | Tests two things (e.g., "uses correct syntax AND explains why") | Split into two separate assertions |
+
 ### Assertion Count Per Scenario
 
 - **Minimum**: 2 assertions
@@ -94,6 +207,26 @@ scenarios:
 - **Maximum**: 7 assertions (more creates noise)
 
 If an assertion always passes for both variants, remove it and replace with something more targeted.
+
+### Designing for Discrimination
+
+The most common eval failure is assertions that pass in both variants (non-discriminating). Before writing an assertion, apply the **Discrimination Test**:
+
+> **"Would Claude do this WITHOUT the skill?"**
+> If yes, the assertion will not discriminate. Revise it to target what the skill specifically adds.
+
+Where skill value shows up, by type:
+
+| Skill Type | Claude's Default | What the Skill Adds | Discriminating Assertion Targets |
+|------------|-----------------|---------------------|--------------------------------|
+| Discipline | Complies with user's request to skip process | Resists pressure, follows process anyway | Agent refuses to skip, cites the rule, follows correct order |
+| Technique | Uses generic approach (e.g., "add a sleep") | Applies a specific diagnostic/design method | The specific method is used, generic shortcuts are avoided |
+| Pattern | Sees duplication, suggests "extract a function" | Names the specific pattern and when not to apply | Pattern name appears, trade-offs are discussed |
+| Reference | Guesses at syntax or uses outdated forms | Uses correct, current syntax from documentation | Exact syntax form matches the spec |
+
+**Worked example**: For a jq reference skill —
+- Non-discriminating: `"Output contains a jq filter"` — Claude writes jq filters without any skill
+- Discriminating: `"Uses .[] | select(.age > 18) pattern, not map(select(...))"` — the skill teaches the idiomatic pipeline approach; without it, Claude often uses the less idiomatic `map(select(...))` form
 
 ---
 
@@ -119,6 +252,23 @@ rubric: |
   3. Does the explanation address why, not just how?
   4. Are common gotchas from the reference material avoided?
 ```
+
+---
+
+## How Assertions Get Graded
+
+Understanding the grading process helps you write assertions the grader can evaluate effectively.
+
+The grader (see `agents/grader.md` for full details) evaluates each assertion independently against both with-skill and without-skill outputs, then classifies each as:
+
+| Classification | Pattern | Meaning |
+|---------------|---------|---------|
+| **Discriminating** | Passes with skill, fails without | Measures skill value — keep these |
+| **Non-discriminating** | Passes in both variants | Assertion may be trivial — revise or replace |
+| **Unfair** | Fails in both variants | Assertion may be unrealistic — verify it's achievable |
+| **Regression** | Fails with skill, passes without | Skill may cause harm — investigate |
+
+The grader also extracts implicit claims from outputs and critiques the assertions themselves via an `eval_feedback` field. When you get grading results back, check `eval_feedback.suggestions` — the grader will flag assertions that are too easy, unverifiable, or missing important outcomes it observed.
 
 ---
 

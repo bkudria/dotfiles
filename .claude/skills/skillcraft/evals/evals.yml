@@ -42,3 +42,30 @@ scenarios:
       1. Is the guidance specific about what makes good vs bad eval queries?
       2. Does it cover both positive and negative test cases?
       3. Does it mention the keyword/trigger phrase design approach?
+
+  - id: auto-trigger-skill-file-editing
+    name: "Auto-triggers when editing skill files"
+    prompt: |
+      I want to add some eval scenarios to my jq skill to test edge cases.
+    assertions:
+      - "skillcraft skill is loaded before any file edits are made"
+      - "Output references the eval guide or testing guide from skillcraft"
+      - "Eval file is created under ~/.claude/skills/jq/evals/"
+
+  - id: write-evals-from-scratch
+    name: "Write complete evals for a skill using only skillcraft guidance"
+    prompt: |
+      I need you to write an evals.yml for a discipline-type skill called
+      "commit-message" that enforces conventional commit format (type(scope): description).
+      The skill's key rules are: (1) every commit must use the format type(scope): description,
+      (2) type must be one of feat/fix/docs/style/refactor/test/chore, (3) scope is required,
+      (4) description must be lowercase and imperative mood. Don't look for the skill on
+      disk — I've described it fully above. Just write the evals.yml content directly.
+    assertions:
+      - "Output produces a complete evals.yml with at least 3 scenarios including id, name, prompt, assertions, and rubric for each"
+      - "At least one scenario applies pressure to skip the convention (discipline-type pattern)"
+      - "Assertions in the proposed scenarios are specific and objectively verifiable, not vague quality statements"
+    rubric: |
+      1. Are the proposed scenarios realistic and varied in difficulty?
+      2. Do the assertions target skill-specific value (things Claude wouldn't do without the skill)?
+      3. Does the output demonstrate understanding of discrimination — assertions that pass with skill but fail without?

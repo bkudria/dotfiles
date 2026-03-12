@@ -1,6 +1,6 @@
 ---
 name: skillcraft
-description: "IMPORTANT - this skill MUST be loaded ANY time any file within a skill directory (~/.claude/skills/*/) is being edited, created, or reviewed, even as part of other work — not just SKILL.md but also scripts, references, workflows, and other skill files. Create new skills with an interactive wizard, audit and improve existing skills, integrate content from external sources, or update skillcraft from upstream sources. Use when creating a skill, building a skill, scaffolding a skill, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, editing skill scripts or references, adding scripts to a skill, updating skillcraft, syncing skillcraft from sources, checking for upstream changes to skills, folding in a source, integrating a source, or merging content from an external source."
+description: "IMPORTANT - this skill MUST be loaded ANY time any file within a skill directory (~/.claude/skills/*/) is being edited, created, or reviewed, even as part of other work — not just SKILL.md but also scripts, references, workflows, evals, and other skill files. Create, audit, improve, and update Claude Code skills, or integrate content from external sources. Use when creating a skill, building a skill, scaffolding a skill, improving a skill, enhancing a skill, extending a skill, adding evals, writing evals, bootstrapping evals, adding scripts, adding references, adding workflows, adding agents, updating a skill, modifying skill files, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, editing skill files, updating skillcraft, syncing from sources, checking for upstream changes, folding in a source, integrating a source, or merging content from an external source."
 argument-hint: "[skill name, path, or 'update']"
 ---
 
@@ -35,7 +35,7 @@ Create, audit, improve, and update Claude Code skills.
 
 ### Testing Discipline
 
-**Iron Law**: No skill ships untested — new or edited. Behavioral edits require pre/post verification. See `references/testing-guide.md` for the full TDD framework; see Lightweight Mode below for the edit protocol.
+**Iron Law**: No skill ships untested — new or edited. No evals ship unrun. Behavioral edits require pre/post verification. See `references/testing-guide.md` for the full TDD framework; see Lightweight Mode below for the edit protocol.
 
 ## Lightweight Mode (Auto-trigger)
 
@@ -74,6 +74,15 @@ When loaded during editing of any file within a skill directory, apply only thes
 - "The changes are straightforward"
 - "I'll create evals after the edit"
 - "This is too simple for evals"
+
+### Eval Validation
+
+**When evals are created or modified** (new scenarios, changed assertions/rubrics, changed prompts), they MUST be run before the task is complete — even when no other skill file is being edited.
+
+1. Run: `~/.claude/skills/skillcraft/scripts/run-eval.sh run <skill-directory>`
+2. Review: `~/.claude/skills/skillcraft/scripts/run-eval.sh show <skill-directory>`
+3. If results show poor discrimination or unexpected failures, iterate on the scenarios before declaring done
+4. **In plan mode**: the plan MUST include "run evals" as an explicit step — writing evals that have never been run is equivalent to writing tests that have never been executed
 
 Report issues inline as suggestions. Do NOT run the full checklist or restructure the skill.
 

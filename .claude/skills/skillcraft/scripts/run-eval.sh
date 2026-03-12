@@ -16,14 +16,13 @@
 #   --skip-grading    Skip grading step (useful for debugging scenario runs)
 #   --skip-aggregate  Skip aggregation step
 #
-# Requires: yq, jq, claude (for 'run' subcommand)
+# Requires: yq, jq, scuttlerun, pincenez (for 'run' subcommand)
 
 set -euo pipefail
 
 # --- Constants ---
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 SKILLCRAFT_DIR="$(dirname "$SCRIPT_DIR")"
-GRADER_MD="$SKILLCRAFT_DIR/agents/grader.md"
 
 # --- Colors ---
 RED='\033[0;31m'
@@ -56,18 +55,6 @@ phase_banner() {
   printf '\n\n' >&2
 }
 
-# --- State for cleanup ---
-SKILL_MD_BACKUP=""
-SKILL_MD_ORIGINAL=""
-
-cleanup_skill_md() {
-  if [[ -n "$SKILL_MD_BACKUP" && -f "$SKILL_MD_BACKUP" ]]; then
-    mv "$SKILL_MD_BACKUP" "$SKILL_MD_ORIGINAL"
-    echo -e "${GREEN}Restored: $SKILL_MD_ORIGINAL${NC}" >&2
-    SKILL_MD_BACKUP=""
-  fi
-}
-
 # --- Dependency check ---
 check_deps() {
   local missing=()
@@ -80,9 +67,16 @@ check_deps() {
   fi
 }
 
-check_claude() {
-  if ! command -v claude >/dev/null 2>&1; then
-    echo -e "${RED}Missing dependency: claude CLI${NC}"
+check_scuttlerun() {
+  if ! command -v scuttlerun >/dev/null 2>&1; then
+    echo -e "${RED}Missing dependency: scuttlerun CLI${NC}"
+    exit 1
+  fi
+}
+
+check_pincenez() {
+  if ! command -v pincenez >/dev/null 2>&1; then
+    echo -e "${RED}Missing dependency: pincenez CLI${NC}"
     exit 1
   fi
 }
@@ -113,20 +107,113 @@ USAGE
   exit "${1:-1}"
 }
 
-# --- Extract text from claude JSON output ---
-extract_output_text() {
-  local json_file="$1"
-  jq -r '
-    if type == "array" then
-      [.[] | select(.type == "assistant") | .message.content[] | select(.type == "text") | .text] | join("\n\n")
-    elif .result then
-      .result
-    elif .messages then
-      [.messages[] | select(.type == "text") | .content] | join("\n\n")
-    else
-      tostring
-    end
-  ' "$json_file" 2>/dev/null || cat "$json_file"
+# --- Extract text from scuttlerun YAML output ---
+extract_scuttlerun_text() {
+  local yaml_file="$1"
+  yq -r '[.conversation[] | select(has("assistant")) | .assistant] | join("\n\n")' "$yaml_file"
+}
+
+# --- Generate pincenez rubric from evals.yml scenario ---
+generate_rubric() {
+  local evals_file="$1"
+  local scenario_id="$2"
+  local rubric_file="$3"
+
+  id="$scenario_id" yq '
+    .scenarios[] | select(.id == strenv(id)) |
+    {
+      "context": .prompt,
+      "assertions": [.assertions[] | {"check": .}]
+    }
+  ' "$evals_file" > "$rubric_file"
+}
+
+# --- Merge pincenez gradings into grading.json ---
+merge_gradings() {
+  local scenario_id="$1"
+  local with_grading="$2"
+  local without_grading="$3"
+  local output_file="$4"
+
+  # Convert pincenez YAML outputs to JSON, match by id, compute discrimination
+  local with_json without_json
+  with_json=$(yq -o=json '.assertions' "$with_grading")
+  without_json=$(yq -o=json '.assertions' "$without_grading")
+
+  jq -n \
+    --arg scenario_id "$scenario_id" \
+    --argjson with_assertions "$with_json" \
+    --argjson without_assertions "$without_json" '
+    # Index without_skill assertions by id
+    ($without_assertions | map({(.id): .}) | add // {}) as $without_map |
+    {
+      scenario_id: $scenario_id,
+      assertions: [
+        $with_assertions[] |
+        . as $w |
+        ($without_map[$w.id] // {}) as $wo |
+        ($w.pass // false) as $wp |
+        ($wo.pass // false) as $wop |
+        {
+          text: $w.check,
+          with_skill: $wp,
+          without_skill: $wop,
+          evidence_with: ($w.evidence // null),
+          evidence_without: ($wo.evidence // null),
+          discriminates: ($wp == true and $wop != true)
+        }
+      ]
+    }
+  ' > "$output_file"
+}
+
+# --- Generate scuttlerun config YAML ---
+generate_scuttlerun_config() {
+  local prompt="$1"
+  local variant="$2"
+  local skill_dir="$3"
+  local config_file
+  config_file=$(mktemp /tmp/eval-scuttlerun-config-XXXXXX)
+
+  if [[ "$variant" == "with_skill" ]]; then
+    cat >| "$config_file" <<WARRENEOF
+prompt: |
+$(echo "$prompt" | sed 's/^/  /')
+project:
+  claude_md: |
+    Use relative paths. Do not use absolute paths.
+  skills:
+    - $skill_dir
+tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - Skill
+user:
+  turn_policy: single
+WARRENEOF
+  else
+    cat >| "$config_file" <<WARRENEOF
+prompt: |
+$(echo "$prompt" | sed 's/^/  /')
+project:
+  claude_md: |
+    Use relative paths. Do not use absolute paths.
+tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - Skill
+user:
+  turn_policy: single
+WARRENEOF
+  fi
+
+  echo "$config_file"
 }
 
 # --- Wait for a batch of background pids ---
@@ -204,11 +291,11 @@ run_scenario_variant() {
   local variant="$3"  # "with_skill" or "without_skill"
   local output_dir="$4"
   local model="$5"
-  local step_num="${6:-}"
-  local total_steps="${7:-}"
-  local result_file="${8:-}"
+  local skill_dir="$6"
+  local step_num="${7:-}"
+  local total_steps="${8:-}"
+  local result_file="${9:-}"
   local output_file="$output_dir/output.md"
-  local json_tmp
 
   # Skip if output already exists
   if [[ -f "$output_file" && -s "$output_file" ]]; then
@@ -222,11 +309,14 @@ run_scenario_variant() {
     return 0
   fi
 
-  json_tmp=$(mktemp /tmp/eval-output-XXXXXX)
+  # Generate scuttlerun config
+  local scuttlerun_config
+  scuttlerun_config=$(generate_scuttlerun_config "$prompt" "$variant" "$skill_dir")
+  local scuttlerun_output
+  scuttlerun_output=$(mktemp /tmp/eval-scuttlerun-output-XXXXXX)
 
-  # Build claude command (unset CLAUDECODE to allow nested sessions)
-  local cmd=(command env -u CLAUDECODE claude -p "$prompt" --permission-mode acceptEdits --output-format json)
-  cmd+=(--allowedTools "Read,Write,Bash,Glob,Grep")
+  # Build scuttlerun command
+  local cmd=(scuttlerun run "$scuttlerun_config")
   if [[ -n "$model" ]]; then
     cmd+=(--model "$model")
   fi
@@ -238,13 +328,19 @@ run_scenario_variant() {
   fi
   local step_start=$SECONDS
 
-  if "${cmd[@]}" > "$json_tmp" 2>"${json_tmp}.err"; then
+  if "${cmd[@]}" >| "$scuttlerun_output" 2>"${scuttlerun_output}.err"; then
     {
       echo "# ${variant} output for: ${scenario_id}"
       echo ""
-      extract_output_text "$json_tmp"
+      extract_scuttlerun_text "$scuttlerun_output"
     } > "$output_file"
     local elapsed=$((SECONDS - step_start))
+    # Clean up scuttlerun project dir if present
+    local project_dir
+    project_dir=$(yq -r '.project // ""' "$scuttlerun_output" 2>/dev/null)
+    if [[ -n "$project_dir" && -d "$project_dir" ]]; then
+      rm -rf "$project_dir"
+    fi
     if [[ -n "$result_file" ]]; then
       echo "${step_num}|${variant}|${scenario_id}|done|${elapsed}" > "$result_file"
     else
@@ -252,7 +348,7 @@ run_scenario_variant() {
     fi
   else
     local elapsed=$((SECONDS - step_start))
-    echo "# ERROR: claude -p failed for ${variant}" > "$output_file"
+    echo "# ERROR: scuttlerun failed for ${variant}" > "$output_file"
     if [[ -n "$result_file" ]]; then
       echo "${step_num}|${variant}|${scenario_id}|failed|${elapsed}" > "$result_file"
     else
@@ -260,14 +356,14 @@ run_scenario_variant() {
     fi
   fi
 
-  rm -f "$json_tmp" "${json_tmp}.err"
+  rm -f "$scuttlerun_config" "$scuttlerun_output" "${scuttlerun_output}.err"
 }
 
 # --- Run grader for a scenario ---
 # When result_file is provided (parallel mode), writes status there instead of printing
 run_grader() {
   local scenario_id="$1"
-  local scenario_json="$2"
+  local evals_file="$2"
   local iter_dir="$3"
   local model="$4"
   local step_num="${5:-}"
@@ -300,64 +396,40 @@ run_grader() {
     return 1
   fi
 
-  local grader_instructions
-  grader_instructions=$(cat "$GRADER_MD")
-
-  local grading_prompt
-  grading_prompt=$(cat <<PROMPT
-You are an eval grader. Follow these instructions exactly:
-
-${grader_instructions}
-
----
-
-## Scenario Definition
-
-$(echo "$scenario_json" | jq -r '
-  "- **id**: \(.id)\n- **name**: \(.name)\n- **prompt**: \(.prompt)\n- **assertions**:\n\(.assertions | to_entries | map("  \(.key + 1). \"\(.value)\"") | join("\n"))\n- **rubric**:\n\(.rubric)"
-')
-
-## Your Task
-
-1. Read the with-skill output from: ${with_output}
-2. Read the without-skill output from: ${without_output}
-3. Grade according to the instructions above
-4. Write the grading.json file to: ${grading_file}
-
-IMPORTANT: Write ONLY the grading.json file. Do not write any other files.
-PROMPT
-)
-
   if [[ -z "$result_file" ]]; then
     STEP=$((STEP + 1))
     printf '%b[%d/%d]%b grading %s... ' "$BOLD" "$STEP" "$TOTAL_STEPS" "$NC" "$scenario_id" >&2
   fi
   local step_start=$SECONDS
 
-  local json_tmp
-  json_tmp=$(mktemp /tmp/eval-grader-XXXXXX)
+  # Generate rubric
+  local rubric_file="$scenario_dir/rubric.yml"
+  generate_rubric "$evals_file" "$scenario_id" "$rubric_file"
 
-  local cmd=(command env -u CLAUDECODE claude -p "$grading_prompt" --permission-mode acceptEdits --output-format json)
-  cmd+=(--allowedTools "Read,Write")
+  # Run pincenez for both variants
+  local with_grading="$scenario_dir/with_skill/grading.yml"
+  local without_grading="$scenario_dir/without_skill/grading.yml"
+
+  local pincenez_args=()
   if [[ -n "$model" ]]; then
-    cmd+=(--model "$model")
+    pincenez_args+=(--model "$model")
   fi
 
-  if "${cmd[@]}" > "$json_tmp" 2>"${json_tmp}.err"; then
+  local ok=true
+  if ! pincenez "${pincenez_args[@]}" "$rubric_file" "$with_output" > "$with_grading" 2>/dev/null; then
+    ok=false
+  fi
+  if ! pincenez "${pincenez_args[@]}" "$rubric_file" "$without_output" > "$without_grading" 2>/dev/null; then
+    ok=false
+  fi
+
+  if $ok && [[ -s "$with_grading" && -s "$without_grading" ]]; then
+    merge_gradings "$scenario_id" "$with_grading" "$without_grading" "$grading_file"
     local elapsed=$((SECONDS - step_start))
-    if [[ -f "$grading_file" && -s "$grading_file" ]]; then
-      if [[ -n "$result_file" ]]; then
-        echo "${step_num}|${scenario_id}|done|${elapsed}" > "$result_file"
-      else
-        echo -e "${GREEN}done${NC} ($(format_duration $elapsed))" >&2
-      fi
+    if [[ -n "$result_file" ]]; then
+      echo "${step_num}|${scenario_id}|done|${elapsed}" > "$result_file"
     else
-      extract_output_text "$json_tmp" | jq '.' > "$grading_file" 2>/dev/null || true
-      if [[ -n "$result_file" ]]; then
-        echo "${step_num}|${scenario_id}|extracting|${elapsed}" > "$result_file"
-      else
-        echo -e "${YELLOW}extracting${NC} ($(format_duration $elapsed))" >&2
-      fi
+      echo -e "${GREEN}done${NC} ($(format_duration $elapsed))" >&2
     fi
   else
     local elapsed=$((SECONDS - step_start))
@@ -367,8 +439,6 @@ PROMPT
       echo -e "${RED}failed${NC} ($(format_duration $elapsed))" >&2
     fi
   fi
-
-  rm -f "$json_tmp" "${json_tmp}.err"
 }
 
 # --- Subcommands ---
@@ -634,7 +704,8 @@ cmd_run() {
     esac
   done
 
-  check_claude
+  check_scuttlerun
+  check_pincenez
 
   local evals_file="$skill_dir/evals/evals.yml"
   if [[ ! -f "$evals_file" ]]; then
@@ -714,7 +785,6 @@ cmd_run() {
   echo ""
 
   local current_phase=0
-  local skill_md="$skill_dir/SKILL.md"
 
   # --- Pre-read scenario data ---
   local scenario_ids=() scenario_names=() scenario_prompts=()
@@ -738,16 +808,10 @@ cmd_run() {
       echo -e "  ${BOLD}${scenario_names[$i]}${NC} (${scenario_ids[$i]})"
 
       run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill" \
-        "$iter_dir/${scenario_ids[$i]}/with_skill" "$model"
+        "$iter_dir/${scenario_ids[$i]}/with_skill" "$model" "$skill_dir"
 
-      SKILL_MD_ORIGINAL="$skill_md"
-      SKILL_MD_BACKUP="${skill_md}.eval-bak"
-      trap cleanup_skill_md EXIT ERR
-      mv "$SKILL_MD_ORIGINAL" "$SKILL_MD_BACKUP"
       run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill" \
-        "$iter_dir/${scenario_ids[$i]}/without_skill" "$model"
-      mv "$SKILL_MD_BACKUP" "$SKILL_MD_ORIGINAL"
-      SKILL_MD_BACKUP=""
+        "$iter_dir/${scenario_ids[$i]}/without_skill" "$model" "$skill_dir"
 
       echo ""
     done
@@ -758,9 +822,7 @@ cmd_run() {
       phase_banner "$current_phase" "$phase_count" "Grading"
 
       for i in $(seq 0 $((scenario_count - 1))); do
-        local scenario_json
-        scenario_json=$(yq -o=json ".scenarios[$i]" "$evals_file")
-        run_grader "${scenario_ids[$i]}" "$scenario_json" "$iter_dir" "$model"
+        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$model"
       done
     fi
   else
@@ -769,7 +831,7 @@ cmd_run() {
     batch_tmp=$(mktemp -d /tmp/eval-batch-XXXXXX)
     local pids=() result_files=()
 
-    # Batch 1: ALL with_skill runs (SKILL.md stays present)
+    # Batch 1: ALL with_skill runs
     current_phase=$((current_phase + 1))
     phase_banner "$current_phase" "$phase_count" "with_skill runs"
     printf '  Running %d with_skill scenarios in parallel...\n' "$scenario_count" >&2
@@ -781,7 +843,7 @@ cmd_run() {
       local rf="$batch_tmp/with_${scenario_ids[$i]}.result"
       result_files+=("$rf")
       run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill" \
-        "$iter_dir/${scenario_ids[$i]}/with_skill" "$model" \
+        "$iter_dir/${scenario_ids[$i]}/with_skill" "$model" "$skill_dir" \
         "$step_num" "$TOTAL_STEPS" "$rf" &
       pids+=($!)
     done
@@ -789,15 +851,10 @@ cmd_run() {
     print_batch_results "$TOTAL_STEPS" "${result_files[@]}"
     echo "" >&2
 
-    # Batch 2: ALL without_skill runs (SKILL.md hidden)
+    # Batch 2: ALL without_skill runs
     current_phase=$((current_phase + 1))
     phase_banner "$current_phase" "$phase_count" "without_skill runs"
     printf '  Running %d without_skill scenarios in parallel...\n' "$scenario_count" >&2
-
-    SKILL_MD_ORIGINAL="$skill_md"
-    SKILL_MD_BACKUP="${skill_md}.eval-bak"
-    trap cleanup_skill_md EXIT ERR
-    mv "$SKILL_MD_ORIGINAL" "$SKILL_MD_BACKUP"
 
     pids=()
     result_files=()
@@ -806,14 +863,11 @@ cmd_run() {
       local rf="$batch_tmp/without_${scenario_ids[$i]}.result"
       result_files+=("$rf")
       run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill" \
-        "$iter_dir/${scenario_ids[$i]}/without_skill" "$model" \
+        "$iter_dir/${scenario_ids[$i]}/without_skill" "$model" "$skill_dir" \
         "$step_num" "$TOTAL_STEPS" "$rf" &
       pids+=($!)
     done
     wait_for_batch "${pids[@]}" || true
-
-    mv "$SKILL_MD_BACKUP" "$SKILL_MD_ORIGINAL"
-    SKILL_MD_BACKUP=""
 
     print_batch_results "$TOTAL_STEPS" "${result_files[@]}"
     echo "" >&2
@@ -828,11 +882,9 @@ cmd_run() {
       result_files=()
       for i in $(seq 0 $((scenario_count - 1))); do
         local step_num=$((scenario_count * 2 + i + 1))
-        local scenario_json
-        scenario_json=$(yq -o=json ".scenarios[$i]" "$evals_file")
         local rf="$batch_tmp/grade_${scenario_ids[$i]}.result"
         result_files+=("$rf")
-        run_grader "${scenario_ids[$i]}" "$scenario_json" "$iter_dir" "$model" \
+        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$model" \
           "$step_num" "$TOTAL_STEPS" "$rf" &
         pids+=($!)
       done
