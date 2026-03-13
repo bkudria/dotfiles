@@ -3,11 +3,11 @@
 #
 # Usage:
 #   run-eval.sh run <skill-dir> [options]              Run full eval pipeline
-#   run-eval.sh init <skill-dir>                       Create evals/ directory with template evals.yml
+#   run-eval.sh init <skill-dir>                       Create evals/ with template scenario
 #   run-eval.sh status <skill-dir>                     Show current eval state
 #   run-eval.sh new-iteration <skill-dir>              Create next iteration directory structure
 #   run-eval.sh show <skill-dir> [iteration]           Display benchmark results as formatted table
-#   run-eval.sh scenarios <skill-dir>                  List scenario IDs and prompts from evals.yml
+#   run-eval.sh scenarios <skill-dir>                  List scenario IDs and prompts
 #
 # Run options:
 #   --iteration N          Reuse existing iteration directory (default: create new)
@@ -102,16 +102,39 @@ check_pincenez() {
   fi
 }
 
+# --- Scenario discovery helpers ---
+
+# List scenario IDs by globbing */scenario.yml in the evals directory.
+# Output: one scenario ID per line (sorted).
+get_scenario_ids() {
+  local evals_dir="$1"
+  for f in "$evals_dir"/*/scenario.yml; do
+    [[ -f "$f" ]] && basename "$(dirname "$f")"
+  done | sort
+}
+
+# Determine the next iteration number from existing benchmark-N.json files.
+get_next_iteration() {
+  local evals_dir="$1"
+  local max=0
+  for f in "$evals_dir"/benchmark-*.json; do
+    [[ -f "$f" ]] || continue
+    local n="${f##*benchmark-}"; n="${n%.json}"
+    [[ "$n" -gt "$max" ]] && max="$n"
+  done
+  echo $((max + 1))
+}
+
 # --- Usage ---
 usage() {
   cat <<'USAGE'
 Usage:
   run-eval.sh run <skill-dir> [options]              Run full eval pipeline
-  run-eval.sh init <skill-dir>                       Create evals/ with template evals.yml
+  run-eval.sh init <skill-dir>                       Create evals/ with template scenario
   run-eval.sh status <skill-dir>                     Show current eval state
   run-eval.sh new-iteration <skill-dir>              Create next iteration directory
   run-eval.sh show <skill-dir> [iteration]           Display benchmark results
-  run-eval.sh scenarios <skill-dir>                  List scenario IDs from evals.yml
+  run-eval.sh scenarios <skill-dir>                  List scenario IDs and names
 
 Run options:
   --iteration N          Reuse existing iteration directory
@@ -144,19 +167,17 @@ extract_scuttlerun_text() {
   ' "$yaml_file"
 }
 
-# --- Generate pincenez rubric from evals.yml scenario ---
+# --- Generate pincenez rubric from per-scenario scenario.yml ---
 generate_rubric() {
-  local evals_file="$1"
+  local evals_dir="$1"
   local scenario_id="$2"
   local rubric_file="$3"
+  local scenario_file="$evals_dir/$scenario_id/scenario.yml"
 
-  id="$scenario_id" yq '
-    .scenarios[] | select(.id == strenv(id)) |
-    {
-      "context": .prompt,
-      "assertions": [.assertions[] | {"check": .}]
-    }
-  ' "$evals_file" > "$rubric_file"
+  yq '{
+    "context": .prompt,
+    "assertions": .assertions
+  }' "$scenario_file" > "$rubric_file"
 }
 
 # --- Merge pincenez gradings across reps into grading.json ---
@@ -223,51 +244,23 @@ generate_scuttlerun_config() {
   local config_file
   config_file=$(mktemp /tmp/eval-scuttlerun-config-XXXXXX)
 
+  # Base config — yq uses env()/strenv() for variable injection
+  PROMPT="$prompt" yq -n '
+    .prompt = strenv(PROMPT) |
+    .project.claude_md = "Use relative paths. Do not use absolute paths." |
+    .tools = ["Read", "Write", "Bash", "Glob", "Grep", "Skill"] |
+    .user.turn_policy = "single"
+  ' > "$config_file"
+
+  # Add skill for with_skill variant
   if [[ "$variant" == "with_skill" ]]; then
-    cat >| "$config_file" <<WARRENEOF
-prompt: |
-$(echo "$prompt" | sed 's/^/  /')
-project:
-  claude_md: |
-    Use relative paths. Do not use absolute paths.
-  skills:
-    - $skill_dir
-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - Grep
-  - Skill
-user:
-  turn_policy: single
-WARRENEOF
-  else
-    cat >| "$config_file" <<WARRENEOF
-prompt: |
-$(echo "$prompt" | sed 's/^/  /')
-project:
-  claude_md: |
-    Use relative paths. Do not use absolute paths.
-tools:
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - Grep
-  - Skill
-user:
-  turn_policy: single
-WARRENEOF
+    SKILL_DIR="$skill_dir" yq -i '.project.skills = [strenv(SKILL_DIR)]' "$config_file"
   fi
 
-  # Append project.files if provided
+  # Merge project.files if provided
   if [[ -n "$files_json" && "$files_json" != "{}" && "$files_json" != "null" ]]; then
-    # Convert JSON files map to YAML and merge into the project section
-    local files_yaml
-    files_yaml=$(echo "$files_json" | yq -P '{"project": {"files": .}}')
-    # Merge files into existing config
-    yq -i eval-all 'select(fi == 0) * select(fi == 1)' "$config_file" <(echo "$files_yaml")
+    yq -i eval-all 'select(fi == 0) * select(fi == 1)' \
+      "$config_file" <(echo "$files_json" | yq -P '{"project": {"files": .}}')
   fi
 
   echo "$config_file"
@@ -421,14 +414,14 @@ run_scenario_variant() {
 # When result_file is provided (parallel mode), writes status there instead of printing
 run_grader() {
   local scenario_id="$1"
-  local evals_file="$2"
-  local iter_dir="$3"
+  local evals_dir="$2"
+  local iter_num="$3"
   local model="$4"
   local step_num="${5:-}"
   local total_steps="${6:-}"
   local result_file="${7:-}"
   local repeats="${8:-3}"
-  local scenario_dir="$iter_dir/$scenario_id"
+  local scenario_dir="$evals_dir/$scenario_id/iteration-$iter_num"
   local grading_file="$scenario_dir/grading.json"
 
   # Skip if grading already exists
@@ -470,7 +463,7 @@ run_grader() {
 
   # Generate rubric (once per scenario)
   local rubric_file="$scenario_dir/rubric.yml"
-  generate_rubric "$evals_file" "$scenario_id" "$rubric_file"
+  generate_rubric "$evals_dir" "$scenario_id" "$rubric_file"
 
   local pincenez_args=()
   if [[ -n "$model" ]]; then
@@ -523,50 +516,32 @@ run_grader() {
 cmd_init() {
   local skill_dir="$1"
   local evals_dir="$skill_dir/evals"
-  local skill_name
 
   if [[ -d "$evals_dir" ]]; then
     echo -e "${YELLOW}evals/ directory already exists at $evals_dir${NC}"
     exit 1
   fi
 
-  if [[ -f "$skill_dir/SKILL.md" ]]; then
-    skill_name=$(yq --front-matter=extract '.name' "$skill_dir/SKILL.md" 2>/dev/null || echo "unknown")
-  else
-    skill_name="unknown"
-  fi
-
-  mkdir -p "$evals_dir"
-  cat > "$evals_dir/evals.yml" <<EOF
-# Eval scenarios for ${skill_name}
-# See references/eval-guide.md in the skillcraft skill for schema details.
-#
-# Each scenario defines:
-#   id:         Unique kebab-case identifier (used as directory name)
-#   name:       Human-readable description for reports
-#   prompt:     The exact task for both with-skill and without-skill eval runs
-#   assertions: Objectively verifiable pass/fail checks (3-5 recommended)
-
-skill: ${skill_name}
-scenarios:
-  - id: scenario-1
-    name: "TODO - Descriptive name for this scenario"
-    prompt: |
-      TODO - Write the exact task/prompt to test.
-      This prompt is given to both a with-skill and without-skill
-      eval run via run-eval.sh run.
-    assertions:
-      - "TODO - Objectively verifiable assertion 1"
-      - "TODO - Another verifiable assertion"
-      - "TODO - A third assertion"
+  mkdir -p "$evals_dir/scenario-1"
+  cat > "$evals_dir/scenario-1/scenario.yml" <<'EOF'
+name: "TODO - Descriptive name for this scenario"
+prompt: |
+  TODO - Write the exact task/prompt to test.
+  This prompt is given to both a with-skill and without-skill
+  eval run via run-eval.sh run.
+assertions:
+  - "TODO - Objectively verifiable assertion 1"
+  - "TODO - Another verifiable assertion"
+  - "TODO - A third assertion"
 EOF
 
   echo -e "${GREEN}Created: $evals_dir/${NC}"
-  echo -e "${GREEN}Created: $evals_dir/evals.yml${NC}"
+  echo -e "${GREEN}Created: $evals_dir/scenario-1/scenario.yml${NC}"
   echo ""
   echo "Next steps:"
-  echo "  1. Edit evals/evals.yml to define 3+ real scenarios"
-  echo "  2. Run: run-eval.sh run $skill_dir"
+  echo "  1. Rename scenario-1/ and edit its scenario.yml"
+  echo "  2. Create 2+ more scenario directories with scenario.yml files"
+  echo "  3. Run: run-eval.sh run $skill_dir"
 }
 
 cmd_status() {
@@ -589,31 +564,30 @@ cmd_status() {
   echo -e "${BOLD}Eval Status: ${skill_name}${NC}"
   echo ""
 
-  if [[ -f "$evals_dir/evals.yml" ]]; then
-    local scenario_count
-    scenario_count=$(yq '.scenarios | length' "$evals_dir/evals.yml" 2>/dev/null || echo "0")
-    echo -e "  Scenarios defined: ${BOLD}${scenario_count}${NC}"
+  local scenario_ids
+  scenario_ids=$(get_scenario_ids "$evals_dir")
+  local scenario_count=0
+  if [[ -n "$scenario_ids" ]]; then
+    scenario_count=$(echo "$scenario_ids" | wc -l | tr -d ' ')
+  fi
 
-    if [[ "$scenario_count" -gt 0 ]]; then
-      echo "  Scenario IDs:"
-      yq -r '.scenarios[].id' "$evals_dir/evals.yml" 2>/dev/null | while read -r id; do
-        echo "    - $id"
-      done
-    fi
-  else
-    echo -e "  ${RED}evals.yml not found${NC}"
+  echo -e "  Scenarios defined: ${BOLD}${scenario_count}${NC}"
+
+  if [[ "$scenario_count" -gt 0 ]]; then
+    echo "  Scenario IDs:"
+    echo "$scenario_ids" | while read -r id; do
+      echo "    - $id"
+    done
   fi
 
   echo ""
 
   local iteration_count=0
   local latest_benchmark=""
-  for iter_dir in "$evals_dir"/iteration-*/; do
-    [[ -d "$iter_dir" ]] || continue
+  for f in "$evals_dir"/benchmark-*.json; do
+    [[ -f "$f" ]] || continue
     iteration_count=$((iteration_count + 1))
-    if [[ -f "$iter_dir/benchmark.json" ]]; then
-      latest_benchmark="$iter_dir/benchmark.json"
-    fi
+    latest_benchmark="$f"
   done
 
   echo -e "  Iterations: ${BOLD}${iteration_count}${NC}"
@@ -635,38 +609,23 @@ cmd_new_iteration() {
   local skill_dir="$1"
   local evals_dir="$skill_dir/evals"
 
-  if [[ ! -f "$evals_dir/evals.yml" ]]; then
-    echo -e "${RED}No evals.yml found. Run: run-eval.sh init $skill_dir${NC}"
-    exit 1
-  fi
-
-  # Determine next iteration number
-  local next_iter=1
-  for iter_dir in "$evals_dir"/iteration-*/; do
-    [[ -d "$iter_dir" ]] || continue
-    local num
-    num=$(basename "$iter_dir" | sed 's/iteration-//')
-    if [[ "$num" -ge "$next_iter" ]]; then
-      next_iter=$((num + 1))
-    fi
-  done
-
-  local iter_dir="$evals_dir/iteration-${next_iter}"
-
   local scenario_ids
-  scenario_ids=$(yq -r '.scenarios[].id' "$evals_dir/evals.yml" 2>/dev/null)
+  scenario_ids=$(get_scenario_ids "$evals_dir")
 
   if [[ -z "$scenario_ids" ]]; then
-    echo -e "${RED}No scenarios found in evals.yml${NC}"
+    echo -e "${RED}No scenarios found (no */scenario.yml in $evals_dir). Run: run-eval.sh init $skill_dir${NC}"
     exit 1
   fi
 
+  local next_iter
+  next_iter=$(get_next_iteration "$evals_dir")
+
   while read -r scenario_id; do
-    mkdir -p "$iter_dir/$scenario_id/with_skill"
-    mkdir -p "$iter_dir/$scenario_id/without_skill"
+    mkdir -p "$evals_dir/$scenario_id/iteration-${next_iter}/with_skill"
+    mkdir -p "$evals_dir/$scenario_id/iteration-${next_iter}/without_skill"
   done <<< "$scenario_ids"
 
-  echo -e "${GREEN}Created iteration directory: $iter_dir${NC}"
+  echo -e "${GREEN}Created iteration ${next_iter} directories${NC}"
 }
 
 cmd_show() {
@@ -677,13 +636,11 @@ cmd_show() {
   local benchmark_file=""
 
   if [[ -n "$iteration" ]]; then
-    benchmark_file="$evals_dir/iteration-${iteration}/benchmark.json"
+    benchmark_file="$evals_dir/benchmark-${iteration}.json"
   else
-    for iter_dir in "$evals_dir"/iteration-*/; do
-      [[ -d "$iter_dir" ]] || continue
-      if [[ -f "$iter_dir/benchmark.json" ]]; then
-        benchmark_file="$iter_dir/benchmark.json"
-      fi
+    # Find the latest benchmark file by version sort
+    for f in "$evals_dir"/benchmark-*.json; do
+      [[ -f "$f" ]] && benchmark_file="$f"
     done
   fi
 
@@ -737,20 +694,26 @@ cmd_show() {
 
 cmd_scenarios() {
   local skill_dir="$1"
-  local evals_file="$skill_dir/evals/evals.yml"
+  local evals_dir="$skill_dir/evals"
 
-  if [[ ! -f "$evals_file" ]]; then
-    echo -e "${RED}No evals.yml found at $evals_file${NC}"
+  local scenario_ids
+  scenario_ids=$(get_scenario_ids "$evals_dir")
+
+  if [[ -z "$scenario_ids" ]]; then
+    echo -e "${RED}No scenarios found in $evals_dir${NC}"
     exit 1
   fi
 
   echo -e "${BOLD}Eval Scenarios${NC}"
   echo ""
 
-  yq -r '.scenarios[] | "\(.id)\t\(.name)"' "$evals_file" | while IFS=$'\t' read -r id name; do
-    echo -e "  ${BOLD}$id${NC}: $name"
+  echo "$scenario_ids" | while read -r id; do
+    local scenario_file="$evals_dir/$id/scenario.yml"
+    local name
+    name=$(yq -r '.name' "$scenario_file")
     local assertion_count
-    assertion_count=$(yq ".scenarios[] | select(.id == \"$id\") | .assertions | length" "$evals_file")
+    assertion_count=$(yq '.assertions | length' "$scenario_file")
+    echo -e "  ${BOLD}$id${NC}: $name"
     echo "    Assertions: $assertion_count"
     echo ""
   done
@@ -788,9 +751,12 @@ cmd_run() {
   check_scuttlerun
   check_pincenez
 
-  local evals_file="$skill_dir/evals/evals.yml"
-  if [[ ! -f "$evals_file" ]]; then
-    echo -e "${RED}No evals.yml found at $evals_file${NC}"
+  local evals_dir="$skill_dir/evals"
+
+  local scenario_ids_raw
+  scenario_ids_raw=$(get_scenario_ids "$evals_dir")
+  if [[ -z "$scenario_ids_raw" ]]; then
+    echo -e "${RED}No scenarios found (no */scenario.yml in $evals_dir)${NC}"
     echo "Run: run-eval.sh init $skill_dir"
     exit 1
   fi
@@ -801,39 +767,28 @@ cmd_run() {
   echo -e "${BOLD}Eval Runner — ${skill_name}${NC}"
   echo ""
 
-  # --- Create or reuse iteration directory ---
-  local iter_dir iter_num
+  # --- Create or reuse iteration ---
+  local iter_num
   if [[ -n "$iteration" ]]; then
-    iter_dir="$skill_dir/evals/iteration-${iteration}"
-    if [[ ! -d "$iter_dir" ]]; then
-      echo -e "${RED}Iteration directory not found: $iter_dir${NC}"
-      exit 1
-    fi
+    # Verify at least one scenario has this iteration dir
+    local found=false
+    echo "$scenario_ids_raw" | while read -r sid; do
+      [[ -d "$evals_dir/$sid/iteration-$iteration" ]] && { found=true; break; }
+    done
     iter_num="$iteration"
     echo -e "  Reusing iteration: ${BOLD}${iter_num}${NC}"
   else
     cmd_new_iteration "$skill_dir"
-    # Find the iteration that was just created
-    local latest=0
-    for d in "$skill_dir/evals"/iteration-*/; do
-      [[ -d "$d" ]] || continue
-      local n
-      n=$(basename "$d" | sed 's/iteration-//')
-      if [[ "$n" -gt "$latest" ]]; then
-        latest="$n"
-      fi
-    done
-    iter_num="$latest"
-    iter_dir="$skill_dir/evals/iteration-${iter_num}"
+    iter_num=$(get_next_iteration "$evals_dir")
+    iter_num=$((iter_num - 1))  # get_next_iteration returns N+1, we just created N
     echo -e "  Created iteration: ${BOLD}${iter_num}${NC}"
   fi
 
-  echo -e "  Directory: ${iter_dir}"
   echo ""
 
   # --- Get scenario list ---
   local scenario_count
-  scenario_count=$(yq '.scenarios | length' "$evals_file")
+  scenario_count=$(echo "$scenario_ids_raw" | wc -l | tr -d ' ')
 
   # --- Compute total steps and phases ---
   local run_steps=$((scenario_count * 2 * repeats))
@@ -867,19 +822,21 @@ cmd_run() {
 
   local current_phase=0
 
-  # --- Pre-read scenario data ---
+  # --- Pre-read scenario data from per-scenario files ---
   local scenario_ids=() scenario_names=() scenario_prompts=() scenario_files=()
-  for i in $(seq 0 $((scenario_count - 1))); do
-    scenario_ids+=($(yq -r ".scenarios[$i].id" "$evals_file"))
-    scenario_names+=("$(yq -r ".scenarios[$i].name" "$evals_file")")
-    scenario_prompts+=("$(yq -r ".scenarios[$i].prompt" "$evals_file")")
-    scenario_files+=("$(yq -o=json ".scenarios[$i].files // {}" "$evals_file")")
-  done
+  while read -r sid; do
+    local scenario_file="$evals_dir/$sid/scenario.yml"
+    scenario_ids+=("$sid")
+    scenario_names+=("$(yq -r '.name' "$scenario_file")")
+    scenario_prompts+=("$(yq -r '.prompt' "$scenario_file")")
+    scenario_files+=("$(yq -o=json '.files // {}' "$scenario_file")")
+  done <<< "$scenario_ids_raw"
 
-  # Ensure directories exist (always use rep subdirs)
+  # Ensure iteration directories exist (always use rep subdirs)
   for scenario_id in "${scenario_ids[@]}"; do
     for rep in $(seq 1 "$repeats"); do
-      mkdir -p "$iter_dir/$scenario_id/with_skill/rep-${rep}" "$iter_dir/$scenario_id/without_skill/rep-${rep}"
+      mkdir -p "$evals_dir/$scenario_id/iteration-${iter_num}/with_skill/rep-${rep}" \
+               "$evals_dir/$scenario_id/iteration-${iter_num}/without_skill/rep-${rep}"
     done
   done
 
@@ -893,11 +850,11 @@ cmd_run() {
 
       for rep in $(seq 1 "$repeats"); do
         run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill rep-${rep}" \
-          "$iter_dir/${scenario_ids[$i]}/with_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "$evals_dir/${scenario_ids[$i]}/iteration-${iter_num}/with_skill/rep-${rep}" "$agent_model" "$skill_dir" \
           "" "" "" "${scenario_files[$i]}"
 
         run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill rep-${rep}" \
-          "$iter_dir/${scenario_ids[$i]}/without_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "$evals_dir/${scenario_ids[$i]}/iteration-${iter_num}/without_skill/rep-${rep}" "$agent_model" "$skill_dir" \
           "" "" "" "${scenario_files[$i]}"
       done
 
@@ -910,7 +867,7 @@ cmd_run() {
       phase_banner "$current_phase" "$phase_count" "Grading"
 
       for i in $(seq 0 $((scenario_count - 1))); do
-        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$grader_model" "" "" "" "$repeats"
+        run_grader "${scenario_ids[$i]}" "$evals_dir" "$iter_num" "$grader_model" "" "" "" "$repeats"
       done
     fi
   else
@@ -934,7 +891,7 @@ cmd_run() {
         local rf="$batch_tmp/with_${scenario_ids[$i]}_rep${rep}.result"
         result_files+=("$rf")
         run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill rep-${rep}" \
-          "$iter_dir/${scenario_ids[$i]}/with_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "$evals_dir/${scenario_ids[$i]}/iteration-${iter_num}/with_skill/rep-${rep}" "$agent_model" "$skill_dir" \
           "$step_counter" "$TOTAL_STEPS" "$rf" "${scenario_files[$i]}" &
         pids+=($!)
       done
@@ -958,7 +915,7 @@ cmd_run() {
         local rf="$batch_tmp/without_${scenario_ids[$i]}_rep${rep}.result"
         result_files+=("$rf")
         run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill rep-${rep}" \
-          "$iter_dir/${scenario_ids[$i]}/without_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "$evals_dir/${scenario_ids[$i]}/iteration-${iter_num}/without_skill/rep-${rep}" "$agent_model" "$skill_dir" \
           "$step_counter" "$TOTAL_STEPS" "$rf" "${scenario_files[$i]}" &
         pids+=($!)
       done
@@ -980,7 +937,7 @@ cmd_run() {
         local step_num=$((scenario_count * 2 * repeats + i + 1))
         local rf="$batch_tmp/grade_${scenario_ids[$i]}.result"
         result_files+=("$rf")
-        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$grader_model" \
+        run_grader "${scenario_ids[$i]}" "$evals_dir" "$iter_num" "$grader_model" \
           "$step_num" "$TOTAL_STEPS" "$rf" "$repeats" &
         pids+=($!)
       done
@@ -995,7 +952,7 @@ cmd_run() {
   if ! $skip_grading && ! $skip_aggregate; then
     current_phase=$((current_phase + 1))
     phase_banner "$current_phase" "$phase_count" "Aggregating"
-    "$SCRIPT_DIR/aggregate-results.sh" "$skill_dir" "$iter_num"
+    "$SCRIPT_DIR/aggregate-results.sh" "$skill_dir" "$iter_num" "$evals_dir"
   fi
 
   local total_elapsed=$((SECONDS - PIPELINE_START))

@@ -1,0 +1,69 @@
+name: "Detects anti-patterns in a skill under review"
+prompt: |
+  Review the skill at ./bad-skill/ for quality issues and suggest improvements.
+files:
+  bad-skill/SKILL.md: |
+    ---
+    description: A skill for managing Docker containers. First it reads the Dockerfile, then it validates the syntax, then it builds the image, then it runs security checks, then it tags and pushes to the registry.
+    ---
+
+    # Docker Manager
+
+    ## Overview
+
+    You should use this skill whenever you need to work with Docker containers.
+    This skill helps you manage your Docker workflow from start to finish.
+
+    ## Reading the Dockerfile
+
+    You should first read the Dockerfile in the current directory. If you can't
+    find a Dockerfile, you should look in common locations like ./docker/ or
+    ./build/. You should parse the FROM instruction to determine the base image.
+    You should check if the base image is pinned to a specific version. If you
+    find that the base image uses :latest, you should warn the user about this.
+
+    ## Validating Syntax
+
+    You should run `docker build --check .` to validate the Dockerfile syntax.
+    If you encounter errors, you should read the error output and try to fix
+    the issues. You should pay attention to common mistakes like missing
+    backslashes in multi-line RUN commands.
+
+    ## Building the Image
+
+    You should build the image using `docker build -t $IMAGE_NAME .`. You should
+    use the --no-cache flag if the user requests a clean build. You should make
+    sure to tag the image with both the version number and :latest.
+
+    ## Security Scanning
+
+    You should run `docker scout cves $IMAGE_NAME` to check for vulnerabilities.
+    If you find critical vulnerabilities, you should alert the user immediately.
+    You should also check for secrets accidentally baked into the image layers.
+
+    ## Pushing to Registry
+
+    You should authenticate with the registry first using `docker login`. Then
+    you should push the image using `docker push $IMAGE_NAME`. You should verify
+    the push was successful by pulling the image back.
+
+    ## Examples
+
+    ```bash
+    docker build -t foo .
+    docker run foo
+    docker push foo/bar:baz
+    ```
+
+    ## Troubleshooting
+
+    If you encounter permission errors, you should check that the Docker daemon
+    is running. You should also verify that the user has the correct group
+    membership. If you see network errors, you should check the proxy settings.
+assertions:
+  - check: "Output identifies at least 2 specific anti-patterns from skillcraft's catalog, by name or by accurately describing the issue (e.g. Wall of Text, Second Person Habit, Toy Examples, Workflow Summary Description)"
+    note: "The bad-skill has several deliberate anti-patterns: pervasive 'you should' phrasing (Second Person Habit), monolithic body with no references/ split (Wall of Text), trivial examples that don't show real usage (Toy Examples), and the description summarizes workflow steps (Workflow Summary Description)"
+  - check: "Output recommends moving detailed content to a references/ directory or splitting the monolithic body into separate files"
+    note: "The skill body is ~60 lines of procedural instructions that should be extracted into reference files, leaving the SKILL.md as a concise guide"
+  - check: "Output flags the description as problematic because it summarizes workflow steps instead of stating trigger conditions"
+    note: "The description reads 'First it reads... then validates... then builds...' which is a workflow summary. It should instead describe when/why the skill triggers (e.g. 'Use when building, scanning, or pushing Docker images')"

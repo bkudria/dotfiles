@@ -1,0 +1,10 @@
+name: "Optimizing skill description for better auto-triggering"
+prompt: |
+  My skill works great when invoked directly but Claude rarely auto-triggers
+  it. How can I improve the description?
+assertions:
+  - check: "Output recommends using verb+noun trigger phrases or specific action-object pairs in the description, not single keywords"
+    note: "Good trigger phrases are like 'Use when creating a skill' or 'building a Docker image' — not just the word 'Docker'"
+  - check: "Output warns against summarizing the skill's workflow or internal steps in the description"
+    note: "A description like 'First reads the config, then validates, then applies' is a workflow summary anti-pattern"
+  - check: "Output suggests including synonyms, related terms, error messages, or symptoms to improve discovery"

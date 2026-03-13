@@ -2,10 +2,10 @@
 # aggregate-results.sh — Aggregate grading results into benchmark.json
 #
 # Usage:
-#   aggregate-results.sh <skill-dir> <iteration-number>
+#   aggregate-results.sh <skill-dir> <iteration-number> [evals-dir]
 #
-# Reads grading.json files from each scenario in the specified iteration,
-# computes pass rates and deltas, and writes benchmark.json.
+# Reads grading.json files from each scenario's iteration-N/ directory,
+# computes pass rates and deltas, and writes benchmark-N.json.
 #
 # Requires: jq (brew install jq), yq (brew install yq), bc
 
@@ -22,9 +22,9 @@ NC='\033[0m'
 usage() {
   cat <<'USAGE'
 Usage:
-  aggregate-results.sh <skill-dir> <iteration-number>
+  aggregate-results.sh <skill-dir> <iteration-number> [evals-dir]
 
-Reads grading.json files from evals/iteration-N/ and produces benchmark.json.
+Reads grading.json from <scenario>/iteration-N/ dirs and produces benchmark-N.json.
 USAGE
   exit 1
 }
@@ -33,14 +33,7 @@ USAGE
 
 SKILL_DIR="${1/#\~/$HOME}"
 ITERATION="$2"
-ITER_DIR="$SKILL_DIR/evals/iteration-${ITERATION}"
-
-# --- Validation ---
-
-if [[ ! -d "$ITER_DIR" ]]; then
-  echo -e "${RED}Iteration directory not found: $ITER_DIR${NC}"
-  exit 1
-fi
+EVALS_DIR="${3:-$SKILL_DIR/evals}"
 
 # Check for jq and bc
 for dep in jq bc; do
@@ -67,10 +60,13 @@ TOTAL_DISCRIMINATING=0
 SCENARIO_COUNT=0
 SCENARIOS_PASSING=0
 
-for scenario_dir in "$ITER_DIR"/*/; do
-  [[ -d "$scenario_dir" ]] || continue
-  scenario_id=$(basename "$scenario_dir")
+# Iterate over scenario dirs that have iteration-N/grading.json
+for scenario_top in "$EVALS_DIR"/*/; do
+  [[ -d "$scenario_top" ]] || continue
+  scenario_id=$(basename "$scenario_top")
+  [[ -f "$scenario_top/scenario.yml" ]] || continue
 
+  scenario_dir="$scenario_top/iteration-${ITERATION}"
   grading_file="$scenario_dir/grading.json"
   if [[ ! -f "$grading_file" ]]; then
     echo -e "${YELLOW}Warning: No grading.json in $scenario_id — skipping${NC}"
@@ -126,9 +122,10 @@ for scenario_dir in "$ITER_DIR"/*/; do
     SCENARIOS_PASSING=$((SCENARIOS_PASSING + 1))
   fi
 
-  # Add scenario name from evals.yml if available
-  if [[ -f "$SKILL_DIR/evals/evals.yml" ]]; then
-    scenario_name=$(yq -r ".scenarios[] | select(.id == \"$scenario_id\") | .name" "$SKILL_DIR/evals/evals.yml" 2>/dev/null || echo "$scenario_id")
+  # Add scenario name from scenario.yml
+  scenario_yml="$scenario_top/scenario.yml"
+  if [[ -f "$scenario_yml" ]]; then
+    scenario_name=$(yq -r '.name' "$scenario_yml" 2>/dev/null || echo "$scenario_id")
     scenario_json=$(echo "$scenario_json" | jq --arg name "$scenario_name" '.name = $name')
   fi
 
@@ -152,7 +149,7 @@ fi
 # --- Write benchmark.json ---
 
 TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
-BENCHMARK_FILE="$ITER_DIR/benchmark.json"
+BENCHMARK_FILE="$EVALS_DIR/benchmark-${ITERATION}.json"
 
 jq -n \
   --arg skill "$SKILL_NAME" \
