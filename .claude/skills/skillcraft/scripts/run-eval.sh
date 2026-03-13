@@ -10,11 +10,14 @@
 #   run-eval.sh scenarios <skill-dir>                  List scenario IDs and prompts from evals.yml
 #
 # Run options:
-#   --iteration N     Reuse existing iteration directory (default: create new)
-#   --model MODEL     Model to use for eval runs (default: system default)
-#   --sequential      Run scenarios sequentially (default: parallel batches)
-#   --skip-grading    Skip grading step (useful for debugging scenario runs)
-#   --skip-aggregate  Skip aggregation step
+#   --iteration N          Reuse existing iteration directory (default: create new)
+#   --agent-model MODEL    Model for agent sessions (default: claude-sonnet-4-6)
+#   --grader-model MODEL   Model for grading assertions (default: claude-haiku-4-5)
+#   --model MODEL          Shorthand: sets both agent and grader model
+#   --repeats N            Run each scenario N times (default: 3)
+#   --sequential           Run scenarios sequentially (default: parallel batches)
+#   --skip-grading         Skip grading step (useful for debugging scenario runs)
+#   --skip-aggregate       Skip aggregation step
 #
 # Requires: yq, jq, scuttlerun, pincenez (for 'run' subcommand)
 
@@ -31,6 +34,24 @@ YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 BOLD='\033[1m'
 NC='\033[0m'
+
+# --- Signal handling ---
+CHILD_PIDS=()
+cleanup_on_signal() {
+  echo -e "\n${RED}${BOLD}Interrupted.${NC} Cleaning up..." >&2
+  # Kill all child processes
+  for pid in "${CHILD_PIDS[@]}"; do
+    kill "$pid" 2>/dev/null || true
+  done
+  # Also kill any remaining background jobs from this shell
+  jobs -p 2>/dev/null | xargs -r kill 2>/dev/null || true
+  # Clean up temp files
+  rm -f /tmp/eval-scuttlerun-config-* /tmp/eval-scuttlerun-output-*
+  rm -rf /tmp/eval-batch-*
+  echo -e "${YELLOW}Background processes stopped. Temp files cleaned.${NC}" >&2
+  exit 130
+}
+trap cleanup_on_signal SIGINT SIGTERM
 
 # --- Progress tracking ---
 STEP=0
@@ -93,24 +114,34 @@ Usage:
   run-eval.sh scenarios <skill-dir>                  List scenario IDs from evals.yml
 
 Run options:
-  --iteration N     Reuse existing iteration directory
-  --model MODEL     Model for eval runs (default: system default)
-  --sequential      Run scenarios sequentially (default: parallel batches)
-  --skip-grading    Skip grading step
-  --skip-aggregate  Skip aggregation step
+  --iteration N          Reuse existing iteration directory
+  --agent-model MODEL    Model for agent sessions (default: claude-sonnet-4-6)
+  --grader-model MODEL   Model for grading assertions (default: claude-haiku-4-5)
+  --model MODEL          Shorthand: sets both agent and grader model
+  --repeats N            Run each scenario N times (default: 3)
+  --sequential           Run scenarios sequentially (default: parallel batches)
+  --skip-grading         Skip grading step
+  --skip-aggregate       Skip aggregation step
 
 Examples:
   run-eval.sh run ~/.claude/skills/haiku-writer
-  run-eval.sh run ~/.claude/skills/jq --model claude-haiku-4-5 --sequential
+  run-eval.sh run ~/.claude/skills/jq --agent-model claude-haiku-4-5 --sequential
   run-eval.sh show ~/.claude/skills/haiku-writer
 USAGE
   exit "${1:-1}"
 }
 
-# --- Extract text from scuttlerun YAML output ---
+# --- Extract text and tool calls from scuttlerun YAML output ---
 extract_scuttlerun_text() {
   local yaml_file="$1"
-  yq -r '[.conversation[] | select(has("assistant")) | .assistant] | join("\n\n")' "$yaml_file"
+  yq -r '
+    [.conversation[] |
+      if has("assistant") then .assistant
+      elif has("tool") then "[Tool: " + .tool + (if has("path") then " " + .path elif has("pattern") then " " + .pattern else "" end) + "]"
+      else empty
+      end
+    ] | join("\n\n")
+  ' "$yaml_file"
 }
 
 # --- Generate pincenez rubric from evals.yml scenario ---
@@ -128,38 +159,54 @@ generate_rubric() {
   ' "$evals_file" > "$rubric_file"
 }
 
-# --- Merge pincenez gradings into grading.json ---
-merge_gradings() {
+# --- Merge pincenez gradings across reps into grading.json ---
+# Aggregates N reps per variant using majority vote (pass_rate >= 0.5)
+merge_gradings_multi_rep() {
   local scenario_id="$1"
-  local with_grading="$2"
-  local without_grading="$3"
+  local scenario_dir="$2"
+  local repeats="$3"
   local output_file="$4"
 
-  # Convert pincenez YAML outputs to JSON, match by id, compute discrimination
-  local with_json without_json
-  with_json=$(yq -o=json '.assertions' "$with_grading")
-  without_json=$(yq -o=json '.assertions' "$without_grading")
+  # Collect all rep gradings into JSON arrays
+  local with_all="[]"
+  local without_all="[]"
+  for rep in $(seq 1 "$repeats"); do
+    local wg="$scenario_dir/with_skill/rep-${rep}/grading.yml"
+    local wog="$scenario_dir/without_skill/rep-${rep}/grading.yml"
+    if [[ -f "$wg" ]]; then
+      with_all=$(echo "$with_all" | jq --argjson g "$(yq -o=json '.assertions' "$wg")" '. += [$g]')
+    fi
+    if [[ -f "$wog" ]]; then
+      without_all=$(echo "$without_all" | jq --argjson g "$(yq -o=json '.assertions' "$wog")" '. += [$g]')
+    fi
+  done
 
+  # Aggregate: majority vote per assertion across reps
   jq -n \
     --arg scenario_id "$scenario_id" \
-    --argjson with_assertions "$with_json" \
-    --argjson without_assertions "$without_json" '
-    # Index without_skill assertions by id
-    ($without_assertions | map({(.id): .}) | add // {}) as $without_map |
+    --argjson with_reps "$with_all" \
+    --argjson without_reps "$without_all" \
+    --argjson repeats "$repeats" '
+    ($with_reps[0] | length) as $num_assertions |
     {
       scenario_id: $scenario_id,
       assertions: [
-        $with_assertions[] |
-        . as $w |
-        ($without_map[$w.id] // {}) as $wo |
-        ($w.pass // false) as $wp |
-        ($wo.pass // false) as $wop |
+        range($num_assertions) | . as $i |
+        ([($with_reps[][$i].pass // false)] | map(select(. == true)) | length) as $with_pass_count |
+        ([($without_reps[][$i].pass // false)] | map(select(. == true)) | length) as $without_pass_count |
+        ($with_pass_count / $repeats) as $with_rate |
+        ($without_pass_count / $repeats) as $without_rate |
+        ($with_rate >= 0.5) as $wp |
+        ($without_rate >= 0.5) as $wop |
         {
-          text: $w.check,
+          text: $with_reps[0][$i].check,
           with_skill: $wp,
           without_skill: $wop,
-          evidence_with: ($w.evidence // null),
-          evidence_without: ($wo.evidence // null),
+          with_skill_pass_rate: ($with_rate * 100 | round / 100),
+          without_skill_pass_rate: ($without_rate * 100 | round / 100),
+          repeats: $repeats,
+          evidence_with: ([$with_reps[][$i] | select(.pass == $wp) | .evidence] | first // null),
+          evidence_without: ([$without_reps[][$i] | select(.pass == $wop) | .evidence] | first // null),
           discriminates: ($wp == true and $wop != true)
         }
       ]
@@ -172,6 +219,7 @@ generate_scuttlerun_config() {
   local prompt="$1"
   local variant="$2"
   local skill_dir="$3"
+  local files_json="${4:-}"
   local config_file
   config_file=$(mktemp /tmp/eval-scuttlerun-config-XXXXXX)
 
@@ -211,6 +259,15 @@ tools:
 user:
   turn_policy: single
 WARRENEOF
+  fi
+
+  # Append project.files if provided
+  if [[ -n "$files_json" && "$files_json" != "{}" && "$files_json" != "null" ]]; then
+    # Convert JSON files map to YAML and merge into the project section
+    local files_yaml
+    files_yaml=$(echo "$files_json" | yq -P '{"project": {"files": .}}')
+    # Merge files into existing config
+    yq -i eval-all 'select(fi == 0) * select(fi == 1)' "$config_file" <(echo "$files_yaml")
   fi
 
   echo "$config_file"
@@ -295,6 +352,7 @@ run_scenario_variant() {
   local step_num="${7:-}"
   local total_steps="${8:-}"
   local result_file="${9:-}"
+  local files_json="${10:-}"
   local output_file="$output_dir/output.md"
 
   # Skip if output already exists
@@ -311,7 +369,7 @@ run_scenario_variant() {
 
   # Generate scuttlerun config
   local scuttlerun_config
-  scuttlerun_config=$(generate_scuttlerun_config "$prompt" "$variant" "$skill_dir")
+  scuttlerun_config=$(generate_scuttlerun_config "$prompt" "$variant" "$skill_dir" "$files_json")
   local scuttlerun_output
   scuttlerun_output=$(mktemp /tmp/eval-scuttlerun-output-XXXXXX)
 
@@ -359,7 +417,7 @@ run_scenario_variant() {
   rm -f "$scuttlerun_config" "$scuttlerun_output" "${scuttlerun_output}.err"
 }
 
-# --- Run grader for a scenario ---
+# --- Run grader for a scenario (grades all reps, merges into grading.json) ---
 # When result_file is provided (parallel mode), writes status there instead of printing
 run_grader() {
   local scenario_id="$1"
@@ -369,6 +427,7 @@ run_grader() {
   local step_num="${5:-}"
   local total_steps="${6:-}"
   local result_file="${7:-}"
+  local repeats="${8:-3}"
   local scenario_dir="$iter_dir/$scenario_id"
   local grading_file="$scenario_dir/grading.json"
 
@@ -384,10 +443,17 @@ run_grader() {
     return 0
   fi
 
-  local with_output="$scenario_dir/with_skill/output.md"
-  local without_output="$scenario_dir/without_skill/output.md"
+  # Check that all rep outputs exist
+  local missing=false
+  for rep in $(seq 1 "$repeats"); do
+    if [[ ! -f "$scenario_dir/with_skill/rep-${rep}/output.md" ]] || \
+       [[ ! -f "$scenario_dir/without_skill/rep-${rep}/output.md" ]]; then
+      missing=true
+      break
+    fi
+  done
 
-  if [[ ! -f "$with_output" || ! -f "$without_output" ]]; then
+  if $missing; then
     if [[ -n "$result_file" ]]; then
       echo "${step_num}|${scenario_id}|failed|0" > "$result_file"
     else
@@ -402,29 +468,40 @@ run_grader() {
   fi
   local step_start=$SECONDS
 
-  # Generate rubric
+  # Generate rubric (once per scenario)
   local rubric_file="$scenario_dir/rubric.yml"
   generate_rubric "$evals_file" "$scenario_id" "$rubric_file"
-
-  # Run pincenez for both variants
-  local with_grading="$scenario_dir/with_skill/grading.yml"
-  local without_grading="$scenario_dir/without_skill/grading.yml"
 
   local pincenez_args=()
   if [[ -n "$model" ]]; then
     pincenez_args+=(--model "$model")
   fi
 
-  local ok=true
-  if ! pincenez "${pincenez_args[@]}" "$rubric_file" "$with_output" > "$with_grading" 2>/dev/null; then
-    ok=false
-  fi
-  if ! pincenez "${pincenez_args[@]}" "$rubric_file" "$without_output" > "$without_grading" 2>/dev/null; then
-    ok=false
-  fi
+  # Run pincenez on each rep's output (all in parallel)
+  local grade_pids=()
+  for rep in $(seq 1 "$repeats"); do
+    local with_output="$scenario_dir/with_skill/rep-${rep}/output.md"
+    local without_output="$scenario_dir/without_skill/rep-${rep}/output.md"
+    local with_grading="$scenario_dir/with_skill/rep-${rep}/grading.yml"
+    local without_grading="$scenario_dir/without_skill/rep-${rep}/grading.yml"
 
-  if $ok && [[ -s "$with_grading" && -s "$without_grading" ]]; then
-    merge_gradings "$scenario_id" "$with_grading" "$without_grading" "$grading_file"
+    if [[ ! -f "$with_grading" || ! -s "$with_grading" ]]; then
+      pincenez "${pincenez_args[@]}" "$rubric_file" "$with_output" > "$with_grading" 2>/dev/null &
+      grade_pids+=($!)
+    fi
+    if [[ ! -f "$without_grading" || ! -s "$without_grading" ]]; then
+      pincenez "${pincenez_args[@]}" "$rubric_file" "$without_output" > "$without_grading" 2>/dev/null &
+      grade_pids+=($!)
+    fi
+  done
+
+  local ok=true
+  for pid in "${grade_pids[@]}"; do
+    wait "$pid" || ok=false
+  done
+
+  if $ok; then
+    merge_gradings_multi_rep "$scenario_id" "$scenario_dir" "$repeats" "$grading_file"
     local elapsed=$((SECONDS - step_start))
     if [[ -n "$result_file" ]]; then
       echo "${step_num}|${scenario_id}|done|${elapsed}" > "$result_file"
@@ -684,12 +761,16 @@ cmd_run() {
   shift
 
   # Parse run-specific options
-  local iteration="" model="" sequential=false skip_grading=false skip_aggregate=false
+  local iteration="" agent_model="claude-sonnet-4-6" grader_model="claude-haiku-4-5"
+  local sequential=false skip_grading=false skip_aggregate=false repeats=3
 
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --iteration)      iteration="$2"; shift 2 ;;
-      --model)          model="$2"; shift 2 ;;
+      --agent-model)    agent_model="$2"; shift 2 ;;
+      --grader-model)   grader_model="$2"; shift 2 ;;
+      --model)          agent_model="$2"; grader_model="$2"; shift 2 ;;
+      --repeats)        repeats="$2"; shift 2 ;;
       --sequential)     sequential=true; shift ;;
       --parallel)       shift ;;  # no-op, parallel is now the default
       --skip-grading)   skip_grading=true; shift ;;
@@ -698,6 +779,11 @@ cmd_run() {
       *)                echo -e "${RED}Unknown option: $1${NC}"; usage ;;
     esac
   done
+
+  if ! [[ "$repeats" =~ ^[1-9][0-9]*$ ]]; then
+    echo -e "${RED}--repeats must be a positive integer, got: $repeats${NC}"
+    exit 1
+  fi
 
   check_scuttlerun
   check_pincenez
@@ -750,7 +836,7 @@ cmd_run() {
   scenario_count=$(yq '.scenarios | length' "$evals_file")
 
   # --- Compute total steps and phases ---
-  local run_steps=$((scenario_count * 2))
+  local run_steps=$((scenario_count * 2 * repeats))
   local grading_steps=0
   local phase_count
   if $sequential; then
@@ -770,7 +856,7 @@ cmd_run() {
   PIPELINE_START=$SECONDS
 
   # Pipeline plan
-  local plan_parts="${scenario_count} scenarios x 2 variants = ${run_steps} runs"
+  local plan_parts="${scenario_count} scenarios x 2 variants x ${repeats} reps = ${run_steps} runs"
   if [[ $grading_steps -gt 0 ]]; then
     plan_parts="${plan_parts} + ${grading_steps} grading = ${TOTAL_STEPS} steps"
   else
@@ -782,16 +868,19 @@ cmd_run() {
   local current_phase=0
 
   # --- Pre-read scenario data ---
-  local scenario_ids=() scenario_names=() scenario_prompts=()
+  local scenario_ids=() scenario_names=() scenario_prompts=() scenario_files=()
   for i in $(seq 0 $((scenario_count - 1))); do
     scenario_ids+=($(yq -r ".scenarios[$i].id" "$evals_file"))
     scenario_names+=("$(yq -r ".scenarios[$i].name" "$evals_file")")
     scenario_prompts+=("$(yq -r ".scenarios[$i].prompt" "$evals_file")")
+    scenario_files+=("$(yq -o=json ".scenarios[$i].files // {}" "$evals_file")")
   done
 
-  # Ensure directories exist
+  # Ensure directories exist (always use rep subdirs)
   for scenario_id in "${scenario_ids[@]}"; do
-    mkdir -p "$iter_dir/$scenario_id/with_skill" "$iter_dir/$scenario_id/without_skill"
+    for rep in $(seq 1 "$repeats"); do
+      mkdir -p "$iter_dir/$scenario_id/with_skill/rep-${rep}" "$iter_dir/$scenario_id/without_skill/rep-${rep}"
+    done
   done
 
   if $sequential; then
@@ -802,11 +891,15 @@ cmd_run() {
     for i in $(seq 0 $((scenario_count - 1))); do
       echo -e "  ${BOLD}${scenario_names[$i]}${NC} (${scenario_ids[$i]})"
 
-      run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill" \
-        "$iter_dir/${scenario_ids[$i]}/with_skill" "$model" "$skill_dir"
+      for rep in $(seq 1 "$repeats"); do
+        run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill rep-${rep}" \
+          "$iter_dir/${scenario_ids[$i]}/with_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "" "" "" "${scenario_files[$i]}"
 
-      run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill" \
-        "$iter_dir/${scenario_ids[$i]}/without_skill" "$model" "$skill_dir"
+        run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill rep-${rep}" \
+          "$iter_dir/${scenario_ids[$i]}/without_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "" "" "" "${scenario_files[$i]}"
+      done
 
       echo ""
     done
@@ -817,7 +910,7 @@ cmd_run() {
       phase_banner "$current_phase" "$phase_count" "Grading"
 
       for i in $(seq 0 $((scenario_count - 1))); do
-        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$model"
+        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$grader_model" "" "" "" "$repeats"
       done
     fi
   else
@@ -826,41 +919,49 @@ cmd_run() {
     batch_tmp=$(mktemp -d /tmp/eval-batch-XXXXXX)
     local pids=() result_files=()
 
-    # Batch 1: ALL with_skill runs
+    # Batch 1: ALL with_skill runs (all reps)
     current_phase=$((current_phase + 1))
     phase_banner "$current_phase" "$phase_count" "with_skill runs"
-    printf '  Running %d with_skill scenarios in parallel...\n' "$scenario_count" >&2
+    local with_skill_jobs=$((scenario_count * repeats))
+    printf '  Running %d with_skill jobs in parallel (%d scenarios x %d reps)...\n' "$with_skill_jobs" "$scenario_count" "$repeats" >&2
 
     pids=()
     result_files=()
+    local step_counter=0
     for i in $(seq 0 $((scenario_count - 1))); do
-      local step_num=$((i + 1))
-      local rf="$batch_tmp/with_${scenario_ids[$i]}.result"
-      result_files+=("$rf")
-      run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill" \
-        "$iter_dir/${scenario_ids[$i]}/with_skill" "$model" "$skill_dir" \
-        "$step_num" "$TOTAL_STEPS" "$rf" &
-      pids+=($!)
+      for rep in $(seq 1 "$repeats"); do
+        step_counter=$((step_counter + 1))
+        local rf="$batch_tmp/with_${scenario_ids[$i]}_rep${rep}.result"
+        result_files+=("$rf")
+        run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "with_skill rep-${rep}" \
+          "$iter_dir/${scenario_ids[$i]}/with_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "$step_counter" "$TOTAL_STEPS" "$rf" "${scenario_files[$i]}" &
+        pids+=($!)
+      done
     done
     wait_for_batch "${pids[@]}" || true
     print_batch_results "$TOTAL_STEPS" "${result_files[@]}"
     echo "" >&2
 
-    # Batch 2: ALL without_skill runs
+    # Batch 2: ALL without_skill runs (all reps)
     current_phase=$((current_phase + 1))
     phase_banner "$current_phase" "$phase_count" "without_skill runs"
-    printf '  Running %d without_skill scenarios in parallel...\n' "$scenario_count" >&2
+    local without_skill_jobs=$((scenario_count * repeats))
+    printf '  Running %d without_skill jobs in parallel (%d scenarios x %d reps)...\n' "$without_skill_jobs" "$scenario_count" "$repeats" >&2
 
     pids=()
     result_files=()
+    step_counter=$((scenario_count * repeats))
     for i in $(seq 0 $((scenario_count - 1))); do
-      local step_num=$((scenario_count + i + 1))
-      local rf="$batch_tmp/without_${scenario_ids[$i]}.result"
-      result_files+=("$rf")
-      run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill" \
-        "$iter_dir/${scenario_ids[$i]}/without_skill" "$model" "$skill_dir" \
-        "$step_num" "$TOTAL_STEPS" "$rf" &
-      pids+=($!)
+      for rep in $(seq 1 "$repeats"); do
+        step_counter=$((step_counter + 1))
+        local rf="$batch_tmp/without_${scenario_ids[$i]}_rep${rep}.result"
+        result_files+=("$rf")
+        run_scenario_variant "${scenario_ids[$i]}" "${scenario_prompts[$i]}" "without_skill rep-${rep}" \
+          "$iter_dir/${scenario_ids[$i]}/without_skill/rep-${rep}" "$agent_model" "$skill_dir" \
+          "$step_counter" "$TOTAL_STEPS" "$rf" "${scenario_files[$i]}" &
+        pids+=($!)
+      done
     done
     wait_for_batch "${pids[@]}" || true
 
@@ -876,11 +977,11 @@ cmd_run() {
       pids=()
       result_files=()
       for i in $(seq 0 $((scenario_count - 1))); do
-        local step_num=$((scenario_count * 2 + i + 1))
+        local step_num=$((scenario_count * 2 * repeats + i + 1))
         local rf="$batch_tmp/grade_${scenario_ids[$i]}.result"
         result_files+=("$rf")
-        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$model" \
-          "$step_num" "$TOTAL_STEPS" "$rf" &
+        run_grader "${scenario_ids[$i]}" "$evals_file" "$iter_dir" "$grader_model" \
+          "$step_num" "$TOTAL_STEPS" "$rf" "$repeats" &
         pids+=($!)
       done
       wait_for_batch "${pids[@]}" || true

@@ -18,8 +18,8 @@ scenarios:
       the assertions are testing the right things. How can I improve the eval quality?
     assertions:
       - "Output mentions checking for non-discriminating assertions (pass in both variants)"
-      - "Output mentions claims extraction or verifying implicit claims beyond explicit assertions"
-      - "Output suggests the grader should critique or provide feedback on the assertions themselves"
+      - "Output references the discrimination test concept: whether assertions would also pass without the skill loaded"
+      - "Output identifies at least one assertion anti-pattern by name or description, such as always-passes, tautological, too-vague, or compound assertions"
 
   - id: description-trigger-optimization
     name: "Optimizing skill description for better auto-triggering"
@@ -27,18 +27,77 @@ scenarios:
       My skill works great when invoked directly but Claude rarely auto-triggers
       it. How can I improve the description?
     assertions:
-      - "Output mentions creating realistic eval queries (should-trigger and should-not-trigger)"
-      - "Output advises making queries substantive and detailed, not generic one-liners"
-      - "Output mentions near-miss negative cases that share keywords but need different tools"
+      - "Output recommends using verb+noun trigger phrases or specific action-object pairs in the description, not single keywords"
+      - "Output warns against summarizing the skill's workflow or internal steps in the description"
+      - "Output suggests including synonyms, related terms, error messages, or symptoms to improve discovery"
 
-  - id: auto-trigger-skill-file-editing
-    name: "Auto-triggers when editing skill files"
+  - id: anti-pattern-detection
+    name: "Detects anti-patterns in a skill under review"
     prompt: |
-      I want to add some eval scenarios to my jq skill to test edge cases.
+      Review the skill at ./bad-skill/ for quality issues and suggest improvements.
+    files:
+      bad-skill/SKILL.md: |
+        ---
+        description: A skill for managing Docker containers. First it reads the Dockerfile, then it validates the syntax, then it builds the image, then it runs security checks, then it tags and pushes to the registry.
+        ---
+
+        # Docker Manager
+
+        ## Overview
+
+        You should use this skill whenever you need to work with Docker containers.
+        This skill helps you manage your Docker workflow from start to finish.
+
+        ## Reading the Dockerfile
+
+        You should first read the Dockerfile in the current directory. If you can't
+        find a Dockerfile, you should look in common locations like ./docker/ or
+        ./build/. You should parse the FROM instruction to determine the base image.
+        You should check if the base image is pinned to a specific version. If you
+        find that the base image uses :latest, you should warn the user about this.
+
+        ## Validating Syntax
+
+        You should run `docker build --check .` to validate the Dockerfile syntax.
+        If you encounter errors, you should read the error output and try to fix
+        the issues. You should pay attention to common mistakes like missing
+        backslashes in multi-line RUN commands.
+
+        ## Building the Image
+
+        You should build the image using `docker build -t $IMAGE_NAME .`. You should
+        use the --no-cache flag if the user requests a clean build. You should make
+        sure to tag the image with both the version number and :latest.
+
+        ## Security Scanning
+
+        You should run `docker scout cves $IMAGE_NAME` to check for vulnerabilities.
+        If you find critical vulnerabilities, you should alert the user immediately.
+        You should also check for secrets accidentally baked into the image layers.
+
+        ## Pushing to Registry
+
+        You should authenticate with the registry first using `docker login`. Then
+        you should push the image using `docker push $IMAGE_NAME`. You should verify
+        the push was successful by pulling the image back.
+
+        ## Examples
+
+        ```bash
+        docker build -t foo .
+        docker run foo
+        docker push foo/bar:baz
+        ```
+
+        ## Troubleshooting
+
+        If you encounter permission errors, you should check that the Docker daemon
+        is running. You should also verify that the user has the correct group
+        membership. If you see network errors, you should check the proxy settings.
     assertions:
-      - "skillcraft skill is loaded before any file edits are made"
-      - "Output references the eval guide or testing guide from skillcraft"
-      - "Eval file is created under ~/.claude/skills/jq/evals/"
+      - "Output identifies at least 2 specific anti-patterns from skillcraft's catalog, by name or by accurately describing the issue (e.g. Wall of Text, Second Person Habit, Toy Examples, Workflow Summary Description)"
+      - "Output recommends moving detailed content to a references/ directory or splitting the monolithic body into separate files"
+      - "Output flags the description as problematic because it summarizes workflow steps instead of stating trigger conditions"
 
   - id: write-evals-from-scratch
 

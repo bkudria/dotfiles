@@ -7,7 +7,7 @@
 # Reads grading.json files from each scenario in the specified iteration,
 # computes pass rates and deltas, and writes benchmark.json.
 #
-# Requires: jq (brew install jq), yq (brew install yq)
+# Requires: jq (brew install jq), yq (brew install yq), bc
 
 set -euo pipefail
 
@@ -42,11 +42,13 @@ if [[ ! -d "$ITER_DIR" ]]; then
   exit 1
 fi
 
-# Check for jq
-if ! command -v jq >/dev/null 2>&1; then
-  echo -e "${RED}jq is required. Install with: brew install jq${NC}"
-  exit 1
-fi
+# Check for jq and bc
+for dep in jq bc; do
+  if ! command -v "$dep" >/dev/null 2>&1; then
+    echo -e "${RED}${dep} is required. Install with: brew install ${dep}${NC}"
+    exit 1
+  fi
+done
 
 # Extract skill name
 SKILL_NAME="unknown"
@@ -103,8 +105,7 @@ for scenario_dir in "$ITER_DIR"/*/; do
         pass_rate: ($without_rate * 100 | round / 100)
       },
       delta: (($with_rate - $without_rate) * 100 | round / 100),
-      discriminating_assertions: $discriminating,
-      improvement_suggestions: (.improvement_suggestions // [])
+      discriminating_assertions: $discriminating
     }
   ' "$grading_file")
 
