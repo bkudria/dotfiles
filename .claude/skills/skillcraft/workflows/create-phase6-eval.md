@@ -1,6 +1,6 @@
 # Phase 6: Eval & Iterate
 
-Run behavioral evaluation to verify the skill actually improves Claude's output. The headless eval runner spawns paired `claude -p` sessions (with and without the skill), grades results, and aggregates a benchmark.
+Run behavioral evaluation to verify the skill actually improves Claude's output. The headless eval runner spawns paired scuttlerun sessions (with and without the skill), grades results via pincenez, and aggregates a benchmark.
 
 ## When to Do This
 
@@ -34,7 +34,6 @@ Edit `evals/evals.yml` to define 3-10 scenarios. Each scenario needs:
 | `name` | Human-readable description |
 | `prompt` | The exact task for both with-skill and without-skill runs |
 | `assertions` | 3-5 objectively verifiable pass/fail checks |
-| `rubric` | Qualitative grading criteria (numbered list) |
 
 Consult `references/eval-guide.md` for assertion design patterns and examples by skill type.
 
@@ -64,8 +63,8 @@ Options:
 
 The script handles all steps automatically:
 1. Creates the iteration directory
-2. Runs paired with/without-skill scenarios via `claude -p`
-3. Grades each scenario using the grader agent
+2. Runs paired with/without-skill scenarios via scuttlerun
+3. Grades each scenario using pincenez
 4. Aggregates results into `benchmark.json`
 
 For without-skill runs, it temporarily hides SKILL.md to prevent skill loading.

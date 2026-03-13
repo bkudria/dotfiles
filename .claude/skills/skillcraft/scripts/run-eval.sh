@@ -469,7 +469,6 @@ cmd_init() {
 #   name:       Human-readable description for reports
 #   prompt:     The exact task for both with-skill and without-skill eval runs
 #   assertions: Objectively verifiable pass/fail checks (3-5 recommended)
-#   rubric:     Qualitative grading criteria for the grader agent
 
 skill: ${skill_name}
 scenarios:
@@ -483,10 +482,6 @@ scenarios:
       - "TODO - Objectively verifiable assertion 1"
       - "TODO - Another verifiable assertion"
       - "TODO - A third assertion"
-    rubric: |
-      1. Did the output follow the skill's primary instruction?
-      2. Was the output format correct?
-      3. Were common pitfalls avoided?
 EOF
 
   echo -e "${GREEN}Created: $evals_dir/${NC}"

@@ -1,6 +1,6 @@
 # Eval Guide
 
-Write eval scenarios that measure whether a skill actually improves Claude's output. This guide covers the evals.yml schema, assertion design, rubric writing, and result interpretation.
+Write eval scenarios that measure whether a skill actually improves Claude's output. This guide covers the evals.yml schema, assertion design, and result interpretation.
 
 ---
 
@@ -18,10 +18,6 @@ scenarios:
       - "Output contains a jq filter using .users[] or .users[].email"
       - "Filter produces only email strings, not full user objects"
       - "No use of input or debug as primary approach"
-    rubric: |                        # guides the grader's qualitative assessment
-      1. Does the filter produce correct output for the given input?
-      2. Is the filter idiomatic jq (uses pipelines, not nested parentheses)?
-      3. Are edge cases mentioned (empty array, missing field)?
 ```
 
 ### Field Reference
@@ -34,7 +30,6 @@ scenarios:
 | `scenarios[].name` | Yes | Human-readable description for reports |
 | `scenarios[].prompt` | Yes | The exact task for both with-skill and without-skill eval runs |
 | `scenarios[].assertions` | Yes | List of objectively verifiable pass/fail checks (3-5 recommended) |
-| `scenarios[].rubric` | Yes | Qualitative grading criteria for the grader agent (numbered list) |
 
 ---
 
@@ -84,10 +79,6 @@ These are full scenario entries you can adapt. Each demonstrates assertion patte
       - "Output writes or references a test before making the production code change"
       - "Output does NOT make the production change without a test, even for a 'trivial' fix"
       - "Output explicitly addresses why testing is still required despite the pressure"
-    rubric: |
-      1. Does the agent follow the correct process (test first, then fix)?
-      2. Does it resist the time-pressure rationalization convincingly?
-      3. Is the test it writes actually relevant to the change?
 ```
 
 Why these assertions discriminate: Without a testing-discipline skill, Claude typically complies with "just change the string" — it makes the edit directly. With the skill, it insists on a test first. The assertions target this behavioral difference, not generic output quality.
@@ -104,10 +95,6 @@ Why these assertions discriminate: Without a testing-discipline skill, Claude ty
       - "Output checks environment differences between local and CI before suggesting fixes"
       - "Output does NOT immediately suggest 'add a sleep' or 'increase timeout' as the first approach"
       - "Output investigates whether the database service is configured in the CI pipeline"
-    rubric: |
-      1. Does the agent follow a systematic diagnostic process?
-      2. Does it identify the root cause (missing CI service) before proposing solutions?
-      3. Are suggested fixes targeted at the actual problem?
 ```
 
 Why these assertions discriminate: Without the skill, Claude often jumps to common fixes (add a sleep, increase timeout). The skill teaches systematic diagnosis. The assertions check for the taught method vs. the default guess-and-fix behavior.
@@ -125,10 +112,6 @@ Why these assertions discriminate: Without the skill, Claude often jumps to comm
       - "Output identifies the repeated auth logic as a candidate for extraction into middleware"
       - "Output explains the specific pattern (middleware/decorator/guard) rather than just saying 'reduce duplication'"
       - "Output mentions when NOT to extract (e.g., if each handler needs different role checks)"
-    rubric: |
-      1. Does the agent recognize the middleware extraction pattern?
-      2. Does it explain the trade-offs of extracting vs. keeping inline?
-      3. Does it provide a concrete refactoring approach?
 ```
 
 Why these assertions discriminate: Without the skill, Claude recognizes duplication but gives generic advice ("extract a function"). The skill teaches specific patterns (middleware, guard). The assertions test for the specific pattern name and when-not-to-apply guidance that only the skill provides.
@@ -145,10 +128,6 @@ Why these assertions discriminate: Without the skill, Claude recognizes duplicat
       - "Uses (type)value annotation syntax with parentheses"
       - "References at least 2 reserved type names from the spec (e.g., uuid, date)"
       - "Shows annotation on both arguments and properties"
-    rubric: |
-      1. Are the type annotations syntactically correct per the spec?
-      2. Are reserved types used appropriately?
-      3. Does it demonstrate annotations can apply to nodes, arguments, and properties?
 ```
 
 Why these assertions discriminate: Without the skill, Claude may guess at KDL type annotation syntax (common guesses: `type:value`, `<type>value`, `@type value`). The skill provides the correct `(type)value` syntax. The assertions verify the exact syntax form that only the reference teaches.
@@ -230,36 +209,11 @@ Where skill value shows up, by type:
 
 ---
 
-## Writing Good Rubrics
-
-Rubrics guide the grader's qualitative assessment beyond pass/fail assertions. Write rubrics as numbered criteria, each targeting a different quality dimension.
-
-### Rubric Dimensions by Skill Type
-
-| Skill Type | Rubric Dimensions |
-|------------|------------------|
-| Discipline | Compliance, resistance to pressure, correct process |
-| Technique | Correct application, edge case handling, explanation quality |
-| Pattern | Recognition accuracy, appropriate application, avoided misapplication |
-| Reference | Retrieval accuracy, correct usage, completeness |
-
-### Example Rubric
-
-```yaml
-rubric: |
-  1. Does the output follow the documented process (step 1 before step 2)?
-  2. Are the correct CLI flags used (not deprecated alternatives)?
-  3. Does the explanation address why, not just how?
-  4. Are common gotchas from the reference material avoided?
-```
-
----
-
 ## How Assertions Get Graded
 
-Understanding the grading process helps you write assertions the grader can evaluate effectively.
+Understanding the grading process helps you write assertions that pincenez can evaluate effectively.
 
-The grader (see `agents/grader.md` for full details) evaluates each assertion independently against both with-skill and without-skill outputs, then classifies each as:
+Each assertion is graded independently by pincenez (one LLM call per assertion) against both with-skill and without-skill outputs. The pipeline then classifies each assertion by comparing results across variants:
 
 | Classification | Pattern | Meaning |
 |---------------|---------|---------|
@@ -267,8 +221,6 @@ The grader (see `agents/grader.md` for full details) evaluates each assertion in
 | **Non-discriminating** | Passes in both variants | Assertion may be trivial — revise or replace |
 | **Unfair** | Fails in both variants | Assertion may be unrealistic — verify it's achievable |
 | **Regression** | Fails with skill, passes without | Skill may cause harm — investigate |
-
-The grader also extracts implicit claims from outputs and critiques the assertions themselves via an `eval_feedback` field. When you get grading results back, check `eval_feedback.suggestions` — the grader will flag assertions that are too easy, unverifiable, or missing important outcomes it observed.
 
 ---
 
@@ -288,9 +240,6 @@ A special scenario type that tests whether the skill's description triggers corr
       - "Response demonstrates awareness of the skill's guidance"
       - "Output follows patterns documented in the skill"
       - "Skill-specific terminology or structure is present"
-    rubric: |
-      1. Does the output show the skill was loaded and followed?
-      2. Would the output be noticeably different without the skill?
 
   - id: trigger-negative
     name: "Description does not trigger on unrelated prompt"
@@ -299,9 +248,6 @@ A special scenario type that tests whether the skill's description triggers corr
     assertions:
       - "Response does not follow this skill's specific patterns"
       - "No skill-specific structure or terminology appears unprompted"
-    rubric: |
-      1. Is the response generic (not skill-influenced)?
-      2. If the skill did load, did it interfere with the task?
 ```
 
 For comprehensive trigger testing beyond eval scenarios, see `references/testing-guide.md` section 2 (Trigger Phrase Testing) which covers generating 20 test prompts and scoring precision/recall/specificity.

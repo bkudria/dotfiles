@@ -419,10 +419,6 @@ scenarios:
       - "TODO - Objectively verifiable assertion"
       - "TODO - Another assertion"
       - "TODO - A third assertion"
-    rubric: |
-      1. Did the output follow the skill's primary instruction?
-      2. Was the output format correct?
-      3. Were common pitfalls avoided?
 EOF
   echo "Created: evals/ (with template evals.yml)"
 fi

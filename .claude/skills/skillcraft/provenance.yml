@@ -280,30 +280,6 @@ curation_decisions:
         Eval concepts inspired by Anthropic's skill-creator eval pipeline (paired runs,
         assertions, grading). Schema and guide content are original; decision framework
         and directory structure adapted from Anthropic's approach.
-  agents/grader.md:
-    - source: anthropic-skills
-      sections: [skills/skill-creator/agents/grader.md]
-      decision: altered
-      rationale: >-
-        Grading approach inspired by Anthropic's grader agent. Simplified to work within
-        Claude Code's Task tool (no separate API). Added discrimination assessment and
-        structured JSON output format. Assertion evaluation and rubric scoring are original.
-        Added claims extraction/verification and eval feedback concepts from upstream (2026-03-05).
-  agents/comparator.md:
-    - source: anthropic-skills
-      sections: [skills/skill-creator/agents/comparator.md]
-      decision: simplified
-      rationale: >-
-        Blind A/B comparison agent from Anthropic's skill-creator. Simplified rubric
-        structure and output format. Core blind comparison approach kept intact (2026-03-05).
-  agents/analyzer.md:
-    - source: anthropic-skills
-      sections: [skills/skill-creator/agents/analyzer.md]
-      decision: altered
-      rationale: >-
-        Analysis patterns inspired by Anthropic's analyzer agent. Simplified for bash+jq
-        pipeline. Original output format and suggestion categories.
-        Refined per-assertion analysis patterns from upstream (2026-03-05).
   workflows/create-phase6-eval.md:
     - source: anthropic-skills
       sections: [skills/skill-creator/SKILL.md]

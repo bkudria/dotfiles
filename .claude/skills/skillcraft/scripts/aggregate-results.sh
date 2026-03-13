@@ -95,14 +95,12 @@ for scenario_dir in "$ITER_DIR"/*/; do
       with_skill: {
         assertions_passed: $with_passed,
         assertions_total: $total,
-        pass_rate: ($with_rate * 100 | round / 100),
-        rubric_scores: (.rubric_scores.with_skill // {})
+        pass_rate: ($with_rate * 100 | round / 100)
       },
       without_skill: {
         assertions_passed: $without_passed,
         assertions_total: $total,
-        pass_rate: ($without_rate * 100 | round / 100),
-        rubric_scores: (.rubric_scores.without_skill // {})
+        pass_rate: ($without_rate * 100 | round / 100)
       },
       delta: (($with_rate - $without_rate) * 100 | round / 100),
       discriminating_assertions: $discriminating,

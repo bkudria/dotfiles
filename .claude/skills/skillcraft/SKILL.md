@@ -185,10 +185,7 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/bulletproofing.md` | Rationalization resistance for discipline-enforcing skills |
 | `references/common-fixes.md` | Concrete fix examples for common checklist failures |
 | `references/testing-guide.md` | How to test skills after creation or editing |
-| `references/eval-guide.md` | Writing eval scenarios, assertions, and rubrics |
-| `agents/grader.md` | Agent prompt for auto-grading eval outputs |
-| `agents/comparator.md` | Agent prompt for blind A/B comparison |
-| `agents/analyzer.md` | Agent prompt for benchmark analysis |
+| `references/eval-guide.md` | Writing eval scenarios and assertions |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
 | `references/source-integration.md` | Templates and frameworks for source integration |
