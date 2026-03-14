@@ -157,14 +157,14 @@ USAGE
 # --- Extract text and tool calls from scuttlerun YAML output ---
 extract_scuttlerun_text() {
   local yaml_file="$1"
-  yq -r '
+  yq -o=json '.' "$yaml_file" | jq -r '
     [.conversation[] |
       if has("assistant") then .assistant
       elif has("tool") then "[Tool: " + .tool + (if has("path") then " " + .path elif has("pattern") then " " + .pattern else "" end) + "]"
       else empty
       end
     ] | join("\n\n")
-  ' "$yaml_file"
+  '
 }
 
 # --- Generate pincenez rubric from per-scenario scenario.yml ---
@@ -174,61 +174,108 @@ generate_rubric() {
   local rubric_file="$3"
   local scenario_file="$evals_dir/$scenario_id/scenario.yml"
 
-  yq '{
-    "context": .prompt,
-    "assertions": .assertions
-  }' "$scenario_file" > "$rubric_file"
+  # Convert assertions: strings become {check: string}, objects pass through
+  yq -o=json '.' "$scenario_file" | jq '{
+    context: .prompt,
+    assertions: [.assertions[] | if type == "string" then {check: .} else . end]
+  }' | yq -P '.' > "$rubric_file"
 }
 
-# --- Merge pincenez gradings across reps into grading.json ---
-# Aggregates N reps per variant using majority vote (pass_rate >= 0.5)
-merge_gradings_multi_rep() {
-  local scenario_id="$1"
-  local scenario_dir="$2"
-  local repeats="$3"
-  local output_file="$4"
+# --- Grade a single variant's rep outputs against a rubric ---
+# The reusable primitive: one config's outputs, majority-voted across reps.
+# Writes variant-grading.json to variant_dir.
+grade_single_variant() {
+  local variant_dir="$1"
+  local rubric_file="$2"
+  local model="$3"
+  local repeats="$4"
 
-  # Collect all rep gradings into JSON arrays
-  local with_all="[]"
-  local without_all="[]"
+  local pincenez_args=()
+  if [[ -n "$model" ]]; then
+    pincenez_args+=(--model "$model")
+  fi
+
+  # Run pincenez on each rep's output (in parallel)
+  local grade_pids=()
   for rep in $(seq 1 "$repeats"); do
-    local wg="$scenario_dir/with_skill/rep-${rep}/grading.yml"
-    local wog="$scenario_dir/without_skill/rep-${rep}/grading.yml"
-    if [[ -f "$wg" ]]; then
-      with_all=$(echo "$with_all" | jq --argjson g "$(yq -o=json '.assertions' "$wg")" '. += [$g]')
-    fi
-    if [[ -f "$wog" ]]; then
-      without_all=$(echo "$without_all" | jq --argjson g "$(yq -o=json '.assertions' "$wog")" '. += [$g]')
+    local output="$variant_dir/rep-${rep}/output.md"
+    local grading="$variant_dir/rep-${rep}/grading.yml"
+    if [[ ! -f "$grading" || ! -s "$grading" ]]; then
+      pincenez "${pincenez_args[@]}" "$rubric_file" "$output" > "$grading" 2>/dev/null &
+      grade_pids+=($!)
     fi
   done
 
-  # Aggregate: majority vote per assertion across reps
+  local ok=true
+  for pid in "${grade_pids[@]}"; do
+    wait "$pid" || ok=false
+  done
+
+  if ! $ok; then
+    return 1
+  fi
+
+  # Collect all rep gradings
+  local all_reps="[]"
+  for rep in $(seq 1 "$repeats"); do
+    local grading="$variant_dir/rep-${rep}/grading.yml"
+    if [[ -f "$grading" ]]; then
+      all_reps=$(echo "$all_reps" | jq --argjson g "$(yq -o=json '.assertions' "$grading")" '. += [$g]')
+    fi
+  done
+
+  # Majority vote per assertion across reps
+  jq -n \
+    --argjson reps "$all_reps" \
+    --argjson num_repeats "$repeats" '
+    ($reps[0] | length) as $num_assertions |
+    {
+      assertions: [
+        range($num_assertions) | . as $i |
+        ([($reps[][$i].pass // false)] | map(select(. == true)) | length) as $pass_count |
+        ($pass_count / $num_repeats) as $rate |
+        ($rate >= 0.5) as $pass |
+        {
+          check: $reps[0][$i].check,
+          pass: $pass,
+          pass_rate: ($rate * 100 | round / 100),
+          repeats: $num_repeats,
+          evidence: ([$reps[][$i] | select(.pass == $pass) | .evidence] | first // null)
+        }
+      ]
+    }
+  ' > "$variant_dir/variant-grading.json"
+}
+
+# --- Merge two single-variant gradings into a paired comparison ---
+# Reads variant-grading.json from with_skill/ and without_skill/ dirs,
+# produces grading.json in the existing format for aggregate-results.sh.
+merge_paired_gradings() {
+  local scenario_id="$1"
+  local scenario_dir="$2"
+  local output_file="$3"
+
+  local with_file="$scenario_dir/with_skill/variant-grading.json"
+  local without_file="$scenario_dir/without_skill/variant-grading.json"
+
   jq -n \
     --arg scenario_id "$scenario_id" \
-    --argjson with_reps "$with_all" \
-    --argjson without_reps "$without_all" \
-    --argjson repeats "$repeats" '
-    ($with_reps[0] | length) as $num_assertions |
+    --argjson with "$(cat "$with_file")" \
+    --argjson without "$(cat "$without_file")" '
     {
       scenario_id: $scenario_id,
       assertions: [
-        range($num_assertions) | . as $i |
-        ([($with_reps[][$i].pass // false)] | map(select(. == true)) | length) as $with_pass_count |
-        ([($without_reps[][$i].pass // false)] | map(select(. == true)) | length) as $without_pass_count |
-        ($with_pass_count / $repeats) as $with_rate |
-        ($without_pass_count / $repeats) as $without_rate |
-        ($with_rate >= 0.5) as $wp |
-        ($without_rate >= 0.5) as $wop |
+        range($with.assertions | length) | . as $i |
         {
-          text: $with_reps[0][$i].check,
-          with_skill: $wp,
-          without_skill: $wop,
-          with_skill_pass_rate: ($with_rate * 100 | round / 100),
-          without_skill_pass_rate: ($without_rate * 100 | round / 100),
-          repeats: $repeats,
-          evidence_with: ([$with_reps[][$i] | select(.pass == $wp) | .evidence] | first // null),
-          evidence_without: ([$without_reps[][$i] | select(.pass == $wop) | .evidence] | first // null),
-          discriminates: ($wp == true and $wop != true)
+          text: $with.assertions[$i].check,
+          with_skill: $with.assertions[$i].pass,
+          without_skill: $without.assertions[$i].pass,
+          with_skill_pass_rate: $with.assertions[$i].pass_rate,
+          without_skill_pass_rate: $without.assertions[$i].pass_rate,
+          repeats: $with.assertions[$i].repeats,
+          evidence_with: $with.assertions[$i].evidence,
+          evidence_without: $without.assertions[$i].evidence,
+          discriminates: ($with.assertions[$i].pass == true and $without.assertions[$i].pass != true)
         }
       ]
     }
@@ -236,11 +283,12 @@ merge_gradings_multi_rep() {
 }
 
 # --- Generate scuttlerun config YAML ---
+# Args: prompt, skill_dir_or_empty, files_json
+# If skill_dir is non-empty, includes it in project.skills
 generate_scuttlerun_config() {
   local prompt="$1"
-  local variant="$2"
-  local skill_dir="$3"
-  local files_json="${4:-}"
+  local skill_dir="${2:-}"
+  local files_json="${3:-}"
   local config_file
   config_file=$(mktemp /tmp/eval-scuttlerun-config-XXXXXX)
 
@@ -252,8 +300,8 @@ generate_scuttlerun_config() {
     .user.turn_policy = "single"
   ' > "$config_file"
 
-  # Add skill for with_skill variant
-  if [[ "$variant" == "with_skill" ]]; then
+  # Add skill if a skill directory was provided
+  if [[ -n "$skill_dir" ]]; then
     SKILL_DIR="$skill_dir" yq -i '.project.skills = [strenv(SKILL_DIR)]' "$config_file"
   fi
 
@@ -360,9 +408,11 @@ run_scenario_variant() {
     return 0
   fi
 
-  # Generate scuttlerun config
+  # Generate scuttlerun config — pass skill_dir for with_skill, empty for without_skill
+  local effective_skill_dir=""
+  [[ "$variant" == with_skill* ]] && effective_skill_dir="$skill_dir"
   local scuttlerun_config
-  scuttlerun_config=$(generate_scuttlerun_config "$prompt" "$variant" "$skill_dir" "$files_json")
+  scuttlerun_config=$(generate_scuttlerun_config "$prompt" "$effective_skill_dir" "$files_json")
   local scuttlerun_output
   scuttlerun_output=$(mktemp /tmp/eval-scuttlerun-output-XXXXXX)
 
@@ -410,8 +460,9 @@ run_scenario_variant() {
   rm -f "$scuttlerun_config" "$scuttlerun_output" "${scuttlerun_output}.err"
 }
 
-# --- Run grader for a scenario (grades all reps, merges into grading.json) ---
-# When result_file is provided (parallel mode), writes status there instead of printing
+# --- Run grader for a scenario (grades both variants, merges into grading.json) ---
+# Orchestrates: grade_single_variant for each variant, then merge_paired_gradings.
+# When result_file is provided (parallel mode), writes status there instead of printing.
 run_grader() {
   local scenario_id="$1"
   local evals_dir="$2"
@@ -436,7 +487,7 @@ run_grader() {
     return 0
   fi
 
-  # Check that all rep outputs exist
+  # Check that all rep outputs exist for both variants
   local missing=false
   for rep in $(seq 1 "$repeats"); do
     if [[ ! -f "$scenario_dir/with_skill/rep-${rep}/output.md" ]] || \
@@ -465,36 +516,14 @@ run_grader() {
   local rubric_file="$scenario_dir/rubric.yml"
   generate_rubric "$evals_dir" "$scenario_id" "$rubric_file"
 
-  local pincenez_args=()
-  if [[ -n "$model" ]]; then
-    pincenez_args+=(--model "$model")
-  fi
+  # Grade each variant independently (both run pincenez in parallel internally)
+  grade_single_variant "$scenario_dir/with_skill" "$rubric_file" "$model" "$repeats"
+  local with_ok=$?
+  grade_single_variant "$scenario_dir/without_skill" "$rubric_file" "$model" "$repeats"
+  local without_ok=$?
 
-  # Run pincenez on each rep's output (all in parallel)
-  local grade_pids=()
-  for rep in $(seq 1 "$repeats"); do
-    local with_output="$scenario_dir/with_skill/rep-${rep}/output.md"
-    local without_output="$scenario_dir/without_skill/rep-${rep}/output.md"
-    local with_grading="$scenario_dir/with_skill/rep-${rep}/grading.yml"
-    local without_grading="$scenario_dir/without_skill/rep-${rep}/grading.yml"
-
-    if [[ ! -f "$with_grading" || ! -s "$with_grading" ]]; then
-      pincenez "${pincenez_args[@]}" "$rubric_file" "$with_output" > "$with_grading" 2>/dev/null &
-      grade_pids+=($!)
-    fi
-    if [[ ! -f "$without_grading" || ! -s "$without_grading" ]]; then
-      pincenez "${pincenez_args[@]}" "$rubric_file" "$without_output" > "$without_grading" 2>/dev/null &
-      grade_pids+=($!)
-    fi
-  done
-
-  local ok=true
-  for pid in "${grade_pids[@]}"; do
-    wait "$pid" || ok=false
-  done
-
-  if $ok; then
-    merge_gradings_multi_rep "$scenario_id" "$scenario_dir" "$repeats" "$grading_file"
+  if [[ $with_ok -eq 0 && $without_ok -eq 0 ]]; then
+    merge_paired_gradings "$scenario_id" "$scenario_dir" "$grading_file"
     local elapsed=$((SECONDS - step_start))
     if [[ -n "$result_file" ]]; then
       echo "${step_num}|${scenario_id}|done|${elapsed}" > "$result_file"
