@@ -1,0 +1,15 @@
+version: "1"
+min_pass_rate: 0.8
+project:
+  claude_md: "Use relative paths. Do not use absolute paths."
+  skills:
+    - "~/.claude/skills/skillcraft"
+tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - Skill
+user:
+  turn_policy: single

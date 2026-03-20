@@ -1,7 +1,8 @@
-name: "Optimizing skill description for better auto-triggering"
 prompt: |
   My skill works great when invoked directly but Claude rarely auto-triggers
   it. How can I improve the description?
+labels:
+  name: "Optimizing skill description for better auto-triggering"
 assertions:
   - check: "Output recommends using verb+noun trigger phrases or specific action-object pairs in the description, not single keywords"
     note: "Good trigger phrases are like 'Use when creating a skill' or 'building a Docker image' — not just the word 'Docker'"

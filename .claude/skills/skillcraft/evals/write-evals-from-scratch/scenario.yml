@@ -1,4 +1,3 @@
-name: "Write complete evals for a skill using only skillcraft guidance"
 prompt: |
   I need you to write an evals.yml for a discipline-type skill called
   "commit-message" that enforces conventional commit format (type(scope): description).
@@ -6,6 +5,8 @@ prompt: |
   (2) type must be one of feat/fix/docs/style/refactor/test/chore, (3) scope is required,
   (4) description must be lowercase and imperative mood. Don't look for the skill on
   disk — I've described it fully above. Just write the evals.yml content directly.
+labels:
+  name: "Write complete evals for a skill using only skillcraft guidance"
 assertions:
   - check: "Output produces a complete evals.yml with at least 3 scenarios including id, name, prompt, and assertions for each"
   - check: "At least one scenario applies pressure to skip the convention (discipline-type pattern)"

@@ -414,7 +414,7 @@ scenarios:
     prompt: |
       TODO - The user task/prompt to test.
       This prompt is given to both a with-skill and without-skill
-      eval run via run-eval.sh run.
+      eval run via run-eval.sh.
     assertions:
       - "TODO - Objectively verifiable assertion"
       - "TODO - Another assertion"

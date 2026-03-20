@@ -1,6 +1,6 @@
 # Phase 6: Eval & Iterate
 
-Run behavioral evaluation to verify the skill actually improves Claude's output. The headless eval runner spawns paired scuttlerun sessions (with and without the skill), grades results via pincenez, and aggregates a benchmark.
+Run behavioral evaluation to verify the skill performs as expected. The eval runner (craboodle) spawns scuttlerun sessions with the skill loaded, grades results via pincenez, and reports pass rates.
 
 ## When to Do This
 
@@ -11,31 +11,37 @@ Run behavioral evaluation to verify the skill actually improves Claude's output.
 
 ## Prerequisites
 
-- Skill passes Phase 5 structural validation
-- `yq` installed (`brew install yq`)
-- `jq` installed (`brew install jq`)
-- `claude` CLI installed
+- `craboodle` installed (from `~/code/craboodle`)
+- `pincenez` installed (from `~/code/pincenez`)
 
 ---
 
 ## Step 1: Define Eval Scenarios
 
-Initialize the eval directory and write scenarios:
+Create the `evals/` directory with scenario subdirectories, each containing a `scenario.yml`. Run `craboodle --help` for the canonical scenario.yml and base.yml schema reference. Consult `references/eval-guide.md` for assertion design patterns and examples by skill type.
 
-```bash
-~/.claude/skills/skillcraft/scripts/run-eval.sh init <skill-directory>
+### Create `evals/base.yml`
+
+Each skill needs a committed `base.yml` that configures craboodle for skill evaluation:
+
+```yaml
+min_pass_rate: 0.8
+project:
+  claude_md: "Use relative paths. Do not use absolute paths."
+  skills:
+    - "~/.claude/skills/<skill-name>"
+tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - Skill
+user:
+  turn_policy: single
 ```
 
-Edit `evals/evals.yml` to define 3-10 scenarios. Each scenario needs:
-
-| Field | Description |
-|-------|-------------|
-| `id` | Unique kebab-case identifier |
-| `name` | Human-readable description |
-| `prompt` | The exact task for both with-skill and without-skill runs |
-| `assertions` | 3-5 objectively verifiable pass/fail checks |
-
-Consult `references/eval-guide.md` for assertion design patterns and examples by skill type.
+Replace `<skill-name>` with the actual skill directory name. This file is committed with the skill and never regenerated.
 
 ### Scenario Design by Skill Type
 
@@ -48,59 +54,52 @@ Consult `references/eval-guide.md` for assertion design patterns and examples by
 
 ---
 
-## Step 2: Run the Eval
+## Step 2: Lint Assertions
+
+Before running the eval, lint assertions for quality anti-patterns (vague, compound, tautological, always_passes, unverifiable):
 
 ```bash
-~/.claude/skills/skillcraft/scripts/run-eval.sh run <skill-directory>
+craboodle lint <skill-dir>/evals
 ```
 
-Options:
-- `--model MODEL` — Use a specific model (e.g., `claude-haiku-4-5` for cost savings)
-- `--parallel` — Run with/without skill variants in parallel
-- `--iteration N` — Reuse an existing iteration directory
-- `--skip-grading` — Run scenarios only, skip grading
-- `--skip-aggregate` — Skip aggregation step
-
-The script handles all steps automatically:
-1. Creates the iteration directory
-2. Runs paired with/without-skill scenarios via scuttlerun
-3. Grades each scenario using pincenez
-4. Aggregates results into `benchmark.json`
-
-For without-skill runs, it temporarily hides SKILL.md to prevent skill loading.
-
-After the run completes, review results with:
-```bash
-~/.claude/skills/skillcraft/scripts/run-eval.sh show <skill-directory>
-```
+Fix any flagged issues before proceeding. This catches bad assertions before spending money on agent sessions.
 
 ---
 
-## Step 3: Review & Iterate
+## Step 3: Run the Eval
 
-### Decision Framework
+```bash
+~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory>
+```
 
-| Result | Action |
-|--------|--------|
-| PASS (delta >= 0.2, rate >= 0.8) | Skill is effective — done |
-| PARTIAL (good delta, low rate) | Revise skill content to address failures, re-run |
-| WEAK (low delta) | Assertions may be wrong, or skill needs major revision |
-| REGRESSION (negative delta) | Skill is harmful — investigate and fix |
+All craboodle options pass through directly:
+- `--agent-model MODEL` — Model for agent sessions
+- `--grader-model MODEL` — Model for grading
+- `--repeats N` — Run each scenario N times (default: 3)
+- `--concurrency N` — Max parallel work items (default: 10)
+
+Craboodle streams YAML results to stdout as scenarios complete, showing per-assertion pass rates and evidence for failures.
+
+---
+
+## Step 4: Review & Iterate
+
+### Interpreting Results
+
+| Exit Code | Meaning | Action |
+|-----------|---------|--------|
+| 0 | All scenarios at or above `min_pass_rate` | Skill performs as expected — done |
+| 3 | One or more scenarios below `min_pass_rate` | Revise skill content, re-run |
+| 1 | Configuration error | Fix scenario YAML |
+| 2 | Infrastructure error | Check tool installation |
 
 ### Iteration Loop
 
-1. Review failing scenarios — identify what the skill should have caused
+1. Review failing assertions in craboodle's YAML output — check the failure evidence
 2. Revise the skill content to address specific failures
-3. Re-run the headless eval (it creates a new iteration automatically)
-4. Compare benchmark.json across iterations
-5. Stop when: PASS verdict, or plateau (delta improvement < 0.05 for 2 iterations)
-
-### Checking Status
-
-```bash
-~/.claude/skills/skillcraft/scripts/run-eval.sh status <skill-directory>
-~/.claude/skills/skillcraft/scripts/run-eval.sh show <skill-directory> [iteration]
-```
+3. Re-run the eval
+4. Compare pass rates across runs
+5. Stop when: exit code 0, or plateau (pass rate improvement < 0.05 for 2 iterations)
 
 ---
 
@@ -111,8 +110,5 @@ After eval completes, update the Phase 5 final report with eval results:
 ```
 ### Eval Results (Phase 6)
 Iterations: {count}
-Final pass rate: {with_skill_pass_rate}
-Baseline rate: {without_skill_pass_rate}
-Delta: {mean_delta}
-Verdict: {PASS|PARTIAL|WEAK|REGRESSION}
+Final pass rate: {overall_pass_rate}
 ```

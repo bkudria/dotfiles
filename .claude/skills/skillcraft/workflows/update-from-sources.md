@@ -137,18 +137,17 @@ Then manually update `curation_decisions` in provenance.yml:
 
 ## Step 7: Regression Check (Optional)
 
-If the skill has `evals/evals.yml`, verify the update didn't degrade behavior:
+If the skill has `evals/` with scenarios, verify the update didn't degrade behavior:
 
-1. Before applying changes (Step 5), note the latest benchmark in `evals/`:
+1. Before applying changes (Step 5), run evals and save the output for comparison:
    ```bash
-   scripts/run-eval.sh status <skill-directory>
+   ~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory> | tee pre-update-results.yml
    ```
-2. After applying changes, create a new iteration and re-run evals:
+2. After applying changes, re-run evals:
    ```bash
-   scripts/run-eval.sh new-iteration <skill-directory>
+   ~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory> | tee post-update-results.yml
    ```
-3. Run `scripts/run-eval.sh run <skill-directory>` to execute paired runs, grading, and aggregation
-4. Compare new benchmark against previous — flag any regressions (negative delta change)
+3. Compare pass rates — flag any regressions (lower pass rates after update)
 
 If regressions are found, review the upstream changes that caused them and consider reverting or adjusting.
 

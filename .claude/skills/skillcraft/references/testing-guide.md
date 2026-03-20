@@ -37,8 +37,6 @@ This applies to new skills AND edits to existing skills. Write skill before test
 | **Watch it pass** | Verify agent now complies |
 | **Refactor cycle** | Find new rationalizations → plug → re-verify |
 
-See `workflows/create-phase0-baseline.md` for the RED phase workflow.
-
 ---
 
 ## Testing by Skill Type
@@ -291,7 +289,7 @@ Revise scenarios based on feedback. Two questions is the target; three is the ma
 
 **Step 4 — Write evals.yml.** Create `<skill-dir>/evals/evals.yml` with the finalized scenarios, following the schema in `references/eval-guide.md`.
 
-**Step 5 — Baseline iteration (optional).** If time permits and the user agrees, run a without-skill-only iteration to establish benchmark baseline data. This creates `evals/iteration-1/` with without_skill outputs that future Phase 6 runs can compare against.
+**Step 5 — Run initial eval (optional).** If time permits and the user agrees, run the eval scenarios to establish an initial baseline. This confirms the scenarios work as expected before the skill is written.
 
 ### Tier 2: Edit-Specific Scenario
 

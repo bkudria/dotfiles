@@ -1,10 +1,11 @@
-name: "Improving eval assertion quality beyond pass rates"
 prompt: |
   I ran evals for my skill and the pass rate is high, but I'm not confident
   the assertions are testing the right things. How can I improve the eval quality?
+labels:
+  name: "Improving eval assertion quality beyond pass rates"
 assertions:
-  - check: "Output mentions checking for non-discriminating assertions (pass in both variants)"
-    note: "Non-discriminating assertions pass both with and without the skill loaded — they add noise without measuring skill value"
-  - check: "Output references the discrimination test concept: whether assertions would also pass without the skill loaded"
+  - check: "Output identifies assertions that test baseline Claude behavior rather than skill-specific value"
+    note: "Assertions that any Claude session would pass (with or without the skill) add noise without measuring skill value"
+  - check: "Output suggests asking 'would Claude do this without the skill?' to evaluate assertion quality"
   - check: "Output identifies at least one assertion anti-pattern by name or description, such as always-passes, tautological, too-vague, or compound assertions"
     note: "Common anti-patterns: always-passes (any LLM output satisfies it), tautological (restates the prompt), too-vague ('output is helpful'), compound (tests multiple things so partial credit is lost)"

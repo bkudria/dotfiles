@@ -46,7 +46,7 @@ Write code before test? Delete it. Start over.
 
 ### 2. Build Rationalization Tables
 
-Capture every excuse from baseline testing (Phase 0). Every rationalization agents make goes in the table:
+Capture every excuse from testing. Every rationalization agents make goes in the table:
 
 ```markdown
 | Excuse | Reality |
@@ -118,7 +118,7 @@ Use these principles to strengthen rule statements, not to manipulate. The goal 
 
 Bulletproofing is iterative:
 
-1. Run pressure scenarios WITH the skill present (GREEN phase)
+1. Run pressure scenarios WITH the skill present
 2. Look for new rationalizations the agent finds
 3. Add explicit counters for each new rationalization
 4. Update the rationalization table

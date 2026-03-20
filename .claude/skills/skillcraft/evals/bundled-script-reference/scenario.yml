@@ -1,8 +1,9 @@
-name: "Guidance for referencing bundled scripts from a skill"
 prompt: |
   I'm creating a skill that bundles a Python validation script. The skill
   needs to call this script regardless of what directory the user is in.
   How should I reference it?
+labels:
+  name: "Guidance for referencing bundled scripts from a skill"
 assertions:
   - check: "Output mentions ${CLAUDE_SKILL_DIR} as the way to reference bundled scripts"
     note: "Look for the literal variable name ${CLAUDE_SKILL_DIR}, not a resolved absolute path"

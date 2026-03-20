@@ -207,18 +207,10 @@ curation_decisions:
       sections: [TDD-Mapping, Iron-Law, Testing-All-Skill-Types, Common-Rationalizations]
       decision: synthesized
       rationale: >-
-        Added TDD Iron Law, RED-GREEN-REFACTOR cycle mapping, testing-by-skill-type
+        Added TDD Iron Law, testing-by-skill-type
         (discipline/technique/pattern/reference), and rationalization table. Original
         6 testing areas preserved intact.
   # ── Workflow files (all original) ────────────────────────────────
-  workflows/create-phase0-baseline.md:
-    - source: pcvelz-superpowers
-      sections: [RED-GREEN-REFACTOR, Testing-All-Skill-Types]
-      decision: synthesized
-      rationale: >-
-        New mandatory Phase 0 workflow synthesized from writing-skills RED phase
-        baseline testing approach. Adapted to skillcraft's phase structure with
-        cross-references to testing-guide.md and bulletproofing.md.
   workflows/create-phase1-discovery.md:
     - decision: original
       rationale: Original interview-driven discovery process.

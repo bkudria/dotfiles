@@ -56,13 +56,13 @@ When loaded during editing of any file within a skill directory, apply only thes
 
 **GATE — Eval coverage required. Do NOT plan, analyze, or edit until this gate is satisfied.**
 
-1. Check: does the skill have `evals/evals.yml` with scenarios?
+1. Check: does the skill have `evals/*/scenario.yml` (at least 3 scenarios)?
 2. If NO evals exist: **STOP.** Bootstrap evals before proceeding:
    a. Read all skill files; classify skill type (discipline/technique/pattern/reference)
    b. Draft 3 eval scenarios matching the type (see `references/testing-guide.md` § Eval Bootstrapping Protocol for scenario design by type)
    c. Present scenarios to user for approval via AskUserQuestion
-   d. Create `<skill-dir>/evals/evals.yml` with approved scenarios
-   e. **Checkpoint**: verify `evals/evals.yml` exists with ≥3 scenarios before continuing
+   d. Create `<skill-dir>/evals/<scenario-id>/scenario.yml` for each approved scenario
+   e. **Checkpoint**: verify at least 3 scenario directories exist before continuing
 3. If evals exist but no scenario covers the behavior being changed: draft and add 1 scenario targeting that behavior; present to user for approval
 4. Run edit-relevant scenario(s) with the current skill loaded; capture output as pre-edit snapshot
 5. **NOW** make the edits
@@ -79,9 +79,9 @@ When loaded during editing of any file within a skill directory, apply only thes
 
 **When evals are created or modified** (new scenarios, changed assertions/rubrics, changed prompts), they MUST be run before the task is complete — even when no other skill file is being edited.
 
-1. Run: `~/.claude/skills/skillcraft/scripts/run-eval.sh run <skill-directory>`
-2. Review: `~/.claude/skills/skillcraft/scripts/run-eval.sh show <skill-directory>`
-3. If results show poor discrimination or unexpected failures, iterate on the scenarios before declaring done
+1. Run: `~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory>`
+2. Review craboodle's YAML output and exit code (0 = pass, 3 = below `min_pass_rate`)
+3. If results show low pass rates or unexpected failures, iterate on the scenarios before declaring done
 4. **In plan mode**: the plan MUST include "run evals" as an explicit step — writing evals that have never been run is equivalent to writing tests that have never been executed
 
 Report issues inline as suggestions. Do NOT run the full checklist or restructure the skill.
@@ -90,19 +90,17 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 
 | Phase | Purpose | Key Tools | Workflow |
 |-------|---------|-----------|----------|
-| 0. Baseline | Test without skill (RED phase) | `run-eval.sh run` | `workflows/create-phase0-baseline.md` |
 | 1. Discovery | Interview: name, purpose, use cases | `ask-form.sh` | `workflows/create-phase1-discovery.md` |
 | 2. Design | Select features and skill type | `ask-multi.sh`, `ask-choose.sh` | `workflows/create-phase2-design.md` |
 | 3. Scaffold | Create directory and files | `scripts/scaffold.sh` | `workflows/create-phase3-scaffold.md` |
 | 4. Author | Write content collaboratively | Edit tool | `workflows/create-phase4-author.md` |
 | 5. Validate | Run quality checklist | `scripts/quick-validate.sh` | `workflows/create-phase5-validate.md` |
-| 6. Eval | Behavioral testing & iteration | `run-eval.sh run` | `workflows/create-phase6-eval.md` |
+| 6. Eval | Behavioral testing & iteration | `run-eval.sh` | `workflows/create-phase6-eval.md` |
 
 ### How to Create
 
-Read the workflow file for the current phase. Start at Phase 0 and proceed sequentially.
+Read the workflow file for the current phase. Start at Phase 1 and proceed sequentially.
 
-0. Read `workflows/create-phase0-baseline.md` — Baseline testing: observe what agents do WITHOUT the skill
 1. Read `workflows/create-phase1-discovery.md` — Gather name, purpose, use cases, triggers
 2. Read `workflows/create-phase2-design.md` — Select skill type, resources, frontmatter features
 3. Read `workflows/create-phase3-scaffold.md` — Run scaffold script to create directory and files
@@ -145,7 +143,6 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 - **advanced-ask** skill — For interactive interview forms
 - **interactive-tmux** skill — For running interactive TUIs
 - **gum** — Interactive TUI components (`brew install gum`)
-- **jq** — JSON processing (`brew install jq`)
 - **fzf** — File picking (`brew install fzf`)
 - **yq** — YAML processing (`brew install yq`)
 
@@ -153,13 +150,12 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 
 | File | Purpose |
 |------|---------|
-| `workflows/create-phase0-baseline.md` | Baseline testing: RED phase before writing |
 | `workflows/create-phase1-discovery.md` | Concrete examples, interview, validation |
 | `workflows/create-phase2-design.md` | Skill type, resources, frontmatter features |
 | `workflows/create-phase3-scaffold.md` | Run scaffold script, post-scaffold updates |
 | `workflows/create-phase4-author.md` | Section-by-section content authoring |
 | `workflows/create-phase5-validate.md` | Structural check + full audit |
-| `workflows/create-phase6-eval.md` | Behavioral eval: paired runs, grading, iteration |
+| `workflows/create-phase6-eval.md` | Behavioral eval: craboodle test suite, grading, iteration |
 | `workflows/create-domain-expertise.md` | Domain expertise skill creation (research-intensive, router-pattern) |
 | `workflows/improve-standard.md` | Full audit of one skill (6-step workflow) |
 | `workflows/improve-bulk.md` | Audit every installed skill with summary table |
@@ -190,6 +186,5 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
 | `references/source-integration.md` | Templates and frameworks for source integration |
 | `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
-| `scripts/run-eval.sh` | Eval pipeline: run, init, status, new-iteration, show, scenarios |
-| `scripts/aggregate-results.sh` | Aggregate grading results into benchmark.json |
+| `scripts/run-eval.sh` | Eval runner: thin wrapper around craboodle (pass-through args) |
 | `scripts/post-integration-check.sh` | Post-integration content quality validation |

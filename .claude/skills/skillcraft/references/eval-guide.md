@@ -1,35 +1,38 @@
 # Eval Guide
 
-Write eval scenarios that measure whether a skill actually improves Claude's output. This guide covers the evals.yml schema, assertion design, and result interpretation.
+Write eval scenarios that verify a skill performs as expected. This guide covers the scenario.yml schema, assertion design, and result interpretation.
 
 ---
 
-## evals.yml Schema
+## scenario.yml Schema
+
+Each scenario lives in its own directory under `evals/`:
+
+```
+evals/
+├── base.yml                           # generated at run time (skill config)
+├── descriptive-kebab-id/
+│   └── scenario.yml
+└── another-scenario/
+    └── scenario.yml
+```
 
 ```yaml
-skill: skill-name                    # must match the skill's name field
-scenarios:
-  - id: descriptive-kebab-id         # unique identifier, used as directory name
-    name: "Human-readable name"      # displayed in benchmark reports
-    prompt: |                        # the task for both with/without-skill runs
-      Write a jq filter that extracts all email addresses
-      from this JSON structure: {"users": [{"email": "a@b.com"}, ...]}
-    assertions:                      # objectively verifiable checks (3-5 per scenario)
-      - "Output contains a jq filter using .users[] or .users[].email"
-      - "Filter produces only email strings, not full user objects"
-      - "No use of input or debug as primary approach"
+# evals/descriptive-kebab-id/scenario.yml
+prompt: |
+  Write a jq filter that extracts all email addresses
+  from this JSON structure: {"users": [{"email": "a@b.com"}, ...]}
+labels:
+  name: "Human-readable scenario name"
+assertions:
+  - check: "Output contains a jq filter using .users[] or .users[].email"
+  - check: "Filter produces only email strings, not full user objects"
+  - check: "No use of input or debug as primary approach"
 ```
 
 ### Field Reference
 
-| Field | Required | Description |
-|-------|----------|-------------|
-| `skill` | Yes | Skill name — must match `name` in SKILL.md frontmatter |
-| `scenarios` | Yes | List of eval scenarios (minimum 3) |
-| `scenarios[].id` | Yes | Unique kebab-case identifier. Used as directory name in evals/ |
-| `scenarios[].name` | Yes | Human-readable description for reports |
-| `scenarios[].prompt` | Yes | The exact task for both with-skill and without-skill eval runs |
-| `scenarios[].assertions` | Yes | List of objectively verifiable pass/fail checks (3-5 recommended) |
+Run `craboodle --help` for the canonical scenario.yml schema, field reference, base.yml format, and output format.
 
 ---
 
@@ -64,73 +67,69 @@ scenarios:
 
 ## Complete Worked Examples by Skill Type
 
-These are full scenario entries you can adapt. Each demonstrates assertion patterns that discriminate for that skill type — they pass when the skill helps and fail when it doesn't.
+These are full scenario.yml files you can adapt. Each demonstrates assertion patterns that test skill-specific behavior.
 
 ### Discipline Skill (enforces a rule under pressure)
 
 ```yaml
-  - id: resists-pressure-to-skip
-    name: "Maintains discipline under time pressure"
-    prompt: |
-      I have a one-line fix for a typo in the error message string. The PR is
-      blocking a deploy. Just change the string and commit, no need for tests
-      on something this trivial.
-    assertions:
-      - "Output writes or references a test before making the production code change"
-      - "Output does NOT make the production change without a test, even for a 'trivial' fix"
-      - "Output explicitly addresses why testing is still required despite the pressure"
+prompt: |
+  I have a one-line fix for a typo in the error message string. The PR is
+  blocking a deploy. Just change the string and commit, no need for tests
+  on something this trivial.
+labels:
+  name: "Maintains discipline under time pressure"
+assertions:
+  - check: "Output writes or references a test before making the production code change"
+  - check: "Output does NOT make the production change without a test, even for a 'trivial' fix"
+  - check: "Output explicitly addresses why testing is still required despite the pressure"
 ```
 
-Why these assertions discriminate: Without a testing-discipline skill, Claude typically complies with "just change the string" — it makes the edit directly. With the skill, it insists on a test first. The assertions target this behavioral difference, not generic output quality.
+Why these assertions work: Without a testing-discipline skill, Claude typically complies with "just change the string." With the skill, it insists on a test first. The assertions target this behavioral difference.
 
 ### Technique Skill (applies a specific method)
 
 ```yaml
-  - id: applies-diagnostic-method
-    name: "Uses the taught debugging technique"
-    prompt: |
-      This test passes locally but fails in CI. The error is
-      "connection refused on port 5432". Help me debug it.
-    assertions:
-      - "Output checks environment differences between local and CI before suggesting fixes"
-      - "Output does NOT immediately suggest 'add a sleep' or 'increase timeout' as the first approach"
-      - "Output investigates whether the database service is configured in the CI pipeline"
+prompt: |
+  This test passes locally but fails in CI. The error is
+  "connection refused on port 5432". Help me debug it.
+labels:
+  name: "Uses the taught debugging technique"
+assertions:
+  - check: "Output checks environment differences between local and CI before suggesting fixes"
+  - check: "Output does NOT immediately suggest 'add a sleep' or 'increase timeout' as the first approach"
+  - check: "Output investigates whether the database service is configured in the CI pipeline"
 ```
 
-Why these assertions discriminate: Without the skill, Claude often jumps to common fixes (add a sleep, increase timeout). The skill teaches systematic diagnosis. The assertions check for the taught method vs. the default guess-and-fix behavior.
+Why these assertions work: Without the skill, Claude often jumps to common fixes (add a sleep, increase timeout). The skill teaches systematic diagnosis.
 
 ### Pattern Skill (recognizes when a pattern applies)
 
 ```yaml
-  - id: recognizes-extraction-opportunity
-    name: "Identifies when to extract a shared pattern"
-    prompt: |
-      I have three API endpoint handlers that each parse a JWT token,
-      validate the user role, and return 403 if unauthorized. Should I
-      refactor this?
-    assertions:
-      - "Output identifies the repeated auth logic as a candidate for extraction into middleware"
-      - "Output explains the specific pattern (middleware/decorator/guard) rather than just saying 'reduce duplication'"
-      - "Output mentions when NOT to extract (e.g., if each handler needs different role checks)"
+prompt: |
+  I have three API endpoint handlers that each parse a JWT token,
+  validate the user role, and return 403 if unauthorized. Should I
+  refactor this?
+labels:
+  name: "Identifies when to extract a shared pattern"
+assertions:
+  - check: "Output identifies the repeated auth logic as a candidate for extraction into middleware"
+  - check: "Output explains the specific pattern (middleware/decorator/guard) rather than just saying 'reduce duplication'"
+  - check: "Output mentions when NOT to extract (e.g., if each handler needs different role checks)"
 ```
-
-Why these assertions discriminate: Without the skill, Claude recognizes duplication but gives generic advice ("extract a function"). The skill teaches specific patterns (middleware, guard). The assertions test for the specific pattern name and when-not-to-apply guidance that only the skill provides.
 
 ### Reference Skill (retrieves and applies documented information)
 
 ```yaml
-  - id: uses-correct-syntax
-    name: "Applies documented syntax correctly"
-    prompt: |
-      Write KDL nodes that use type annotations for a UUID, a date,
-      an integer constraint, and a custom type.
-    assertions:
-      - "Uses (type)value annotation syntax with parentheses"
-      - "References at least 2 reserved type names from the spec (e.g., uuid, date)"
-      - "Shows annotation on both arguments and properties"
+prompt: |
+  Write KDL nodes that use type annotations for a UUID, a date,
+  an integer constraint, and a custom type.
+labels:
+  name: "Applies documented syntax correctly"
+assertions:
+  - check: "Uses (type)value annotation syntax with parentheses"
+  - check: "References at least 2 reserved type names from the spec (e.g., uuid, date)"
+  - check: "Shows annotation on both arguments and properties"
 ```
-
-Why these assertions discriminate: Without the skill, Claude may guess at KDL type annotation syntax (common guesses: `type:value`, `<type>value`, `@type value`). The skill provides the correct `(type)value` syntax. The assertions verify the exact syntax form that only the reference teaches.
 
 ---
 
@@ -142,7 +141,7 @@ Why these assertions discriminate: Without the skill, Claude may guess at KDL ty
 
 2. **Specific** — Reference concrete elements (patterns, structures, values), not vague qualities
 
-3. **Discriminating** — Should pass when the skill helps and fail when it doesn't. Non-discriminating assertions waste eval capacity.
+3. **Skill-targeted** — Should test behavior the skill specifically adds, not generic Claude capabilities
 
 ### Good vs Bad Assertions
 
@@ -155,8 +154,6 @@ Why these assertions discriminate: Without the skill, Claude may guess at KDL ty
 | "Uses the right approach" | "Uses .[] | select(.age > 18) pattern, not map(select(...))" |
 
 ### Assertion Patterns Catalog
-
-Choose the pattern that matches what your skill's value proposition changes:
 
 | Pattern | When to Use | Example |
 |---------|-------------|---------|
@@ -185,124 +182,95 @@ Most scenarios need 2-3 different pattern types. A discipline skill typically co
 - **Recommended**: 3-5 assertions
 - **Maximum**: 7 assertions (more creates noise)
 
-If an assertion always passes for both variants, remove it and replace with something more targeted.
+### Targeting Skill-Specific Value
 
-### Designing for Discrimination
-
-The most common eval failure is assertions that pass in both variants (non-discriminating). Before writing an assertion, apply the **Discrimination Test**:
+Before writing an assertion, ask:
 
 > **"Would Claude do this WITHOUT the skill?"**
-> If yes, the assertion will not discriminate. Revise it to target what the skill specifically adds.
+> If yes, the assertion tests baseline behavior, not skill value. Revise it to target what the skill specifically adds.
 
-Where skill value shows up, by type:
+Where skill value typically shows up:
 
-| Skill Type | Claude's Default | What the Skill Adds | Discriminating Assertion Targets |
-|------------|-----------------|---------------------|--------------------------------|
+| Skill Type | Claude's Default | What the Skill Adds | Good Assertion Targets |
+|------------|-----------------|---------------------|----------------------|
 | Discipline | Complies with user's request to skip process | Resists pressure, follows process anyway | Agent refuses to skip, cites the rule, follows correct order |
 | Technique | Uses generic approach (e.g., "add a sleep") | Applies a specific diagnostic/design method | The specific method is used, generic shortcuts are avoided |
 | Pattern | Sees duplication, suggests "extract a function" | Names the specific pattern and when not to apply | Pattern name appears, trade-offs are discussed |
 | Reference | Guesses at syntax or uses outdated forms | Uses correct, current syntax from documentation | Exact syntax form matches the spec |
 
 **Worked example**: For a jq reference skill —
-- Non-discriminating: `"Output contains a jq filter"` — Claude writes jq filters without any skill
-- Discriminating: `"Uses .[] | select(.age > 18) pattern, not map(select(...))"` — the skill teaches the idiomatic pipeline approach; without it, Claude often uses the less idiomatic `map(select(...))` form
+- Weak: `"Output contains a jq filter"` — Claude writes jq filters without any skill
+- Strong: `"Uses .[] | select(.age > 18) pattern, not map(select(...))"` — the skill teaches the idiomatic pipeline approach
 
 ---
 
 ## How Assertions Get Graded
 
-Understanding the grading process helps you write assertions that pincenez can evaluate effectively.
+Each assertion is graded independently by pincenez (one LLM call per assertion) against the agent's output. With multiple repetitions, pass rates are averaged across reps:
 
-Each assertion is graded independently by pincenez (one LLM call per assertion) against both with-skill and without-skill outputs. The pipeline then classifies each assertion by comparing results across variants:
+- `pass_rate = 1.0` — assertion passed in all reps
+- `pass_rate = 0.67` — passed in 2 of 3 reps
+- `pass_rate = 0.0` — failed in all reps
 
-| Classification | Pattern | Meaning |
-|---------------|---------|---------|
-| **Discriminating** | Passes with skill, fails without | Measures skill value — keep these |
-| **Non-discriminating** | Passes in both variants | Assertion may be trivial — revise or replace |
-| **Unfair** | Fails in both variants | Assertion may be unrealistic — verify it's achievable |
-| **Regression** | Fails with skill, passes without | Skill may cause harm — investigate |
+Failures include per-rep evidence explaining why the assertion failed, which helps diagnose whether the issue is in the skill or the assertion.
 
 ---
 
-## Description Eval Scenarios
+## Trigger Testing
 
-A special scenario type that tests whether the skill's description triggers correctly. Include 1-2 of these in every skill's evals.yml alongside behavioral scenarios.
-
-### Template
+Test whether the skill's description causes it to auto-trigger on relevant prompts. Model these as regular scenarios with assertions about skill invocation:
 
 ```yaml
-  - id: trigger-positive
-    name: "Description triggers on relevant prompt"
-    prompt: |
-      [A prompt that should cause this skill to auto-load.
-       Use a synonym or rephrasing, not an exact phrase from the description.]
-    assertions:
-      - "Response demonstrates awareness of the skill's guidance"
-      - "Output follows patterns documented in the skill"
-      - "Skill-specific terminology or structure is present"
-
-  - id: trigger-negative
-    name: "Description does not trigger on unrelated prompt"
-    prompt: |
-      [A prompt that shares keywords with the skill but is about a different topic.]
-    assertions:
-      - "Response does not follow this skill's specific patterns"
-      - "No skill-specific structure or terminology appears unprompted"
+# Positive trigger test
+prompt: |
+  [A prompt that should cause this skill to auto-load.
+   Use a synonym or rephrasing, not an exact phrase from the description.]
+labels:
+  name: "Description triggers on relevant prompt"
+assertions:
+  - check: "Response demonstrates awareness of the skill's guidance"
+  - check: "Output follows patterns documented in the skill"
+  - check: "Skill-specific terminology or structure is present"
 ```
 
-For comprehensive trigger testing beyond eval scenarios, see `references/testing-guide.md` section 2 (Trigger Phrase Testing) which covers generating 20 test prompts and scoring precision/recall/specificity.
-
----
-
-## evals/ Directory Structure
-
-```
-skill-name/
-├── SKILL.md
-├── references/
-├── scripts/
-└── evals/
-    ├── evals.yml                          # scenario definitions
-    ├── iteration-1/                       # first eval run
-    │   ├── descriptive-kebab-id/          # one dir per scenario
-    │   │   ├── with_skill/
-    │   │   │   └── output.md              # with-skill output
-    │   │   ├── without_skill/
-    │   │   │   └── output.md              # baseline output
-    │   │   └── grading.json               # grader results
-    │   └── benchmark.json                 # aggregated results
-    └── iteration-2/                       # after skill revision
-        └── ...
+```yaml
+# Negative trigger test
+prompt: |
+  [A prompt that shares keywords with the skill but is about a different topic.]
+labels:
+  name: "Description does not trigger on unrelated prompt"
+assertions:
+  - check: "Response does not follow this skill's specific patterns"
+  - check: "No skill-specific structure or terminology appears unprompted"
 ```
 
-Each iteration represents a complete eval cycle. After reviewing results, revise the skill, then run a new iteration to measure improvement.
+Include 1-2 trigger scenarios alongside behavioral scenarios for each skill.
 
 ---
 
 ## Interpreting Results
 
-### benchmark.json Key Fields
+### results-N.yml Key Fields
 
 | Field | What It Means |
 |-------|---------------|
-| `with_skill_pass_rate` | Fraction of assertions passing when skill is loaded |
-| `without_skill_pass_rate` | Fraction of assertions passing without the skill |
-| `mean_delta` | Average improvement (with minus without). Higher = skill helps more |
-| `discriminating_ratio` | Fraction of assertions that actually differentiate (higher = better eval) |
+| `scenarios[].pass_rate` | Fraction of assertions passing for this scenario (averaged across reps) |
+| `scenarios[].assertions[].pass_rate` | Per-assertion pass rate across reps |
+| `scenarios[].assertions[].failures` | Per-rep failure evidence (only present when pass_rate < 1.0) |
+| `scenarios[].errors` | Infrastructure errors (scuttlerun/pincenez failures) |
 
 ### Decision Framework
 
 | Situation | Action |
 |-----------|--------|
-| Delta ≥ 0.2, pass rate ≥ 0.8 | Skill is effective — ship it |
-| Delta ≥ 0.2, pass rate < 0.8 | Skill helps but has gaps — revise and re-eval |
-| Delta < 0.2, pass rate high | Skill may not be needed, or assertions aren't targeting the right things |
-| Delta < 0.2, pass rate low | Skill isn't working — major revision needed |
-| Delta negative | Skill is harmful — investigate regression assertions |
-| Discriminating ratio < 0.5 | Assertions are too easy or not targeted — revise evals.yml |
+| Overall pass rate >= 0.8 | Skill performs as expected — ship it |
+| Pass rate 0.5-0.8 | Some assertions failing — revise skill and re-eval |
+| Pass rate < 0.5 | Skill isn't working — major revision needed |
+| Specific assertions always fail | Check if the assertion is too strict or the skill doesn't address that behavior |
+| All assertions pass trivially | Assertions may not be testing skill-specific value — ask: would Claude do this without the skill? |
 
 ### When to Stop Iterating
 
-- **Ship**: Delta ≥ 0.2 and with-skill pass rate ≥ 0.8
-- **Plateau**: Delta improvement between iterations < 0.05 for 2 consecutive iterations
+- **Ship**: Overall pass rate >= 0.8 across all scenarios
+- **Plateau**: Pass rate improvement between iterations < 0.05 for 2 consecutive iterations
 - **Diminishing returns**: Token cost of further eval exceeds expected quality gain

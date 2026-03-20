@@ -254,32 +254,20 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 
 ## TDD Compliance (T1-T5)
 
-### T1: Baseline Tested
-- **Check**: Skill was tested without being present before writing (RED phase)
-- **Pass**: Phase 0 baseline testing completed; agent behavior documented
-- **Fail**: Skill written without observing what agents do without it
-- **Fix**: Run `workflows/create-phase0-baseline.md`. Delete untested skill content and start over.
-
-### T2: Rationalizations Captured
-- **Check**: Baseline agent rationalizations documented verbatim
-- **Pass**: Exact agent excuses and failure patterns recorded from Phase 0
-- **Fail**: No record of what agents said/did without the skill
-- **Fix**: Re-run baseline scenarios and record verbatim agent responses
-
-### T3: Compliance Verified
-- **Check**: Skill tested with presence — agents now follow the guidance (GREEN phase)
-- **Pass**: Same scenarios from T1 re-run with skill loaded; agents comply
+### T1: Compliance Verified
+- **Check**: Skill tested with presence — agents follow the guidance
+- **Pass**: Eval scenarios run with skill loaded; agents comply
 - **Fail**: Skill present but agents still fail scenarios
 - **Fix**: Revise skill content to address specific failures. Do not add speculative content.
 
-### T4: Loopholes Closed
+### T2: Loopholes Closed
 - **Check**: REFACTOR iterations completed; rationalization table populated (discipline skills)
 - **Pass**: For discipline-enforcing skills: rationalization table has entries, red flags list created, no new rationalizations found in 2+ test runs
 - **Fail**: Discipline skill has no rationalization resistance
 - **Fix**: See `references/bulletproofing.md` for techniques. Add loophole counters iteratively.
 - **Note**: Non-discipline skills (technique, pattern, reference) may skip this check.
 
-### T5: Skill Type Testing
+### T3: Skill Type Testing
 - **Check**: Appropriate test approach used for the skill's type
 - **Pass**: Test approach matches skill type per `references/testing-guide.md` (discipline → pressure, technique → application, pattern → recognition, reference → retrieval)
 - **Fail**: Wrong test approach (e.g., pressure-testing a reference skill)
@@ -295,26 +283,20 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 - **Fail**: No evals.yml or <3 scenarios
 - **Fix**: Create evals.yml following `references/eval-guide.md`
 
-### E2: Assertions Discriminate
-- **Check**: Assertions pass with skill but fail without
-- **Pass**: benchmark.json shows measurable pass_rate delta (≥20%)
-- **Fail**: No delta, or all assertions trivially pass both variants
-- **Fix**: Revise assertions to target skill-specific improvements
+### E2: Assertions Target Skill Value
+- **Check**: Assertions test behavior the skill specifically adds, not generic Claude capabilities
+- **Pass**: For each assertion, "would Claude do this without the skill?" is answered "no"
+- **Fail**: Assertions test baseline behavior (e.g., "output contains valid code")
+- **Fix**: Revise assertions using the "Targeting Skill-Specific Value" heuristic in `references/eval-guide.md`
 
-### E3: Baseline Established
-- **Check**: At least one iteration has both with_skill and without_skill outputs
-- **Pass**: iteration-1/ contains both output variants for all scenarios
-- **Fail**: Missing baseline data
-- **Fix**: Run Phase 6 eval workflow (`workflows/create-phase6-eval.md`)
-
-### E4: Iteration Completed
+### E3: Eval Cycle Completed
 - **Check**: At least one full eval cycle completed (run → grade → review)
-- **Pass**: benchmark.json exists with graded results
-- **Fail**: Eval started but not graded, or never run
-- **Fix**: Complete the Phase 6 workflow through grading
+- **Pass**: Eval results reviewed, with pass rates for all scenarios
+- **Fail**: Eval started but not reviewed, or never run
+- **Fix**: Complete the Phase 6 workflow (`workflows/create-phase6-eval.md`)
 
-### E5: Production Readiness
-- **Check**: Final benchmark shows meaningful improvement
-- **Pass**: With-skill pass_rate ≥80% AND delta over baseline ≥20%
-- **Fail**: Marginal improvement or regression
+### E4: Production Readiness
+- **Check**: Pass rate meets minimum threshold
+- **Pass**: All scenarios pass at or above `min_pass_rate`
+- **Fail**: One or more scenarios below threshold
 - **Fix**: Revise skill content, re-run eval, iterate
