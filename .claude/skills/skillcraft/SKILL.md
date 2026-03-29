@@ -79,7 +79,7 @@ When loaded during editing of any file within a skill directory, apply only thes
 
 **When evals are created or modified** (new scenarios, changed assertions/rubrics, changed prompts), they MUST be run before the task is complete — even when no other skill file is being edited.
 
-1. Run: `~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory>`
+1. Run: `craboodle run <skill-dir>/evals`
 2. Review craboodle's YAML output and exit code (0 = pass, 3 = below `min_pass_rate`)
 3. If results show low pass rates or unexpected failures, iterate on the scenarios before declaring done
 4. **In plan mode**: the plan MUST include "run evals" as an explicit step — writing evals that have never been run is equivalent to writing tests that have never been executed
@@ -95,7 +95,7 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 | 3. Scaffold | Create directory and files | `scripts/scaffold.sh` | `workflows/create-phase3-scaffold.md` |
 | 4. Author | Write content collaboratively | Edit tool | `workflows/create-phase4-author.md` |
 | 5. Validate | Run quality checklist | `scripts/quick-validate.sh` | `workflows/create-phase5-validate.md` |
-| 6. Eval | Behavioral testing & iteration | `run-eval.sh` | `workflows/create-phase6-eval.md` |
+| 6. Eval | Behavioral testing & iteration | `craboodle` | `workflows/create-phase6-eval.md` |
 
 ### How to Create
 
@@ -181,10 +181,10 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/bulletproofing.md` | Rationalization resistance for discipline-enforcing skills |
 | `references/common-fixes.md` | Concrete fix examples for common checklist failures |
 | `references/testing-guide.md` | How to test skills after creation or editing |
-| `references/eval-guide.md` | Writing eval scenarios and assertions |
+| `references/eval-guide.md` | Skill-specific eval patterns and worked examples |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
 | `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
 | `references/source-integration.md` | Templates and frameworks for source integration |
 | `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
-| `scripts/run-eval.sh` | Eval runner: thin wrapper around craboodle (pass-through args) |
+
 | `scripts/post-integration-check.sh` | Post-integration content quality validation |

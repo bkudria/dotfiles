@@ -281,13 +281,13 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 - **Check**: Skill has evals.yml with ≥3 scenarios
 - **Pass**: evals.yml exists with id, prompt, assertions for each scenario
 - **Fail**: No evals.yml or <3 scenarios
-- **Fix**: Create evals.yml following `references/eval-guide.md`
+- **Fix**: Create scenario.yml files — run `craboodle --help` for schema
 
 ### E2: Assertions Target Skill Value
 - **Check**: Assertions test behavior the skill specifically adds, not generic Claude capabilities
 - **Pass**: For each assertion, "would Claude do this without the skill?" is answered "no"
 - **Fail**: Assertions test baseline behavior (e.g., "output contains valid code")
-- **Fix**: Revise assertions using the "Targeting Skill-Specific Value" heuristic in `references/eval-guide.md`
+- **Fix**: Revise assertions using the "Where Skill Value Shows Up" table in `references/eval-guide.md`
 
 ### E3: Eval Cycle Completed
 - **Check**: At least one full eval cycle completed (run → grade → review)

@@ -141,11 +141,11 @@ If the skill has `evals/` with scenarios, verify the update didn't degrade behav
 
 1. Before applying changes (Step 5), run evals and save the output for comparison:
    ```bash
-   ~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory> | tee pre-update-results.yml
+   craboodle run <skill-dir>/evals | tee pre-update-results.yml
    ```
 2. After applying changes, re-run evals:
    ```bash
-   ~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory> | tee post-update-results.yml
+   craboodle run <skill-dir>/evals | tee post-update-results.yml
    ```
 3. Compare pass rates — flag any regressions (lower pass rates after update)
 

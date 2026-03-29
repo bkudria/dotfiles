@@ -406,7 +406,7 @@ if $WANT_EVALS; then
   mkdir -p "$SKILL_DIR/evals"
   cat > "$SKILL_DIR/evals/evals.yml" <<EOF
 # Eval scenarios for ${SKILL_NAME}
-# See references/eval-guide.md in the skillcraft skill for schema details.
+# Run craboodle --help for schema details.
 skill: ${SKILL_NAME}
 scenarios:
   - id: scenario-1
@@ -414,7 +414,7 @@ scenarios:
     prompt: |
       TODO - The user task/prompt to test.
       This prompt is given to both a with-skill and without-skill
-      eval run via run-eval.sh.
+      eval run via craboodle.
     assertions:
       - "TODO - Objectively verifiable assertion"
       - "TODO - Another assertion"

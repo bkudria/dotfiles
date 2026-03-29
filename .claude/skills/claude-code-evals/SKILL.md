@@ -134,4 +134,4 @@ See `references/scenario-design.md` for detailed comparison patterns with YAML e
 - **craboodle** — eval orchestrator (`craboodle --help`)
 - **scuttlerun** — session driver (`scuttlerun --help`)
 - **pincenez** — assertion grader (`pincenez --help`)
-- Optional: **skillcraft** — for skill-specific eval conventions beyond what this skill covers
+- Optional: **skillcraft** — for skill-specific eval patterns (pressure testing by skill type, trigger testing, worked examples per skill category)

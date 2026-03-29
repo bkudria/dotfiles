@@ -13,6 +13,7 @@ Run behavioral evaluation to verify the skill performs as expected. The eval run
 
 - `craboodle` installed (from `~/code/craboodle`)
 - `pincenez` installed (from `~/code/pincenez`)
+- For assertion design rules, anti-patterns, and results interpretation: load the `claude-code-evals` skill
 
 ---
 
@@ -69,7 +70,7 @@ Fix any flagged issues before proceeding. This catches bad assertions before spe
 ## Step 3: Run the Eval
 
 ```bash
-~/.claude/skills/skillcraft/scripts/run-eval.sh <skill-directory>
+craboodle run <skill-dir>/evals
 ```
 
 All craboodle options pass through directly:
