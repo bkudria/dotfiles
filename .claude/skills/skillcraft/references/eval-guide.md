@@ -15,11 +15,7 @@ Different skill types need different scenario approaches:
 | Pattern | Recognize when pattern applies | "Refactor this code" (pattern should be recognized) |
 | Reference | Retrieve and apply information | "Write a command using [tool]'s [feature]" |
 
-### Minimum Scenario Count
-
-- **3 scenarios**: Minimum for any skill
-- **5 scenarios**: Recommended for skills with multiple capabilities
-- **10 scenarios**: For critical discipline-enforcing or complex skills
+For minimum scenario counts and other scenario design guidance, see the `claude-code-evals` skill's `references/scenario-design.md`.
 
 ---
 

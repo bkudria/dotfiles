@@ -85,12 +85,17 @@ scuttlerun:
       Always write tests before production code. Use test-driven development.
 ```
 
-**4. Run:**
+**4. Lint assertions** (catches anti-patterns before spending money):
+```bash
+craboodle lint my-evals/
+```
+
+**5. Run:**
 ```bash
 craboodle run my-evals/
 ```
 
-**5. Interpret results** — see `references/results-interpretation.md`.
+**6. Interpret results** — see `references/results-interpretation.md`.
 
 ## What Can Be Evaluated
 

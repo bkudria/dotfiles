@@ -2,6 +2,8 @@
 
 Skill creation IS Test-Driven Development applied to documentation. Test before writing, test after writing, and iterate until bulletproof.
 
+**Terminology**: "Testing" covers all verification (manual invocation, trigger phrases, edge cases, scripts). "Evals" are the subset that runs through the automated craboodle pipeline (§7).
+
 ---
 
 ## The Iron Law
