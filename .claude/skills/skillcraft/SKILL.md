@@ -88,31 +88,27 @@ Report issues inline as suggestions. Do NOT run the full checklist or restructur
 
 ## Create Quick Reference
 
-| Phase | Purpose | Key Tools | Workflow |
-|-------|---------|-----------|----------|
-| 1. Discovery | Interview: name, purpose, use cases | `ask-form.sh` | `workflows/create-phase1-discovery.md` |
-| 2. Design | Select features and skill type | `ask-multi.sh`, `ask-choose.sh` | `workflows/create-phase2-design.md` |
-| 3. Scaffold | Create directory and files | `scripts/scaffold.sh` | `workflows/create-phase3-scaffold.md` |
-| 4. Author | Write content collaboratively | Edit tool | `workflows/create-phase4-author.md` |
-| 5. Validate | Run quality checklist | `scripts/quick-validate.sh` | `workflows/create-phase5-validate.md` |
-| 6. Eval | Behavioral testing & iteration | `craboodle` | `workflows/create-phase6-eval.md` |
+| Phase | Purpose | User Interaction | Workflow |
+|-------|---------|-----------------|----------|
+| 1. Discovery | Requirements, success criteria | Interview | `workflows/create-phase1-discovery.md` |
+| 2. Implement | Scaffold, author skill + evals | Plan approval | `workflows/create-phase2-implement.md` |
+| 3. Validate | Structural quality check | Autonomous | `workflows/create-phase3-validate.md` |
+| 4. Refine | Lint, run evals, iterate | Autonomous | `workflows/create-phase4-refine.md` |
 
 ### How to Create
 
 Read the workflow file for the current phase. Start at Phase 1 and proceed sequentially.
 
-1. Read `workflows/create-phase1-discovery.md` — Gather name, purpose, use cases, triggers
-2. Read `workflows/create-phase2-design.md` — Select skill type, resources, frontmatter features
-3. Read `workflows/create-phase3-scaffold.md` — Run scaffold script to create directory and files
-4. Read `workflows/create-phase4-author.md` — Write content section by section
-5. Read `workflows/create-phase5-validate.md` — Validate against quality checklist
-6. Read `workflows/create-phase6-eval.md` — Run eval scenarios, grade, iterate
+1. Read `workflows/create-phase1-discovery.md` — Gather requirements, success criteria, triggers
+2. Read `workflows/create-phase2-implement.md` — Plan, scaffold, author skill + evals together
+3. Read `workflows/create-phase3-validate.md` — Structural validation
+4. Read `workflows/create-phase4-refine.md` — Lint, run evals, iterate until passing
 
 If `$ARGUMENTS` is provided (and is not `update`, `--improve`, or `--all`), pre-fill the name/topic and start Phase 1 with that context.
 
 ### Alternative: Domain Expertise Skills
 
-If the skill covers a broad domain (framework, platform, API, language ecosystem) and requires exhaustive research and multiple workflows, use `workflows/create-domain-expertise.md` instead of the standard 6-phase path.
+If the skill covers a broad domain (framework, platform, API, language ecosystem) and requires exhaustive research and multiple workflows, use `workflows/create-domain-expertise.md` instead of the standard 4-phase path.
 
 ## Improve Quick Reference
 
@@ -150,12 +146,10 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 
 | File | Purpose |
 |------|---------|
-| `workflows/create-phase1-discovery.md` | Concrete examples, interview, validation |
-| `workflows/create-phase2-design.md` | Skill type, resources, frontmatter features |
-| `workflows/create-phase3-scaffold.md` | Run scaffold script, post-scaffold updates |
-| `workflows/create-phase4-author.md` | Section-by-section content authoring |
-| `workflows/create-phase5-validate.md` | Structural check + full audit |
-| `workflows/create-phase6-eval.md` | Behavioral eval: craboodle test suite, grading, iteration |
+| `workflows/create-phase1-discovery.md` | Requirements, success criteria, triggers |
+| `workflows/create-phase2-implement.md` | Plan, scaffold, author skill + evals |
+| `workflows/create-phase3-validate.md` | Structural validation |
+| `workflows/create-phase4-refine.md` | Lint, run evals, iterate until passing |
 | `workflows/create-domain-expertise.md` | Domain expertise skill creation (research-intensive, router-pattern) |
 | `workflows/improve-standard.md` | Full audit of one skill (6-step workflow) |
 | `workflows/improve-bulk.md` | Audit every installed skill with summary table |

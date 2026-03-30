@@ -85,7 +85,7 @@ To distinguish: read the scuttlerun transcript in the artifact directory. If the
 3. Read failure evidence
 4. Identify: is it a config problem or an assertion problem?
 5. Revise the config OR the assertion (not both at once)
-6. Re-run
+6. Re-run — check `craboodle run --help` for options to target specific scenarios
 7. Compare pass rates to previous run
 8. Repeat until pass_rate >= 0.8 or plateau
 ```
