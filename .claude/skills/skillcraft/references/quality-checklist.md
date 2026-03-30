@@ -293,7 +293,7 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 - **Check**: At least one full eval cycle completed (run → grade → review)
 - **Pass**: Eval results reviewed, with pass rates for all scenarios
 - **Fail**: Eval started but not reviewed, or never run
-- **Fix**: Complete the Phase 6 workflow (`workflows/create-phase6-eval.md`)
+- **Fix**: Complete the Phase 4 workflow (`workflows/create-phase4-refine.md`)
 
 ### E4: Production Readiness
 - **Check**: Pass rate meets minimum threshold

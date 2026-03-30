@@ -19,6 +19,48 @@ For minimum scenario counts and other scenario design guidance, see the `claude-
 
 ---
 
+## Assertion Templates by Skill Type
+
+Starter assertion shapes to adapt, not copy verbatim. Replace bracketed placeholders with specifics.
+
+### Knowledge / Reference
+
+```yaml
+- check: "Output references [specific concept] from the skill's reference material"
+  note: "Look for [terminology/syntax] that differs from what Claude would use without the skill"
+- check: "Output uses [idiomatic pattern] rather than [generic alternative]"
+  note: "The skill teaches [pattern]; without it, Claude defaults to [alternative]"
+```
+
+### Discipline
+
+```yaml
+- check: "Agent [follows the rule] despite [pressure scenario describing shortcut]"
+  note: "The pressure creates a plausible reason to skip; look for the agent holding firm"
+- check: "Agent does NOT [prohibited action] even when [rationalization for doing it]"
+  note: "Look for absence of [specific prohibited behavior]"
+```
+
+### Technique
+
+```yaml
+- check: "Output applies [technique name] to [the problem], not [naive approach]"
+  note: "The technique involves [key steps]; look for them in order"
+- check: "Output handles [edge case] using the skill's method"
+  note: "Without the skill, Claude would [default behavior]; with it, should [technique behavior]"
+```
+
+### Pattern
+
+```yaml
+- check: "Agent recognizes [pattern trigger] and applies [pattern response]"
+  note: "The trigger is [specific condition]; the response involves [specific action]"
+- check: "Agent does NOT apply the pattern when [counter-example condition]"
+  note: "This scenario tests pattern discrimination — the trigger is absent"
+```
+
+---
+
 ## Worked Examples by Skill Type
 
 Complete scenario.yml files you can adapt. Each demonstrates assertion patterns that test skill-specific behavior.

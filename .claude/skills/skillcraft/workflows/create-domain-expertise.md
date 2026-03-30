@@ -134,4 +134,4 @@ Before finishing, verify:
 - [ ] At least 3 concrete examples exist across the workflows
 - [ ] Essential principles section captures domain-specific rules
 
-**Next**: Proceed to Phase 5 for validation (read `workflows/create-phase5-validate.md`)
+**Next**: Proceed to Phase 5 for validation (read `workflows/create-phase3-validate.md`)

@@ -104,6 +104,21 @@ Not every configuration needs to reach 1.0. A pass rate of 0.8-0.9 means the con
 
 ---
 
+## Lint vs Run: Different Signals
+
+Lint checks assertion **form** (clarity, specificity, independence). Eval runs check assertion **substance** (does the config actually produce this behavior?). Both can pass while the other fails:
+
+- Assertions that pass lint can fail at runtime (too strict, wrong expectation)
+- Assertions that fail lint can pass at runtime (domain-appropriate language works for the grader)
+
+When iterating, diagnose whether the problem is **form** (fix assertion wording) or **substance** (fix config or eval design). Never change both simultaneously — you can't attribute improvement to either change.
+
+### First Run Fast
+
+Get to substance quickly: run once with `--repeats 1` immediately after writing assertions. Use the result to calibrate — then lint, then run the full suite with standard reps. Runtime signal is more valuable than lint signal for diagnosing real problems.
+
+---
+
 ## Common Pitfalls
 
 - **Iterating on the config when the assertion is the problem** — always check the transcript first
