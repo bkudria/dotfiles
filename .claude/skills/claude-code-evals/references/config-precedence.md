@@ -1,6 +1,6 @@
 # Config Precedence
 
-The eval pipeline merges configuration across three tools and multiple layers. When debugging unexpected behavior, trace through this chain to find which layer is responsible.
+The eval pipeline merges configuration across three tools (craboodle, scuttlerun, pincenez) and multiple layers. When debugging unexpected behavior, trace through this chain to find which layer is responsible.
 
 ---
 
@@ -10,11 +10,10 @@ From lowest to highest precedence (later layers override earlier ones):
 
 ```
 1. scuttlerun defaults     ← Built-in Zod schema defaults
-2. base.yml (scuttlerun)   ← Shared config for all scenarios
-3. scenario.yml scuttlerun ← Per-scenario overrides
-4. scenario.yml prompt     ← Mapped to scuttlerun's prompt field
-5. CLI flags               ← --agent-model, --grader-model, --repeats
-6. Per-check model          ← check-level model override in pincenez
+2. base.yaml (scuttlerun)  ← Shared scuttlerun config for all scenarios
+3. scenario.yaml           ← Per-scenario scuttlerun overrides (top-level fields)
+4. CLI flags               ← --agent-model, --grader-model, --repeats
+5. Per-check model         ← check-level model override in pincenez (checks.yaml)
 ```
 
 ### Layer Details
@@ -28,32 +27,41 @@ From lowest to highest precedence (later layers override earlier ones):
 - `user.oracle_model: claude-haiku-4-5`
 - `user.max_user_turns: 5`
 
-Run `scuttlerun <config>` to see the fully resolved config after all defaults are applied.
+Run `scuttlerun <config> --dry-run` to see the fully resolved config after all defaults are applied.
 
-**2. base.yml** (shared config for all scenarios)
+**2. base.yaml** (shared scuttlerun config for all scenarios)
 - Written by the eval author in the `evals/` directory
-- Contains two types of fields:
-  - **craboodle fields**: `version`, `min_pass_rate` — consumed by craboodle, not passed to scuttlerun
-  - **scuttlerun fields**: everything else (`model`, `tools`, `user`, `project`, etc.) — passed through to scuttlerun
+- Contains ONLY scuttlerun fields (`model`, `tools`, `user`, `project`, etc.)
+- Does NOT contain craboodle fields — those live in `craboodle.yaml`
 
-**3. scenario.yml `scuttlerun:` block** (per-scenario overrides)
-- Deep-merged with base.yml's scuttlerun fields
+**3. scenario.yaml** (per-scenario scuttlerun overrides)
+- Fields are top-level scuttlerun fields (NOT nested under a `scuttlerun:` block)
+- `prompt` is just a regular top-level field here — it maps directly to scuttlerun's `prompt:` field
+- Deep-merged with base.yaml by craboodle before passing to scuttlerun
 - Objects merge recursively; arrays and scalars replace
-- Craboodle does not validate this block — errors surface when scuttlerun runs (or when `craboodle list` invokes `scuttlerun`)
+- Craboodle does not validate scuttlerun fields — errors surface when scuttlerun runs (or when `craboodle list` invokes `scuttlerun`)
 
-**4. scenario.yml `prompt`** (always applied)
-- Mapped to scuttlerun's `prompt:` field in the override config
-- Replaces any prompt from base.yml
-
-**5. CLI flags** (runtime overrides)
+**4. CLI flags** (runtime overrides)
 - `--agent-model MODEL` → overrides `model` for all scuttlerun sessions
 - `--grader-model MODEL` → overrides model for all pincenez checks
 - `--repeats N` → overrides default repeat count (but not per-scenario `repeats:`)
 - `--concurrency N` → pool size (no config file equivalent)
 
-**6. Per-check `model:`** (pincenez only)
+**5. Per-check `model:`** (pincenez only, in checks.yaml)
 - A check's `model:` field overrides `--grader-model` for that specific check
 - Useful for using a stronger model on tricky checks while keeping the default cheap
+
+### Separate Config Files
+
+**craboodle.yaml** (pipeline config at evals root)
+- Contains pipeline-level settings: `version`, `min_pass_rate`, `max_budget_usd`, `repeats`
+- NOT part of the scuttlerun precedence chain — these fields are consumed by craboodle only
+- Lives at the evals root directory alongside `base.yaml`
+
+**checks.yaml** (pincenez config per scenario)
+- Contains context and checks (id-as-key format)
+- Lives alongside `scenario.yaml` in each scenario directory
+- Per-check `model:` overrides apply here (layer 5)
 
 ---
 
@@ -66,13 +74,13 @@ Scuttlerun merges multiple YAML files using deep merge:
 
 Example:
 ```yaml
-# base.yml
+# base.yaml
 tools: [Read, Write, Bash]
 user:
   turn_policy: single
   max_user_turns: 5
 
-# scenario.yml scuttlerun: block
+# scenario.yaml (top-level scuttlerun fields)
 tools: [Read, Glob, Grep]        # Replaces the array entirely
 user:
   persona: "A developer"          # Adds to the user object
@@ -86,7 +94,7 @@ Result: `tools` is `[Read, Glob, Grep]`, `user` has all three fields.
 
 ## Debugging Tips
 
-1. **"What will scuttlerun actually see?"** — Run `scuttlerun base.yml override.yml` to see the fully resolved config after merging and defaults
+1. **"What will scuttlerun actually see?"** — Run `scuttlerun base.yaml scenario.yaml` to see the fully resolved config after merging and defaults
 2. **"Is it a craboodle schema error or a scuttlerun schema error?"** — Run `craboodle list <evals-dir>` — it validates both layers and reports which failed
-3. **"My setting isn't taking effect"** — Check if a later layer is overriding it: base.yml → scenario scuttlerun block → CLI flags
-4. **"Array was replaced, not merged"** — This is by design. If you set `tools:` in a scenario, it replaces the base.yml tools entirely. To add a tool, repeat the full list plus your addition
+3. **"My setting isn't taking effect"** — Check if a later layer is overriding it: base.yaml → scenario.yaml → CLI flags
+4. **"Array was replaced, not merged"** — This is by design. If you set `tools:` in a scenario, it replaces the base.yaml tools entirely. To add a tool, repeat the full list plus your addition

@@ -403,24 +403,43 @@ EOF
 fi
 
 if $WANT_EVALS; then
-  mkdir -p "$SKILL_DIR/evals"
-  cat > "$SKILL_DIR/evals/evals.yml" <<EOF
-# Eval scenarios for ${SKILL_NAME}
-# Run craboodle --help for schema details.
-skill: ${SKILL_NAME}
-scenarios:
-  - id: scenario-1
-    name: "TODO - Descriptive name"
-    prompt: |
-      TODO - The user task/prompt to test.
-      This prompt is given to both a with-skill and without-skill
-      eval run via craboodle.
-    checks:
-      - "TODO - Objectively verifiable check"
-      - "TODO - Another check"
-      - "TODO - A third check"
+  mkdir -p "$SKILL_DIR/evals/scenario-1"
+  cat > "$SKILL_DIR/evals/craboodle.yaml" <<EOF
+version: "1"
 EOF
-  echo "Created: evals/ (with template evals.yml)"
+  cat > "$SKILL_DIR/evals/base.yaml" <<EOF
+# Shared scuttlerun defaults for ${SKILL_NAME} evals
+model: claude-haiku-4-5
+tools:
+  - Read
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - Edit
+user:
+  turn_policy: single
+project:
+  skills:
+    - ~/.claude/skills/${SKILL_NAME}
+EOF
+  cat > "$SKILL_DIR/evals/scenario-1/scenario.yaml" <<EOF
+# TODO - Rename this directory to a descriptive kebab-case name
+prompt: |
+  TODO - The user task/prompt to test.
+  This prompt exercises the skill's core behavior.
+EOF
+  cat > "$SKILL_DIR/evals/scenario-1/checks.yaml" <<EOF
+checks:
+  - todo-check-1:
+      check: "TODO - Objectively verifiable check"
+      note: "TODO - Hint for the grader"
+  - todo-check-2:
+      check: "TODO - Another check"
+  - todo-check-3:
+      check: "TODO - A third check"
+EOF
+  echo "Created: evals/ (craboodle.yaml, base.yaml, scenario-1/)"
 fi
 
 echo ""

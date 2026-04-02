@@ -10,8 +10,6 @@ Read eval results, diagnose failures, and iterate effectively.
 artifact_dir: /tmp/craboodle-run-a1b2c3     # Intermediate files for debugging
 scenarios:
   - id: email-validator
-    labels:
-      config: optimized
     checks:
       - check: "Output validates email format"
         pass_rate: 1.0                        # Passed all reps — compact
@@ -38,7 +36,7 @@ Key fields:
 | 0 | Pipeline completed. Individual failures are in the output, not the exit code |
 | 1 | Configuration error (invalid YAML, missing fields) |
 | 2 | Infrastructure error (tools not found, zero scenarios, all reps failed) |
-| 3 | Threshold failure — a scenario fell below `min_pass_rate` in base.yml |
+| 3 | Threshold failure — a scenario fell below `min_pass_rate` in craboodle.yaml |
 
 ---
 
@@ -125,4 +123,4 @@ Get to substance quickly: run once with `--repeats 1` immediately after writing 
 - **Over-fitting to specific failure evidence** — fix the *pattern*, not the specific wording the grader complained about
 - **Running many reps when you should revise first** — if pass_rate is 0.2 after 3 reps, more reps won't help. Revise, then re-run
 - **Not linting checks before running** — `craboodle lint` catches anti-patterns cheaply. Always lint before the first run
-- **Comparing across runs without labels** — use labels to tag variants so downstream comparison is unambiguous
+- **Comparing across runs without clear variant names** — use descriptive scenario directory names so downstream comparison is unambiguous

@@ -278,10 +278,10 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 ## Eval Pipeline (E1-E5)
 
 ### E1: Eval Scenarios Defined
-- **Check**: Skill has evals.yml with ≥3 scenarios
-- **Pass**: evals.yml exists with id, prompt, checks for each scenario
-- **Fail**: No evals.yml or <3 scenarios
-- **Fix**: Create scenario.yml files — run `craboodle --help` for schema
+- **Check**: Skill has evals/ directory with craboodle.yaml and ≥3 scenario dirs
+- **Pass**: Each scenario dir has scenario.yaml and checks.yaml
+- **Fail**: No evals/ directory or <3 scenario dirs
+- **Fix**: Create scenario dirs with scenario.yaml + checks.yaml — run `craboodle --help` for schema
 
 ### E2: Checks Target Skill Value
 - **Check**: Checks test behavior the skill specifically adds, not generic Claude capabilities

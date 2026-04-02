@@ -54,52 +54,63 @@ Evaluate whether a CLAUDE.md instruction changes behavior:
 **1. Create the eval directory:**
 ```
 my-evals/
-├── base.yml
+├── craboodle.yaml
+├── base.yaml
 └── tdd-instruction/
-    └── scenario.yml
+    ├── scenario.yaml
+    └── checks.yaml
 ```
 
-**2. Write `base.yml`** (shared config):
+**2. Write `craboodle.yaml`** (pipeline config):
 ```yaml
 version: "1"
-min_pass_rate: 0.8
+```
+
+**3. Write `base.yaml`** (scuttlerun defaults):
+```yaml
+model: claude-sonnet-4-6
+tools: [Read, Write, Bash, Glob, Grep, Edit]
 user:
   turn_policy: single
 ```
 
-**3. Write `tdd-instruction/scenario.yml`:**
+**4. Write `tdd-instruction/scenario.yaml`** (scuttlerun config only):
 ```yaml
 prompt: |
   Write a function called isPrime that checks if a number is prime.
   Save it to prime.js.
-labels:
-  name: "CLAUDE.md TDD instruction changes behavior"
-checks:
-  - check: "A test file was written before or alongside the production code"
-    note: "Look for a test file created via the Write tool"
-  - check: "The function isPrime exists in prime.js"
-  - check: "At least one test case validates prime number behavior"
-scuttlerun:
-  project:
-    claude_md: |
-      Always write tests before production code. Use test-driven development.
+project:
+  claude_md: |
+    Always write tests before production code. Use test-driven development.
 ```
 
-**4. Lint checks** (catches anti-patterns before spending money):
+**5. Write `tdd-instruction/checks.yaml`** (pincenez config only):
+```yaml
+checks:
+  - test-before-code:
+      check: "A test file was written before or alongside the production code"
+      note: "Look for a test file created via the Write tool"
+  - function-exists:
+      check: "The function isPrime exists in prime.js"
+  - tests-validate:
+      check: "At least one test case validates prime number behavior"
+```
+
+**6. Lint checks** (catches anti-patterns before spending money):
 ```bash
 craboodle lint my-evals/
 ```
 
-**5. Run:**
+**7. Run:**
 ```bash
 craboodle run my-evals/
 ```
 
-**6. Interpret results** — see `references/results-interpretation.md`.
+**8. Interpret results** — see `references/results-interpretation.md`.
 
 ## What Can Be Evaluated
 
-Any Claude Code configuration that changes agent behavior. The `scuttlerun:` block in each scenario defines the configuration under test:
+Any Claude Code configuration that changes agent behavior. Each `scenario.yaml` contains scuttlerun fields that define the configuration under test:
 
 | Config Type | Inject Via | What to Test |
 |-------------|-----------|--------------|
@@ -118,8 +129,8 @@ See `references/config-type-patterns.md` for scenario examples and design guidan
 These patterns apply regardless of config type:
 
 - **Before/after** — Run the same scenarios before and after a change; compare pass rates
-- **With/without** — Two scenario variants: one with the config, one baseline. Use labels (`config: with-skill`, `config: baseline`) for downstream comparison
-- **Model comparison** — Same scenarios with different `scuttlerun.model` values. Labels identify variants
+- **With/without** — Two scenario variants: one with the config, one baseline
+- **Model comparison** — Same scenarios with different `model` values in `scenario.yaml` or `base.yaml`
 - **Regression testing** — Keep a persistent `evals/` directory alongside your configs. Run after every change
 
 See `references/scenario-design.md` for detailed comparison patterns with YAML examples.
@@ -129,7 +140,7 @@ See `references/scenario-design.md` for detailed comparison patterns with YAML e
 | File | Purpose |
 |------|---------|
 | `references/check-design.md` | Check patterns, anti-patterns, quality criteria |
-| `references/scenario-design.md` | Scenario structure, comparison patterns, labels |
+| `references/scenario-design.md` | Scenario structure, comparison patterns |
 | `references/config-type-patterns.md` | Per-config-type eval guidance with examples |
 | `references/results-interpretation.md` | Reading results, decision framework, iteration |
 | `references/config-precedence.md` | Full config precedence chain across all three tools |

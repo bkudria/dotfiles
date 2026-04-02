@@ -17,13 +17,17 @@ Structure eval scenarios to test meaningful behavior changes from your configura
 
 ```
 evals/
-├── base.yml                      # Shared config (optional but recommended)
+├── craboodle.yaml                # Pipeline config (version, min_pass_rate, repeats, etc.)
+├── base.yaml                     # Scuttlerun defaults (model, tools, user, project)
 ├── descriptive-scenario-id/
-│   └── scenario.yml              # One scenario per directory
+│   ├── scenario.yaml             # Scuttlerun config (prompt + overrides)
+│   └── checks.yaml               # Pincenez config (context + checks)
 ├── another-scenario/
-│   └── scenario.yml
+│   ├── scenario.yaml
+│   └── checks.yaml
 └── with-fixtures/
-    ├── scenario.yml
+    ├── scenario.yaml
+    ├── checks.yaml
     └── seed-data.json            # Fixture files (injected via project.files)
 ```
 
@@ -31,15 +35,28 @@ Scenario IDs are the directory names. Use descriptive kebab-case names that indi
 
 ---
 
-## base.yml
+## craboodle.yaml
 
-Shared defaults for all scenarios. Contains craboodle settings and scuttlerun defaults:
+Pipeline-level configuration. Lives at the root of the evals directory:
 
 ```yaml
-version: "1"                      # Required when base.yml exists
+version: "1"                      # Required
 min_pass_rate: 0.8                # Optional ratchet — exit 3 if any scenario below this
-model: claude-sonnet-4-6          # Scuttlerun default model
-tools:                            # Scuttlerun default tools
+max_budget_usd: 5.0               # Optional spending limit
+repeats: 5                        # Default repetitions per scenario
+```
+
+This file contains only craboodle-specific fields. Scuttlerun defaults belong in `base.yaml`.
+
+---
+
+## base.yaml
+
+Shared scuttlerun defaults for all scenarios. Contains only fields that scuttlerun understands — no craboodle keys like `version` or `min_pass_rate`:
+
+```yaml
+model: claude-sonnet-4-6          # Default model
+tools:                            # Default tools
   - Read
   - Write
   - Bash
@@ -53,47 +70,55 @@ project:
     Use relative paths.
 ```
 
-Run `craboodle --help` for the full base.yml field reference.
+Run `craboodle --help` for the full base.yaml field reference.
 
 ---
 
-## scenario.yml
+## scenario.yaml
 
-Each scenario defines a prompt, checks, and optional config overrides:
+Each scenario's scuttlerun configuration. Contains only scuttlerun fields — prompt plus any per-scenario overrides. Overrides are top-level fields (no nested `scuttlerun:` block):
 
 ```yaml
 prompt: |                         # Required: realistic user task
   Write a function that validates email addresses.
 
-labels:                           # Optional: metadata for grouping/comparison
-  name: "Email validator"
-  config: optimized
+model: claude-sonnet-4-6         # Optional: override base.yaml model
+project:
+  claude_md: |                    # Optional: override base.yaml CLAUDE.md
+    Always validate user input before processing.
+```
 
+Do not put checks, context, repeats, or labels in scenario.yaml. Those belong in checks.yaml or craboodle.yaml.
+
+Run `craboodle --help` for the full scenario.yaml field reference.
+
+---
+
+## checks.yaml
+
+Each scenario's pincenez configuration. Contains checks and optional grading context:
+
+```yaml
 context: |                        # Optional: orients the grader (defaults to prompt)
   The agent was asked to write an email validator with input validation enabled.
 
-checks:                       # Required: at least 1 check
-  - check: "Output validates input format before processing"
-    note: "Look for regex or string parsing that checks for @ and domain"
-  - check: "Function handles edge cases like empty string"
-  - check: "Output includes at least one test or example usage"
-
-repeats: 5                        # Optional: override --repeats for this scenario
-
-scuttlerun:                       # Optional: config overrides (passthrough to scuttlerun)
-  model: claude-sonnet-4-6
-  project:
-    claude_md: |
-      Always validate user input before processing.
+checks:                           # Required: at least 1 check, id-as-key format
+  - validates-input:
+      check: "Output validates input format before processing"
+      note: "Look for regex or string parsing that checks for @ and domain"
+  - handles-edge-cases:
+      check: "Function handles edge cases like empty string"
+  - includes-tests:
+      check: "Output includes at least one test or example usage"
 ```
 
-Run `craboodle --help` for the full scenario.yml field reference.
+Checks use id-as-key format: each list item is a single-key object where the key is the check ID and the value contains `check:` (required) and `note:` (optional).
 
 ---
 
 ## Comparison Patterns
 
-Eval's real power is comparing behavior across configurations. Use labels to tag variants, then compare results downstream.
+Eval's real power is comparing behavior across configurations. Define variant scenarios, then compare results downstream.
 
 ### Before/After
 
@@ -101,47 +126,59 @@ Test the same scenarios before and after a config change:
 
 ```bash
 # Before: run and save results
-craboodle run my-evals/ > results-before.yml
+craboodle run my-evals/ > results-before.yaml
 
 # Make your config change, then:
-craboodle run my-evals/ > results-after.yml
+craboodle run my-evals/ > results-after.yaml
 
 # Compare pass rates
-diff <(yq '.scenarios[].pass_rate' results-before.yml) \
-     <(yq '.scenarios[].pass_rate' results-after.yml)
+diff <(yq '.scenarios[].pass_rate' results-before.yaml) \
+     <(yq '.scenarios[].pass_rate' results-after.yaml)
 ```
 
 ### With/Without a Config
 
-Two scenarios testing the same task — one with the configuration, one baseline:
+Two scenarios testing the same task — one with the configuration, one baseline. Each scenario has a separate `scenario.yaml` and `checks.yaml`:
 
 ```yaml
-# with-tdd-instruction/scenario.yml
+# with-tdd-instruction/scenario.yaml
 prompt: |
   Write a function called isPrime. Save it to prime.js.
-labels:
-  name: "With TDD instruction"
-  config: with-tdd
-checks:
-  - check: "Tests were written before or alongside production code"
-  - check: "At least one test validates prime behavior"
-scuttlerun:
-  project:
-    claude_md: |
-      Always write tests before production code.
+project:
+  claude_md: |
+    Always write tests before production code.
 ```
 
 ```yaml
-# without-tdd-instruction/scenario.yml
+# with-tdd-instruction/checks.yaml
+context: |
+  The agent was asked to write an isPrime function with TDD instructions.
+
+checks:
+  - test-before-code:
+      check: "Tests were written before or alongside production code"
+      note: "Look for Write tool calls — test file should appear before the main implementation file"
+  - test-validates-behavior:
+      check: "At least one test validates prime behavior"
+```
+
+```yaml
+# without-tdd-instruction/scenario.yaml
 prompt: |
   Write a function called isPrime. Save it to prime.js.
-labels:
-  name: "Baseline (no TDD instruction)"
-  config: baseline
+# No project.claude_md — baseline behavior
+```
+
+```yaml
+# without-tdd-instruction/checks.yaml
+context: |
+  The agent was asked to write an isPrime function with no special instructions.
+
 checks:
-  - check: "Tests were written before or alongside production code"
-  - check: "At least one test validates prime behavior"
-# No scuttlerun.project.claude_md — baseline behavior
+  - test-before-code:
+      check: "Tests were written before or alongside production code"
+  - test-validates-behavior:
+      check: "At least one test validates prime behavior"
 ```
 
 If the "with" scenario passes at 0.9 and the "without" at 0.3, the instruction demonstrably changes behavior.
@@ -151,34 +188,40 @@ If the "with" scenario passes at 0.9 and the "without" at 0.3, the instruction d
 Same scenarios, different models:
 
 ```yaml
-# base.yml — shared checks and prompt
+# craboodle.yaml
 version: "1"
+```
+
+```yaml
+# base.yaml — shared scuttlerun defaults
 user:
   turn_policy: single
 ```
 
 ```yaml
-# sonnet-variant/scenario.yml
+# sonnet-variant/scenario.yaml
 prompt: "Write a function to merge two sorted arrays efficiently."
-labels:
-  name: "Merge sorted arrays"
-  model: sonnet-4-6
-checks:
-  - check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
-scuttlerun:
-  model: claude-sonnet-4-6
+model: claude-sonnet-4-6
 ```
 
 ```yaml
-# haiku-variant/scenario.yml
-prompt: "Write a function to merge two sorted arrays efficiently."
-labels:
-  name: "Merge sorted arrays"
-  model: haiku-4-5
+# sonnet-variant/checks.yaml
 checks:
-  - check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
-scuttlerun:
-  model: claude-haiku-4-5
+  - efficient-algorithm:
+      check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
+```
+
+```yaml
+# haiku-variant/scenario.yaml
+prompt: "Write a function to merge two sorted arrays efficiently."
+model: claude-haiku-4-5
+```
+
+```yaml
+# haiku-variant/checks.yaml
+checks:
+  - efficient-algorithm:
+      check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
 ```
 
 ---
@@ -200,39 +243,23 @@ scuttlerun:
 
 ---
 
-## Labels
-
-Labels are key-value metadata that pass through to craboodle's output. Craboodle doesn't interpret them — they enable downstream grouping and comparison.
-
-Common label keys:
-
-| Key | Purpose | Example Values |
-|-----|---------|---------------|
-| `name` | Human-readable scenario title | "TDD under time pressure" |
-| `config` | Which config variant | "with-skill", "baseline", "optimized" |
-| `model` | Which model | "sonnet-4-6", "haiku-4-5" |
-| `variant` | General variant identifier | "strict-mode", "permissive" |
-| `concern` | What aspect is being tested | "correctness", "style", "safety" |
-
----
-
 ## Fixture Files
 
-Place additional files alongside `scenario.yml` and inject them via `scuttlerun.project.files`:
+Place additional files alongside `scenario.yaml` and inject them via `project.files`:
 
 ```yaml
+# scenario.yaml
 prompt: "Review the code in app.py and suggest improvements."
-scuttlerun:
-  project:
-    files:
-      app.py: |
-        import subprocess
-        def run_command(user_input):
-            return subprocess.run(user_input, shell=True)  # Security issue
-      tests/test_app.py: |
-        def test_run_command():
-            result = run_command("echo hello")
-            assert result.returncode == 0
+project:
+  files:
+    app.py: |
+      import subprocess
+      def run_command(user_input):
+          return subprocess.run(user_input, shell=True)  # Security issue
+    tests/test_app.py: |
+      def test_run_command():
+          result = run_command("echo hello")
+          assert result.returncode == 0
 ```
 
 Fixtures create realistic project contexts. Use them to provide code for review, seed data for processing, or existing files that the agent should interact with.
