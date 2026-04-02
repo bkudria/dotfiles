@@ -14,7 +14,7 @@ From lowest to highest precedence (later layers override earlier ones):
 3. scenario.yml scuttlerun ← Per-scenario overrides
 4. scenario.yml prompt     ← Mapped to scuttlerun's prompt field
 5. CLI flags               ← --agent-model, --grader-model, --repeats
-6. Per-assertion model      ← assertion-level model override in pincenez
+6. Per-check model          ← check-level model override in pincenez
 ```
 
 ### Layer Details
@@ -28,7 +28,7 @@ From lowest to highest precedence (later layers override earlier ones):
 - `user.oracle_model: claude-haiku-4-5`
 - `user.max_user_turns: 5`
 
-Run `scuttlerun list <config>` to see the fully resolved config after all defaults are applied.
+Run `scuttlerun <config>` to see the fully resolved config after all defaults are applied.
 
 **2. base.yml** (shared config for all scenarios)
 - Written by the eval author in the `evals/` directory
@@ -39,7 +39,7 @@ Run `scuttlerun list <config>` to see the fully resolved config after all defaul
 **3. scenario.yml `scuttlerun:` block** (per-scenario overrides)
 - Deep-merged with base.yml's scuttlerun fields
 - Objects merge recursively; arrays and scalars replace
-- Craboodle does not validate this block — errors surface when scuttlerun runs (or when `craboodle list` invokes `scuttlerun list`)
+- Craboodle does not validate this block — errors surface when scuttlerun runs (or when `craboodle list` invokes `scuttlerun`)
 
 **4. scenario.yml `prompt`** (always applied)
 - Mapped to scuttlerun's `prompt:` field in the override config
@@ -47,13 +47,13 @@ Run `scuttlerun list <config>` to see the fully resolved config after all defaul
 
 **5. CLI flags** (runtime overrides)
 - `--agent-model MODEL` → overrides `model` for all scuttlerun sessions
-- `--grader-model MODEL` → overrides model for all pincenez assertions
+- `--grader-model MODEL` → overrides model for all pincenez checks
 - `--repeats N` → overrides default repeat count (but not per-scenario `repeats:`)
 - `--concurrency N` → pool size (no config file equivalent)
 
-**6. Per-assertion `model:`** (pincenez only)
-- An assertion's `model:` field overrides `--grader-model` for that specific assertion
-- Useful for using a stronger model on tricky assertions while keeping the default cheap
+**6. Per-check `model:`** (pincenez only)
+- A check's `model:` field overrides `--grader-model` for that specific check
+- Useful for using a stronger model on tricky checks while keeping the default cheap
 
 ---
 
@@ -86,7 +86,7 @@ Result: `tools` is `[Read, Glob, Grep]`, `user` has all three fields.
 
 ## Debugging Tips
 
-1. **"What will scuttlerun actually see?"** — Run `scuttlerun list base.yml override.yml` to see the fully resolved config after merging and defaults
+1. **"What will scuttlerun actually see?"** — Run `scuttlerun base.yml override.yml` to see the fully resolved config after merging and defaults
 2. **"Is it a craboodle schema error or a scuttlerun schema error?"** — Run `craboodle list <evals-dir>` — it validates both layers and reports which failed
 3. **"My setting isn't taking effect"** — Check if a later layer is overriding it: base.yml → scenario scuttlerun block → CLI flags
 4. **"Array was replaced, not merged"** — This is by design. If you set `tools:` in a scenario, it replaces the base.yml tools entirely. To add a tool, repeat the full list plus your addition

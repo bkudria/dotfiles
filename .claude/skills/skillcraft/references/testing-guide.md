@@ -280,7 +280,7 @@ When a skill has no `evals/` at all:
 | Pattern | 1 recognition, 1 application, 1 counter-example |
 | Reference | 1 retrieval, 1 application, 1 completeness |
 
-For each proposed scenario, draft: `id`, `name`, `prompt`, and 3 `assertions`. Make scenarios realistic and specific to the skill's actual content — not generic templates. Consult the `claude-code-evals` skill for assertion quality rules.
+For each proposed scenario, draft: `id`, `name`, `prompt`, and 3 `checks`. Make scenarios realistic and specific to the skill's actual content — not generic templates. Consult the `claude-code-evals` skill for check quality rules.
 
 **Step 3 — Interview the user.** Present the proposals and ask:
 
@@ -298,7 +298,7 @@ Revise scenarios based on feedback. Two questions is the target; three is the ma
 When `evals/` exists but no scenario covers the behavior being edited:
 
 1. Identify the specific behavior the edit changes.
-2. Draft 1 new scenario exercising that behavior — with `id`, `prompt`, and `assertions`.
+2. Draft 1 new scenario exercising that behavior — with `id`, `prompt`, and `checks`.
 3. Present to user: "This edit changes [behavior]. I propose this eval scenario: [summary]. Approve or modify?"
 4. Create `<skill-dir>/evals/<scenario-id>/scenario.yml` for the new scenario.
 

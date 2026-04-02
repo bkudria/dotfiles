@@ -77,7 +77,7 @@ When loaded during editing of any file within a skill directory, apply only thes
 
 ### Eval Validation
 
-**When evals are created or modified** (new scenarios, changed assertions/rubrics, changed prompts), they MUST be run before the task is complete — even when no other skill file is being edited.
+**When evals are created or modified** (new scenarios, changed checks, changed prompts), they MUST be run before the task is complete — even when no other skill file is being edited.
 
 1. Run: `craboodle run <skill-dir>/evals`
 2. Review craboodle's YAML output and exit code (0 = pass, 3 = below `min_pass_rate`)

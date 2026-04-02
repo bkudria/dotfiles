@@ -7,9 +7,9 @@ prompt: |
   disk — I've described it fully above. Just write the evals.yml content directly.
 labels:
   name: "Write complete evals for a skill using only skillcraft guidance"
-assertions:
-  - check: "Output produces a complete evals.yml with at least 3 scenarios including id, name, prompt, and assertions for each"
+checks:
+  - check: "Output produces a complete evals.yml with at least 3 scenarios including id, name, prompt, and checks for each"
   - check: "At least one scenario applies pressure to skip the convention (discipline-type pattern)"
     note: "Discipline-type skills need a scenario where the user or context pushes to skip the rule — e.g. 'just commit it quickly, don't worry about format' — to test that the skill holds firm"
-  - check: "Assertions in the proposed scenarios are specific and objectively verifiable, not vague quality statements"
+  - check: "Checks in the proposed scenarios are specific and objectively verifiable, not vague quality statements"
     note: "Bad: 'output is well-formatted'. Good: 'commit message matches the pattern type(scope): description'"

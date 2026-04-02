@@ -267,7 +267,7 @@ curation_decisions:
       decision: synthesized
       rationale: >-
         Slimmed to skill-specific eval patterns only (by-skill-type tables, worked
-        examples, trigger testing). Generic eval mechanics (scenario schema, assertion
+        examples, trigger testing). Generic eval mechanics (scenario schema, check
         design, results interpretation) deferred to the claude-code-evals skill.
   workflows/create-phase6-eval.md:
     - source: anthropic-skills

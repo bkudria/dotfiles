@@ -63,7 +63,7 @@ scuttlerun:
         If you encounter permission errors, you should check that the Docker daemon
         is running. You should also verify that the user has the correct group
         membership. If you see network errors, you should check the proxy settings.
-assertions:
+checks:
   - check: "Output identifies at least 2 specific anti-patterns from skillcraft's catalog, by name or by accurately describing the issue (e.g. Wall of Text, Second Person Habit, Toy Examples, Workflow Summary Description)"
     note: "The bad-skill has several deliberate anti-patterns: pervasive 'you should' phrasing (Second Person Habit), monolithic body with no references/ split (Wall of Text), trivial examples that don't show real usage (Toy Examples), and the description summarizes workflow steps (Workflow Summary Description)"
   - check: "Output recommends moving detailed content to a references/ directory or splitting the monolithic body into separate files"

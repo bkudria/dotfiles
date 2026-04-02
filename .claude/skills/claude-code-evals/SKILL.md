@@ -1,6 +1,6 @@
 ---
 name: claude-code-evals
-description: "Evaluate Claude Code configurations (skills, CLAUDE.md, hooks, MCP servers, settings, sub-agents) using the scuttlerun/pincenez/craboodle eval pipeline. Use when evaluating a configuration, writing eval scenarios, designing assertions, interpreting eval results, benchmarking configurations, comparing model or config variants, testing CLAUDE.md effectiveness, verifying hooks work, regression testing configs, or building an eval suite."
+description: "Evaluate Claude Code configurations (skills, CLAUDE.md, hooks, MCP servers, settings, sub-agents) using the scuttlerun/pincenez/craboodle eval pipeline. Use when evaluating a configuration, writing eval scenarios, designing checks, interpreting eval results, benchmarking configurations, comparing model or config variants, testing CLAUDE.md effectiveness, verifying hooks work, regression testing configs, or building an eval suite."
 ---
 
 # Claude Code Evals
@@ -19,7 +19,7 @@ Evaluate Claude Code configurations with behavioral evidence.
 
 Evaluation replaces intuition with behavioral evidence. Instead of reading your configuration and guessing whether it works, you run Claude against realistic tasks and measure outcomes.
 
-**The key question**: "Would Claude behave the same way without this configuration?" If yes, your configuration may not be adding value — or your assertions may not be targeting what the configuration adds.
+**The key question**: "Would Claude behave the same way without this configuration?" If yes, your configuration may not be adding value — or your checks may not be targeting what the configuration adds.
 
 **When to evaluate:**
 - After any behavioral change to a configuration
@@ -42,7 +42,7 @@ craboodle (orchestrator)
 ```
 
 - **scuttlerun** runs a headless Claude session with a synthetic user (LLM oracle), producing a full transcript. It handles multi-turn interactions and project scaffolding.
-- **pincenez** grades one transcript against a rubric of assertions. Each assertion gets an independent LLM call — binary pass/fail with evidence. No cross-contamination between verdicts.
+- **pincenez** grades one transcript against a checks file. Each check gets an independent LLM call — binary pass/fail with evidence. No cross-contamination between verdicts.
 - **craboodle** discovers scenarios, runs each through scuttlerun N times, grades each run with pincenez, averages results, and streams YAML output.
 
 Run `<tool> --help` for CLI flags, YAML schemas, and field references.
@@ -74,7 +74,7 @@ prompt: |
   Save it to prime.js.
 labels:
   name: "CLAUDE.md TDD instruction changes behavior"
-assertions:
+checks:
   - check: "A test file was written before or alongside the production code"
     note: "Look for a test file created via the Write tool"
   - check: "The function isPrime exists in prime.js"
@@ -85,7 +85,7 @@ scuttlerun:
       Always write tests before production code. Use test-driven development.
 ```
 
-**4. Lint assertions** (catches anti-patterns before spending money):
+**4. Lint checks** (catches anti-patterns before spending money):
 ```bash
 craboodle lint my-evals/
 ```
@@ -128,7 +128,7 @@ See `references/scenario-design.md` for detailed comparison patterns with YAML e
 
 | File | Purpose |
 |------|---------|
-| `references/assertion-design.md` | Assertion patterns, anti-patterns, quality criteria |
+| `references/check-design.md` | Check patterns, anti-patterns, quality criteria |
 | `references/scenario-design.md` | Scenario structure, comparison patterns, labels |
 | `references/config-type-patterns.md` | Per-config-type eval guidance with examples |
 | `references/results-interpretation.md` | Reading results, decision framework, iteration |
@@ -138,5 +138,5 @@ See `references/scenario-design.md` for detailed comparison patterns with YAML e
 
 - **craboodle** — eval orchestrator (`craboodle --help`)
 - **scuttlerun** — session driver (`scuttlerun --help`)
-- **pincenez** — assertion grader (`pincenez --help`)
+- **pincenez** — checks grader (`pincenez --help`)
 - Optional: **skillcraft** — for skill-specific eval patterns (pressure testing by skill type, trigger testing, worked examples per skill category)

@@ -415,10 +415,10 @@ scenarios:
       TODO - The user task/prompt to test.
       This prompt is given to both a with-skill and without-skill
       eval run via craboodle.
-    assertions:
-      - "TODO - Objectively verifiable assertion"
-      - "TODO - Another assertion"
-      - "TODO - A third assertion"
+    checks:
+      - "TODO - Objectively verifiable check"
+      - "TODO - Another check"
+      - "TODO - A third check"
 EOF
   echo "Created: evals/ (with template evals.yml)"
 fi

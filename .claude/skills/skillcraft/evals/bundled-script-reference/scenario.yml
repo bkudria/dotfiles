@@ -4,7 +4,7 @@ prompt: |
   How should I reference it?
 labels:
   name: "Guidance for referencing bundled scripts from a skill"
-assertions:
+checks:
   - check: "Output mentions ${CLAUDE_SKILL_DIR} as the way to reference bundled scripts"
     note: "Look for the literal variable name ${CLAUDE_SKILL_DIR}, not a resolved absolute path"
   - check: "Output explains that the variable resolves to the skill's directory at load time"

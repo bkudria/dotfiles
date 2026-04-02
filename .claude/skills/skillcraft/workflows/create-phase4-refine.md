@@ -2,14 +2,14 @@
 
 Lint, run evals, and iterate until the skill passes. This phase is autonomous — no user interaction needed.
 
-> **References for this phase:** `references/eval-guide.md` (assertion patterns by skill type). Load the `claude-code-evals` skill for general eval methodology. Run `craboodle --help` for CLI reference. Do not read other references unless a specific question arises.
+> **References for this phase:** `references/eval-guide.md` (check patterns by skill type). Load the `claude-code-evals` skill for general eval methodology. Run `craboodle --help` for CLI reference. Do not read other references unless a specific question arises.
 
 ## Prerequisites
 
 - `craboodle` installed (from `~/code/craboodle`)
 - `pincenez` installed (from `~/code/pincenez`)
 
-## Step 1: Lint Assertions
+## Step 1: Lint Checks
 
 ```bash
 craboodle lint <skill-dir>/evals
@@ -34,14 +34,14 @@ Run `craboodle run --help` for all available options.
 | 1 | Configuration error | Fix scenario YAML |
 | 2 | Infrastructure error | Check tool installation |
 
-For each failing assertion, diagnose:
+For each failing check, diagnose:
 - **Skill problem** — The skill doesn't cause the intended behavior. Fix: revise the skill.
-- **Assertion problem** — The skill works but the assertion doesn't capture it correctly. Fix: revise the assertion.
+- **Check problem** — The skill works but the check doesn't capture it correctly. Fix: revise the check.
 
 To distinguish: read the scuttlerun transcript in the artifact directory.
 
 Iteration rules:
-1. Fix one thing at a time (skill OR assertion, not both)
+1. Fix one thing at a time (skill OR check, not both)
 2. Re-run targeted scenarios after each fix
 3. Stop when: exit code 0, or pass rate improvement < 0.05 for 2 iterations
 

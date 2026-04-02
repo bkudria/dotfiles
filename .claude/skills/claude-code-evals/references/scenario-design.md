@@ -59,7 +59,7 @@ Run `craboodle --help` for the full base.yml field reference.
 
 ## scenario.yml
 
-Each scenario defines a prompt, assertions, and optional config overrides:
+Each scenario defines a prompt, checks, and optional config overrides:
 
 ```yaml
 prompt: |                         # Required: realistic user task
@@ -72,7 +72,7 @@ labels:                           # Optional: metadata for grouping/comparison
 context: |                        # Optional: orients the grader (defaults to prompt)
   The agent was asked to write an email validator with input validation enabled.
 
-assertions:                       # Required: at least 1 assertion
+checks:                       # Required: at least 1 check
   - check: "Output validates input format before processing"
     note: "Look for regex or string parsing that checks for @ and domain"
   - check: "Function handles edge cases like empty string"
@@ -122,7 +122,7 @@ prompt: |
 labels:
   name: "With TDD instruction"
   config: with-tdd
-assertions:
+checks:
   - check: "Tests were written before or alongside production code"
   - check: "At least one test validates prime behavior"
 scuttlerun:
@@ -138,7 +138,7 @@ prompt: |
 labels:
   name: "Baseline (no TDD instruction)"
   config: baseline
-assertions:
+checks:
   - check: "Tests were written before or alongside production code"
   - check: "At least one test validates prime behavior"
 # No scuttlerun.project.claude_md — baseline behavior
@@ -151,7 +151,7 @@ If the "with" scenario passes at 0.9 and the "without" at 0.3, the instruction d
 Same scenarios, different models:
 
 ```yaml
-# base.yml — shared assertions and prompt
+# base.yml — shared checks and prompt
 version: "1"
 user:
   turn_policy: single
@@ -163,7 +163,7 @@ prompt: "Write a function to merge two sorted arrays efficiently."
 labels:
   name: "Merge sorted arrays"
   model: sonnet-4-6
-assertions:
+checks:
   - check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
 scuttlerun:
   model: claude-sonnet-4-6
@@ -175,7 +175,7 @@ prompt: "Write a function to merge two sorted arrays efficiently."
 labels:
   name: "Merge sorted arrays"
   model: haiku-4-5
-assertions:
+checks:
   - check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
 scuttlerun:
   model: claude-haiku-4-5

@@ -26,7 +26,7 @@ Optionally, ask about anti-patterns:
 
 > "Is there anything the skill should NOT do, or behaviors to avoid?"
 
-These answers become eval assertions in Phase 2.
+These answers become eval checks in Phase 2.
 
 ## Step 3: Interview Form
 
@@ -55,14 +55,14 @@ Before proceeding, verify:
 - Purpose is a clear single sentence
 - At least 2 concrete use cases collected
 - At least 3 trigger phrases
-- At least 2 success criteria (these become eval assertions)
+- At least 2 success criteria (these become eval checks)
 
 ## Output
 
 Summarize before proceeding:
 1. **Requirements**: name, purpose, use cases, triggers
-2. **Success criteria**: what good output looks like (→ eval assertions)
-3. **Anti-patterns**: what to avoid (→ absence assertions)
+2. **Success criteria**: what good output looks like (→ eval checks)
+3. **Anti-patterns**: what to avoid (→ absence checks)
 4. **Inferred design decisions**: skill type, resource needs, invocation strategy
 
 **Next**: Proceed to Phase 2 (read `workflows/create-phase2-implement.md`)

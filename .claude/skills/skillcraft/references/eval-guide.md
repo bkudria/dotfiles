@@ -1,6 +1,6 @@
 # Skill Eval Guide
 
-Skill-specific eval patterns for the scuttlerun/pincenez/craboodle pipeline. For generic eval mechanics — scenario schema, assertion design rules, anti-patterns, results interpretation, and config precedence — load the `claude-code-evals` skill or consult its reference files directly. Run `craboodle --help` for the canonical scenario.yml and base.yml schema reference.
+Skill-specific eval patterns for the scuttlerun/pincenez/craboodle pipeline. For generic eval mechanics — scenario schema, check design rules, anti-patterns, results interpretation, and config precedence — load the `claude-code-evals` skill or consult its reference files directly. Run `craboodle --help` for the canonical scenario.yml and base.yml schema reference.
 
 ---
 
@@ -19,9 +19,9 @@ For minimum scenario counts and other scenario design guidance, see the `claude-
 
 ---
 
-## Assertion Templates by Skill Type
+## Check Templates by Skill Type
 
-Starter assertion shapes to adapt, not copy verbatim. Replace bracketed placeholders with specifics.
+Starter check shapes to adapt, not copy verbatim. Replace bracketed placeholders with specifics.
 
 ### Knowledge / Reference
 
@@ -63,7 +63,7 @@ Starter assertion shapes to adapt, not copy verbatim. Replace bracketed placehol
 
 ## Worked Examples by Skill Type
 
-Complete scenario.yml files you can adapt. Each demonstrates assertion patterns that test skill-specific behavior.
+Complete scenario.yml files you can adapt. Each demonstrates check patterns that test skill-specific behavior.
 
 ### Discipline Skill (enforces a rule under pressure)
 
@@ -74,13 +74,13 @@ prompt: |
   on something this trivial.
 labels:
   name: "Maintains discipline under time pressure"
-assertions:
+checks:
   - check: "Output writes or references a test before making the production code change"
   - check: "Output does NOT make the production change without a test, even for a 'trivial' fix"
   - check: "Output explicitly addresses why testing is still required despite the pressure"
 ```
 
-Why these assertions work: Without a testing-discipline skill, Claude typically complies with "just change the string." With the skill, it insists on a test first. The assertions target this behavioral difference.
+Why these checks work: Without a testing-discipline skill, Claude typically complies with "just change the string." With the skill, it insists on a test first. The checks target this behavioral difference.
 
 ### Technique Skill (applies a specific method)
 
@@ -90,13 +90,13 @@ prompt: |
   "connection refused on port 5432". Help me debug it.
 labels:
   name: "Uses the taught debugging technique"
-assertions:
+checks:
   - check: "Output checks environment differences between local and CI before suggesting fixes"
   - check: "Output does NOT immediately suggest 'add a sleep' or 'increase timeout' as the first approach"
   - check: "Output investigates whether the database service is configured in the CI pipeline"
 ```
 
-Why these assertions work: Without the skill, Claude often jumps to common fixes (add a sleep, increase timeout). The skill teaches systematic diagnosis.
+Why these checks work: Without the skill, Claude often jumps to common fixes (add a sleep, increase timeout). The skill teaches systematic diagnosis.
 
 ### Pattern Skill (recognizes when a pattern applies)
 
@@ -107,7 +107,7 @@ prompt: |
   refactor this?
 labels:
   name: "Identifies when to extract a shared pattern"
-assertions:
+checks:
   - check: "Output identifies the repeated auth logic as a candidate for extraction into middleware"
   - check: "Output explains the specific pattern (middleware/decorator/guard) rather than just saying 'reduce duplication'"
   - check: "Output mentions when NOT to extract (e.g., if each handler needs different role checks)"
@@ -121,7 +121,7 @@ prompt: |
   an integer constraint, and a custom type.
 labels:
   name: "Applies documented syntax correctly"
-assertions:
+checks:
   - check: "Uses (type)value annotation syntax with parentheses"
   - check: "References at least 2 reserved type names from the spec (e.g., uuid, date)"
   - check: "Shows annotation on both arguments and properties"
@@ -129,20 +129,20 @@ assertions:
 
 ---
 
-## Skill-Specific Assertion Targeting
+## Skill-Specific Check Targeting
 
-Most scenarios need 2-3 different assertion pattern types. Typical combinations by skill type:
+Most scenarios need 2-3 different check pattern types. Typical combinations by skill type:
 
 - **Discipline**: Process + Absence + Presence
 - **Technique**: Specificity + Behavioral + Absence
 - **Pattern**: Presence + Specificity + Structural
 - **Reference**: Specificity + Presence + Structural
 
-For the full assertion pattern catalog and anti-patterns, see the `claude-code-evals` skill's `references/assertion-design.md`.
+For the full check pattern catalog and anti-patterns, see the `claude-code-evals` skill's `references/check-design.md`.
 
 ### Where Skill Value Shows Up
 
-| Skill Type | Claude's Default | What the Skill Adds | Good Assertion Targets |
+| Skill Type | Claude's Default | What the Skill Adds | Good Check Targets |
 |------------|-----------------|---------------------|----------------------|
 | Discipline | Complies with user's request to skip process | Resists pressure, follows process anyway | Agent refuses to skip, cites the rule, follows correct order |
 | Technique | Uses generic approach (e.g., "add a sleep") | Applies a specific diagnostic/design method | The specific method is used, generic shortcuts are avoided |
@@ -153,7 +153,7 @@ For the full assertion pattern catalog and anti-patterns, see the `claude-code-e
 
 ## Trigger Testing
 
-Test whether the skill's description causes it to auto-trigger on relevant prompts. Model these as regular scenarios with assertions about skill invocation:
+Test whether the skill's description causes it to auto-trigger on relevant prompts. Model these as regular scenarios with checks about skill invocation:
 
 ```yaml
 # Positive trigger test
@@ -162,7 +162,7 @@ prompt: |
    Use a synonym or rephrasing, not an exact phrase from the description.]
 labels:
   name: "Description triggers on relevant prompt"
-assertions:
+checks:
   - check: "Response demonstrates awareness of the skill's guidance"
   - check: "Output follows patterns documented in the skill"
   - check: "Skill-specific terminology or structure is present"
@@ -174,7 +174,7 @@ prompt: |
   [A prompt that shares keywords with the skill but is about a different topic.]
 labels:
   name: "Description does not trigger on unrelated prompt"
-assertions:
+checks:
   - check: "Response does not follow this skill's specific patterns"
   - check: "No skill-specific structure or terminology appears unprompted"
 ```
