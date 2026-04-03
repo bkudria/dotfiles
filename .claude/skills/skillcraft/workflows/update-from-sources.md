@@ -139,17 +139,11 @@ Then manually update `curation_decisions` in provenance.yml:
 
 If the skill has `evals/` with scenarios, verify the update didn't degrade behavior:
 
-1. Before applying changes (Step 5), run evals and save the output for comparison:
-   ```bash
-   craboodle run <skill-dir>/evals | tee pre-update-results.yml
-   ```
-2. After applying changes, re-run evals:
-   ```bash
-   craboodle run <skill-dir>/evals | tee post-update-results.yml
-   ```
-3. Compare pass rates — flag any regressions (lower pass rates after update)
+```bash
+craboodle run <skill-dir>/evals
+```
 
-If regressions are found, review the upstream changes that caused them and consider reverting or adjusting.
+Review pass rates — flag any scenarios with degraded results. If regressions are found, review the upstream changes that caused them and consider reverting or adjusting.
 
 ## Step 8: Verify Provenance Updates
 

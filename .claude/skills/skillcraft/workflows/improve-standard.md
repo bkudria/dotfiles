@@ -92,7 +92,7 @@ After all fixes, re-run the checklist. Report final score.
 
 If the skill has no `evals/` directory, bootstrap baseline evals using the Eval Bootstrapping Protocol in `references/testing-guide.md`. All skills should have eval coverage.
 
-Then re-run edit-relevant scenarios to verify improvements haven't introduced regressions. For a full benchmark comparison, read `workflows/create-phase4-refine.md`.
+Then re-run edit-relevant scenarios to verify improvements haven't introduced regressions.
 
 ## Anti-Pattern Detection
 

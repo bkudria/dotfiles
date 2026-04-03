@@ -116,113 +116,38 @@ Checks use id-as-key format: each list item is a single-key object where the key
 
 ---
 
-## Comparison Patterns
+## Suite Evolution
 
-Eval's real power is comparing behavior across configurations. Define variant scenarios, then compare results downstream.
+An eval suite is a living artifact that evolves alongside the configuration it tests.
 
-### Before/After
+### When to Add Scenarios
 
-Test the same scenarios before and after a config change:
+- **New behavior** — Added a new instruction or skill section? Add a scenario exercising it
+- **Discovered gaps** — A check always passes? You may be missing a scenario that pressures the config
+- **Edge cases** — Found a prompt where the config fails? Capture it as a scenario
+- **Different dimensions** — A config with multiple effects needs scenarios covering each one
+
+### When to Improve Existing Scenarios
+
+- **Flaky checks** (pass_rate 0.3-0.7) — The check or the config needs tightening. Read failure evidence and iterate
+- **Always-passes checks** — May test baseline behavior, not config value. Revise to target what the config specifically adds
+- **Poor targeting** — Checks that test outcomes without testing the *method* the config teaches
+
+### When to Retire Scenarios
+
+- **Config changed** — The scenario tests behavior the config no longer covers
+- **Redundant** — Two scenarios test the same dimension with no additional signal
+- **Stale prompts** — The task is no longer realistic or representative
+
+### Running After Changes
+
+Run your eval suite after config changes to catch regressions:
 
 ```bash
-# Before: run and save results
-craboodle run my-evals/ > results-before.yaml
-
-# Make your config change, then:
-craboodle run my-evals/ > results-after.yaml
-
-# Compare pass rates
-diff <(yq '.scenarios[].pass_rate' results-before.yaml) \
-     <(yq '.scenarios[].pass_rate' results-after.yaml)
+craboodle run my-evals/
 ```
 
-### With/Without a Config
-
-Two scenarios testing the same task — one with the configuration, one baseline. Each scenario has a separate `scenario.yaml` and `checks.yaml`:
-
-```yaml
-# with-tdd-instruction/scenario.yaml
-prompt: |
-  Write a function called isPrime. Save it to prime.js.
-project:
-  claude_md: |
-    Always write tests before production code.
-```
-
-```yaml
-# with-tdd-instruction/checks.yaml
-context: |
-  The agent was asked to write an isPrime function with TDD instructions.
-
-checks:
-  - test-before-code:
-      check: "Tests were written before or alongside production code"
-      note: "Look for Write tool calls — test file should appear before the main implementation file"
-  - test-validates-behavior:
-      check: "At least one test validates prime behavior"
-```
-
-```yaml
-# without-tdd-instruction/scenario.yaml
-prompt: |
-  Write a function called isPrime. Save it to prime.js.
-# No project.claude_md — baseline behavior
-```
-
-```yaml
-# without-tdd-instruction/checks.yaml
-context: |
-  The agent was asked to write an isPrime function with no special instructions.
-
-checks:
-  - test-before-code:
-      check: "Tests were written before or alongside production code"
-  - test-validates-behavior:
-      check: "At least one test validates prime behavior"
-```
-
-If the "with" scenario passes at 0.9 and the "without" at 0.3, the instruction demonstrably changes behavior.
-
-### Model Comparison
-
-Same scenarios, different models:
-
-```yaml
-# craboodle.yaml
-version: "1"
-```
-
-```yaml
-# base.yaml — shared scuttlerun defaults
-user:
-  turn_policy: single
-```
-
-```yaml
-# sonnet-variant/scenario.yaml
-prompt: "Write a function to merge two sorted arrays efficiently."
-model: claude-sonnet-4-6
-```
-
-```yaml
-# sonnet-variant/checks.yaml
-checks:
-  - efficient-algorithm:
-      check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
-```
-
-```yaml
-# haiku-variant/scenario.yaml
-prompt: "Write a function to merge two sorted arrays efficiently."
-model: claude-haiku-4-5
-```
-
-```yaml
-# haiku-variant/checks.yaml
-checks:
-  - efficient-algorithm:
-      check: "Uses O(n) two-pointer approach, not O(n log n) concat+sort"
-```
+Review any scenarios with degraded pass rates. Diagnose whether the regression is a config problem or a check problem (see `results-interpretation.md`).
 
 ---
 

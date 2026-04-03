@@ -309,7 +309,7 @@ Once eval scenarios exist (from any tier), use them for Lightweight Mode items 7
 | Lightweight Mode Item | Eval-Based Execution |
 |----------------------|---------------------|
 | 7. Pre-edit snapshot | Run edit-relevant scenario(s) with current skill as a subagent; save output |
-| 8. Post-edit verification | Re-run same scenarios with edited skill; compare outputs |
+| 8. Post-edit verification | Re-run same scenarios with edited skill; check for regressions |
 | 9. Bug fix validation | Ensure at least one scenario reproduces the reported bug pre-edit |
 
 This replaces informal "run 1-2 scenarios" with structured, repeatable eval execution. Outputs can optionally be saved into an `evals/iteration-N/` directory for long-term tracking.

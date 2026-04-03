@@ -84,7 +84,7 @@ To distinguish: read the scuttlerun transcript in the artifact directory. If the
 4. Identify: is it a config problem or a check problem?
 5. Revise the config OR the check (not both at once)
 6. Re-run — check `craboodle run --help` for options to target specific scenarios
-7. Compare pass rates to previous run
+7. Review pass rates — look for improvements and regressions
 8. Repeat until pass_rate >= 0.8 or plateau
 ```
 
@@ -123,4 +123,4 @@ Get to substance quickly: run once with `--repeats 1` immediately after writing 
 - **Over-fitting to specific failure evidence** — fix the *pattern*, not the specific wording the grader complained about
 - **Running many reps when you should revise first** — if pass_rate is 0.2 after 3 reps, more reps won't help. Revise, then re-run
 - **Not linting checks before running** — `craboodle lint` catches anti-patterns cheaply. Always lint before the first run
-- **Comparing across runs without clear variant names** — use descriptive scenario directory names so downstream comparison is unambiguous
+- **Using unclear scenario names** — use descriptive scenario directory names so results are easy to interpret

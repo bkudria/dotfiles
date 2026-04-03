@@ -1,6 +1,6 @@
 ---
 name: claude-code-evals
-description: "Evaluate Claude Code configurations (skills, CLAUDE.md, hooks, MCP servers, settings, sub-agents) using the scuttlerun/pincenez/craboodle eval pipeline. Use when evaluating a configuration, writing eval scenarios, designing checks, interpreting eval results, benchmarking configurations, comparing model or config variants, testing CLAUDE.md effectiveness, verifying hooks work, regression testing configs, or building an eval suite."
+description: "Evaluate Claude Code configurations (skills, CLAUDE.md, hooks, MCP servers, settings, sub-agents) using the scuttlerun/pincenez/craboodle eval pipeline. Use when evaluating a configuration, writing eval scenarios, designing checks, interpreting eval results, benchmarking configurations, testing CLAUDE.md effectiveness, verifying hooks work, regression testing configs, or building an eval suite."
 ---
 
 # Claude Code Evals
@@ -10,8 +10,8 @@ Evaluate Claude Code configurations with behavioral evidence.
 ## When to Use
 
 - Verifying a skill, CLAUDE.md instruction, hook, or MCP server works as intended
-- Comparing configurations: before/after, model A vs B, with/without a skill
 - Regression testing after changes to any config component
+- Iterating on scenario coverage and check quality
 - Building confidence before sharing or publishing a configuration
 - Deciding whether a configuration change actually improved behavior
 
@@ -124,23 +124,23 @@ Any Claude Code configuration that changes agent behavior. Each `scenario.yaml` 
 
 See `references/config-type-patterns.md` for scenario examples and design guidance for each type.
 
-## Cross-Concern Patterns
+## Suite Lifecycle
 
-These patterns apply regardless of config type:
+An eval suite evolves alongside the configuration it tests:
 
-- **Before/after** — Run the same scenarios before and after a change; compare pass rates
-- **With/without** — Two scenario variants: one with the config, one baseline
-- **Model comparison** — Same scenarios with different `model` values in `scenario.yaml` or `base.yaml`
-- **Regression testing** — Keep a persistent `evals/` directory alongside your configs. Run after every change
+- **Growing the suite** — Add scenarios when you add new behavior, discover edge cases, or find untested dimensions
+- **Improving checks** — Iterate on check quality; fix always-passes anti-patterns, tighten vague checks, add missing `note:` fields
+- **Running after changes** — Run your suite after config changes to catch regressions. Review any scenarios with degraded pass rates
+- **Retiring scenarios** — Remove stale scenarios that no longer test meaningful behavior (e.g., config changed, scenario tests removed functionality)
 
-See `references/scenario-design.md` for detailed comparison patterns with YAML examples.
+See `references/scenario-design.md` for scenario structure and suite evolution guidance.
 
 ## Reference Files
 
 | File | Purpose |
 |------|---------|
 | `references/check-design.md` | Check patterns, anti-patterns, quality criteria |
-| `references/scenario-design.md` | Scenario structure, comparison patterns |
+| `references/scenario-design.md` | Scenario structure, suite evolution |
 | `references/config-type-patterns.md` | Per-config-type eval guidance with examples |
 | `references/results-interpretation.md` | Reading results, decision framework, iteration |
 | `references/config-precedence.md` | Full config precedence chain across all three tools |

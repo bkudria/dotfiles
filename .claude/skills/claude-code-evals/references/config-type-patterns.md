@@ -233,13 +233,13 @@ checks:
 
 ---
 
-## Model/Effort Comparison
+## Model/Effort Levels
 
-**What to test**: Quality or capability differences across models or effort levels on the same task.
+**What to test**: Whether your configuration works at different model or effort levels — verifying that checks pass at the model/effort you intend to deploy with.
 
 **Inject via**: `model` or `effort` in scenario.yaml
 
-**Key challenge**: Checks must be calibrated for the weaker model. If you write checks that only the strongest model passes, you're not comparing — you're just testing one model. Write checks that reveal *differences*, with some that both models should pass and some that differentiate.
+**Key challenge**: Checks must be calibrated for the model under test. Checks written for the strongest model may not be meaningful for weaker models. Write checks that test the behavior your config is designed to produce at each level.
 
 ```yaml
 # sonnet-variant/scenario.yaml
@@ -275,7 +275,7 @@ checks:
       check: "Handles edge cases: empty arrays, single-element arrays"
 ```
 
-**Check strategy**: Use identical checks across model variants so pass rates are directly comparable. The delta in pass rates quantifies the model difference.
+**Check strategy**: Each model/effort scenario validates that the config produces the intended behavior at that level. Use the same checks across variants when you expect the same behavior, or tailor checks per variant when expectations differ.
 
 ---
 
@@ -328,21 +328,10 @@ checks:
 
 **When to run**: After any change to a config component — skill edits, CLAUDE.md updates, hook modifications, dependency upgrades.
 
-**Pattern**: Keep a persistent `evals/` directory alongside your configuration. Run the same scenarios before and after changes.
+**Pattern**: Keep a persistent `evals/` directory alongside your configuration. Run your suite after changes and review any scenarios with degraded pass rates.
 
 ```bash
-# Capture baseline
-craboodle run my-config/evals/ > baseline.yaml
-
-# Make changes to the config
-# ...
-
-# Check for regression
-craboodle run my-config/evals/ > after-change.yaml
-
-# Compare
-diff <(yq '.scenarios[] | .id + ": " + (.pass_rate | tostring)' baseline.yaml) \
-     <(yq '.scenarios[] | .id + ": " + (.pass_rate | tostring)' after-change.yaml)
+craboodle run my-config/evals/
 ```
 
 **Key principle**: Version your scenarios alongside the configs they test. When you change a config, the scenarios serve as regression tests. When you add new behavior, add new scenarios to cover it.
