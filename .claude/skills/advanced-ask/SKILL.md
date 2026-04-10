@@ -1,6 +1,6 @@
 ---
 name: advanced-ask
-description: Use when the built-in AskUserQuestion tool is insufficient - specifically when needing to ask more than 4 questions, present more than 4 options, get direct text input without "Other" workaround, pick files/directories, or fuzzy-filter through long lists. IMPORTANT - when any AskUserQuestion limit is hit (>4 options, >4 questions, need text input, need file picker), automatically use this skill instead of degrading the question. Complements gum and interactive-tmux skills.
+description: Use when the built-in AskUserQuestion tool is insufficient - specifically when needing to ask more than 4 questions, present more than 4 options, get direct text input without "Other" workaround, pick files/directories, or fuzzy-filter through long lists. IMPORTANT - when any AskUserQuestion limit is hit (>4 options, >4 questions, need text input, need file picker), automatically use this skill instead of degrading the question. NEVER work around limits by splitting one question across multiple AskUserQuestion calls, narrowing options to fit within 4, or truncating a naturally enumerable set (e.g. 7 rainbow colors presented as two 4-option questions). These are degradation anti-patterns — load this skill instead. Complements gum and interactive-tmux skills.
 ---
 
 # Advanced Ask
@@ -22,6 +22,20 @@ Use `advanced-ask` when `AskUserQuestion` cannot handle the scenario:
 | Custom confirm labels | No | Yes (`ask-confirm`) |
 
 **Prefer AskUserQuestion** for simple cases (≤4 questions, ≤4 options) as it has better integration with Claude Code's UI. When AskUserQuestion limits are hit, switch to this skill automatically — do not degrade the question to fit AskUserQuestion's constraints.
+
+## Degradation Signals
+
+Before calling `AskUserQuestion`, check for these anti-patterns. If any apply, **stop and use `advanced-ask` instead**:
+
+| Anti-pattern | Example | Fix |
+|---|---|---|
+| **Splitting one question across multiple calls** | 7 rainbow colors → two questions of 3-4 each | `ask-multi` or `ask-choose` with all 7 |
+| **Narrowing options to fit within 4** | "Favorite animal?" with only Cat/Dog/Fox/Owl | `ask-input` (free text) or `ask-choose` with a full list |
+| **Truncating a naturally enumerable set** | Days of week, months, colors — but only showing some | `ask-choose`/`ask-multi` with the full set |
+| **Using "Other" as a crutch for open-ended questions** | "Favorite animal?" where most answers won't be in the list | `ask-input` for free text |
+| **Asking >4 questions sequentially** | Splitting a 6-question form into two AskUserQuestion calls | `ask-form` with all questions |
+
+**Rule of thumb**: If you find yourself reshaping a question to fit AskUserQuestion's constraints, that's the signal to use this skill.
 
 ## Quick Reference
 

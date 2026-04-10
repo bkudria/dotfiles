@@ -49,6 +49,25 @@ def truncate(n):
   else .[:n] + "..."
   end;
 
+# Truncate error content smartly: show first line + tail (where errors typically appear).
+# Collapses newlines to "  " for single-line output.
+def smart_error_truncate(n):
+  if length <= n then gsub("\n"; "  ")
+  else
+    (index("\n") // length) as $nl |
+    (if $nl < length then .[:$nl] else . end) as $first |
+    if ($first | length) >= n then .[:n] + "..."
+    else
+      ($first | length) as $fl |
+      (n - $fl - 8) as $tail |
+      if $tail > 30 then
+        $first + " [...] " + (.[-$tail:] | ltrimstr("\n") | gsub("\n"; "  "))
+      else
+        .[-n:] | ltrimstr("\n") | gsub("\n"; "  ")
+      end
+    end
+  end;
+
 # Check if a JSONL entry is a conversation message (user or assistant).
 def is_conversation:
   .type == "user" or .type == "assistant";
