@@ -225,10 +225,31 @@ check_readme() {
         fi
       done
       if [[ -n "$missing_sects" ]]; then
-        emit "WARN" "readme" "$found exists but missing sections: $missing_sects"
+        emit "$(fail_or_warn readme)" "readme" "$found exists but missing sections: $missing_sects"
         return
       fi
       detail="$detail, required sections present"
+    fi
+
+    # Recommended section check (requires mq) — always WARN, never FAIL
+    local rec_sections
+    rec_sections=$(yq -r '.["readme"].recommended_sections // [] | .[]' "$MERGED_YAML" 2>/dev/null || true)
+    if [[ -n "$rec_sections" ]] && $HAS_MQ; then
+      local headings
+      headings=${headings:-$(mq -F text '.h2' "$PROJECT_ROOT/$found" 2>/dev/null | tr '[:upper:]' '[:lower:]')}
+      local missing_rec=""
+      for sect in $rec_sections; do
+        local sect_lower
+        sect_lower=$(echo "$sect" | tr '[:upper:]' '[:lower:]')
+        if ! echo "$headings" | grep -qi "$sect_lower"; then
+          missing_rec="${missing_rec:+$missing_rec, }$sect"
+        fi
+      done
+      if [[ -n "$missing_rec" ]]; then
+        emit "WARN" "readme" "$found exists but missing recommended sections: $missing_rec"
+        return
+      fi
+      detail="$detail, recommended sections present"
     fi
 
     emit "PASS" "readme" "$detail"
@@ -237,8 +258,34 @@ check_readme() {
   fi
 }
 
+check_readme_badges() {
+  local found
+  if found=$(first_match "$PROJECT_ROOT" README.md README README.txt README.rdoc README.org); then
+    if grep -qiE "img\.shields\.io|badge\.svg|codecov\.io|badgen\.net" "$PROJECT_ROOT/$found" 2>/dev/null; then
+      emit "PASS" "readme-badges" "Badge(s) found in $found"
+    else
+      emit "$(fail_or_warn readme-badges)" "readme-badges" "No status badges found in $found"
+    fi
+  else
+    emit "SKIP" "readme-badges" "No README file found"
+  fi
+}
+
 check_gitignore() {
   if [[ -e "$PROJECT_ROOT/.gitignore" ]]; then
+    # Public visibility: warn about common local config patterns
+    if [[ "$VISIBILITY" == "public" ]]; then
+      local missing_patterns=""
+      for pattern in ".env" ".claude/" ".vscode/" ".idea/"; do
+        if ! grep -q "$pattern" "$PROJECT_ROOT/.gitignore" 2>/dev/null; then
+          missing_patterns="${missing_patterns:+$missing_patterns, }$pattern"
+        fi
+      done
+      if [[ -n "$missing_patterns" ]]; then
+        emit "WARN" "gitignore" ".gitignore exists but missing recommended patterns for public repo: $missing_patterns"
+        return
+      fi
+    fi
     emit "PASS" "gitignore" ".gitignore exists"
   else
     emit "$(fail_or_warn gitignore)" "gitignore" "No .gitignore found"
@@ -276,6 +323,17 @@ check_license() {
     esac
 
     if $matched; then
+      # Check current_year if configured
+      local check_year
+      check_year=$(std_field license current_year "")
+      if [[ "$check_year" == "true" ]]; then
+        local current_year
+        current_year=$(date +%Y)
+        if ! grep -q "$current_year" "$PROJECT_ROOT/$found" 2>/dev/null; then
+          emit "WARN" "license" "$found exists, $spdx verified, but copyright year $current_year not found"
+          return
+        fi
+      fi
       emit "PASS" "license" "$found exists, $spdx verified"
     else
       emit "WARN" "license" "$found exists but content doesn't match $spdx"
@@ -355,6 +413,11 @@ check_claude_md() {
     fi
 
     emit "PASS" "claude-md" "$detail"
+
+    # Public visibility: remind to review for internal-only content
+    if [[ "$VISIBILITY" == "public" ]]; then
+      emit "SKIP" "claude-md.review" "Review content for internal-only references before public release"
+    fi
   else
     emit "$(fail_or_warn claude-md)" "claude-md" "No CLAUDE.md or AGENTS.md found"
   fi
@@ -466,7 +529,12 @@ check_changelog() {
   local found
   if found=$(first_match "$PROJECT_ROOT" CHANGELOG.md CHANGELOG HISTORY.md CHANGES.md); then
     if grep -q '## \[' "$PROJECT_ROOT/$found" 2>/dev/null; then
-      emit "PASS" "changelog" "$found exists, Keep-a-Changelog format"
+      # Check for [Unreleased] section
+      if grep -qi '## \[Unreleased\]' "$PROJECT_ROOT/$found" 2>/dev/null; then
+        emit "PASS" "changelog" "$found exists, Keep-a-Changelog format with [Unreleased] section"
+      else
+        emit "WARN" "changelog" "$found exists, Keep-a-Changelog format but no [Unreleased] section"
+      fi
     else
       emit "WARN" "changelog" "$found exists but no version sections found"
     fi
@@ -521,12 +589,378 @@ check_code_of_conduct() {
   fi
 }
 
+check_security_policy() {
+  local found
+  if found=$(first_match "$PROJECT_ROOT" SECURITY.md SECURITY SECURITY.txt .github/SECURITY.md); then
+    emit "PASS" "security-policy" "$found exists"
+  else
+    emit "$(fail_or_warn security-policy)" "security-policy" "No SECURITY.md file found"
+  fi
+}
+
+check_issue_templates() {
+  # Modern multi-template form: .github/ISSUE_TEMPLATE/ directory
+  if [[ -d "$PROJECT_ROOT/.github/ISSUE_TEMPLATE" ]]; then
+    local count
+    count=$(find "$PROJECT_ROOT/.github/ISSUE_TEMPLATE" -maxdepth 1 -type f \
+      \( -name '*.md' -o -name '*.yml' -o -name '*.yaml' \) \
+      ! -name 'config.yml' ! -name 'config.yaml' 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$count" -gt 0 ]]; then
+      emit "PASS" "issue-templates" ".github/ISSUE_TEMPLATE/ has $count templates"
+      return
+    fi
+  fi
+
+  # GitLab equivalent
+  if [[ -d "$PROJECT_ROOT/.gitlab/issue_templates" ]]; then
+    local count
+    count=$(find "$PROJECT_ROOT/.gitlab/issue_templates" -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$count" -gt 0 ]]; then
+      emit "PASS" "issue-templates" ".gitlab/issue_templates/ has $count templates"
+      return
+    fi
+  fi
+
+  # Legacy single-file form — PASS but WARN
+  if [[ -f "$PROJECT_ROOT/.github/ISSUE_TEMPLATE.md" ]]; then
+    emit "WARN" "issue-templates" ".github/ISSUE_TEMPLATE.md exists (legacy single-file form — consider migrating to .github/ISSUE_TEMPLATE/ directory)"
+    return
+  fi
+
+  emit "$(fail_or_warn issue-templates)" "issue-templates" "No issue templates found (.github/ISSUE_TEMPLATE/ or .gitlab/issue_templates/)"
+}
+
+check_pr_template() {
+  # GitHub single-file form (canonical + case variants + root/docs locations)
+  local found
+  if found=$(first_match "$PROJECT_ROOT" \
+    .github/PULL_REQUEST_TEMPLATE.md \
+    .github/pull_request_template.md \
+    PULL_REQUEST_TEMPLATE.md \
+    docs/PULL_REQUEST_TEMPLATE.md); then
+    emit "PASS" "pr-template" "$found exists"
+    return
+  fi
+
+  # GitHub multi-template form: .github/PULL_REQUEST_TEMPLATE/ directory
+  if [[ -d "$PROJECT_ROOT/.github/PULL_REQUEST_TEMPLATE" ]]; then
+    local count
+    count=$(find "$PROJECT_ROOT/.github/PULL_REQUEST_TEMPLATE" -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$count" -gt 0 ]]; then
+      emit "PASS" "pr-template" ".github/PULL_REQUEST_TEMPLATE/ has $count templates"
+      return
+    fi
+  fi
+
+  # GitLab equivalent
+  if [[ -d "$PROJECT_ROOT/.gitlab/merge_request_templates" ]]; then
+    local count
+    count=$(find "$PROJECT_ROOT/.gitlab/merge_request_templates" -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+    if [[ "$count" -gt 0 ]]; then
+      emit "PASS" "pr-template" ".gitlab/merge_request_templates/ has $count templates"
+      return
+    fi
+  fi
+
+  emit "$(fail_or_warn pr-template)" "pr-template" "No PR template found"
+}
+
+check_support() {
+  local found
+  if found=$(first_match "$PROJECT_ROOT" SUPPORT.md .github/SUPPORT.md docs/SUPPORT.md); then
+    emit "PASS" "support" "$found exists"
+  else
+    emit "$(fail_or_warn support)" "support" "No SUPPORT.md found"
+  fi
+}
+
+check_commit_convention() {
+  # Commitlint config files
+  local found
+  if found=$(first_match "$PROJECT_ROOT" \
+    commitlint.config.js commitlint.config.cjs commitlint.config.mjs commitlint.config.ts \
+    .commitlintrc .commitlintrc.json .commitlintrc.yml .commitlintrc.yaml \
+    .commitlintrc.js .commitlintrc.cjs .commitlintrc.ts); then
+    emit "PASS" "commit-convention" "commitlint config: $found"
+    return
+  fi
+
+  # Commitizen config
+  if found=$(first_match "$PROJECT_ROOT" .czrc .cz.json); then
+    emit "PASS" "commit-convention" "commitizen config: $found"
+    return
+  fi
+
+  # Embedded commitlint config in package.json
+  if [[ -e "$PROJECT_ROOT/package.json" ]] && command -v jq &>/dev/null; then
+    if jq -e '.commitlint' "$PROJECT_ROOT/package.json" &>/dev/null; then
+      emit "PASS" "commit-convention" "commitlint config in package.json"
+      return
+    fi
+  fi
+
+  # CONTRIBUTING.md content grep
+  local contrib
+  if contrib=$(first_match "$PROJECT_ROOT" CONTRIBUTING.md CONTRIBUTING); then
+    if grep -qiE "conventional commit|commit message format|commit convention|angular commit" "$PROJECT_ROOT/$contrib" 2>/dev/null; then
+      emit "PASS" "commit-convention" "Commit convention documented in $contrib"
+      return
+    fi
+  fi
+
+  emit "$(fail_or_warn commit-convention)" "commit-convention" "No commit convention config or documentation found"
+}
+
+check_release_automation() {
+  # release-please
+  local found
+  if found=$(first_match "$PROJECT_ROOT" release-please-config.json .release-please-manifest.json); then
+    emit "PASS" "release-automation" "release-please config: $found"
+    return
+  fi
+
+  # semantic-release config files
+  if found=$(first_match "$PROJECT_ROOT" \
+    .releaserc .releaserc.json .releaserc.yml .releaserc.yaml \
+    .releaserc.js .releaserc.cjs release.config.js release.config.cjs release.config.ts); then
+    emit "PASS" "release-automation" "semantic-release config: $found"
+    return
+  fi
+
+  # changesets
+  if [[ -e "$PROJECT_ROOT/.changeset/config.json" ]]; then
+    emit "PASS" "release-automation" ".changeset/config.json exists"
+    return
+  fi
+
+  # GoReleaser
+  if found=$(first_match "$PROJECT_ROOT" .goreleaser.yml .goreleaser.yaml goreleaser.yml goreleaser.yaml); then
+    emit "PASS" "release-automation" "GoReleaser config: $found"
+    return
+  fi
+
+  # semantic-release embedded in package.json
+  if [[ -e "$PROJECT_ROOT/package.json" ]] && command -v jq &>/dev/null; then
+    if jq -e '.release' "$PROJECT_ROOT/package.json" &>/dev/null; then
+      emit "PASS" "release-automation" "semantic-release config in package.json"
+      return
+    fi
+  fi
+
+  emit "$(fail_or_warn release-automation)" "release-automation" "No release automation config found"
+}
+
+check_dependency_updates() {
+  # Dependabot
+  local found
+  if found=$(first_match "$PROJECT_ROOT" .github/dependabot.yml .github/dependabot.yaml); then
+    emit "PASS" "dependency-updates" "Dependabot config: $found"
+    return
+  fi
+
+  # Renovate config files
+  if found=$(first_match "$PROJECT_ROOT" \
+    renovate.json renovate.json5 .renovaterc .renovaterc.json \
+    .github/renovate.json .github/renovate.json5); then
+    emit "PASS" "dependency-updates" "Renovate config: $found"
+    return
+  fi
+
+  # Renovate embedded in package.json
+  if [[ -e "$PROJECT_ROOT/package.json" ]] && command -v jq &>/dev/null; then
+    if jq -e '.renovate' "$PROJECT_ROOT/package.json" &>/dev/null; then
+      emit "PASS" "dependency-updates" "Renovate config in package.json"
+      return
+    fi
+  fi
+
+  emit "$(fail_or_warn dependency-updates)" "dependency-updates" "No Dependabot or Renovate config found"
+}
+
+check_lockfile() {
+  case "$LANGUAGE" in
+    typescript|javascript)
+      local found
+      if found=$(first_match "$PROJECT_ROOT" package-lock.json yarn.lock pnpm-lock.yaml bun.lockb bun.lock); then
+        emit "PASS" "lockfile" "$found exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No JS/TS lockfile found (package-lock.json, yarn.lock, pnpm-lock.yaml, bun.lockb)"
+      fi
+      ;;
+    ruby)
+      if [[ -e "$PROJECT_ROOT/Gemfile.lock" ]]; then
+        emit "PASS" "lockfile" "Gemfile.lock exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No Gemfile.lock found"
+      fi
+      ;;
+    python)
+      local found
+      if found=$(first_match "$PROJECT_ROOT" poetry.lock Pipfile.lock uv.lock); then
+        emit "PASS" "lockfile" "$found exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No Python lockfile found (poetry.lock, Pipfile.lock, uv.lock)"
+      fi
+      ;;
+    rust)
+      if [[ -e "$PROJECT_ROOT/Cargo.lock" ]]; then
+        emit "PASS" "lockfile" "Cargo.lock exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No Cargo.lock found"
+      fi
+      ;;
+    go)
+      if [[ -e "$PROJECT_ROOT/go.sum" ]]; then
+        emit "PASS" "lockfile" "go.sum exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No go.sum found"
+      fi
+      ;;
+    php)
+      if [[ -e "$PROJECT_ROOT/composer.lock" ]]; then
+        emit "PASS" "lockfile" "composer.lock exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No composer.lock found"
+      fi
+      ;;
+    elixir)
+      if [[ -e "$PROJECT_ROOT/mix.lock" ]]; then
+        emit "PASS" "lockfile" "mix.lock exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No mix.lock found"
+      fi
+      ;;
+    swift)
+      if [[ -e "$PROJECT_ROOT/Package.resolved" ]]; then
+        emit "PASS" "lockfile" "Package.resolved exists"
+      else
+        emit "$(fail_or_warn lockfile)" "lockfile" "No Package.resolved found"
+      fi
+      ;;
+    *)
+      emit "SKIP" "lockfile" "Unknown language ($LANGUAGE) — verify manually"
+      ;;
+  esac
+}
+
+check_package_metadata() {
+  local manifest
+  manifest=$(std_field package-metadata manifest "")
+
+  if [[ -z "$manifest" ]]; then
+    emit "SKIP" "package-metadata" "No manifest declared — verify manually"
+    return
+  fi
+
+  if [[ ! -e "$PROJECT_ROOT/$manifest" ]]; then
+    emit "$(fail_or_warn package-metadata)" "package-metadata" "Declared manifest $manifest not found"
+    return
+  fi
+
+  # Best-effort field validation based on manifest type
+  local missing_fields=""
+  case "$manifest" in
+    package.json)
+      if command -v jq &>/dev/null; then
+        for field in name version license repository description; do
+          local val
+          val=$(jq -r ".$field // empty" "$PROJECT_ROOT/$manifest" 2>/dev/null)
+          if [[ -z "$val" ]]; then
+            missing_fields="${missing_fields:+$missing_fields, }$field"
+          fi
+        done
+      fi
+      ;;
+    Cargo.toml)
+      for field in name version license repository; do
+        local val
+        val=$(yq -r ".package.$field // \"\"" "$PROJECT_ROOT/$manifest" 2>/dev/null)
+        if [[ -z "$val" ]]; then
+          missing_fields="${missing_fields:+$missing_fields, }$field"
+        fi
+      done
+      ;;
+    pyproject.toml)
+      for field in name version; do
+        local val
+        val=$(yq -r ".project.$field // \"\"" "$PROJECT_ROOT/$manifest" 2>/dev/null)
+        if [[ -z "$val" ]]; then
+          missing_fields="${missing_fields:+$missing_fields, }$field"
+        fi
+      done
+      ;;
+    *)
+      # Unknown manifest type — just check existence
+      emit "PASS" "package-metadata" "$manifest exists (field validation not supported for this format)"
+      return
+      ;;
+  esac
+
+  if [[ -n "$missing_fields" ]]; then
+    emit "WARN" "package-metadata" "$manifest exists but missing fields: $missing_fields"
+  else
+    emit "PASS" "package-metadata" "$manifest exists, key fields present"
+  fi
+}
+
+check_publish_config() {
+  case "$LANGUAGE" in
+    typescript|javascript)
+      if [[ -e "$PROJECT_ROOT/.npmignore" ]]; then
+        emit "PASS" "publish-config" ".npmignore exists"
+      elif command -v jq &>/dev/null && [[ -e "$PROJECT_ROOT/package.json" ]]; then
+        local files_field
+        files_field=$(jq -r '.files // empty' "$PROJECT_ROOT/package.json" 2>/dev/null)
+        if [[ -n "$files_field" ]]; then
+          emit "PASS" "publish-config" "package.json has \"files\" field"
+        else
+          emit "$(fail_or_warn publish-config)" "publish-config" "No .npmignore or package.json \"files\" field found"
+        fi
+      else
+        emit "$(fail_or_warn publish-config)" "publish-config" "No .npmignore found"
+      fi
+      ;;
+    ruby)
+      local gemspec
+      gemspec=$(find "$PROJECT_ROOT" -maxdepth 1 -name '*.gemspec' 2>/dev/null | head -1)
+      if [[ -n "$gemspec" ]] && grep -q 'files' "$gemspec" 2>/dev/null; then
+        emit "PASS" "publish-config" "$(basename "$gemspec") has files attribute"
+      else
+        emit "$(fail_or_warn publish-config)" "publish-config" "No gemspec with files attribute found"
+      fi
+      ;;
+    rust)
+      if [[ -e "$PROJECT_ROOT/Cargo.toml" ]]; then
+        if grep -qE '(exclude|include)' "$PROJECT_ROOT/Cargo.toml" 2>/dev/null; then
+          emit "PASS" "publish-config" "Cargo.toml has exclude/include"
+        else
+          emit "WARN" "publish-config" "Cargo.toml exists but no exclude/include (Cargo has safe defaults)"
+        fi
+      else
+        emit "$(fail_or_warn publish-config)" "publish-config" "No Cargo.toml found"
+      fi
+      ;;
+    python)
+      if [[ -e "$PROJECT_ROOT/MANIFEST.in" ]]; then
+        emit "PASS" "publish-config" "MANIFEST.in exists"
+      elif [[ -e "$PROJECT_ROOT/pyproject.toml" ]] && grep -q 'packages' "$PROJECT_ROOT/pyproject.toml" 2>/dev/null; then
+        emit "PASS" "publish-config" "pyproject.toml has packages config"
+      else
+        emit "$(fail_or_warn publish-config)" "publish-config" "No MANIFEST.in or pyproject.toml packages config found"
+      fi
+      ;;
+    *)
+      emit "SKIP" "publish-config" "Unknown language ($LANGUAGE) — verify manually"
+      ;;
+  esac
+}
+
 # --- Initialize metadata (populated by check functions) ---
 META_LINTER_CFG=""
 
 # --- Run checks for each active standard ---
 
-ALL_STANDARDS=(readme gitignore license tests claude-md goals spec linter coverage ci changelog contributing editorconfig docs code-of-conduct)
+ALL_STANDARDS=(readme readme-badges gitignore license tests claude-md goals spec linter coverage ci changelog contributing editorconfig docs code-of-conduct security-policy issue-templates pr-template support commit-convention release-automation dependency-updates lockfile package-metadata publish-config)
 
 for std in "${ALL_STANDARDS[@]}"; do
   if is_active "$std"; then

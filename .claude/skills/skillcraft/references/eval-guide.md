@@ -1,6 +1,6 @@
 # Skill Eval Guide
 
-Skill-specific eval patterns for the scuttlerun/pincenez/craboodle pipeline. For generic eval mechanics — scenario schema, check design rules, anti-patterns, results interpretation, and config precedence — load the `claude-code-evals` skill or consult its reference files directly. Run `craboodle --help` for the canonical scenario.yml and base.yml schema reference.
+Skill-specific eval patterns for the scuttlerun/pincenez/craboodle pipeline. For generic eval mechanics — scenario schema, check design rules, anti-patterns, results interpretation, and config precedence — load the `claude-code-evals` skill or consult its reference files directly. Run `craboodle --help` for the canonical scenario.yaml and base.yaml schema reference.
 
 ---
 
@@ -63,7 +63,7 @@ Starter check shapes to adapt, not copy verbatim. Replace bracketed placeholders
 
 ## Worked Examples by Skill Type
 
-Complete scenario.yml files you can adapt. Each demonstrates check patterns that test skill-specific behavior.
+Complete scenario.yaml files you can adapt. Each demonstrates check patterns that test skill-specific behavior.
 
 ### Discipline Skill (enforces a rule under pressure)
 

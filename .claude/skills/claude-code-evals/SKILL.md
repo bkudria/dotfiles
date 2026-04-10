@@ -51,15 +51,12 @@ Run `<tool> --help` for CLI flags, YAML schemas, and field references.
 
 Evaluate whether a CLAUDE.md instruction changes behavior:
 
-**1. Create the eval directory:**
+**1. Scaffold the eval directory:**
+```bash
+craboodle init my-evals/
 ```
-my-evals/
-├── craboodle.yaml
-├── base.yaml
-└── tdd-instruction/
-    ├── scenario.yaml
-    └── checks.yaml
-```
+
+This creates `craboodle.yaml`, `base.yaml`, and an example scenario. Edit the generated files:
 
 **2. Write `craboodle.yaml`** (pipeline config):
 ```yaml
@@ -70,8 +67,6 @@ version: "1"
 ```yaml
 model: claude-sonnet-4-6
 tools: [Read, Write, Bash, Glob, Grep, Edit]
-user:
-  turn_policy: single
 ```
 
 **4. Write `tdd-instruction/scenario.yaml`** (scuttlerun config only):
@@ -96,17 +91,22 @@ checks:
       check: "At least one test case validates prime number behavior"
 ```
 
-**6. Lint checks** (catches anti-patterns before spending money):
+**6. Review lint rules** (before writing checks, learn what lint looks for):
+```bash
+pincenez lint --help
+```
+
+**7. Lint checks** (catches anti-patterns before spending money):
 ```bash
 craboodle lint my-evals/
 ```
 
-**7. Run:**
+**8. Run:**
 ```bash
 craboodle run my-evals/
 ```
 
-**8. Interpret results** — see `references/results-interpretation.md`.
+**9. Interpret results** — see `references/results-interpretation.md`.
 
 ## What Can Be Evaluated
 

@@ -49,7 +49,7 @@ Run `TaskList` to check for existing progress from a previous invocation or comp
 
 ## Step 1: Process Items One-by-One
 
-**Before each item**, run `TaskList` to confirm current state. Then for each pending item:
+Then for each pending item (run `TaskList` first if resuming after a compaction or previous invocation, otherwise proceed directly):
 
 1. **Mark in-progress**: `TaskUpdate` the task to `in_progress`
 2. **Investigate the item** — Do NOT present to the user or ask how to proceed until investigation is complete.

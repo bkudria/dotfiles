@@ -1,6 +1,6 @@
 ---
 name: project-config
-description: Audit, scaffold, and guide projects toward consistent standards using project.yaml as the single source of truth. Use when auditing a project, checking project compliance, creating a new project, setting up project structure, or configuring project standards. Trigger phrases include "audit this project", "audit the project", "project audit".
+description: "TRIGGER when the user asks to audit a project, check compliance, or assess project standards — including: \"audit this project\", \"let's audit\", \"project audit\", \"check this project\", \"check compliance\", \"audit the project\". Also triggers for scaffolding: \"new project\", \"scaffold project\", \"project setup\". This is THE handler for all project audit requests — do not manually explore the codebase, load this skill instead. Provides structured compliance checks against declared standards in project.yaml."
 argument-hint: "[audit|scaffold|check]"
 ---
 

@@ -23,9 +23,8 @@ From lowest to highest precedence (later layers override earlier ones):
 - `max_turns: 50`
 - `effort: high`
 - `permission_mode: bypassPermissions`
-- `user.turn_policy: single`
+- `user.max_turns: 0`
 - `user.oracle_model: claude-haiku-4-5`
-- `user.max_user_turns: 5`
 
 Run `scuttlerun <config> --dry-run` to see the fully resolved config after all defaults are applied.
 
@@ -77,15 +76,13 @@ Example:
 # base.yaml
 tools: [Read, Write, Bash]
 user:
-  turn_policy: single
-  max_user_turns: 5
+  max_turns: 0
 
 # scenario.yaml (top-level scuttlerun fields)
 tools: [Read, Glob, Grep]        # Replaces the array entirely
 user:
   persona: "A developer"          # Adds to the user object
-  # turn_policy: single           # Inherited from base
-  # max_user_turns: 5             # Inherited from base
+  # max_turns: 0                  # Inherited from base
 ```
 
 Result: `tools` is `[Read, Glob, Grep]`, `user` has all three fields.

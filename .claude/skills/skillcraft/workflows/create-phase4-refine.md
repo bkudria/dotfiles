@@ -6,8 +6,7 @@ Lint, run evals, and iterate until the skill passes. This phase is autonomous â€
 
 ## Prerequisites
 
-- `craboodle` installed (from `~/code/craboodle`)
-- `pincenez` installed (from `~/code/pincenez`)
+- `craboodle` and `pincenez` available on PATH
 
 ## Step 1: Lint Checks
 

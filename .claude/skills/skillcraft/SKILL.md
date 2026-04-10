@@ -29,9 +29,10 @@ Create, audit, improve, and update Claude Code skills.
 | Bulk Audit | `/skillcraft --all`, or "audit all skills" | `workflows/improve-bulk.md` |
 | Update | `/skillcraft update`, or "update skillcraft", "sync from sources", "check upstream" | `workflows/update-from-sources.md` |
 | Provenance | "add provenance", "track sources", "add upstream sources" | `workflows/add-provenance.md` |
+| Bootstrap Evals | "add evals", "bootstrap evals", "write evals for" | `workflows/bootstrap-evals.md` |
 | Integrate | "fold in source", "integrate source", "merge content from" | `workflows/integrate-source.md` |
 
-**Mode selection**: If the request mentions "fold in", "integrate source", or "merge content from" an external source into an existing skill, use **Integrate** mode. If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "review", or "fix" an existing skill without specifying a particular change, use **Improve**. If the request specifies a concrete change to make (e.g., "improve skill X to do Y", "add Z to skill"), use **Lightweight** mode — the edit will be covered by its Behavioral Edit Testing protocol. Otherwise default to **Create**.
+**Mode selection**: If the request asks to add, bootstrap, or write evals for an existing skill, use **Bootstrap Evals**. If the request mentions "fold in", "integrate source", or "merge content from" an external source into an existing skill, use **Integrate** mode. If the request mentions "add provenance", "track sources", or "add upstream sources" for a skill, use **Provenance** mode. If it mentions "update skillcraft", "sync from sources", "upstream changes", or "check sources", use **Update** mode. If it mentions "audit", "review", or "fix" an existing skill without specifying a particular change, use **Improve**. If the request specifies a concrete change to make (e.g., "improve skill X to do Y", "add Z to skill"), use **Lightweight** mode — the edit will be covered by its Behavioral Edit Testing protocol. Otherwise default to **Create**.
 
 ### Testing Discipline
 
@@ -56,13 +57,8 @@ When loaded during editing of any file within a skill directory, apply only thes
 
 **GATE — Eval coverage required. Do NOT plan, analyze, or edit until this gate is satisfied.**
 
-1. Check: does the skill have `evals/*/scenario.yml` (at least 3 scenarios)?
-2. If NO evals exist: **STOP.** Bootstrap evals before proceeding:
-   a. Read all skill files; classify skill type (discipline/technique/pattern/reference)
-   b. Draft 3 eval scenarios matching the type (see `references/testing-guide.md` § Eval Bootstrapping Protocol for scenario design by type)
-   c. Present scenarios to user for approval via AskUserQuestion
-   d. Create `<skill-dir>/evals/<scenario-id>/scenario.yml` for each approved scenario
-   e. **Checkpoint**: verify at least 3 scenario directories exist before continuing
+1. Check: does the skill have `evals/*/scenario.yaml` (any scenarios)?
+2. If NO evals exist: **STOP.** Run the Bootstrap Evals workflow (`workflows/bootstrap-evals.md`) before proceeding. After bootstrap completes, return here and continue from step 3.
 3. If evals exist but no scenario covers the behavior being changed: draft and add 1 scenario targeting that behavior; present to user for approval
 4. Run edit-relevant scenario(s) with the current skill loaded; capture output as pre-edit snapshot
 5. **NOW** make the edits
@@ -79,10 +75,14 @@ When loaded during editing of any file within a skill directory, apply only thes
 
 **When evals are created or modified** (new scenarios, changed checks, changed prompts), they MUST be run before the task is complete — even when no other skill file is being edited.
 
-1. Run: `craboodle run <skill-dir>/evals`
-2. Review craboodle's YAML output and exit code (0 = pass, 3 = below `min_pass_rate`)
-3. If results show low pass rates or unexpected failures, iterate on the scenarios before declaring done
-4. **In plan mode**: the plan MUST include "run evals" as an explicit step — writing evals that have never been run is equivalent to writing tests that have never been executed
+**Lint validates form; run validates substance.** Evals that pass lint but have never been run have the same evidentiary value as tests that have never been executed.
+
+1. **During authoring**: use `craboodle lint` to iterate on check quality (cheap, no LLM agent sessions)
+2. **Smoke test**: run `craboodle run --repeats 1 --scenario <one-scenario> <skill-dir>/evals` to catch fundamental config/check mismatches early (~1-2 min)
+3. **Before declaring done**: run `craboodle run <skill-dir>/evals` — full suite, default repetitions
+4. Review craboodle's YAML output and exit code (0 = pass, 3 = below `min_pass_rate`)
+5. If results show low pass rates or unexpected failures, iterate on the scenarios before declaring done
+6. **In plan mode**: the plan MUST include "run evals" as an explicit final step
 
 Report issues inline as suggestions. Do NOT run the full checklist or restructure the skill.
 
@@ -151,6 +151,7 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `workflows/create-phase3-validate.md` | Structural validation |
 | `workflows/create-phase4-refine.md` | Lint, run evals, iterate until passing |
 | `workflows/create-domain-expertise.md` | Domain expertise skill creation (research-intensive, router-pattern) |
+| `workflows/bootstrap-evals.md` | Add eval coverage to an existing skill |
 | `workflows/improve-standard.md` | Full audit of one skill (6-step workflow) |
 | `workflows/improve-bulk.md` | Audit every installed skill with summary table |
 | `workflows/update-from-sources.md` | Sync curated content from upstream sources |

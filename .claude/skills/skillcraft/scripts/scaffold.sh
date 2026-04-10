@@ -417,8 +417,6 @@ tools:
   - Glob
   - Grep
   - Edit
-user:
-  turn_policy: single
 project:
   skills:
     - ~/.claude/skills/${SKILL_NAME}

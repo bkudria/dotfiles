@@ -19,10 +19,11 @@ Detailed check logic for each standard. Standards are checked in the order liste
 
 | Option | Type | Description |
 |--------|------|-------------|
-| `sections` | list of strings | Required section headings (case-insensitive match) |
+| `sections` | list of strings | Required section headings (case-insensitive match). Respects the standard's severity — FAIL if the readme standard is required, WARN if recommended. |
+| `recommended_sections` | list of strings | Section headings that should be present (always WARN if missing, never FAIL) |
 | `references` | list of standard names | README must link to these documents (e.g., `[goals, spec, docs]` requires links to GOALS.md, SPEC.md, and docs/) |
 
-**Section check**: Scan for markdown headings (`## Section Name`) matching the declared sections. Report missing sections as failures.
+**Section check**: Scan for markdown headings (`## Section Name`) matching the declared sections. Missing required `sections` use the standard's severity (FAIL or WARN). Missing `recommended_sections` are always WARN.
 
 **Reference check**: Scan README content for links or references to the specified documents. A bare mention of the filename counts (e.g., "See GOALS.md" or `[Goals](GOALS.md)`).
 
@@ -32,7 +33,7 @@ Detailed check logic for each standard. Standards are checked in the order liste
 
 **Default check**: `.gitignore` exists in the project root.
 
-No additional configuration.
+**Public visibility check**: When `visibility: public`, also checks that `.gitignore` contains patterns for common local configuration directories. Each missing pattern is reported as a WARN (not FAIL): `.env`, `.claude/`, `.vscode/`, `.idea/`.
 
 ---
 
@@ -52,6 +53,7 @@ No additional configuration.
 | Option | Type | Description |
 |--------|------|-------------|
 | `spdx` | string | SPDX license identifier (e.g., `MIT`, `Apache-2.0`, `GPL-3.0-only`) |
+| `current_year` | boolean | When true, verify the LICENSE file contains the current year in its copyright line. WARN if not found (since year conventions vary). |
 
 **SPDX check**: If `spdx` is declared, verify the license file content matches the expected license. Use known license text patterns:
 - `MIT` — look for "MIT License" or "Permission is hereby granted"
@@ -100,6 +102,8 @@ If `spdx` is not declared, just check file existence.
 - `Project overview`
 - `Architecture`
 - `Key decisions`
+
+**Public visibility review**: When `visibility: public`, emit an additional SKIP row (`claude-md.review`) reminding to manually review CLAUDE.md content for internal-only references (private URLs, credentials, internal project names) before public release.
 
 ---
 
@@ -193,9 +197,11 @@ A coverage ratchet is a minimum threshold that fails the build if coverage drops
 - `CHANGES.md`
 
 **Format check** (Keep-a-Changelog):
-- Must have an `## [Unreleased]` section (or at least one `## [version]` section)
+- Must have at least one `## [version]` section (`## [X.Y.Z]` or `## [Unreleased]`)
 - Version sections should follow `## [X.Y.Z] - YYYY-MM-DD` format
 - Entries should use change type headings: `### Added`, `### Changed`, `### Deprecated`, `### Removed`, `### Fixed`, `### Security`
+
+**`[Unreleased]` check**: If version sections exist, the script additionally checks for an `## [Unreleased]` section (case-insensitive). PASS if present, WARN if missing — confirms the changelog is actively maintained, not abandoned at a prior release.
 
 Report format violations as warnings, not failures — the file existing is the primary check.
 
@@ -231,6 +237,134 @@ No additional configuration.
 
 ---
 
+## issue-templates
+
+**Default check**: Structured issue templates exist for the project's forge.
+
+**Check logic** (first match wins):
+1. `.github/ISSUE_TEMPLATE/` directory contains at least one `.md`, `.yml`, or `.yaml` template file (excluding `config.yml` / `config.yaml`, which is the template chooser, not a template). **PASS**.
+2. `.gitlab/issue_templates/` directory contains at least one `.md` file. **PASS**.
+3. `.github/ISSUE_TEMPLATE.md` (legacy single-file form) exists. **WARN** with note: "legacy single-file form — consider migrating to `.github/ISSUE_TEMPLATE/` directory".
+4. Otherwise, FAIL/WARN based on severity.
+
+No configurable options.
+
+---
+
+## pr-template
+
+**Default check**: A Pull Request template exists for the project's forge.
+
+**Check logic** (first match wins):
+1. `.github/PULL_REQUEST_TEMPLATE.md` or `.github/pull_request_template.md` — **PASS**.
+2. `.github/PULL_REQUEST_TEMPLATE/` directory with at least one `.md` file (multi-template form) — **PASS**.
+3. `PULL_REQUEST_TEMPLATE.md` or `docs/PULL_REQUEST_TEMPLATE.md` (root / docs variants — GitHub searches these too) — **PASS**.
+4. `.gitlab/merge_request_templates/` directory with at least one `.md` file — **PASS**.
+5. Otherwise, FAIL/WARN based on severity.
+
+No configurable options.
+
+---
+
+## commit-convention
+
+**Default check**: The project enforces or documents a commit message convention.
+
+**Check logic** (first match wins):
+1. A commitlint config file exists — **PASS**.
+2. A commitizen config (`.czrc`, `.cz.json`) or `package.json` with `"commitlint"` key exists — **PASS**.
+3. `CONTRIBUTING.md` contains a mention of "conventional commit", "commit message format", "commit convention", or "angular commit" (case-insensitive grep) — **PASS**.
+4. Otherwise, FAIL/WARN based on severity.
+
+**Commitlint config files checked**:
+- `commitlint.config.js`, `commitlint.config.cjs`, `commitlint.config.mjs`, `commitlint.config.ts`
+- `.commitlintrc`, `.commitlintrc.json`, `.commitlintrc.yml`, `.commitlintrc.yaml`, `.commitlintrc.js`, `.commitlintrc.cjs`, `.commitlintrc.ts`
+
+No configurable options.
+
+---
+
+## release-automation
+
+**Default check**: Release automation tooling is configured.
+
+**Check logic** (first match wins):
+1. release-please config: `release-please-config.json`, `.release-please-manifest.json` — **PASS**.
+2. semantic-release config: `.releaserc`, `.releaserc.json`, `.releaserc.yml`, `.releaserc.yaml`, `.releaserc.js`, `.releaserc.cjs`, `release.config.js`, `release.config.cjs`, `release.config.ts` — **PASS**.
+3. changesets config: `.changeset/config.json` — **PASS**.
+4. GoReleaser config: `.goreleaser.yml`, `.goreleaser.yaml`, `goreleaser.yml`, `goreleaser.yaml` — **PASS**.
+5. `package.json` with `"release"` key (semantic-release embedded config) — **PASS**.
+6. Otherwise, FAIL/WARN based on severity.
+
+No configurable options.
+
+---
+
+## dependency-updates
+
+**Default check**: Automated dependency update tooling is configured.
+
+**Check logic** (first match wins):
+1. `.github/dependabot.yml` or `.github/dependabot.yaml` — **PASS**.
+2. Renovate config: `renovate.json`, `renovate.json5`, `.renovaterc`, `.renovaterc.json`, `.github/renovate.json`, `.github/renovate.json5` — **PASS**.
+3. `package.json` with `"renovate"` key — **PASS**.
+4. Otherwise, FAIL/WARN based on severity.
+
+No configurable options.
+
+---
+
+## readme-badges
+
+**Default check**: The README contains at least one status badge (build status, version, license, coverage, etc.).
+
+**Check logic**: Grep the first README file found for any of these badge URL patterns:
+- `img.shields.io` (shields.io badges)
+- `badge.svg` (GitHub Actions status badges)
+- `codecov.io` (coverage badges)
+- `badgen.net` (badgen badges)
+- `img src=.*badge` or `!\[.*badge` (generic badge image patterns)
+
+**PASS** if any badge pattern is found. FAIL/WARN if none found.
+
+No configurable options.
+
+---
+
+## lockfile
+
+**Default check**: A language-appropriate lockfile is committed to the repository.
+
+**Lockfiles by language**:
+- `typescript` / `javascript`: `package-lock.json`, `yarn.lock`, `pnpm-lock.yaml`, `bun.lockb`, `bun.lock`
+- `ruby`: `Gemfile.lock`
+- `python`: `poetry.lock`, `Pipfile.lock`, `uv.lock`
+- `rust`: `Cargo.lock`
+- `go`: `go.sum`
+- `php`: `composer.lock`
+- `elixir`: `mix.lock`
+- `swift`: `Package.resolved`
+- Unknown language: SKIPped for manual verification.
+
+No configurable options — auto-detected based on project language.
+
+**Note**: For libraries, some ecosystems recommend NOT committing the lockfile (so downstream consumers test with their own resolved versions). Projects may set `lockfile: { recommended: true }` or omit the standard entirely if this applies.
+
+---
+
+## support
+
+**Default check**: A `SUPPORT.md` file exists, telling users where to get help (discussions, chat, paid support) so issues don't become a catch-all help desk.
+
+**Files checked** (first match wins):
+- `SUPPORT.md`
+- `.github/SUPPORT.md`
+- `docs/SUPPORT.md`
+
+No configurable options.
+
+---
+
 ## code-of-conduct
 
 **Default check**: A CODE_OF_CONDUCT file exists.
@@ -239,6 +373,55 @@ No additional configuration.
 - `CODE_OF_CONDUCT.md`
 - `CODE_OF_CONDUCT`
 - `CODE_OF_CONDUCT.txt`
+
+---
+
+## security-policy
+
+**Default check**: A security policy file exists, telling users how to report vulnerabilities privately.
+
+**Files checked** (first match wins):
+- `SECURITY.md`
+- `SECURITY`
+- `SECURITY.txt`
+- `.github/SECURITY.md`
+
+No additional configuration.
+
+---
+
+## package-metadata
+
+**Default check**: The project's distribution manifest declares metadata required for public release (name, version, license, repository URL, description).
+
+**Configurable options**:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `manifest` | string | Path to the manifest file (e.g., `package.json`, `Cargo.toml`, `pyproject.toml`, `*.gemspec`) |
+
+**Script behavior**: If `manifest` is declared, checks that file exists. If the project language is known, attempts to validate key fields (name, version, license, repository/homepage) in the manifest. Missing fields are reported as WARN with a list. If `manifest` is not declared, the check is SKIPped for manual verification.
+
+**Known manifest field checks** (ecosystem-specific, best-effort):
+- `package.json`: name, version, license, repository, description (via jq)
+- `Cargo.toml`: [package] name, version, license, repository (via yq)
+- `pyproject.toml`: [project] name, version, license, urls (via yq)
+- Other formats: file existence only, field validation SKIPped
+
+---
+
+## publish-config
+
+**Default check**: The project explicitly controls which files are included in distributed packages, preventing accidental inclusion of tests, internal docs, secrets, or development artifacts.
+
+No configurable options — auto-detected based on project language.
+
+**Check logic** (best-effort, ecosystem-specific):
+- `typescript` / `javascript`: `.npmignore` exists OR `package.json` has a `"files"` field
+- `ruby`: a `.gemspec` file exists with a `files` attribute
+- `rust`: `Cargo.toml` has `[package]` exclude or include
+- `python`: `MANIFEST.in` exists OR `pyproject.toml` has `[tool.setuptools.packages]`
+- Unknown language: SKIPped for manual verification
 
 ---
 

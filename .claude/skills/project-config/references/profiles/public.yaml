@@ -1,0 +1,69 @@
+# Public profile — standards for open-source release readiness
+#
+# Use in project.yaml:
+#   profiles: [base, public]
+#
+# Adds CI, governance, security, packaging, and distribution standards
+# on top of the base profile's code quality standards.
+
+defaults:
+  visibility: public
+
+standards:
+  ci:
+    required: true
+
+  contributing:
+    required: true
+
+  changelog:
+    required: true
+
+  code-of-conduct:
+    required: true
+
+  security-policy:
+    required: true
+
+  issue-templates:
+    required: true
+
+  pr-template:
+    required: true
+
+  commit-convention:
+    required: true
+
+  release-automation:
+    recommended: true
+
+  dependency-updates:
+    required: true
+
+  lockfile:
+    recommended: true
+
+  editorconfig:
+    required: true
+
+  support:
+    recommended: true
+
+  package-metadata:
+    required: true
+
+  publish-config:
+    required: true
+
+  readme:
+    sections: [Installation, Usage]
+    recommended_sections: [Quick Start]
+
+  readme-badges:
+    recommended: true
+
+  license:
+    current_year: true
+
+  docs:
+    recommended: true

@@ -38,7 +38,8 @@ The `standards:` key maps standard names to their configuration. Each standard a
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `sections` | list of strings | Required heading names (case-insensitive) |
+| `sections` | list of strings | Required heading names (case-insensitive). Respects severity — FAIL if required, WARN if recommended. |
+| `recommended_sections` | list of strings | Heading names that should be present (always WARN if missing, never FAIL) |
 | `references` | list of standard names | Must contain links to these documents |
 
 #### license
@@ -46,6 +47,7 @@ The `standards:` key maps standard names to their configuration. Each standard a
 | Field | Type | Description |
 |-------|------|-------------|
 | `spdx` | string | SPDX license identifier |
+| `current_year` | boolean | When true, verify the LICENSE file contains the current year in its copyright line |
 
 #### tests
 
@@ -78,6 +80,20 @@ The `standards:` key maps standard names to their configuration. Each standard a
 #### ci
 
 No standard-specific fields — just `required: true/false`.
+
+#### package-metadata
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `manifest` | string | Path to the distribution manifest file (e.g., `package.json`, `Cargo.toml`, `pyproject.toml`) |
+
+#### security-policy
+
+No standard-specific fields — checks for SECURITY.md file existence.
+
+#### publish-config
+
+No standard-specific fields — auto-detects based on project language.
 
 #### All other standards
 
@@ -152,6 +168,16 @@ standards:
 
   code-of-conduct:
     recommended: true
+
+  security-policy:
+    required: true
+
+  package-metadata:
+    required: true
+    manifest: chorearch.gemspec
+
+  publish-config:
+    required: true
 ```
 
 ## Minimal Example (with base profile)
@@ -248,3 +274,30 @@ A field is redundant when:
 - The values are identical
 
 Fields NOT in the profile are additions (always kept). Fields with different values from the profile are overrides (always kept).
+
+## Public Profile Example
+
+The public profile adds open-source release standards on top of base:
+
+```yaml
+name: scuttlerun
+description: Multi-turn Claude session driver
+language: typescript
+profiles: [base, public]
+
+standards:
+  tests:
+    framework: vitest
+    config: vitest.config.ts
+    directory: tests
+  linter:
+    tool: eslint
+    config: eslint.config.js
+  coverage:
+    config: vitest.config.ts
+    ratchet_pattern: thresholds
+  package-metadata:
+    manifest: package.json
+```
+
+The base profile handles: readme, gitignore, license (MIT), tests, claude-md, goals, spec, linter, coverage (all required). The public profile adds: ci, contributing, changelog, code-of-conduct, security-policy, package-metadata, publish-config (all required), readme sections [Usage] + recommended [Badges], license current_year check, docs (recommended).

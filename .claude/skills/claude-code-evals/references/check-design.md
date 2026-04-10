@@ -49,6 +49,34 @@ Most scenarios need 2-3 different pattern types.
 | **Tautological** | Restates the prompt as a check (e.g., "output answers the question") | Assert HOW it answers: what structure, content, or approach is present |
 | **Compound** | Tests two things in one check (e.g., "uses correct syntax AND explains why") | Split into two separate checks |
 
+### Splitting Compound Checks
+
+Before (compound — if it fails, which case is missing?):
+```yaml
+- handles-both-cases:
+    check: "Expression handles both the internal and external cases, not just one"
+```
+
+After (split — each check fails independently):
+```yaml
+- handles-internal-case:
+    check: "Expression contains a select condition targeting services with type \"internal\" and setting their port to 8080"
+- handles-external-case:
+    check: "Expression contains a select condition targeting services with type \"external\" and setting their port to 443"
+```
+
+Before (compound — "valid syntax" + "no jq-only constructs" are independent claims):
+```yaml
+- produces-valid-yq:
+    check: "The complete expression is valid yq v4 syntax with no jq-only functions like def, foreach, limit, or inputs"
+```
+
+After (split — syntax validity and jq avoidance tested separately):
+```yaml
+- no-jq-only-constructs:
+    check: "Expression contains none of the jq-only constructs: def, foreach, limit, inputs, or reduce (use ireduce for yq v4)"
+```
+
 ---
 
 ## Good vs Bad Checks
@@ -87,10 +115,25 @@ Different configuration types add value in different ways. Target checks accordi
 
 ---
 
+## Pre-Write Checklist
+
+Apply these tests to each check **before writing it to a file**. Catching anti-patterns here is free; catching them via `craboodle lint` costs a lint cycle per fix.
+
+| Anti-Pattern | Self-Test | If Yes |
+|---|---|---|
+| **Compound** | Does this check test two+ independent things? Signals: "and", "both", "as well as", or two distinct behaviors. | Split into separate checks — one per behavior. |
+| **Vague** | Could two graders disagree on pass/fail? Signals: "valid", "correct", "appropriate", "proper" without a concrete example or specific element. | Add a concrete syntactic example or name the specific element to look for. |
+| **Always-passes** | Would Claude do this without the configuration? | Revise to target what the config specifically adds — the delta, not the baseline. |
+| **Tautological** | Does this check mirror the prompt wording? (Prompt: "write a function" → Check: "output contains a function") | Assert HOW — the specific structure, approach, or method — not WHETHER. |
+| **Unverifiable** | Can the grader observe this in the output? Signals: "understood", "considered", "thought about". | Rewrite as observable behavior: what the agent produced, not what it reasoned. |
+
+---
+
 ## Lint Before Running
 
 Always lint checks before spending money on eval runs:
 
+- **Review rules first**: `pincenez lint --help` — shows the full anti-pattern definitions with examples and check-writing guidance. Read this before writing checks to avoid common issues.
 - **Single checks file**: `pincenez lint checks.yaml` — catches anti-patterns in one checks file
 - **Full eval suite**: `craboodle lint <evals-dir>` — checks all scenarios
 

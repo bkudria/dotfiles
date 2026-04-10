@@ -63,8 +63,6 @@ tools:                            # Default tools
   - Glob
   - Grep
   - Edit
-user:
-  turn_policy: single             # Single-turn by default
 project:
   claude_md: |                    # Shared CLAUDE.md (scenarios can override)
     Use relative paths.

@@ -90,7 +90,7 @@ After all fixes, re-run the checklist. Report final score.
 
 ## Step 7: Behavioral Eval
 
-If the skill has no `evals/` directory, bootstrap baseline evals using the Eval Bootstrapping Protocol in `references/testing-guide.md`. All skills should have eval coverage.
+If the skill has no `evals/` directory, run the Bootstrap Evals workflow (`workflows/bootstrap-evals.md`). All skills should have eval coverage.
 
 Then re-run edit-relevant scenarios to verify improvements haven't introduced regressions.
 
