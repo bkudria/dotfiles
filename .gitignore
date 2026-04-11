@@ -4,31 +4,56 @@
 # allow hidden files
 !.*
 
-# allow directories
-!*/
-
-/Applications
-/Desktop
-/Documents
-/Downloads
-/Movies
-/Music
-/Pictures
-/Public
-/tmp
-/code
+# allow specific non-hidden directories
+!bin/
+!Library/
+!icloud/
 
 /Library/**
 
+# Hammerspoon - ignore compiled output and deps
 /.hammerspoon/Spoons/
 /.hammerspoon/pasteboard_history.json
 /.hammerspoon/.clips.sqlite
+/.hammerspoon/*.lua
+!/.hammerspoon/init.lua
+/.hammerspoon/*.js
+/.hammerspoon/node_modules/
+/.hammerspoon/package.json
+/.hammerspoon/package-lock.json
+/.hammerspoon/tmp/
+/.hammerspoon/*.bak
+
+# Claude Code - track settings and skills only
+/.claude/*
+!/.claude/CLAUDE.md
+!/.claude/settings.json
+!/.claude/statusline-p10k.zsh
+!/.claude/skills/
+
+# .config - track only specific tool configs
+/.config/*
+!/.config/btop/
+!/.config/ccstatusline/
+!/.config/chrome/
+/.config/chrome/Cached*
+!/.config/direnv/
+!/.config/gemsmith/
+!/.config/iterm2/
+!/.config/karabiner.edn
 
 /.doom.d/snippets/fundamental-mode/untracked/*
 /.doom.d/custom.el
 
-/.zsh_history
+# History/state files
+.*history
 
+# Compiled zsh files
+*.zwc
+
+# Zim build artifacts
+/.zim/.latest_version
+/.zim/init.zsh.old
 /.zim/init.zsh
 
 .aider*
@@ -46,7 +71,6 @@
 /.ICEauthority
 /.aptible
 /.aws
-/.bash_history
 /.bundle
 /.bundler
 /.cache
@@ -102,13 +126,8 @@
 .pants.rc
 .pgcli*
 .platformio
-.psql_history
-.python_history
-.saws-history
 .saws.log
 .semantic-highlight-cache
-.sftp_history
-.sh_history
 .vagrant.d
 .venv
 .vim/.netrwhist
@@ -117,7 +136,6 @@
 
 .zcompcache
 .zcompdump*
-.zhistory
 .zsh-histfile
 
 **/.claude/settings.local.json

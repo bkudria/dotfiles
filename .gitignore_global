@@ -19,6 +19,5 @@ GPATH
 .envrc
 .aider*
 .ra-aid*
-CLAUDE.md
 **/.claude/settings.local.json
 _aux/
