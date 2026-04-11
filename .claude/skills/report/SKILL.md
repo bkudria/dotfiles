@@ -55,7 +55,7 @@ If the investigation has 4+ areas, create a `TaskCreate` for each to track progr
 
 ### Sub-agent strategy
 
-Dispatch sub-agents when 3+ areas need moderate or deep exploration. Each sub-agent explores one area independently. When dispatching multiple sub-agents, include in each prompt a one-line note of the other areas being investigated, so sub-agents can flag cross-cutting observations.
+Dispatch sub-agents when 3+ areas need moderate or deep exploration. Each sub-agent explores one area independently. Every sub-agent prompt must include: (1) the observation-only constraint — no fixes or solutions, (2) the output format — numbered observations, each a single paragraph with a short title and specific evidence, and (3) a one-line note of the other areas being investigated.
 
 > Investigate [AREA] within [SCOPE]. Look for problems, inconsistencies, surprising patterns, missing pieces, and opportunities for improvement. Do NOT suggest fixes or solutions — only describe what is found. Report as numbered observations, each a single paragraph with a short title. Include specific evidence (file paths, line numbers, values) in every observation.
 
@@ -80,11 +80,13 @@ Execute the exploration plan. For each area:
 
 ### Sub-agent verification
 
-When sub-agents were dispatched, verify before synthesizing:
+When sub-agents were dispatched, complete these checks before proceeding to Phase 4:
 
-- **Cross-reference claims between sub-agents** — If one sub-agent's findings depend on or contradict another's, investigate the discrepancy directly.
-- **Spot-check numerical claims** — Counts, frequencies, and statistics are especially error-prone. Run one independent check on the most significant number.
-- **Test tool reliability** — If a sub-agent relied on a tool that could have timed out, truncated, or silently failed, verify the tool produced complete results.
+1. **Cross-reference claims between sub-agents** — If one sub-agent's findings depend on or contradict another's, investigate the discrepancy directly.
+2. **Spot-check numerical claims** — Counts, frequencies, and statistics are especially error-prone. Run one independent check on the most significant number.
+3. **Test tool reliability** — If a sub-agent relied on a tool that could have timed out, truncated, or silently failed, verify the tool produced complete results.
+
+If a check does not apply (e.g., no numerical claims), note why and move on — do not skip silently.
 
 ---
 
@@ -95,7 +97,7 @@ When sub-agents were dispatched, verify before synthesizing:
 1. Group related observations into discrete findings
 2. **Filter for actionability** — Drop observations that are purely informational (neutral descriptions of working-as-designed behavior, positive observations with no implied problem or opportunity). A finding belongs in the report only if it identifies a problem, a gap, a risk, or a concrete opportunity for improvement. "X works correctly" is not a finding.
 3. Order by significance — most impactful first
-4. Merge observations that describe the same underlying issue
+4. **Merge overlapping observations** — If two findings share a root cause or near-identical concluding clause, they describe the same issue. Keep the stronger framing; fold the other's unique evidence into it.
 5. Split compound issues into separate findings
 
 ### Write the report
@@ -110,22 +112,25 @@ Produce a report with this structure:
 
 ## Findings
 
-1. **[Short descriptive title]** — [Detailed observation. What was found, where
-   (file paths, line numbers), current state, and why this is noteworthy.
-   Includes specific evidence.]
+1. **[Short descriptive title]**
 
-2. **[Short descriptive title]** — [...]
+   [Detailed observation. What was found, where (file paths, line numbers),
+   current state, and why this is noteworthy. Includes specific evidence.]
+
+2. **[Short descriptive title]**
+
+   [...]
 
 ## Summary
 
-[N] findings. [One-sentence overall assessment.]
+[N] findings. [Brief overall assessment.]
 ```
 
 ### Finding format rules
 
 - Each finding is a single numbered item in a flat list under `## Findings`
-- Title is bold, separated from body by an em dash (`—`)
-- Body is a single paragraph — no sub-bullets, no nested structure
+- Title is bold, on its own line — no em dash, no body text on the title line
+- Body is a separate indented paragraph after a blank line — no sub-bullets, no nested structure
 - Body includes concrete evidence: file paths, values, patterns observed
 - Body describes WHAT and WHY it is noteworthy — never HOW to fix it
 - Each finding stands alone without requiring context from other findings
