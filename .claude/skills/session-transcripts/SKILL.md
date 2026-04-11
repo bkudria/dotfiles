@@ -35,161 +35,86 @@ Tools and schema reference for working with Claude Code session transcript JSONL
 └── history.jsonl                            # Lightweight global history index
 ```
 
-Path encoding: `/Users/bkudria/code/foo` → `-Users-bkudria-code-foo`
+Path encoding: replace `/` and `.` with `-`. Example: `/Users/me/.claude/skills/foo` → `-Users-me--claude-skills-foo`
 
 ## Available Scripts
 
 All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 
-| Script | Type | Purpose |
-|--------|------|---------|
-| `find-session.sh <uuid>` | Shell | Find session file by UUID (partial match) |
-| `find-session.sh -s <term>` | Shell | Search content across all sessions |
-| `list-projects.sh` | Shell | List all projects with session counts |
-| `list-sessions.sh [path]` | Shell | List sessions for a project |
-| `extract-conversation.jq` | Pure jq | Extract readable conversation (markdown) |
-| `session-overview.jq` | Pure jq | Quick stats summary (tokens, tools, counts) |
-| `session-activity.jq` | Pure jq | Chronological turn-by-turn timeline |
-| `extract-errors.jq` | Pure jq | Find tool errors and failures |
-| `extract-changes.jq` | Pure jq | File operations and tool usage log |
-| `extract-agents.jq` | Pure jq | Sub-agent (Task/Agent) spawns with prompts and model |
-| `extract-compaction.jq` | Pure jq | Extract compaction events with before/after stats |
-| `extract-subagent-commands.jq` | Pure jq | Sub-agent tool uses from progress entries |
-| `find-subagent-files.sh <session.jsonl>` | Shell | Find all subagent transcript files for a session |
-| `find-skill-usage.sh <skill-name> [--project <path>]` | Shell | Find sessions that loaded a specific skill |
-| `find-tool-calls.sh <file> [--path P] [--tools T] [--commands-only]` | Shell | Find tool calls by path/tool filter |
-| `search-session.sh <file> <keyword> [--context N]` | Shell | Search session content with highlighting |
-| `extract-skill-usage.jq` | Pure jq | Skill invocations with timestamps and args |
-| `lib.jq` | jq module | Shared helper functions |
+### Discovery — find and list sessions
+
+| Script | Purpose |
+|--------|---------|
+| `find-session.sh <uuid>` | Find session file by UUID (partial match, truncated UUIDs OK) |
+| `find-session.sh -s <term>` | Search content across all sessions |
+| `list-projects.sh` | List all projects with session counts |
+| `list-sessions.sh [path]` | List sessions for a project |
+| `find-subagent-files.sh <file>` | Find all subagent transcript files for a session |
+| `find-skill-usage.sh <name> [--project <path>]` | Find sessions that loaded a specific skill |
+
+### Extraction — structured views of a single session
+
+| Script | Purpose | When to use |
+|--------|---------|-------------|
+| `extract-overview.jq` | Quick stats (tokens, tools, duration) | First look at any session |
+| `extract-tool-results.sh [--full] [--tools T] [--errors-only]` | Tool calls paired with results via tool_use_id | Primary view for understanding what happened |
+| `extract-conversation.jq` | Conversation with brief tool descriptions | Understanding the conversational flow |
+| `extract-activity.jq` | One-line-per-turn timeline | Spotting patterns and timing gaps |
+| `extract-errors.jq` | Tool errors and stderr | Debugging failures |
+| `extract-changes.jq` | File operations log | Tracking what files were touched |
+| `extract-agents.jq` | Sub-agent spawns with prompts and model | Multi-agent sessions |
+| `extract-compaction.jq` | Compaction events with before/after stats | Long sessions hitting context limits |
+| `extract-subagent-commands.jq` | Sub-agent tool uses | What sub-agents did |
+| `extract-skill-usage.jq` | Skill invocations with timestamps | Which skills were loaded |
+| `extract-thinking.jq` | Thinking blocks with timestamps | Understanding Claude's reasoning |
+| `extract-progress.jq` | Non-agent progress entries (bash, hook, mcp) | Long-running commands and background activity |
+
+### Search — find specific content within a session
+
+| Script | Purpose | When to use |
+|--------|---------|-------------|
+| `search-session.sh <file> <keyword> [--context N]` | Keyword search across text, tool inputs, and results | Finding mentions of a topic |
+| `search-tool-calls.sh <file> [--path P] [--tools T] [--commands-only]` | Filter tool calls by path/tool name | Finding specific file operations |
+
+### Libraries
+
+| File | Purpose |
+|------|---------|
+| `lib.jq` | Shared jq functions for all `.jq` scripts |
+| `lib.sh` | Shared bash functions for all `.sh` scripts |
 
 ### Usage Examples
 
-**Find a session by UUID:**
 ```bash
-~/.claude/skills/session-transcripts/scripts/find-session.sh 77d54f93
-```
+SCRIPTS=~/.claude/skills/session-transcripts/scripts
 
-**Extract readable conversation from a transcript:**
-```bash
-~/.claude/skills/session-transcripts/scripts/extract-conversation.jq /path/to/session.jsonl
-```
+# Find and scope a session
+$SCRIPTS/find-session.sh 77d54f93
+$SCRIPTS/extract-overview.jq /path/to/session.jsonl
 
-**Get session stats:**
-```bash
-~/.claude/skills/session-transcripts/scripts/session-overview.jq /path/to/session.jsonl
-```
+# See what happened
+$SCRIPTS/extract-tool-results.sh /path/to/session.jsonl
 
-**List all projects:**
-```bash
-~/.claude/skills/session-transcripts/scripts/list-projects.sh
-```
+# Search
+$SCRIPTS/search-session.sh /path/to/session.jsonl "authentication" --context 3
+$SCRIPTS/search-tool-calls.sh /path/to/session.jsonl --tools "Write,Edit" --path "lib.jq"
 
-**List sessions for a project:**
-```bash
-~/.claude/skills/session-transcripts/scripts/list-sessions.sh /Users/bkudria/code/myproject
-```
-
-**Search within a session:**
-```bash
-~/.claude/skills/session-transcripts/scripts/search-session.sh /path/to/session.jsonl "authentication" --context 3
-```
-
-**Find all Write/Edit operations on a specific file:**
-```bash
-~/.claude/skills/session-transcripts/scripts/find-tool-calls.sh /path/to/session.jsonl --tools "Write,Edit" --path "lib.jq"
-```
-
-**Extract compaction events:**
-```bash
-~/.claude/skills/session-transcripts/scripts/extract-compaction.jq /path/to/session.jsonl
-```
-
-**Find all subagent transcript files:**
-```bash
-~/.claude/skills/session-transcripts/scripts/find-subagent-files.sh /path/to/session.jsonl
-```
-
-**Find all sessions that used a specific skill:**
-```bash
-~/.claude/skills/session-transcripts/scripts/find-skill-usage.sh skillcraft
-```
-
-**Find skill usage within a specific project:**
-```bash
-~/.claude/skills/session-transcripts/scripts/find-skill-usage.sh jq --project /Users/bkudria/code/myproject
-```
-
-**List all skill invocations in a session:**
-```bash
-~/.claude/skills/session-transcripts/scripts/extract-skill-usage.jq /path/to/session.jsonl
-```
-
-**Extract just file paths from tool calls:**
-```bash
-~/.claude/skills/session-transcripts/scripts/find-tool-calls.sh /path/to/session.jsonl --tools Read --commands-only
-```
-
-**See what sub-agents did:**
-```bash
-~/.claude/skills/session-transcripts/scripts/extract-subagent-commands.jq /path/to/session.jsonl
+# Cross-session queries
+$SCRIPTS/find-skill-usage.sh skillcraft
+$SCRIPTS/list-sessions.sh /Users/bkudria/code/myproject
 ```
 
 ## Reviewing a Session
 
-Structured approach for reviewing what happened in a past session — find errors, trace decisions, identify missteps.
+For structured session review, read `workflows/review.md`.
 
-### Step 1: Locate and scope
+## Tips
 
-```bash
-SCRIPTS=~/.claude/skills/session-transcripts/scripts
-FILE=$($SCRIPTS/find-session.sh <uuid> 2>/dev/null | head -1 | awk '{print $1}')
-$SCRIPTS/session-overview.jq "$FILE"
-```
-
-### Step 2: Scan the timeline
-
-```bash
-$SCRIPTS/session-activity.jq "$FILE"
-```
-
-One line per turn — scan for patterns: long gaps, repeated tool calls, pivots in approach.
-
-### Step 3: Find problems
-
-```bash
-$SCRIPTS/extract-errors.jq "$FILE"
-$SCRIPTS/extract-agents.jq "$FILE"
-$SCRIPTS/extract-compaction.jq "$FILE"
-```
-
-Errors show tool failures. Agents show sub-agent spawns with prompt previews. Compaction shows where context was summarized and how many messages were compressed.
-
-### Step 4: Trace file changes
-
-```bash
-$SCRIPTS/extract-changes.jq "$FILE"
-```
-
-Every Read/Write/Edit/Bash/Grep/Glob operation, chronologically. Spot wasted reads, unnecessary writes, repeated searches.
-
-### Step 5: Deep dive (optional)
-
-For full conversation context on specific sections identified above:
-
-```bash
-$SCRIPTS/extract-conversation.jq "$FILE" > /tmp/conversation.md
-```
-
-Then read specific line ranges from the temp file.
-
-## Workflow Tips
-
-- **Truncated UUIDs**: `find-session.sh` accepts truncated UUIDs (first segment only, e.g. `b366b3b0`). This matches the short format shown by ccstatusline. Prefix matching is tried first (fast), with substring fallback.
-- **Large transcripts** (>256KB): Use `extract-conversation.jq` first to get a readable version, then read that with the Read tool. This is far more efficient than chunked reading.
-- **Quick stats**: Use `session-overview.jq` before reading a transcript to understand its scope.
+- **Truncated UUIDs**: `find-session.sh` accepts truncated UUIDs (first segment only, e.g. `b366b3b0`). Prefix matching is tried first (fast), with substring fallback.
+- **Large transcripts** (>256KB file size): Use `extract-conversation.jq` to produce a readable version, pipe to a temp file, then Read that. Check file size first (`ls -l` or `extract-overview.jq`) — most sessions are well under this threshold and can be processed directly.
+- **Quick stats**: Use `extract-overview.jq` before reading a transcript to understand its scope.
 - **Ad-hoc queries**: See `references/jq-recipes.md` for common jq one-liners.
 - **Schema details**: See `references/transcript-schema.md` for full JSONL field documentation.
-- **Subagents**: For transcript summarization tasks, pipe `extract-conversation.jq` output to a temp file, then read it — avoids the multi-chunk problem entirely.
 
 ## Dependencies
 
@@ -201,3 +126,4 @@ Then read specific line ranges from the temp file.
 |------|----------|
 | `references/transcript-schema.md` | Full JSONL schema with all entry types and fields |
 | `references/jq-recipes.md` | Ad-hoc jq one-liners for custom queries |
+| `workflows/review.md` | Structured session review toolkit |

@@ -12,6 +12,7 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECTS_DIR="${HOME}/.claude/projects"
+source "$SCRIPT_DIR/lib.sh"
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: find-skill-usage.sh <skill-name> [--project <path>]" >&2
@@ -30,28 +31,6 @@ while [[ $# -gt 0 ]]; do
     *)         echo "Unknown option: $1" >&2; exit 1 ;;
   esac
 done
-
-# Decode project path from directory name (best-effort — encoding is lossy).
-decode_path() {
-  local name="$1"
-  echo "$name" | sed 's/^-/\//' | sed 's/--/\/./g' | sed 's/-/\//g'
-}
-
-# Encode a filesystem path to project directory name.
-encode_path() {
-  local path="$1"
-  # Remove trailing slash, replace / with -, prepend -
-  path="${path%/}"
-  echo "$path" | sed 's/\//-/g'
-}
-
-# Extract first user message from a session file (truncated).
-first_user_message() {
-  local file="$1"
-  jq -r 'select(.type == "user") | .message.content | if type == "string" then . elif type == "array" then [.[] | select(.type == "text") | .text] | join(" ") else "" end' "$file" \
-    | head -1 \
-    | cut -c1-100
-}
 
 echo "Searching for sessions that loaded skill '$SKILL_NAME'..." >&2
 

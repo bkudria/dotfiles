@@ -24,13 +24,12 @@ def tool_names:
   [ .message.content // [] | .[] | select(.type == "tool_use") | .name ];
 
 # Decode an encoded project path: "-Users-foo-bar" -> "/Users/foo/bar"
-# The encoding replaces "/" with "-" and prepends "-".
+# Claude Code encodes paths by replacing / with - and stripping all dots.
+# This reverses -- → /. (hidden dirs) and - → /, but cannot recover
+# dashes or dots within directory names (encoding is lossy).
 def decode_project_path:
-  # The directory name starts with "-", which represents the leading "/".
-  # Subsequent "-" characters represent "/" separators.
-  # However, this is ambiguous with directory names containing dashes.
-  # The heuristic: the name always starts with "-Users-" or similar root paths.
   ltrimstr("-")
+  | gsub("--"; "/.")
   | split("-")
   | join("/")
   | "/" + .;
@@ -104,7 +103,7 @@ def brief_tool_desc:
   elif .name == "Grep" then "Grep \(.input.pattern // "?" | truncate(30)) in \(.input.path // "." | truncate(30))"
   elif .name == "Glob" then "Glob \(.input.pattern // "?" | truncate(40)) in \(.input.path // "." | truncate(20))"
   elif .name == "Skill" then "Skill \(.input.skill // "?")\(if .input.args then " \(.input.args | truncate(30))" else "" end)"
-  elif .name == "Task" then "Task \(.input.description // "?" | truncate(40)) (\(.input.subagent_type // "?"))"
+  elif .name == "Task" or .name == "Agent" then "Task \(.input.description // "?" | truncate(40)) (\(.input.subagent_type // "?"))"
   elif .name == "WebFetch" then "WebFetch \(.input.url // "?" | truncate(50))"
   elif .name == "WebSearch" then "WebSearch \(.input.query // "?" | truncate(50))"
   elif .name == "AskUserQuestion" then "AskUserQuestion"
@@ -145,7 +144,7 @@ def tool_file_path:
     .input.command // null
   elif .name == "Skill" then
     .input.skill // null
-  elif .name == "Task" then
+  elif .name == "Task" or .name == "Agent" then
     .input.description // null
   elif .name == "WebFetch" then
     .input.url // null
@@ -176,3 +175,52 @@ def tool_content_preview(n):
   else
     (.input | keys | join(", ") | truncate(n))
   end;
+
+# Format a tool_use block as a padded timeline line.
+# Output: "ToolName  target/detail" with tool name column padded to 8 chars.
+# Input: a tool_use block from assistant message content.
+def format_tool_line:
+  if .name == "Read" then
+    "Read    \(.input.file_path // "?")"
+  elif .name == "Write" then
+    "Write   \(.input.file_path // "?")"
+  elif .name == "Edit" then
+    "Edit    \(.input.file_path // "?")"
+  elif .name == "Bash" then
+    "Bash    \(.input.command // "?" | gsub("\n"; " ") | truncate(100))"
+  elif .name == "Grep" then
+    "Grep    \(.input.pattern // "?" | truncate(30))  in \(.input.path // "." | truncate(40))"
+  elif .name == "Glob" then
+    "Glob    \(.input.pattern // "?" | truncate(40))  in \(.input.path // "." | truncate(30))"
+  elif .name == "Task" or .name == "Agent" then
+    "Task    \(.input.description // "?" | truncate(50))  (\(.input.subagent_type // "?"))"
+  elif .name == "WebFetch" then
+    "Fetch   \(.input.url // "?" | truncate(60))"
+  elif .name == "WebSearch" then
+    "Search  \(.input.query // "?" | truncate(60))"
+  elif .name == "Skill" then
+    "Skill   \(.input.skill // "?")\(if .input.args then " \(.input.args | truncate(40))" else "" end)"
+  else
+    "\(.name | truncate(8))  \(.input | keys | join(", ") | truncate(50))"
+  end;
+
+# Format number with commas (e.g., 167173 -> "167,173").
+def comma_fmt:
+  tostring | explode | reverse
+  | [ foreach .[] as $c (
+      {i: 0, out: []};
+      if .i > 0 and (.i % 3) == 0
+        then {i: (.i + 1), out: (.out + [44, $c])}
+        else {i: (.i + 1), out: (.out + [$c])}
+      end;
+      .out
+    ) ] | last | reverse | implode;
+
+# Extract text content from a tool_result block's content field.
+# Handles both string content and array content (with text/image blocks).
+# Input: a tool_result object (from user message content array).
+def tool_result_text:
+  .content
+  | if type == "string" then .
+    elif type == "array" then [.[] | select(.type == "text") | .text] | join("\n")
+    else "" end;

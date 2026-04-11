@@ -31,10 +31,7 @@ foreach inputs as $entry (
           .[]
           | select(.type == "tool_result" and .is_error == true)
           | .tool_use_id as $tid
-          | .content as $raw
-          | ($raw | if type == "string" then .
-             elif type == "array" then [.[] | select(.type == "text") | .text] | join("\n")
-             else "" end) as $text
+          | (lib::tool_result_text) as $text
           | ($state[$tid] // null) as $tool
           | ($tool | if . != null then lib::brief_tool_desc else "unknown tool" end) as $tool_desc
           | "\($time)  ERROR  \($tool_desc)\n          \($text | lib::smart_error_truncate(400))"

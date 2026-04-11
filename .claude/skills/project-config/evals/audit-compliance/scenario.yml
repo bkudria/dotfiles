@@ -1,0 +1,44 @@
+prompt: |
+  I have a Ruby project at ~/code/my-gem with this project.yaml:
+
+  ```yaml
+  name: my-gem
+  description: A Ruby utility library
+  language: ruby
+  status: active
+  visibility: public
+
+  standards:
+    readme:
+      required: true
+      sections: [Installation, Usage]
+    license:
+      required: true
+      spdx: MIT
+    tests:
+      required: true
+      framework: rspec
+    claude-md:
+      required: true
+      sections: [Build commands, Test commands]
+    goals:
+      required: true
+    contributing:
+      required: true
+    linter:
+      required: true
+    ci:
+      required: true
+  ```
+
+  The project currently has: README.md (with just a title, no sections), LICENSE (MIT), spec/ directory with spec_helper.rb, .rubocop.yml, and .github/workflows/test.yml. It's missing CLAUDE.md, GOALS.md, and CONTRIBUTING.md.
+
+  Audit the project against its standards.
+labels:
+  name: "Audit mode produces compliance table and remediation plan"
+assertions:
+  - check: "Output contains a markdown table listing each standard with its compliance status (PASS, FAIL, or WARN)"
+  - check: "README is marked as FAIL or WARN because it lacks the required Installation and Usage sections"
+  - check: "License, tests, linter, and CI are marked as PASS"
+  - check: "CLAUDE.md, GOALS.md, and CONTRIBUTING.md are marked as failing or missing (FAIL, MISSING, or equivalent non-passing status)"
+  - check: "Output includes a prioritized remediation plan listing the most impactful fixes first"

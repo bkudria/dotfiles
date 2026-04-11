@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# find-tool-calls.sh — Find tool calls filtered by file path and/or tool name.
+# search-tool-calls.sh — Find tool calls filtered by file path and/or tool name.
 #
 # Usage:
-#   find-tool-calls.sh <session.jsonl> [--path <pattern>] [--tools <names>] [--commands-only]
+#   search-tool-calls.sh <session.jsonl> [--path <pattern>] [--tools <names>] [--commands-only]
 #
 # Options:
 #   --path <pattern>     Filter by regex match on file_path/command/url inputs
@@ -18,7 +18,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 if [[ $# -lt 1 ]]; then
-  echo "Usage: find-tool-calls.sh <session.jsonl> [--path <pattern>] [--tools <names>] [--commands-only]" >&2
+  echo "Usage: search-tool-calls.sh <session.jsonl> [--path <pattern>] [--tools <names>] [--commands-only]" >&2
   echo "" >&2
   echo "Options:" >&2
   echo "  --path <pattern>     Filter by regex match on file_path/command/url inputs" >&2
@@ -27,19 +27,22 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-SESSION_FILE="$1"; shift
 PATH_PATTERN=""
 TOOL_FILTER=""
 COMMANDS_ONLY=false
+POSITIONALS=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --path)           PATH_PATTERN="${2:?--path requires a pattern}"; shift 2 ;;
     --tools)          TOOL_FILTER="${2:?--tools requires tool names}"; shift 2 ;;
     --commands-only)  COMMANDS_ONLY=true; shift ;;
-    *)                echo "Unknown option: $1" >&2; exit 1 ;;
+    -*)               echo "Unknown option: $1" >&2; exit 1 ;;
+    *)                POSITIONALS+=("$1"); shift ;;
   esac
 done
+
+SESSION_FILE="${POSITIONALS[0]:?Session file required}"
 
 if [[ ! -f "$SESSION_FILE" ]]; then
   echo "File not found: $SESSION_FILE" >&2

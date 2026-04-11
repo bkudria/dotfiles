@@ -1,0 +1,9 @@
+prompt: |
+  What linter config file should I have for a Python project that
+  uses project.yaml standards? And what about coverage tracking?
+labels:
+  name: "Language-aware standard detection knowledge"
+assertions:
+  - check: "Output mentions Python-specific linter tools like ruff, flake8, or pylint — not generic or Ruby/JS linters"
+  - check: "Output mentions Python-specific coverage tools like coverage.py or .coveragerc — not SimpleCov or istanbul"
+  - check: "Output references the language-aware auto-detection behavior from the standards catalog"

@@ -1,7 +1,7 @@
 #!/usr/bin/env -S jq -L ~/.claude/skills/session-transcripts/scripts -rf
-# session-activity.jq — Chronological turn-by-turn activity summary.
-# Usage: ./session-activity.jq session.jsonl
-#        jq -L ~/.claude/skills/session-transcripts/scripts -rf session-activity.jq session.jsonl
+# extract-activity.jq — Chronological turn-by-turn activity summary.
+# Usage: ./extract-activity.jq session.jsonl
+#        jq -L ~/.claude/skills/session-transcripts/scripts -rf extract-activity.jq session.jsonl
 #
 # Streams line-by-line (no slurp) for memory efficiency.
 # Outputs a compact timeline — one line per conversational turn.

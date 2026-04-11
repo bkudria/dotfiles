@@ -11,6 +11,7 @@ set -euo pipefail
 
 PROJECTS_DIR="${HOME}/.claude/projects"
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib.sh"
 
 if [[ $# -lt 1 ]]; then
   echo "Usage: find-session.sh <uuid>           — find by session UUID" >&2
@@ -18,29 +19,15 @@ if [[ $# -lt 1 ]]; then
   exit 1
 fi
 
-# Decode project path from directory name (best-effort — encoding is lossy).
-decode_path() {
-  local name="$1"
-  echo "$name" | sed 's/^-/\//' | sed 's/--/\/./g' | sed 's/-/\//g'
-}
-
-# Extract first user message from a session file (truncated)
-first_user_message() {
-  local file="$1"
-  jq -r 'select(.type == "user") | .message.content | if type == "string" then . elif type == "array" then [.[] | select(.type == "text") | .text] | join(" ") else "" end' "$file" \
-    | head -1 \
-    | cut -c1-100
-}
-
-# Print a match result
+# Print a match result: path to stdout, details to stderr
 print_match() {
   local file="$1" decoded="$2"
   local preview
   preview="$(first_user_message "$file")"
-  echo "  ${file}"
-  echo "    Project: ${decoded}"
-  echo "    Preview: ${preview}"
-  echo ""
+  echo "${file}"
+  echo "  Project: ${decoded}" >&2
+  echo "  Preview: ${preview}" >&2
+  echo "" >&2
 }
 
 if [[ "$1" == "-s" ]]; then
@@ -50,18 +37,14 @@ if [[ "$1" == "-s" ]]; then
   echo "Searching for '$search_term' across all sessions..." >&2
 
   found=0
-  for project_dir in "$PROJECTS_DIR"/*/; do
-    [[ -d "$project_dir" ]] || continue
+  while IFS= read -r file; do
+    project_dir="$(dirname "$file")"
     project_name="$(basename "$project_dir")"
     decoded="$(decode_path "$project_name")"
-
-    while IFS= read -r file; do
-      if grep -q "$search_term" "$file" 2>/dev/null; then
-        print_match "$file" "$decoded"
-        found=$((found + 1))
-      fi
-    done < <(find "$project_dir" -maxdepth 1 -name '*.jsonl' -type f 2>/dev/null)
-  done
+    print_match "$file" "$decoded"
+    found=$((found + 1))
+  done < <(find "$PROJECTS_DIR" -maxdepth 2 -name '*.jsonl' -type f -print0 2>/dev/null \
+    | xargs -0 grep -l -- "$search_term" 2>/dev/null)
 
   if [[ $found -eq 0 ]]; then
     echo "No sessions found matching '$search_term'" >&2

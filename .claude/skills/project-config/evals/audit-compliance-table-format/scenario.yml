@@ -1,0 +1,14 @@
+prompt: |
+  Check the standards compliance for this project. The project has a project.yaml
+  that declares profiles: [base] and overrides tests with framework: vitest.
+  Some standards pass (gitignore, license, tests, claude-md) and some fail
+  (no README.md, no GOALS.md). Run the audit and show results.
+labels:
+  name: "Audit output follows required compliance table format"
+assertions:
+  - check: "Output contains a markdown table with columns named Standard, Status, and Detail"
+    note: "The exact column names are specified in the SKILL.md audit mode section"
+  - check: "Status values use exactly PASS, FAIL, or WARN — not other words like 'OK', 'Missing', 'Yes/No'"
+    note: "These exact status words are required by the skill specification"
+  - check: "Output includes a prioritized remediation plan section below the compliance table that ranks fixes by impact"
+    note: "The remediation plan must explain WHY each fix matters, not just list what to do"

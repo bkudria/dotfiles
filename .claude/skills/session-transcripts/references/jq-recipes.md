@@ -4,16 +4,22 @@ Ad-hoc jq one-liners for querying session transcript JSONL files.
 
 All recipes assume `FILE` is the path to a `.jsonl` transcript file.
 
-## Extracting Messages
-
-**All user messages as plain text:**
+Many recipes can be simplified using `lib.jq`. To use it, add `-L "$SKILL_DIR"` and `import "lib" as lib;`:
 ```bash
-jq -r 'select(.type == "user") | .message.content | if type == "string" then . elif type == "array" then [.[] | select(.type == "text") | .text] | join("\n") else empty end' "$FILE"
+SKILL_DIR="$HOME/.claude/skills/session-transcripts/scripts"
+jq -L "$SKILL_DIR" -r 'import "lib" as lib; ...' "$FILE"
 ```
 
-**All assistant text (no thinking, no tool_use):**
+## Extracting Messages
+
+**All user messages as plain text** (uses `lib::user_text`):
 ```bash
-jq -r 'select(.type == "assistant") | [.message.content[] | select(.type == "text") | .text] | join("\n")' "$FILE"
+jq -L "$SKILL_DIR" -r 'import "lib" as lib; select(.type == "user") | lib::user_text | select(length > 0)' "$FILE"
+```
+
+**All assistant text (no thinking, no tool_use)** (uses `lib::assistant_text`):
+```bash
+jq -L "$SKILL_DIR" -r 'import "lib" as lib; select(.type == "assistant") | lib::assistant_text | select(length > 0)' "$FILE"
 ```
 
 **All thinking blocks:**
@@ -28,9 +34,9 @@ jq -r 'select(.type == "user" and (.message.content | type == "string" or (type 
 
 ## Tool Usage
 
-**List all tools used with frequency:**
+**List all tools used with frequency** (uses `lib::tool_names`):
 ```bash
-jq -r 'select(.type == "assistant") | .message.content[]? | select(.type == "tool_use") | .name' "$FILE" | sort | uniq -c | sort -rn
+jq -L "$SKILL_DIR" -r 'import "lib" as lib; select(.type == "assistant") | lib::tool_names[]' "$FILE" | sort | uniq -c | sort -rn
 ```
 
 **All Bash commands executed:**

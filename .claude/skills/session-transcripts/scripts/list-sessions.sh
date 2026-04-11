@@ -12,12 +12,8 @@
 set -euo pipefail
 
 PROJECTS_DIR="${HOME}/.claude/projects"
-
-# Encode a filesystem path to the directory name format
-encode_path() {
-  local path="$1"
-  echo "$path" | sed 's/^\///' | sed 's/\//-/g' | sed 's/^/-/'
-}
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib.sh"
 
 # Determine the project directory
 if [[ $# -ge 1 ]]; then
@@ -45,15 +41,6 @@ if [[ ! -d "$project_dir" ]]; then
   exit 1
 fi
 
-# Extract first user message from a session file (fast: reads only first 50 lines)
-first_user_message() {
-  local file="$1"
-  head -50 "$file" 2>/dev/null \
-    | jq -r 'select(.type == "user") | .message.content | if type == "string" then . elif type == "array" then [.[] | select(.type == "text") | .text] | join(" ") else "" end' 2>/dev/null \
-    | head -1 \
-    | cut -c1-80
-}
-
 # Human-readable file size
 human_size() {
   local bytes="$1"
@@ -66,12 +53,11 @@ human_size() {
   fi
 }
 
-# Count files first to decide whether to include previews
+# Count files; skip preview extraction for large projects (100+ sessions)
 file_count=$(find "$project_dir" -maxdepth 1 -name '*.jsonl' -type f 2>/dev/null | wc -l | tr -d ' ')
 include_preview=true
-if [[ "$file_count" -gt 50 ]]; then
+if [[ "$file_count" -gt 100 ]]; then
   include_preview=false
-  echo "($file_count sessions — skipping message previews for speed)" >&2
 fi
 
 printf "%-8s  %-18s %8s  %s\n" "SESSION" "DATE" "SIZE" "FIRST MESSAGE"
@@ -99,7 +85,7 @@ printf "%-8s  %-18s %8s  %s\n" "--------" "$(printf '%0.s-' {1..18})" "--------"
     size_str="$(human_size "$file_size")"
 
     if [[ "$include_preview" == true ]]; then
-      preview="$(first_user_message "$file")"
+      preview="$(first_user_message "$file" 80)"
     else
       preview=""
     fi

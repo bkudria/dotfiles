@@ -1,0 +1,14 @@
+prompt: |
+  Audit standards for a Python project at ~/code/example-py. The project.yaml declares:
+  profiles: [base], language: python, tests framework: pytest.
+  The project has README.md (references GOALS.md and SPEC.md), .gitignore, LICENSE (MIT),
+  CLAUDE.md, GOALS.md, SPEC.md.
+  But it has NO test directory, NO linter config, and NO coverage config.
+  Run the audit.
+labels:
+  name: "Runtime verification skipped when infrastructure checks fail"
+assertions:
+  - check: "tests is marked FAIL because no test directory exists"
+  - check: "There is no tests.run row or equivalent — the audit does not attempt to run pytest when there is no test directory"
+  - check: "There is no linter.run row or equivalent — the audit does not attempt to run a linter when no linter config exists"
+  - check: "There is no coverage.run row or equivalent — the audit does not attempt to run coverage when no coverage config exists"

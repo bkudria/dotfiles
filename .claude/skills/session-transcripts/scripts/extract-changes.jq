@@ -12,26 +12,4 @@ select(.type == "assistant")
 
 | (.timestamp | lib::format_time_only) as $time
 | lib::tool_use_blocks[]
-| . as $tool
-
-| if .name == "Read" then
-    "\($time)  Read    \(.input.file_path // "?")"
-  elif .name == "Write" then
-    "\($time)  Write   \(.input.file_path // "?")"
-  elif .name == "Edit" then
-    "\($time)  Edit    \(.input.file_path // "?")"
-  elif .name == "Bash" then
-    "\($time)  Bash    \(.input.command // "?" | lib::truncate(80))"
-  elif .name == "Grep" then
-    "\($time)  Grep    \(.input.pattern // "?" | lib::truncate(30))  in \(.input.path // "." | lib::truncate(40))"
-  elif .name == "Glob" then
-    "\($time)  Glob    \(.input.pattern // "?" | lib::truncate(40))  in \(.input.path // "." | lib::truncate(30))"
-  elif .name == "Task" then
-    "\($time)  Task    \(.input.description // "?" | lib::truncate(40))  (\(.input.subagent_type // "?"))"
-  elif .name == "WebFetch" then
-    "\($time)  Fetch   \(.input.url // "?" | lib::truncate(60))"
-  elif .name == "WebSearch" then
-    "\($time)  Search  \(.input.query // "?" | lib::truncate(60))"
-  else
-    "\($time)  \(.name | lib::truncate(15))  \(.input | keys | join(", ") | lib::truncate(40))"
-  end
+| "\($time)  \(lib::format_tool_line)"

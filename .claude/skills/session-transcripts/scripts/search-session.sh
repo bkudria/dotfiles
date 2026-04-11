@@ -14,22 +14,24 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-if [[ $# -lt 2 ]]; then
+if [[ $# -lt 1 ]]; then
   echo "Usage: search-session.sh <session.jsonl> <keyword> [--context <n>]" >&2
   exit 1
 fi
 
-SESSION_FILE="$1"
-KEYWORD="$2"
-shift 2
 CONTEXT=2
+POSITIONALS=()
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --context) CONTEXT="${2:?--context requires a number}"; shift 2 ;;
-    *)         echo "Unknown option: $1" >&2; exit 1 ;;
+    -*)        echo "Unknown option: $1" >&2; exit 1 ;;
+    *)         POSITIONALS+=("$1"); shift ;;
   esac
 done
+
+SESSION_FILE="${POSITIONALS[0]:?Session file required}"
+KEYWORD="${POSITIONALS[1]:?Keyword required}"
 
 if [[ ! -f "$SESSION_FILE" ]]; then
   echo "File not found: $SESSION_FILE" >&2
@@ -44,16 +46,22 @@ jq -L "$SCRIPT_DIR" -r '
   import "lib" as lib;
   select(.type == "user" or .type == "assistant")
   | (.timestamp | lib::format_time_only) as $time
-  | .type as $role
   | (
-      if .type == "user" then lib::user_text
-      elif .type == "assistant" then lib::assistant_text
-      else ""
+      if .type == "user" then
+        (lib::user_text | select(length > 0) | split("\n")[]
+         | "user \($time) | \(.)"),
+        (.message.content | select(type == "array") | .[]
+         | select(.type == "tool_result") | lib::tool_result_text
+         | select(length > 0) | split("\n")[]
+         | "result \($time) | \(.)")
+      elif .type == "assistant" then
+        (lib::assistant_text | select(length > 0) | split("\n")[]
+         | "assistant \($time) | \(.)"),
+        (lib::tool_use_blocks[] | "\(.name) \(lib::tool_content_preview(500))"
+         | "tool_input \($time) | \(.)")
+      else empty
       end
     )
-  | select(length > 0)
-  | split("\n")[]
-  | "\($role) \($time) | \(.)"
 ' "$SESSION_FILE" \
   | grep -i --color=auto -C "$CONTEXT" -- "$KEYWORD" \
   || echo "(no matches found)" >&2

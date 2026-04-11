@@ -1,0 +1,12 @@
+prompt: |
+  Scaffold a new TypeScript project called widgetmaker. It's a CLI tool for
+  managing dashboard widgets. Use the base profile and vitest for testing.
+labels:
+  name: "Scaffold mode creates project.yaml before any other files"
+assertions:
+  - check: "Asks interview questions (at minimum: name, description, language, which standards) before creating any files"
+    note: "The STOP instruction in scaffold mode requires completing the interview before any file creation"
+  - check: "The first file written is project.yaml, not README.md or any other standard file"
+    note: "project.yaml must be the first file created — it is the central artifact from which all other files derive"
+  - check: "Does NOT create README.md, GOALS.md, LICENSE, or other standard files before project.yaml exists"
+    note: "Creating standard files before project.yaml violates the strict ordering requirement"

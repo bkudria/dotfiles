@@ -8,18 +8,13 @@
 set -euo pipefail
 
 PROJECTS_DIR="${HOME}/.claude/projects"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+source "$SCRIPT_DIR/lib.sh"
 
 if [[ ! -d "$PROJECTS_DIR" ]]; then
   echo "No projects directory found at $PROJECTS_DIR" >&2
   exit 1
 fi
-
-# Decode project path from directory name (best-effort — encoding is lossy).
-# Handles: leading - → /, -- → /. (hidden dirs), single - → /
-decode_path() {
-  local name="$1"
-  echo "$name" | sed 's/^-/\//' | sed 's/--/\/./g' | sed 's/-/\//g'
-}
 
 printf "%-60s %8s %s\n" "PROJECT PATH" "SESSIONS" "LATEST SESSION"
 printf "%-60s %8s %s\n" "$(printf '%0.s-' {1..60})" "--------" "--------------"

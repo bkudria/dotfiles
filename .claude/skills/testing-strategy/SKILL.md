@@ -1,6 +1,6 @@
 ---
 name: testing-strategy
-description: Testing strategy for choosing test levels, designing good tests, following test-driven development, and optimizing test suites. Use when deciding between unit and integration tests, choosing what level to test at, designing test strategy for a new feature, following a TDD workflow, implementing Red/Green/Refactor, writing test-first code, evaluating whether to write unit tests or integration tests, understanding why tests are slow, or assessing test quality and coupling. Covers TDD, purity vs extent, the refactoring test, the neural network test, and test economy.
+description: "MANDATORY before writing code in projects with tests. TRIGGER when: project has test/, tests/, spec/, or __tests__/ directory, AND you are about to write or plan production code changes. DO NOT TRIGGER when: project has no tests, or work is read-only investigation/analysis with no code changes. Covers TDD red-green-refactor workflow, implementation protocol with pre-edit gates, test level decisions, purity vs extent, and test economy."
 ---
 
 # Testing Strategy
@@ -9,8 +9,14 @@ A framework for making good testing decisions: what to test, at what level, how 
 
 ## When to Use
 
-- Following a test-driven development (TDD) workflow
-- Implementing a feature or bug fix with test-first discipline
+This skill is MANDATORY in any project with tests. Load it before writing an implementation plan or production code.
+
+**Always load when:**
+- The project has a test directory (spec/, test/, tests/, __tests__/) or co-located test files
+- You are about to plan or write production code changes (not read-only analysis)
+- A session transitions from investigation to implementation
+
+**Also useful for:**
 - Deciding between unit and integration tests for a new feature
 - Choosing what level to test a behavioral requirement at
 - Evaluating whether existing tests are too coupled to implementation

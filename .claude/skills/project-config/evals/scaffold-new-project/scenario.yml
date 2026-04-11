@@ -1,0 +1,10 @@
+prompt: |
+  I want to create a new Ruby CLI tool project called "datagrep".
+  It should search structured data files. Set it up with project standards.
+labels:
+  name: "Scaffold mode interviews and generates project.yaml"
+assertions:
+  - check: "Output asks questions about the project before generating files — does not immediately create files without interviewing"
+  - check: "Output creates or proposes a project.yaml file with metadata fields (name, description, language) and a profiles declaration"
+  - check: "The proposed project.yaml includes standard configurations with required/recommended settings or inherits them from a profile"
+  - check: "Output mentions creating standard files like README.md, GOALS.md, or LICENSE — not just the project.yaml"

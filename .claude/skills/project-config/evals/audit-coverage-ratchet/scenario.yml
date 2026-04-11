@@ -1,0 +1,13 @@
+prompt: |
+  Audit standards for a TypeScript project at ~/code/example-ts. The project.yaml declares:
+  profiles: [base], language: typescript, tests framework: vitest.
+  All infrastructure files exist. The vitest.config.ts has a coverage section
+  that enables coverage reporting but does NOT configure any thresholds or
+  minimum coverage requirements — there is no coverage ratchet.
+  Run the audit.
+labels:
+  name: "Coverage infrastructure check requires a ratchet to be configured"
+assertions:
+  - check: "The coverage infrastructure check (not coverage.run) is marked FAIL because coverage is configured but no ratchet/threshold is set"
+    note: "Coverage configured without a ratchet is a FAIL, not a PASS or WARN"
+  - check: "The detail explains that a coverage ratchet or minimum threshold is missing"

@@ -1,9 +1,11 @@
-#!/usr/bin/env -S jq -srf
-# session-overview.jq — Quick stats summary of a session transcript.
-# Usage: ./session-overview.jq session.jsonl
-#        jq -sf session-overview.jq session.jsonl
+#!/usr/bin/env -S jq -L ~/.claude/skills/session-transcripts/scripts -srf
+# extract-overview.jq — Quick stats summary of a session transcript.
+# Usage: ./extract-overview.jq session.jsonl
+#        jq -sf extract-overview.jq session.jsonl
 #
 # Slurps entire file to compute aggregates.
+
+import "lib" as lib;
 
 # Helper: parse ISO timestamp to epoch seconds
 def parse_ts:
@@ -16,27 +18,6 @@ def format_duration:
   elif . < 3600 then "\(. / 60 | floor)m \(. % 60)s"
   else "\(. / 3600 | floor)h \(. % 3600 / 60 | floor)m"
   end;
-
-# Helper: format number with commas
-def comma_fmt:
-  tostring | explode | reverse
-  | [ foreach .[] as $c (
-      {i: 0, out: []};
-      if .i > 0 and (.i % 3) == 0
-        then {i: (.i + 1), out: (.out + [44, $c])}
-        else {i: (.i + 1), out: (.out + [$c])}
-      end;
-      .out
-    ) ] | last | reverse | implode;
-
-# Helper: extract text from user content
-def _user_text:
-  .message.content
-  | if type == "string" then .
-    elif type == "array" then
-      [ .[] | select(.type == "text") | .text ] | join("\n")
-    else ""
-    end;
 
 # Helper: extract tool_result text length from user content
 def _tool_result_chars:
@@ -84,12 +65,12 @@ def _tool_result_chars:
   ),
   content: {
     assistant_chars: ([ .[] | select(.type == "assistant") | .message.content // [] | .[] | select(.type == "text") | .text | length ] | add // 0),
-    user_chars: ([ .[] | select(.type == "user") | _user_text | length ] | add // 0),
+    user_chars: ([ .[] | select(.type == "user") | lib::user_text | length ] | add // 0),
     tool_result_chars: ([ .[] | select(.type == "user") | _tool_result_chars ] | add // 0)
   },
   first_user_message: (
     [ .[] | select(.type == "user") ] | first
-    | if . then _user_text | .[:200] + (if length > 200 then "..." else "" end)
+    | if . then lib::user_text | .[:200] + (if length > 200 then "..." else "" end)
       else "none"
       end
   )
@@ -114,10 +95,10 @@ def _tool_result_chars:
 + "\n  Cache creation: \(.tokens.cache_creation | tostring)"
 + "\n"
 + "\nContent:"
-+ "\n  Assistant text: \(.content.assistant_chars | comma_fmt) chars"
-+ "\n  User text:      \(.content.user_chars | comma_fmt) chars"
-+ "\n  Tool results:   \(.content.tool_result_chars | comma_fmt) chars"
-+ "\n  Total:          \(.content.assistant_chars + .content.user_chars + .content.tool_result_chars | comma_fmt) chars (~\(.content.assistant_chars + .content.user_chars + .content.tool_result_chars | . / 4 | floor | comma_fmt) tokens)"
++ "\n  Assistant text: \(.content.assistant_chars | lib::comma_fmt) chars"
++ "\n  User text:      \(.content.user_chars | lib::comma_fmt) chars"
++ "\n  Tool results:   \(.content.tool_result_chars | lib::comma_fmt) chars"
++ "\n  Total:          \(.content.assistant_chars + .content.user_chars + .content.tool_result_chars | lib::comma_fmt) chars"
 + "\n"
 + "\nFirst user message: \(.first_user_message)"
 + "\n"

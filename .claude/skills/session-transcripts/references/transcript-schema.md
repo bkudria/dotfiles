@@ -13,8 +13,11 @@ Both agent formats coexist. Use `find-subagent-files.sh` to discover all sub-age
 
 ### Path Encoding
 
-Project paths are encoded by replacing `/` with `-` and prepending `-`:
+Project paths are encoded by replacing both `/` and `.` with `-`:
 - `/home/user/code/myproject` → `-home-user-code-myproject`
+- `/Users/me/.claude/skills/foo` → `-Users-me--claude-skills-foo` (`.` stripped creates `--`)
+
+This encoding is **lossy** — dashes and dots within directory names cannot be recovered during decoding. For example, `project-config` and `project/config` both encode to `project-config`.
 
 ## Entry Types
 
@@ -25,10 +28,7 @@ Every JSONL line is a JSON object with a `type` field. The main types are:
 | `user` | User message (text input or tool results) |
 | `assistant` | Assistant response (text, thinking, tool_use) |
 | `system` | System events (subtypes: `local_command`, `compact_boundary`, `turn_duration`) |
-| `progress` | Progress updates (bash output, etc.) |
-| `agent_progress` | Sub-agent progress |
-| `hook_progress` | Git hook progress |
-| `mcp_progress` | MCP server progress |
+| `progress` | Progress updates — `.data.type` distinguishes subtypes: `bash_progress`, `agent_progress`, `hook_progress`, `mcp_progress` |
 | `file-history-snapshot` | File tracking snapshots |
 | `create` | Session creation marker |
 | `query_update` | Query updates |
@@ -75,6 +75,19 @@ Present on most/all entry types:
   "isCompactSummary": false
 }
 ```
+
+### toolUseResult
+
+Present on user entries that are tool result responses. Contains execution metadata from the tool runner, separate from the tool result content in `.message.content`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `stdout` | string | Standard output (for Bash tool; empty for other tools) |
+| `stderr` | string | Standard error (for Bash tool; empty for other tools) |
+| `interrupted` | boolean | Whether the tool execution was interrupted/cancelled |
+| `isImage` | boolean | Whether the result contains image content |
+
+Use `stderr` to find Bash commands that produced errors (even when exit code was 0).
 
 ### User Content Variants
 

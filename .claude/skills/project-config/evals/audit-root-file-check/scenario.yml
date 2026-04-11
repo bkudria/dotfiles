@@ -1,0 +1,16 @@
+prompt: |
+  Audit the project config for this TypeScript project.
+  The project has a project.yaml with profiles: [base], and all required files
+  exist at the project root (README.md, .gitignore, LICENSE, CLAUDE.md, GOALS.md,
+  SPEC.md, eslint.config.js, vitest.config.ts, tests/ directory).
+  The project also has a node_modules/ directory with hundreds of packages,
+  each containing their own README.md, LICENSE, etc.
+labels:
+  name: "Audit checks files at project root, not recursively"
+assertions:
+  - check: "Uses exact filenames (e.g., README.md) not wildcards (e.g., README*) when checking file existence"
+    note: "Wildcards like README* match recursively into node_modules/ and can cause truncated results that hide the root file"
+  - check: "Does NOT report a file as missing based solely on truncated glob results"
+    note: "If Glob results are truncated, the agent should narrow the search rather than concluding the file is absent"
+  - check: "Checks files at the project root, not inside node_modules/ or other dependency directories"
+    note: "File existence checks for standards should only look at the project root unless the standard explicitly says otherwise"
