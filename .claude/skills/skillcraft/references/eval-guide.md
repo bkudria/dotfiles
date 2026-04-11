@@ -28,8 +28,8 @@ Starter check shapes to adapt, not copy verbatim. Replace bracketed placeholders
 ```yaml
 - check: "Output references [specific concept] from the skill's reference material"
   note: "Look for [terminology/syntax] that differs from what Claude would use without the skill"
-- check: "Output uses [idiomatic pattern] rather than [generic alternative]"
-  note: "The skill teaches [pattern]; without it, Claude defaults to [alternative]"
+- check: "Output achieves [desired outcome] using skill-taught approach"
+  note: "The skill teaches [pattern]; without it, Claude defaults to [alternative]. Accept any valid approach that achieves the outcome."
 ```
 
 ### Discipline

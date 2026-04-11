@@ -50,7 +50,7 @@ For each proposed scenario, draft: `id`, `name`, `prompt`, and 3 `checks`. Make 
 
 For auto-triggering skills (no `disable-model-invocation: true`), also propose 1 trigger scenario. See `references/eval-guide.md` § Trigger Testing.
 
-Load the `claude-code-evals` skill and apply check design rules. Before drafting checks, review the Pre-Write Checklist in the `claude-code-evals` skill's `references/check-design.md` — apply each self-test to every check before writing it to a file. This prevents the most common lint failures (compound, vague) at authoring time rather than through iterative lint-fix cycles.
+Load the `claude-code-evals` skill for check design rules. Check quality is enforced in Step 6.
 
 ## Step 4: Interview (when warranted)
 
@@ -101,6 +101,17 @@ For each approved scenario, create:
 - `evals/<scenario-id>/scenario.yaml` — prompt and any scuttlerun overrides (fixtures via `project.files`, tool restrictions, etc.)
 - `evals/<scenario-id>/checks.yaml` — context and checks in id-as-key format
 
+**GATE — Apply the Pre-Write Checklist to every check before writing it to a file.** Catching anti-patterns here is free; catching them via `craboodle lint` costs a lint cycle per fix.
+
+| Anti-Pattern | Self-Test | If Yes |
+|---|---|---|
+| **Compound** | Does this check test two+ independent things? Signals: "and", "both", "as well as". | Split into separate checks. |
+| **Vague** | Could two graders disagree on pass/fail? Signals: "valid", "correct", "appropriate" without a concrete example. | Add a concrete element to look for. |
+| **Always-passes** | Would Claude do this without the configuration? | Target what the config adds — the delta, not the baseline. |
+| **Tautological** | Does this check mirror the prompt wording? | Assert HOW — the specific method or structure — not WHETHER. |
+| **Unverifiable** | Can the grader observe this in the output? Signals: "understood", "considered". | Rewrite as observable behavior. |
+| **Over-specific** | Does this check mandate a specific function/operator when the outcome matters? | Test the outcome; mention approaches as examples, not requirements. |
+
 **Write incrementally**: Write the first scenario, then lint it with `craboodle lint --scenario <id> <skill-dir>/evals`. Fix any issues before writing the remaining scenarios — anti-pattern tendencies caught on the first scenario won't propagate to the rest. Then write the remaining scenarios in parallel, following the same patterns.
 
 ## Step 7: Lint
@@ -134,7 +145,7 @@ For each failing check, diagnose:
 - **Skill problem** — The skill doesn't cause the intended behavior. Fix: revise the skill.
 - **Check problem** — The skill works but the check doesn't capture it correctly. Fix: revise the check.
 
-To distinguish: read the scuttlerun transcript in the artifact directory.
+To distinguish: read the scuttlerun transcript at `<artifact_dir>/<scenario-id>/rep-<N>/output.yaml` (the `artifact_dir` is printed in craboodle's YAML output).
 
 Iteration rules:
 1. Fix one thing at a time (skill OR check, not both)

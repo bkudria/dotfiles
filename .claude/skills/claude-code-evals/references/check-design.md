@@ -33,7 +33,7 @@ If yes, the check tests baseline behavior, not config value. Revise it to target
 | **Structural** | Config requires specific output format | `"The file contains a TypeScript interface, not a plain object"` |
 | **Behavioral** | Config changes what tools or actions are used | `"A test file was created using the Write tool before production code"` |
 | **Process** | Config enforces ordering or workflow steps | `"The agent asks the user for confirmation before deleting files"` |
-| **Specificity** | Config teaches the idiomatic approach over a generic one | `"Uses .[] | select(.age > 18) pattern, not map(select(...))"` |
+| **Specificity** | Config teaches the idiomatic approach over a generic one, **and the alternative is incorrect or an anti-pattern** | `"Uses parameterized queries, not string concatenation for SQL"` |
 
 Most scenarios need 2-3 different pattern types.
 
@@ -48,6 +48,7 @@ Most scenarios need 2-3 different pattern types.
 | **Vague** | Different graders would disagree on pass/fail (e.g., "code follows best practices") | Name the specific practice: "uses parameterized queries, not string concatenation" |
 | **Tautological** | Restates the prompt as a check (e.g., "output answers the question") | Assert HOW it answers: what structure, content, or approach is present |
 | **Compound** | Tests two things in one check (e.g., "uses correct syntax AND explains why") | Split into two separate checks |
+| **Over-specific** | Prescribes one implementation when multiple valid approaches produce the correct outcome (e.g., "uses eval-all" when load() also works) | Test the outcome: "produces a merged YAML document combining arrays from both files" — mention specific approaches as non-exhaustive examples, not requirements |
 
 ### Splitting Compound Checks
 
@@ -126,6 +127,7 @@ Apply these tests to each check **before writing it to a file**. Catching anti-p
 | **Always-passes** | Would Claude do this without the configuration? | Revise to target what the config specifically adds — the delta, not the baseline. |
 | **Tautological** | Does this check mirror the prompt wording? (Prompt: "write a function" → Check: "output contains a function") | Assert HOW — the specific structure, approach, or method — not WHETHER. |
 | **Unverifiable** | Can the grader observe this in the output? Signals: "understood", "considered", "thought about". | Rewrite as observable behavior: what the agent produced, not what it reasoned. |
+| **Over-specific** | Does this check mandate a specific function/operator/tool when the outcome is what matters? Signals: "uses [function name]" as a requirement, "uses X rather than Y" when Y isn't actually wrong. | Rewrite to test the outcome or behavior. Optionally mention specific approaches as non-exhaustive examples: "achieves X (e.g., via ireduce or map\|add)". |
 
 ---
 
@@ -137,7 +139,7 @@ Always lint checks before spending money on eval runs:
 - **Single checks file**: `pincenez lint checks.yaml` — catches anti-patterns in one checks file
 - **Full eval suite**: `craboodle lint <evals-dir>` — checks all scenarios
 
-Linting catches vague, compound, tautological, always-passes, and unverifiable checks before they waste LLM calls. Fix flagged issues, then run.
+Linting catches vague, compound, tautological, always-passes, unverifiable, and over-specific checks before they waste LLM calls. Fix flagged issues, then run.
 
 ---
 
