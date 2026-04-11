@@ -55,6 +55,8 @@
 /.zim/.latest_version
 /.zim/init.zsh.old
 /.zim/init.zsh
+/.zim/modules/
+!/.zim/modules/bkudria/
 
 .aider*
 !.aider.commands
