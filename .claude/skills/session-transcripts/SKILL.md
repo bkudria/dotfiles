@@ -111,7 +111,8 @@ For structured session review, read `workflows/review.md`.
 ## Tips
 
 - **Truncated UUIDs**: `find-session.sh` accepts truncated UUIDs (first segment only, e.g. `b366b3b0`). Prefix matching is tried first (fast), with substring fallback.
-- **Large transcripts** (>256KB file size): Use `extract-conversation.jq` to produce a readable version, pipe to a temp file, then Read that. Check file size first (`ls -l` or `extract-overview.jq`) — most sessions are well under this threshold and can be processed directly.
+- **Temp files**: When saving script output to a file (for later reading, large results, etc.), use `~/.cache/claude-session-transcripts/` — never `/tmp`. Create the directory with `mkdir -p` first if needed.
+- **Large transcripts** (>256KB file size): Use `extract-conversation.jq` to produce a readable version, pipe to `~/.cache/claude-session-transcripts/`, then Read that. Check file size first (`ls -l` or `extract-overview.jq`) — most sessions are well under this threshold and can be processed directly.
 - **Quick stats**: Use `extract-overview.jq` before reading a transcript to understand its scope.
 - **Ad-hoc queries**: See `references/jq-recipes.md` for common jq one-liners.
 - **Schema details**: See `references/transcript-schema.md` for full JSONL field documentation.
