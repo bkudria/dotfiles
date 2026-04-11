@@ -18,7 +18,7 @@ export VISUAL='emacs-client-frame'
 # Aliases - only the unique ones not covered by other modules
 alias less=glow
 alias mcp-cli='npx wong2/mcp-cli'
-alias env='env | sort'
+alias senv='env | sort'
 
 alias rbbi='bundle install'
 alias rbbr='bundle exec rake'
