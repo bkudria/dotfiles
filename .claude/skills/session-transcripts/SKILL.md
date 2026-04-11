@@ -51,6 +51,7 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 | `list-sessions.sh [path]` | List sessions for a project |
 | `find-subagent-files.sh <file>` | Find all subagent transcript files for a session |
 | `find-skill-usage.sh <name> [--project <path>]` | Find sessions that loaded a specific skill |
+| `shunt <cmd> [args]` | Run a script and save output to a temp file | Large outputs that need to be Read separately |
 
 ### Extraction — structured views of a single session
 
@@ -111,8 +112,8 @@ For structured session review, read `workflows/review.md`.
 ## Tips
 
 - **Truncated UUIDs**: `find-session.sh` accepts truncated UUIDs (first segment only, e.g. `b366b3b0`). Prefix matching is tried first (fast), with substring fallback.
-- **Temp files**: When saving script output to a file (for later reading, large results, etc.), use `~/.cache/claude-session-transcripts/` — never `/tmp`. Create the directory with `mkdir -p` first if needed.
-- **Large transcripts** (>256KB file size): Use `extract-conversation.jq` to produce a readable version, pipe to `~/.cache/claude-session-transcripts/`, then Read that. Check file size first (`ls -l` or `extract-overview.jq`) — most sessions are well under this threshold and can be processed directly.
+- **Saving output to a file**: Use `shunt <command> [args...]` — it saves stdout to a temp file and prints the path. Never use shell `>` redirection to external paths (triggers permission prompts).
+- **Large transcripts** (>256KB file size): Use `shunt` to save `extract-conversation.jq` output, then Read the printed path. Check file size first (`ls -l` or `extract-overview.jq`) — most sessions are well under this threshold and can be processed directly.
 - **Quick stats**: Use `extract-overview.jq` before reading a transcript to understand its scope.
 - **Ad-hoc queries**: See `references/jq-recipes.md` for common jq one-liners.
 - **Schema details**: See `references/transcript-schema.md` for full JSONL field documentation.

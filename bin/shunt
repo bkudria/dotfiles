@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+# shunt — Run a command, save its stdout to a temp file, print the path.
+#
+# Usage: shunt <command> [args...]
+
+set -euo pipefail
+
+OUT="$(mktemp)"
+"$@" > "$OUT"
+echo "$OUT"
