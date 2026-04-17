@@ -1,6 +1,6 @@
 # Skill Quality Checklist
 
-42 checks across 8 categories. Each item has: ID, description, pass/fail criteria, fix guidance.
+44 checks across 8 categories. Each item has: ID, description, pass/fail criteria, fix guidance.
 
 Apply all checks when running a full audit. For lightweight mode, apply only S1, S3, M1, M2, M3 and scan for anti-patterns.
 
@@ -252,7 +252,7 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 
 ---
 
-## TDD Compliance (T1-T5)
+## TDD Compliance (T1-T3)
 
 ### T1: Compliance Verified
 - **Check**: Skill tested with presence — agents follow the guidance
@@ -275,7 +275,7 @@ Apply all checks when running a full audit. For lightweight mode, apply only S1,
 
 ---
 
-## Eval Pipeline (E1-E5)
+## Eval Pipeline (E1-E4)
 
 ### E1: Eval Scenarios Defined
 - **Check**: Skill has evals/ directory with craboodle.yaml and ≥3 scenario dirs

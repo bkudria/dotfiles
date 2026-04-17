@@ -5,7 +5,7 @@
 #   quick-validate.sh <skill-directory>
 #   quick-validate.sh --all [<base-path>]
 #
-# Runs automated structural checks (subset of the full 32-item checklist).
+# Runs automated structural checks (subset of the full 44-item checklist).
 # Use this for fast pre-flight; use the full checklist for deep audits.
 #
 # Checks performed:

@@ -52,3 +52,12 @@ $SCRIPTS/extract-compaction.jq "$FILE"
 ```
 
 One-line-per-turn timeline for spotting patterns and gaps. Agent spawns and compaction events for long or multi-agent sessions.
+
+## Skill usage audit
+
+```bash
+$SCRIPTS/extract-skill-usage.jq "$FILE"
+$SCRIPTS/find-skill-usage.sh <skill-name>
+```
+
+Timestamped list of skills the session loaded. Use when the audit scope is "how was skill X used" — avoids inferring skill loads from conversation extractions. `find-skill-usage.sh` locates other sessions that loaded the same skill for cross-session comparison.

@@ -56,17 +56,19 @@ Evaluate whether a CLAUDE.md instruction changes behavior:
 craboodle init my-evals/
 ```
 
-This creates `craboodle.yaml`, `base.yaml`, and an example scenario. Edit the generated files:
+This creates `craboodle.yaml`. Then write `base.yaml` (scuttlerun defaults) alongside it:
 
-**2. Write `craboodle.yaml`** (pipeline config):
-```yaml
-version: "1"
-```
-
-**3. Write `base.yaml`** (scuttlerun defaults):
+**2. Write `base.yaml`** (scuttlerun defaults):
 ```yaml
 model: claude-sonnet-4-6
-tools: [Read, Write, Bash, Glob, Grep, Edit]
+tools: [Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Skill]
+```
+
+> The `tools:` array **replaces** scuttlerun's defaults — it does not extend them. The example above lists the 8 current defaults verbatim; edit as needed (drop `Skill` if no skills under test, drop `AskUserQuestion` if no multi-turn interaction, add any extra tools the scenario needs). Run `scuttlerun --help` for the current default list.
+
+**3. Review lint rules** (before writing checks, learn what lint looks for):
+```bash
+pincenez lint --help
 ```
 
 **4. Write `tdd-instruction/scenario.yaml`** (scuttlerun config only):
@@ -91,22 +93,17 @@ checks:
       check: "At least one test case validates prime number behavior"
 ```
 
-**6. Review lint rules** (before writing checks, learn what lint looks for):
-```bash
-pincenez lint --help
-```
-
-**7. Lint checks** (catches anti-patterns before spending money):
+**6. Lint checks** (catches anti-patterns before spending money):
 ```bash
 craboodle lint my-evals/
 ```
 
-**8. Run:**
+**7. Run:**
 ```bash
 craboodle run my-evals/
 ```
 
-**9. Interpret results** — see `references/results-interpretation.md`.
+**8. Interpret results** — see `references/results-interpretation.md`.
 
 ## What Can Be Evaluated
 

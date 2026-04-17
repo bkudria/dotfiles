@@ -16,6 +16,8 @@ From lowest to highest precedence (later layers override earlier ones):
 5. Per-check model         ← check-level model override in pincenez (checks.yaml)
 ```
 
+**Merge order (matters when partially overriding nested objects):** scuttlerun first deep-merges layers 2–4 on the raw YAML, then applies layer-1 defaults to fill in any keys still unset. Defaults are *not* overlaid first and then overwritten — they fill the gaps last. This means partially overriding a nested object (e.g. setting `user: { persona: "X" }` in scenario.yaml) does *not* erase sibling default fields like `user.max_turns` or `user.oracle_model` — those defaults still apply to keys you didn't set.
+
 ### Layer Details
 
 **1. Scuttlerun defaults** (built into scuttlerun's Zod schema)

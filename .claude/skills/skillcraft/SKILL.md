@@ -1,6 +1,6 @@
 ---
 name: skillcraft
-description: "IMPORTANT - this skill MUST be loaded ANY time any file within a skill directory (~/.claude/skills/*/) is being edited, created, or reviewed, even as part of other work — not just SKILL.md but also scripts, references, workflows, evals, and other skill files. Create, audit, improve, and update Claude Code skills, or integrate content from external sources. Use when creating a skill, building a skill, scaffolding a skill, improving a skill, enhancing a skill, extending a skill, adding evals, writing evals, bootstrapping evals, adding scripts, adding references, adding workflows, adding agents, updating a skill, modifying skill files, reviewing skill quality, fixing frontmatter, optimizing descriptions, checking anti-patterns, validating skill structure, maintaining skill collections, editing skill files, updating skillcraft, syncing from sources, checking for upstream changes, folding in a source, integrating a source, or merging content from an external source."
+description: "IMPORTANT: MUST load when creating, editing, or reviewing any file in ~/.claude/skills/*/ — SKILL.md, references, workflows, scripts, or evals. Creates, audits, improves, and updates Claude Code skills; integrates content from external sources. Use when creating a skill, auditing a skill, bootstrapping evals, improving a skill, or integrating a source."
 argument-hint: "[skill name, path, or 'update']"
 ---
 
@@ -168,18 +168,23 @@ Consult `references/anti-patterns.md` for 15 common problems across 4 categories
 | `references/writing-style.md` | Voice, tone, and formatting rules for skill content |
 | `references/interactive-tui.md` | Best practices for using interactive TUI tools in skills |
 | `references/resource-usage.md` | Guide for using scripts/, references/, and assets/ directories |
-| `references/dynamic-context.md` | Backtick-bang syntax, $ARGUMENTS, and string substitutions |
+| `references/dynamic-context.md` | Backtick-bang syntax, argument substitution, and string substitutions |
 | `references/naming-conventions.md` | Skill naming, description construction, trigger phrase design |
 | `references/dependencies.md` | Handling inter-skill and external tool dependencies |
-| `references/quality-checklist.md` | Complete 37-item validation checklist (7 categories) |
+| `references/quality-checklist.md` | Complete 44-item validation checklist (8 categories) |
 | `references/anti-patterns.md` | 15 common anti-patterns across 4 categories |
 | `references/bulletproofing.md` | Rationalization resistance for discipline-enforcing skills |
 | `references/common-fixes.md` | Concrete fix examples for common checklist failures |
 | `references/testing-guide.md` | How to test skills after creation or editing |
 | `references/eval-guide.md` | Skill-specific eval patterns and worked examples |
 | `references/router-pattern.md` | When and how to upgrade skills to the router pattern |
-| `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
 | `references/source-integration.md` | Templates and frameworks for source integration |
-| `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
 
+## Scripts
+
+| Script | Purpose |
+|--------|---------|
+| `scripts/scaffold.sh` | Scaffold a new skill directory with SKILL.md, references, evals (optional), and provenance (optional) |
+| `scripts/quick-validate.sh` | Automated structural validation (fast pre-flight) |
+| `scripts/check-upstream.sh` | Check upstream sources for changes; optionally update provenance metadata |
 | `scripts/post-integration-check.sh` | Post-integration content quality validation |

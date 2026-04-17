@@ -29,6 +29,19 @@ Key fields:
 - **`failures`** — per-rep evidence explaining why a check failed (only present when pass_rate < 1.0)
 - **`errors`** — infrastructure failures (scuttlerun crash, pincenez timeout). Failed reps are excluded from averaging
 
+### Preserving Full Output
+
+`craboodle run` streams one YAML document per scenario. **Never** pipe it through `grep`, `head`, or `tail` when the output will be used to decide pass/fail or populate a report — a truncated stream can omit scenarios entirely, and you cannot tell which are missing from the filtered view.
+
+Redirect to a file, then query:
+
+```bash
+craboodle run evals > /tmp/results.yaml
+yq '.scenarios[] | {id, pass_rate, cost_usd}' /tmp/results.yaml
+```
+
+This preserves the full run record, keeps the tool output small, and guarantees every scenario appears in the view.
+
 ### Exit Codes
 
 | Code | Meaning |
@@ -124,3 +137,4 @@ Get to substance quickly: run once with `--repeats 1` immediately after writing 
 - **Running many reps when you should revise first** — if pass_rate is 0.2 after 3 reps, more reps won't help. Revise, then re-run
 - **Not linting checks before running** — `craboodle lint` catches anti-patterns cheaply. Always lint before the first run
 - **Using unclear scenario names** — use descriptive scenario directory names so results are easy to interpret
+- **Filtering `craboodle run` output with grep/head/tail** — silently drops scenarios before they reach the report. Redirect to a file and query with yq instead (see § Preserving Full Output)

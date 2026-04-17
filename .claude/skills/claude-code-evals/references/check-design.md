@@ -41,14 +41,18 @@ Most scenarios need 2-3 different pattern types.
 
 ## Anti-Patterns
 
-| Anti-Pattern | Why It Fails | Fix |
-|---|---|---|
-| **Always-passes** | Tests baseline Claude behavior, not config-added value | Ask: "would Claude do this WITHOUT the config?" If yes, don't check it |
-| **Unverifiable** | Tests internal state the grader can't observe (e.g., "agent understood X deeply") | Rewrite as observable behavior: "agent identified X before attempting Y" |
-| **Vague** | Different graders would disagree on pass/fail (e.g., "code follows best practices") | Name the specific practice: "uses parameterized queries, not string concatenation" |
-| **Tautological** | Restates the prompt as a check (e.g., "output answers the question") | Assert HOW it answers: what structure, content, or approach is present |
-| **Compound** | Tests two things in one check (e.g., "uses correct syntax AND explains why") | Split into two separate checks |
-| **Over-specific** | Prescribes one implementation when multiple valid approaches produce the correct outcome (e.g., "uses eval-all" when load() also works) | Test the outcome: "produces a merged YAML document combining arrays from both files" — mention specific approaches as non-exhaustive examples, not requirements |
+Run `pincenez lint --help` for the authoritative definitions (each anti-pattern has a description plus a bad/fixed example). Brief overview:
+
+| Anti-Pattern | Quick Take |
+|---|---|
+| **vague** | Subjective terms without specifics ("high quality", "best practices") |
+| **compound** | Tests two+ independent things; split them |
+| **tautological** | Restates the prompt instead of asserting HOW |
+| **always_passes** | Tests baseline Claude behavior, not config-added value |
+| **unverifiable** | Tests internal state the grader can't observe |
+| **over_specific** | Mandates one implementation when multiple valid outcomes exist |
+
+When writing checks, apply the Pre-Write Checklist below (§ Pre-Write Checklist) — it translates each anti-pattern into a self-test question with concrete action.
 
 ### Splitting Compound Checks
 
@@ -118,16 +122,28 @@ Different configuration types add value in different ways. Target checks accordi
 
 ## Pre-Write Checklist
 
-Apply these tests to each check **before writing it to a file**. Catching anti-patterns here is free; catching them via `craboodle lint` costs a lint cycle per fix.
+Apply these tests to each check **before writing it to a file**, and again to any rewrite you produce in response to a lint flag — don't narrow focus to the flagged row; re-run every self-test, because rewrites frequently reintroduce a different anti-pattern (see Common Slips below). Catching anti-patterns here is free; catching them via `craboodle lint` costs a lint cycle per fix.
 
 | Anti-Pattern | Self-Test | If Yes |
 |---|---|---|
-| **Compound** | Does this check test two+ independent things? Signals: "and", "both", "as well as", or two distinct behaviors. | Split into separate checks — one per behavior. |
-| **Vague** | Could two graders disagree on pass/fail? Signals: "valid", "correct", "appropriate", "proper" without a concrete example or specific element. | Add a concrete syntactic example or name the specific element to look for. |
+| **Compound** | Enumerate every independent fact this check asserts. If the count is >1, it's compound. Signals: "and", "both", "as well as", "likewise", "also", "then", semicolons joining clauses, capitalized "AND" (including after a "fix"), temporal/ordering phrases like "before X-ing" or "after Y-ing" that bundle a second claim onto the first. | Split into separate checks — one per independent fact. If one claim is a precondition of another (e.g., "X happens before Y"), keep the ordering claim as a single check; do not bundle it with a claim about X's content. |
+| **Vague** | Could two graders disagree on pass/fail? Signals: "valid", "correct", "appropriate", "proper", plus abstract nouns standing in for observable actions ("investigation", "presentation", "consideration", "review") without a concrete criterion. | Add a concrete syntactic example or name the specific element to look for. Replace abstract nouns with the observable tool call, file, or output pattern that would satisfy the claim. |
 | **Always-passes** | Would Claude do this without the configuration? | Revise to target what the config specifically adds — the delta, not the baseline. |
 | **Tautological** | Does this check mirror the prompt wording? (Prompt: "write a function" → Check: "output contains a function") | Assert HOW — the specific structure, approach, or method — not WHETHER. |
 | **Unverifiable** | Can the grader observe this in the output? Signals: "understood", "considered", "thought about". | Rewrite as observable behavior: what the agent produced, not what it reasoned. |
 | **Over-specific** | Does this check mandate a specific function/operator/tool when the outcome is what matters? Signals: "uses [function name]" as a requirement, "uses X rather than Y" when Y isn't actually wrong. | Rewrite to test the outcome or behavior. Optionally mention specific approaches as non-exhaustive examples: "achieves X (e.g., via ireduce or map\|add)". |
+
+### Common Slips
+
+Patterns that look like single checks but fail lint as compound or vague. Recognize them on sight. The last row ("Capitalized AND after a fix") catalogues the rewrite failure mode specifically — re-run the full Pre-Write Checklist against every rewrite, not just the flagged row.
+
+| Pattern | Why it slips | Example | Fix |
+|---|---|---|---|
+| **Likewise-joined intervals** | "likewise"/"also" isn't in the usual "and/both" signal set, but it joins two independent claims. | "Between the edits to A and B there is an AskUserQuestion; **likewise** between B and C" | Two checks: one per interval. |
+| **Before/after-clause embedding** | A temporal clause quietly adds a second claim (the ordering). | "The agent asks about item 2 **before making any edit to** hello.py" | Split: (1) asks about item 2; (2) the ask precedes any edit to hello.py. |
+| **Abstract-noun stand-ins** | Nouns like "investigation", "presentation", "review" sound concrete but need a grader to infer what counts. | "investigation before presentation" | Replace with observable: "at least one Read/Grep/Bash call against the file before writing findings". |
+| **Capitalized "AND" after a fix** | Re-authoring a compound check often introduces a second compound in the "fix" (the agent sees the first conjunction, misses the next). | "...makes an investigative tool call **AND** asks a separate AskUserQuestion" | Apply the enumeration test to the rewrite, not just the original. |
+| **Enumerated list as requirement** | A short list of specific tools, files, or syntaxes looks concrete but disallows equivalent alternatives — lint treats "X or Y" as "only X or Y" when an outcome-equivalent Z exists. | "**Read or Grep** tool call targeting notes.md" (misses `cat`/`head`/`Bash`); "**pyproject.toml, setup.py, setup.cfg, or requirements.txt**" (misses `package.json`, `Cargo.toml`, `go.mod`); "**ATX-style headings (`#`)**" (misses setext); "'**trailing whitespace' or 'version: 1.0'**" (misses other concrete triggers) | Ask: would an equivalent alternative satisfy the intent? If yes, rewrite as the outcome ("any file-reading tool call against notes.md", "a project-manifest file") and keep the enumeration as non-exhaustive examples ("e.g., Read, Grep, or Bash cat"). |
 
 ---
 

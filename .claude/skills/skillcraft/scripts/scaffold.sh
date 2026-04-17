@@ -403,41 +403,31 @@ EOF
 fi
 
 if $WANT_EVALS; then
-  mkdir -p "$SKILL_DIR/evals/scenario-1"
+  mkdir -p "$SKILL_DIR/evals"
   cat > "$SKILL_DIR/evals/craboodle.yaml" <<EOF
 version: "1"
 EOF
   cat > "$SKILL_DIR/evals/base.yaml" <<EOF
 # Shared scuttlerun defaults for ${SKILL_NAME} evals
-model: claude-haiku-4-5
+# model: — uncomment and pick a model. scuttlerun defaults to claude-haiku-4-5,
+# which is cheap but under-represents Sonnet/Opus user workflows. See
+# bootstrap-evals.md Step 5 "Model selection" for tradeoffs.
 tools:
+  # scuttlerun defaults — repeat them here because the array replaces, not extends
   - Read
   - Write
+  - Edit
   - Bash
   - Glob
   - Grep
-  - Edit
+  - AskUserQuestion
+  - Skill
+  # Add skill-specific tools below (e.g., TodoWrite, Task, mcp__*); run 'scuttlerun -n' to verify names.
 project:
   skills:
     - ~/.claude/skills/${SKILL_NAME}
 EOF
-  cat > "$SKILL_DIR/evals/scenario-1/scenario.yaml" <<EOF
-# TODO - Rename this directory to a descriptive kebab-case name
-prompt: |
-  TODO - The user task/prompt to test.
-  This prompt exercises the skill's core behavior.
-EOF
-  cat > "$SKILL_DIR/evals/scenario-1/checks.yaml" <<EOF
-checks:
-  - todo-check-1:
-      check: "TODO - Objectively verifiable check"
-      note: "TODO - Hint for the grader"
-  - todo-check-2:
-      check: "TODO - Another check"
-  - todo-check-3:
-      check: "TODO - A third check"
-EOF
-  echo "Created: evals/ (craboodle.yaml, base.yaml, scenario-1/)"
+  echo "Created: evals/ (craboodle.yaml, base.yaml) — add scenario directories via the bootstrap-evals workflow"
 fi
 
 echo ""

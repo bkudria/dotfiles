@@ -1,6 +1,6 @@
 # Standard Skill Audit
 
-Full audit of a single skill against the 32-item quality checklist.
+Full audit of a single skill against the 44-item quality checklist.
 
 ## Quick Pre-flight (Optional)
 
@@ -30,7 +30,7 @@ Read every file in the skill directory — SKILL.md, all references/, all script
 
 ## Step 3: Apply Quality Checklist
 
-Run all checks from `references/quality-checklist.md` across six categories:
+Run all checks from `references/quality-checklist.md` across eight categories:
 
 | Category | IDs | Focus |
 |----------|-----|-------|

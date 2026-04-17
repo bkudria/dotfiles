@@ -267,35 +267,14 @@ Determine the tier at the start of every behavioral edit. Tier 3 happens at most
 
 ### Tier 3: Bootstrap Interview
 
-> For standalone eval bootstrapping (not triggered by a behavioral edit), use `workflows/bootstrap-evals.md` instead. The steps below apply when bootstrapping is triggered by a behavioral edit in Lightweight Mode.
+When a skill has no `evals/` at all, follow `workflows/bootstrap-evals.md` (9 steps: Select, Read & Classify, Propose, Interview, Write Pipeline Config, Write Scenarios, Lint, First Run, Iterate). The full process is the authoritative spec for both standalone and edit-triggered bootstrap.
 
-When a skill has no `evals/` at all:
+**Edit-triggered shortcuts** (optional when Lightweight Mode has already surfaced the change to be tested):
 
-**Step 1 — Read the skill.** Read all files in the skill directory. Classify the skill type (discipline, technique, pattern, reference) per § Testing by Skill Type above.
+- **Skip Step 4 interview question 2** ("What behaviors are most critical?") — the edit itself specifies the critical behavior.
+- **Use `--repeats 1`** for the first run (Step 8) to calibrate fast, then expand reps before declaring done.
 
-**Step 2 — Propose scenarios.** Generate 3 scenario proposals matching the skill type:
-
-| Skill Type | Scenario Mix |
-|------------|-------------|
-| Discipline | 1 pressure, 1 compliance, 1 edge case |
-| Technique | 1 application, 1 variation, 1 gap |
-| Pattern | 1 recognition, 1 application, 1 counter-example |
-| Reference | 1 retrieval, 1 application, 1 completeness |
-
-For each proposed scenario, draft: `id`, `name`, `prompt`, and 3 `checks`. Make scenarios realistic and specific to the skill's actual content — not generic templates. Consult the `claude-code-evals` skill for check quality rules.
-
-For auto-triggering skills, also propose 1 trigger scenario (see `references/eval-guide.md` § Trigger Testing). The trigger scenario tests whether the skill's `description` causes it to load on a relevant prompt without explicit invocation.
-
-**Step 3 — Interview the user.** Present the proposals and ask:
-
-1. "Here are 3 proposed eval scenarios for [skill-name]. For each: approve as-is, suggest changes, or replace?"
-2. "What behaviors are most critical to verify? Anything I missed?"
-
-Revise scenarios based on feedback. Two questions is the target; three is the maximum.
-
-**Step 4 — Write scenario files.** Create `<skill-dir>/evals/<scenario-id>/scenario.yaml` for each scenario. Run `craboodle --help` for the scenario.yaml schema.
-
-**Step 5 — Run initial eval.** Run `craboodle run --repeats 1 <skill-dir>/evals` to verify scenarios work. Lint validates check form; this validates substance. Evals that have never been run are not evals.
+Do NOT skip Step 7 (Lint) or Step 8 (First Run). Lint is ~15s and prevents anti-patterns from wasting run cost; a skipped run means untested evals, which the Iron Law prohibits.
 
 ### Tier 2: Edit-Specific Scenario
 
@@ -321,6 +300,8 @@ This replaces informal "run 1-2 scenarios" with structured, repeatable eval exec
 ### Quick Path
 
 To minimize bootstrap time:
-- Accept proposed scenarios without modification (skip interview question 2)
-- Skip the optional baseline iteration (Step 5)
-- Minimum viable bootstrap: ~5 minutes for Tier 3
+- Accept proposed scenarios without modification (skip interview question 2 of the workflow's Step 4).
+- Run `craboodle run --repeats 1` on the first pass to calibrate fast, then expand reps before declaring done.
+- Minimum viable bootstrap: ~5 minutes for Tier 3.
+
+The Iron Law still applies: lint and at least one run must happen before the edit is considered complete.

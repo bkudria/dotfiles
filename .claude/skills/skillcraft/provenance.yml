@@ -214,18 +214,15 @@ curation_decisions:
   workflows/create-phase1-discovery.md:
     - decision: original
       rationale: Original interview-driven discovery process.
-  workflows/create-phase2-design.md:
+  workflows/create-phase2-implement.md:
     - decision: original
-      rationale: Original design phase with type/feature selection.
-  workflows/create-phase3-scaffold.md:
+      rationale: Phase 2 of the 4-phase Create workflow — authoring the skill (SKILL.md, references, scripts). Replaced earlier phase2-design and phase4-author when the create path was consolidated from 6 phases to 4.
+  workflows/create-phase3-validate.md:
     - decision: original
-      rationale: Original scaffolding workflow.
-  workflows/create-phase4-author.md:
+      rationale: Phase 3 of the 4-phase Create workflow — validating the skill via quality-checklist.md and quick-validate.sh. Replaced earlier phase3-scaffold and phase5-validate when the create path was consolidated from 6 phases to 4.
+  workflows/create-phase4-refine.md:
     - decision: original
-      rationale: Original collaborative authoring process.
-  workflows/create-phase5-validate.md:
-    - decision: original
-      rationale: Original validation phase using quality checklist.
+      rationale: Phase 4 of the 4-phase Create workflow — iterating based on eval results and validation feedback. Replaced earlier phase6-eval when the create path was consolidated from 6 phases to 4.
   workflows/create-domain-expertise.md:
     - decision: original
       rationale: Original alternative path for broad domain skills.
@@ -254,9 +251,6 @@ curation_decisions:
   scripts/post-integration-check.sh:
     - decision: original
       rationale: Post-integration content quality validation script.
-  scripts/aggregate-results.sh:
-    - decision: original
-      rationale: Aggregates grading.json files into benchmark.json with summary statistics.
   scripts/check-upstream.sh:
     - decision: original
       rationale: Original upstream source checking script.
@@ -269,10 +263,12 @@ curation_decisions:
         Slimmed to skill-specific eval patterns only (by-skill-type tables, worked
         examples, trigger testing). Generic eval mechanics (scenario schema, check
         design, results interpretation) deferred to the claude-code-evals skill.
-  workflows/create-phase6-eval.md:
+  workflows/bootstrap-evals.md:
     - source: anthropic-skills
       sections: [skills/skill-creator/SKILL.md]
       decision: synthesized
       rationale: >-
-        Phase 6 workflow synthesized from Anthropic's skill-creator eval pipeline design.
-        Adapted for skillcraft's sequential phase model and bash+jq toolchain.
+        Eval-bootstrap workflow synthesized from Anthropic's skill-creator eval pipeline design,
+        adapted for skillcraft's craboodle/pincenez/scuttlerun toolchain. Replaced the earlier
+        create-phase6-eval.md when evals became a separate workflow (callable for existing
+        skills, not just during Create).

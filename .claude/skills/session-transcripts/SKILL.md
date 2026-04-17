@@ -51,7 +51,12 @@ All scripts are in `~/.claude/skills/session-transcripts/scripts/`.
 | `list-sessions.sh [path]` | List sessions for a project |
 | `find-subagent-files.sh <file>` | Find all subagent transcript files for a session |
 | `find-skill-usage.sh <name> [--project <path>]` | Find sessions that loaded a specific skill |
-| `shunt <cmd> [args]` | Run a script and save output to a temp file | Large outputs that need to be Read separately |
+
+### External utilities (on PATH, not in `scripts/`)
+
+| Command | Purpose | When to use |
+|---------|---------|-------------|
+| `shunt <cmd> [args]` | Run any command and save stdout to a temp file, printing the path | Large outputs that need to be Read separately |
 
 ### Extraction — structured views of a single session
 
@@ -107,7 +112,7 @@ $SCRIPTS/list-sessions.sh /Users/bkudria/code/myproject
 
 ## Reviewing a Session
 
-For structured session review, read `workflows/review.md`.
+**If your task is to review or audit a past session, load `workflows/review.md` before running extraction scripts.** It sequences the primary view (`extract-tool-results.sh`), error isolation (`--errors-only`), and keyword search (`search-session.sh`) so you don't default to broad extractions when a targeted one would isolate the signal in one call.
 
 ## Tips
 
@@ -115,6 +120,7 @@ For structured session review, read `workflows/review.md`.
 - **Saving output to a file**: Use `shunt <command> [args...]` — it saves stdout to a temp file and prints the path. Never use shell `>` redirection to external paths (triggers permission prompts).
 - **Large transcripts** (>256KB file size): Use `shunt` to save `extract-conversation.jq` output, then Read the printed path. Check file size first (`ls -l` or `extract-overview.jq`) — most sessions are well under this threshold and can be processed directly.
 - **Quick stats**: Use `extract-overview.jq` before reading a transcript to understand its scope.
+- **Auditing skill usage**: Start with `extract-skill-usage.jq` (timestamps within one session) and `find-skill-usage.sh` (cross-session) — these produce ground-truth lists instead of inferring from conversation extractions.
 - **Ad-hoc queries**: See `references/jq-recipes.md` for common jq one-liners.
 - **Schema details**: See `references/transcript-schema.md` for full JSONL field documentation.
 

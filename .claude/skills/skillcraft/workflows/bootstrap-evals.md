@@ -2,7 +2,9 @@
 
 Add eval coverage to an existing skill that has no `evals/` directory.
 
-> **References for this workflow:** `references/eval-guide.md` (scenario patterns by skill type), `references/testing-guide.md` § Eval Bootstrapping Protocol (tiered approach). Load the `claude-code-evals` skill for check design rules and anti-patterns. Run `craboodle --help` for the canonical scenario.yaml and base.yaml schema reference.
+> **References for this workflow:** `references/eval-guide.md` (scenario patterns by skill type), `references/testing-guide.md` § Eval Bootstrapping Protocol (tiered approach). Run `craboodle --help` for the canonical scenario.yaml and base.yaml schema reference.
+
+**GATE — Load `claude-code-evals` before proceeding.** This workflow depends on check design rules from the `claude-code-evals` skill. Use the Skill tool to load it now. Do NOT proceed to Step 1 until it is loaded.
 
 ## Step 1: Select Target Skill
 
@@ -23,6 +25,8 @@ Check the skill's `evals/` directory status:
 ## Step 2: Read & Classify
 
 Read all files in the skill directory — SKILL.md, all references/, all scripts/. Build a complete picture.
+
+While reading, note every tool name the skill itself calls (including MCP-prefixed `mcp__*` names). This list feeds Step 5's `tools:` array. Skills that omit a needed tool will fail at smoke-run with "tool not available," and tools the SDK does not recognize will surface as `WARNING: Unknown tool name` on scuttlerun dry-run. After drafting `base.yaml` in Step 5, run `scuttlerun -n <scenario.yaml>` once to validate every tool name before proceeding; the warning output is the authoritative SDK-tool-name list.
 
 For format reference, read one complete eval suite from a sibling skill of the same type (e.g. `~/.claude/skills/skillcraft/evals/` for a skill-about-skills). The `claude-code-evals` and `skillcraft` skill content is available via loaded skill context — do not spawn sub-agents to re-read their reference files.
 
@@ -50,7 +54,7 @@ For each proposed scenario, draft: `id`, `name`, `prompt`, and 3 `checks`. Make 
 
 For auto-triggering skills (no `disable-model-invocation: true`), also propose 1 trigger scenario. See `references/eval-guide.md` § Trigger Testing.
 
-Load the `claude-code-evals` skill for check design rules. Check quality is enforced in Step 6.
+Check quality is enforced in Step 6.
 
 ## Step 4: Interview (when warranted)
 
@@ -72,6 +76,10 @@ Revise scenarios based on feedback. Two questions is the target; three is the ma
 
 ## Step 5: Write Pipeline Config
 
+### Model selection
+
+The agent-under-test `model:` determines what your evals measure. Haiku (scuttlerun's default) is cheap and fast but its failure modes may not reflect what the skill does under Sonnet or Opus — the models most users run. Default to Sonnet for representative evals; reserve Haiku for smoke-testing scenario design or iterating cheaply. The synthetic-user `oracle_model` (under `user:`) also defaults to Haiku — raise it when the skill depends on the oracle following nuanced prompts.
+
 ### If `evals/` does not exist
 
 Scaffold the eval directory:
@@ -80,19 +88,17 @@ Scaffold the eval directory:
 craboodle init <skill-dir>/evals
 ```
 
-This creates `craboodle.yaml`, `base.yaml`, and a `hello-world/` example scenario. Then:
+This creates `craboodle.yaml` with `version: "1"` plus commented-out entries for `min_pass_rate`, `max_budget_usd`, and `repeats`. Then:
 
-1. **Edit `base.yaml`** — add model, tools, and inject the skill under test via `project.skills`. Include tools the agent needs (typically Bash, Read, Write, Glob, Grep, Edit). Run `scuttlerun --help` for the full schema.
-2. **Edit `craboodle.yaml`** — adjust `min_pass_rate` if needed (default is 0.8).
-3. **Remove the example scenario** — delete the `hello-world/` directory.
+1. **Create `base.yaml`** — add model, tools, and inject the skill under test via `project.skills`. The `tools:` array must include both scuttlerun's defaults (`Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Skill`) **plus** every tool you noted in Step 2 — listing your additions alone replaces the defaults rather than extending them. Run `scuttlerun --help` for the full schema. For how `base.yaml`, `scenario.yaml`, CLI flags, and scuttlerun defaults compose (deep-merge for objects, replace for arrays, defaults applied last), see `claude-code-evals/references/config-precedence.md`.
+2. **Edit `craboodle.yaml`** — uncomment `min_pass_rate` and set a reachable value. Reachable pass rates are `k/(checks × reps)`; e.g. with 3 checks × 1 rep the only reachable values are `{0, 0.33, 0.67, 1.0}`, so `0.8` would collapse to requiring a perfect `1.0`.
 
-### If `evals/` exists from scaffolding (TODO stubs)
+### If `evals/` exists from scaffolding
 
-The `scaffold.sh` script already created `craboodle.yaml`, `base.yaml` (with model, tools, and skill injection pre-filled), and placeholder scenario directories. Use what's there:
+The `scaffold.sh` script (when run with `--evals`) created `craboodle.yaml` and `base.yaml` — with model, tools, and skill injection pre-filled. No scenario directories are scaffolded (scenarios are created fresh in Step 6 for exactly the behaviors you want to test). Use what's there:
 
 1. **Review `base.yaml`** — verify model, tools, and skill injection are correct. Adjust if needed.
-2. **Edit `craboodle.yaml`** — add `min_pass_rate: 0.8` if not already present.
-3. **Delete placeholder scenarios** — remove `scenario-1/` and any other TODO-only directories.
+2. **Edit `craboodle.yaml`** — set `min_pass_rate` to a reachable value for your check count × rep count (rates are `k/(checks × reps)`; `0.8` at 3 checks × 1 rep is unreachable and acts as `1.0`).
 
 ## Step 6: Write Scenario Files
 
@@ -101,16 +107,9 @@ For each approved scenario, create:
 - `evals/<scenario-id>/scenario.yaml` — prompt and any scuttlerun overrides (fixtures via `project.files`, tool restrictions, etc.)
 - `evals/<scenario-id>/checks.yaml` — context and checks in id-as-key format
 
-**GATE — Apply the Pre-Write Checklist to every check before writing it to a file.** Catching anti-patterns here is free; catching them via `craboodle lint` costs a lint cycle per fix.
+**GATE — STOP. Before writing any check, you MUST Read `claude-code-evals/references/check-design.md` § Pre-Write Checklist AND § Common Slips in this session.** The reference contains six self-tests that every check must pass before being written. Apply every self-test to every check — do not skip self-tests on checks that "look obviously fine"; over-specific and compound are the most common lint failures and they hide in checks that look concrete. Catching anti-patterns here is free; catching them via `craboodle lint` has previously cost 5 lint cycles and several minutes of re-authoring when the checklist was skipped at first-pass authorship.
 
-| Anti-Pattern | Self-Test | If Yes |
-|---|---|---|
-| **Compound** | Does this check test two+ independent things? Signals: "and", "both", "as well as". | Split into separate checks. |
-| **Vague** | Could two graders disagree on pass/fail? Signals: "valid", "correct", "appropriate" without a concrete example. | Add a concrete element to look for. |
-| **Always-passes** | Would Claude do this without the configuration? | Target what the config adds — the delta, not the baseline. |
-| **Tautological** | Does this check mirror the prompt wording? | Assert HOW — the specific method or structure — not WHETHER. |
-| **Unverifiable** | Can the grader observe this in the output? Signals: "understood", "considered". | Rewrite as observable behavior. |
-| **Over-specific** | Does this check mandate a specific function/operator when the outcome matters? | Test the outcome; mention approaches as examples, not requirements. |
+Loading the `claude-code-evals` skill (done in Step 1) is not the same as having the Pre-Write Checklist in context. If you have not Read the § Pre-Write Checklist AND § Common Slips sections of check-design.md during this session, Read them now before continuing.
 
 **Write incrementally**: Write the first scenario, then lint it with `craboodle lint --scenario <id> <skill-dir>/evals`. Fix any issues before writing the remaining scenarios — anti-pattern tendencies caught on the first scenario won't propagate to the rest. Then write the remaining scenarios in parallel, following the same patterns.
 
@@ -141,6 +140,8 @@ Review the output. If all scenarios pass, proceed to Final Report. If failures o
 | 1 | Configuration error | Fix scenario YAML |
 | 2 | Infrastructure error | Check tool installation |
 
+**GATE — When exit code is 3, you MUST produce a per-check diagnosis table before the Final Report. Do NOT emit "Bootstrap complete" or any final summary until every failing check has a Skill-vs-Check attribution recorded in the Diagnosis section of the report template.**
+
 For each failing check, diagnose:
 - **Skill problem** — The skill doesn't cause the intended behavior. Fix: revise the skill.
 - **Check problem** — The skill works but the check doesn't capture it correctly. Fix: revise the check.
@@ -149,12 +150,15 @@ To distinguish: read the scuttlerun transcript at `<artifact_dir>/<scenario-id>/
 
 Iteration rules:
 1. Fix one thing at a time (skill OR check, not both)
-2. Re-run targeted scenarios after each fix
-3. Stop when: exit code 0, or pass rate improvement < 0.05 for 2 iterations
+2. When a rewrite responds to a lint flag, re-apply the full Pre-Write Checklist to the rewrite before moving on — rewrites commonly reintroduce a different anti-pattern (see `claude-code-evals/references/check-design.md` § Common Slips)
+3. Re-run targeted scenarios after each fix
+4. Stop when: exit code 0, or pass rate improvement < 0.05 for 2 iterations
 
 ## Final Report
 
 This template requires data from a `craboodle run` — it cannot be filled from lint results alone.
+
+**Output handling**: redirect `craboodle run` to a file; never pipe it through `grep`, `head`, or `tail` before reading for the report. Filtered streams drop scenarios silently. See `claude-code-evals/references/results-interpretation.md` § Preserving Full Output.
 
 ```
 ## Evals Bootstrapped: {skill-name}
@@ -168,6 +172,15 @@ Run: {PASS or FAIL} (exit code {0 or 3})
 ### Per-Scenario Results
 {paste craboodle run YAML output: scenario id, pass_rate, cost_usd for each}
 
+### Diagnosis
+{Required when Run: FAIL. One row per failing check. Omit this section only when all scenarios passed (exit code 0).}
+
+| Scenario | Check | Pass rate | Attribution (Skill / Check) | Notes |
+|----------|-------|-----------|----------------------------|-------|
+| ...      | ...   | ...       | ...                        | ...   |
+
 ### Iterations
 {count} lint-fix cycles, {count} run-fix cycles
 ```
+
+**Before submitting**: verify every scenario directory under `evals/` appears above with a numeric `pass_rate`. If any row shows `?`, `unknown`, or "succeeded" without a number, the run output was filtered — re-read it from the redirect file or artifact directory and re-populate that row.
