@@ -51,7 +51,7 @@ class Actions extends Drive
       ::setFullScreen(not isFullScreen)
 
   screenFraction: (fraction, total) =>
-    with window = hs.window.focusedWindow!
+    with window := hs.window.focusedWindow!
       ::setFullScreen(false)
 
       with hs.grid
