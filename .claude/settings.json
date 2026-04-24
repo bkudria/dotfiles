@@ -4,6 +4,10 @@
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
   "statusLine": {
     "type": "command",
     "command": "npx ccstatusline",
@@ -14,9 +18,25 @@
     "claude-md-management@claude-plugins-official": true,
     "claude-code-setup@claude-plugins-official": true,
     "typescript-lsp@claude-plugins-official": true,
-    "ruby-lsp@claude-plugins-official": true
+    "ruby-lsp@claude-plugins-official": true,
+    "plugin-dev@claude-plugins-official": true,
+    "triage@bkudria-cc-plugins": true
   },
-  "effortLevel": "high",
-  "voiceEnabled": true,
-  "skipDangerousModePermissionPrompt": true
+  "extraKnownMarketplaces": {
+    "bkudria-cc-plugins": {
+      "source": {
+        "source": "directory",
+        "path": "/opt/me/code/cc-plugins"
+      }
+    },
+    "juxt-plugins": {
+      "source": {
+        "source": "github",
+        "repo": "juxt/claude-plugins"
+      }
+    }
+  },
+  "effortLevel": "xhigh",
+  "skipDangerousModePermissionPrompt": true,
+  "voiceEnabled": true
 }
