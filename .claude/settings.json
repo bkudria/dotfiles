@@ -37,6 +37,10 @@
     }
   },
   "effortLevel": "xhigh",
+  "permissions": {
+    "defaultMode": "auto"
+  },
+  "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "preferredNotifChannel": "iterm2_with_bell",
