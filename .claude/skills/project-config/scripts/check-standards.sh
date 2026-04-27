@@ -273,10 +273,13 @@ check_readme_badges() {
 
 check_gitignore() {
   if [[ -e "$PROJECT_ROOT/.gitignore" ]]; then
-    # Public visibility: warn about common local config patterns
+    # Public visibility: warn only about project-specific patterns whose
+    # absence creates real risk (e.g., committed secrets via .env).
+    # Personal/editor patterns (.vscode/, .idea/, etc.) are out of scope —
+    # those belong in a developer's personal gitignore, not the project's.
     if [[ "$VISIBILITY" == "public" ]]; then
       local missing_patterns=""
-      for pattern in ".env" ".claude/" ".vscode/" ".idea/"; do
+      for pattern in ".env"; do
         if ! grep -q "$pattern" "$PROJECT_ROOT/.gitignore" 2>/dev/null; then
           missing_patterns="${missing_patterns:+$missing_patterns, }$pattern"
         fi
@@ -425,19 +428,23 @@ check_claude_md() {
 
 check_goals() {
   local found
-  if found=$(first_match "$PROJECT_ROOT" GOALS.md goals.md goals.yaml); then
+  if found=$(first_match "$PROJECT_ROOT" \
+    GOALS.md goals.md goals.yaml \
+    docs/GOALS.md docs/goals.md docs/goals.yaml); then
     emit "PASS" "goals" "$found exists"
   else
-    emit "$(fail_or_warn goals)" "goals" "No GOALS.md found"
+    emit "$(fail_or_warn goals)" "goals" "No GOALS.md or docs/goals.md found"
   fi
 }
 
 check_spec() {
   local candidates=("SPEC.md" "specification.md" "design.md")
-  # Only check spec.md if no spec/ test directory exists
+  # Only check spec.md at root if no spec/ test directory exists (could be confused with rspec dir)
   if [[ ! -d "$PROJECT_ROOT/spec" ]]; then
     candidates+=("spec.md")
   fi
+  # docs/ paths — always safe since they can't be confused with a test directory
+  candidates+=("docs/SPEC.md" "docs/spec.md" "docs/specification.md" "docs/design.md")
 
   local found
   for f in "${candidates[@]}"; do
@@ -447,7 +454,7 @@ check_spec() {
     fi
   done
 
-  emit "$(fail_or_warn spec)" "spec" "No SPEC.md found"
+  emit "$(fail_or_warn spec)" "spec" "No SPEC.md or docs/spec.md found"
 }
 
 check_linter() {

@@ -33,7 +33,9 @@ Detailed check logic for each standard. Standards are checked in the order liste
 
 **Default check**: `.gitignore` exists in the project root.
 
-**Public visibility check**: When `visibility: public`, also checks that `.gitignore` contains patterns for common local configuration directories. Each missing pattern is reported as a WARN (not FAIL): `.env`, `.claude/`, `.vscode/`, `.idea/`.
+**Public visibility check**: When `visibility: public`, also checks that `.gitignore` contains patterns whose absence creates real risk for a public repo. Currently this is just `.env` (committed secrets). A missing pattern is reported as a WARN (not FAIL).
+
+Personal/editor patterns (`.vscode/`, `.idea/`, swap files, OS metadata like `.DS_Store`, etc.) are intentionally **not** recommended here — those belong in a developer's personal gitignore (`git config --global core.excludesFile`), not in the project's `.gitignore`.
 
 ---
 
@@ -111,10 +113,13 @@ If `spdx` is not declared, just check file existence.
 
 **Default check**: `GOALS.md` exists. This is the WHY document — project motivation, vision, non-goals.
 
-**Files checked** (first match wins):
+**Files checked** (first match wins; root takes precedence over `docs/`):
 - `GOALS.md`
 - `goals.md`
 - `goals.yaml`
+- `docs/GOALS.md`
+- `docs/goals.md`
+- `docs/goals.yaml`
 
 No additional configuration.
 
@@ -124,11 +129,15 @@ No additional configuration.
 
 **Default check**: `SPEC.md` exists. This is the HOW document — technical specification, architecture, data model, API design.
 
-**Files checked** (first match wins):
+**Files checked** (first match wins; root takes precedence over `docs/`):
 - `SPEC.md`
-- `spec.md` (only if no `spec/` test directory exists — disambiguate)
+- `spec.md` (root only — and only if no `spec/` test directory exists — disambiguate)
 - `specification.md`
 - `design.md`
+- `docs/SPEC.md`
+- `docs/spec.md` (always safe under `docs/` — cannot be confused with a test directory)
+- `docs/specification.md`
+- `docs/design.md`
 
 No additional configuration.
 
