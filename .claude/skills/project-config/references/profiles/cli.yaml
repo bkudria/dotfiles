@@ -1,0 +1,11 @@
+# CLI profile — standards for projects that distribute a command-line tool
+#
+# Use in project.yaml:
+#   profiles: [base, public, cli]
+#
+# Adds CLI-specific standards on top of base (and typically public, for
+# open-source CLIs). Currently small; expand as audits surface more.
+
+standards:
+  shell-completion:
+    recommended: true

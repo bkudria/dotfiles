@@ -27,6 +27,17 @@ Detailed check logic for each standard. Standards are checked in the order liste
 
 **Reference check**: Scan README content for links or references to the specified documents. A bare mention of the filename counts (e.g., "See GOALS.md" or `[Goals](GOALS.md)`).
 
+**Supported reference mappings** (standard name → file/path scanned in README):
+- `goals` → `GOALS.md`
+- `spec` → `SPEC.md`
+- `docs` → `docs/`
+- `contributing` → `CONTRIBUTING.md`
+- `code-of-conduct` → `CODE_OF_CONDUCT.md`
+- `security-policy` → `SECURITY.md`
+- `support` → `SUPPORT.md`
+- `changelog` → `CHANGELOG.md`
+- any other name → matched as a literal case-insensitive substring against the README
+
 ---
 
 ## gitignore
@@ -157,6 +168,23 @@ No additional configuration.
 **Script behavior**: If `config` is declared, checks that file exists. If `config` is not declared, the check is SKIPped for manual verification.
 
 **Manual verification** (SKIP): When the script cannot determine the linter setup from declared fields, verify that a linter is installed and configured for the project.
+
+---
+
+## formatter
+
+**Default check**: A code formatter is configured for the project — separate from the linter, since lint covers correctness while a formatter covers style consistency (whitespace, line wrapping, quote style).
+
+**Configurable options**:
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `tool` | string | Formatter tool name (for metadata/display) |
+| `config` | string | Path to the formatter config file |
+
+**Script behavior**: If `config` is declared, checks that file exists. If `config` is not declared, the check is SKIPped for manual verification.
+
+**Manual verification** (SKIP): When the script cannot determine the formatter setup from declared fields, verify that a formatter is installed and configured for the project (e.g., Prettier, Biome, dprint, Black, rustfmt, gofmt — declared in package.json/pyproject.toml/etc. or as a config file at the project root).
 
 ---
 
@@ -309,6 +337,26 @@ No configurable options.
 
 ---
 
+## release-process
+
+**Default check**: The project documents its end-to-end release process where contributors will look — typically `CONTRIBUTING.md`, a dedicated `RELEASING.md`, or a `docs/` page.
+
+No configurable options — this standard intentionally stays content-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm the docs answer the questions a first-time releaser would ask, end-to-end:
+
+- **Commit conventions** — what message format gates the next release (Conventional Commits, Angular, etc.)?
+- **Release trigger** — who or what opens the release PR (release-please, semantic-release, manual)? What does merging it cause?
+- **Versioning** — how is the next version chosen, and how do contributors signal a bump (commit prefix, changeset entry, manual edit)?
+- **Publishing** — where does the artifact land (npm, PyPI, GitHub Releases, container registry) and what credentials are required?
+- **CHANGELOG** — how do new entries appear (auto-generated from commits, hand-edited, both)?
+
+A bare `we use release-please` line is not a documented process. The bar is whether a new contributor could ship a release after reading the doc, with no out-of-band help.
+
+This standard complements `release-automation` (which only checks that *some* tooling is configured) by ensuring the human side of releases — conventions, expectations, recovery — is written down.
+
+---
+
 ## dependency-updates
 
 **Default check**: Automated dependency update tooling is configured.
@@ -361,6 +409,22 @@ No configurable options — auto-detected based on project language.
 
 ---
 
+## runtime-version
+
+**Default check**: The project declares its required runtime/language version somewhere a contributor or CI step would look — e.g., a manifest field, a dotfile, a version-manager config, or a Requirements/Prerequisites section in the README. Without this, new contributors and CI runners have no authoritative answer to "which runtime version should I install?"
+
+No configurable options — this standard intentionally stays language-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm that the project declares its required runtime/language version somewhere contributors will look. Common places:
+- Manifest fields (e.g., `engines` in `package.json`, `requires-python` in `pyproject.toml`, `rust-version` in `Cargo.toml`, the `go` directive in `go.mod`, a `ruby` line in `Gemfile`, etc.)
+- Dotfiles (`.nvmrc`, `.node-version`, `.python-version`, `.ruby-version`, `rust-toolchain[.toml]`, etc.)
+- Version-manager configs (`.tool-versions` for asdf/mise)
+- A "Requirements" or "Prerequisites" section in the README
+
+A repo with none of these gets a fresh contributor stuck on "which version?" — this standard exists to flag that gap for review.
+
+---
+
 ## support
 
 **Default check**: A `SUPPORT.md` file exists, telling users where to get help (discussions, chat, paid support) so issues don't become a catch-all help desk.
@@ -399,6 +463,41 @@ No additional configuration.
 
 ---
 
+## security-automation
+
+**Default check**: The project has automated security scanning configured to surface vulnerabilities in source code, dependencies, and supply-chain hygiene before they ship — running on pull requests and on a schedule against the main branch.
+
+No configurable options — this standard intentionally stays language-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm that the project has automation covering each of the three layers below, wired into CI so that results are visible to reviewers and the build fails on high-severity findings.
+
+- **SAST (static analysis of source code)**: e.g., CodeQL workflow (free for public GitHub repos), Semgrep, Bandit (Python), gosec (Go), brakeman (Ruby), or equivalents in your ecosystem. Should run on PRs and on a schedule against the main branch.
+- **SCA (dependency vulnerability scanning)**: e.g., GitHub's `dependency-review-action` on PRs, `npm audit --audit-level=high`, `pip-audit`, `cargo-audit`, `bundle-audit`, or the equivalent for your ecosystem — failing the build on known high-severity CVEs.
+- **Supply-chain hardening**: e.g., OSSF Scorecard (`ossf/scorecard-action`) for repo-hygiene scoring, signed releases (sigstore/cosign, npm `--provenance`, PEP 740), pinned third-party action versions (commit SHA, not tag).
+
+A project without automated security scanning ships unknown vulnerabilities and is invisible to supply-chain ecosystem signals like Scorecard. This standard exists to flag that gap for review.
+
+---
+
+## privacy-posture
+
+**Default check**: The project explicitly states its privacy posture in user-facing docs (typically `README.md` and/or `SECURITY.md`).
+
+No configurable options — this standard intentionally stays content-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm that the project's docs answer, in plain language, the questions a security-conscious user would ask before installing or running it:
+
+- What data leaves the user's machine when the project runs (none, prompts/outputs, telemetry, crash reports, etc.)?
+- Where does that data go — directly to a third-party API, to the project's own servers, to an analytics provider?
+- What is collected, retained, or shared by the project itself (vs. by upstream services it calls)?
+- Is there an opt-out, and how do users invoke it?
+
+A vague mention of "we care about privacy" is not a posture. The bar is whether a user can answer the questions above without reading source code.
+
+A project without an explicit privacy posture invites worst-case assumptions ("it phones home, sends my prompts to an unnamed server, retains them indefinitely"). This standard exists to flag that gap for review.
+
+---
+
 ## package-metadata
 
 **Default check**: The project's distribution manifest declares metadata required for public release (name, version, license, repository URL, description).
@@ -419,6 +518,40 @@ No additional configuration.
 
 ---
 
+## package-metadata-complete
+
+**Default check**: Beyond the bare-required fields covered by `package-metadata`, the project's distribution manifest fills in the discoverability and governance metadata an outside contributor or package-registry visitor expects — keywords/topics, author/maintainer, bugs URL, homepage URL, contributors, funding, and similar.
+
+No configurable options — this standard intentionally stays language-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm that the project's manifest includes more than the bare minimum. Common discoverability/governance fields:
+- **Keywords / topics**: enable package-registry search (`keywords` in `package.json`, `keywords` in `Cargo.toml`'s `[package]`, `keywords` in `pyproject.toml`'s `[project]`, etc.). Repos may also use GitHub/GitLab topics as a complement.
+- **Author / maintainer**: who to contact about the package (`author` / `authors` / `maintainers` field, or a `MAINTAINERS` file).
+- **Bug tracker URL**: where to file issues (`bugs` in `package.json`, `repository.issues` link, or a section in CONTRIBUTING/SUPPORT).
+- **Homepage URL**: project landing page (`homepage` in `package.json`, `homepage` in `Cargo.toml`, `[project.urls].Homepage` in `pyproject.toml`).
+- **Contributors / funding** (optional but signals project health): `contributors`, `funding`, `sponsors`, etc.
+
+A manifest with only the legally-required fields gets contributors stuck on "who do I contact?", "where do I file bugs?", and prevents discoverability via package-registry search. This standard exists to flag that gap for review.
+
+---
+
+## metadata-quality
+
+**Default check**: Project metadata text — not just whether fields are filled in, but whether the prose is accurate, informative, and representative — describes what the project actually does, in language that helps a stranger decide whether it's useful to them.
+
+No configurable options — quality is a human judgment. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm that the project's user-facing prose accurately and richly describes the project. Common surfaces to review:
+- **Manifest description** (e.g., `description` in `package.json`, `description` in `Cargo.toml`'s `[package]`, `description` in `pyproject.toml`'s `[project]`). Should mention the *what* (function), the *audience* (who it's for), and the *form-factor* (CLI, library, service) — not just a 4-word summary.
+- **Repo description** on GitHub/GitLab (the field beneath the project name).
+- **README opening paragraph / tagline**: usually the first thing a visitor reads. Should match the manifest description in tone and substance.
+- **Keywords / topics**: should be searchable terms an actual user would type, not internal jargon.
+- **Tagline consistency**: manifest description, repo description, README tagline, and any `homepage` page should agree on what the project is — otherwise visitors see contradictory framings.
+
+A project where the description reads like a 5-second placeholder ("foo CLI", "TODO", "Multi-turn driver") fails this standard even if all required fields are filled in (item `package-metadata-complete` would still PASS). Surface this gap so the maintainer can rewrite for clarity before public release.
+
+---
+
 ## publish-config
 
 **Default check**: The project explicitly controls which files are included in distributed packages, preventing accidental inclusion of tests, internal docs, secrets, or development artifacts.
@@ -431,6 +564,54 @@ No configurable options — auto-detected based on project language.
 - `rust`: `Cargo.toml` has `[package]` exclude or include
 - `python`: `MANIFEST.in` exists OR `pyproject.toml` has `[tool.setuptools.packages]`
 - Unknown language: SKIPped for manual verification
+
+---
+
+## shell-completion
+
+**Default check**: A project that distributes a CLI ships shell completion for at least bash and zsh.
+
+No configurable options — this standard intentionally stays language- and packaging-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm one of the following:
+
+- A built-in subcommand prints a completion script (e.g., `<cli> completion bash`, `<cli> completion zsh`, `<cli> completion fish`) and the README documents how to source or install the output.
+- Static completion scripts ship with the package and land in a discoverable location at install time (e.g., `share/bash-completion/completions/`, `share/zsh/site-functions/`, or a documented copy step).
+
+A CLI with no completion forces users to remember every subcommand and flag by hand. This standard exists in the optional `cli` profile (`profiles: [base, public, cli]`) so that non-CLI projects don't see a noisy WARN they can't act on.
+
+---
+
+## visual-demo
+
+**Default check**: The README features an embedded visual demo of the project, prominently placed (ideally near the top).
+
+No configurable options — this standard intentionally stays format- and language-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm the README embeds at least one of:
+
+- An animated GIF or short MP4/WebM clip showing the tool in action.
+- An asciinema cast (`*.cast`) embedded via the asciinema player or linked prominently.
+- For CLIs, a reproducible recording (e.g., `charmbracelet/vhs` `.tape` file rendered to GIF) so the demo can be regenerated.
+- A representative screenshot for libraries or UIs where motion is not the point.
+
+Static text alone (a code block of sample output) is not a visual demo. The point is to communicate what the project does at a glance; readers who skim the README without a visual cue often bounce.
+
+---
+
+## comparison
+
+**Default check**: The README discusses how the project compares to similar or alternative tools.
+
+No configurable options — this standard intentionally stays format-agnostic. The audit emits `SKIP` for manual verification.
+
+**Manual verification** (SKIP): Confirm the README contains at least one of:
+
+- A comparison table contrasting the project with named peers on the dimensions readers care about (use case, philosophy, key features).
+- A bullet list of differences against specific alternatives.
+- A short prose section that names peer projects and explains the project's distinct positioning.
+
+Lead with what makes the project distinct, not feature parity. Acknowledge cases where alternatives are a better fit — readers are looking for honest positioning, not marketing copy. Public projects in crowded niches benefit most; novel projects can simply state that no direct alternatives exist and explain why.
 
 ---
 

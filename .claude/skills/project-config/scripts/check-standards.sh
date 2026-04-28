@@ -194,10 +194,15 @@ check_readme() {
       for ref in $refs; do
         local ref_file=""
         case "$ref" in
-          goals) ref_file="GOALS.md" ;;
-          spec)  ref_file="SPEC.md" ;;
-          docs)  ref_file="docs/" ;;
-          *)     ref_file="$ref" ;;
+          goals)            ref_file="GOALS.md" ;;
+          spec)             ref_file="SPEC.md" ;;
+          docs)             ref_file="docs/" ;;
+          contributing)     ref_file="CONTRIBUTING.md" ;;
+          code-of-conduct)  ref_file="CODE_OF_CONDUCT.md" ;;
+          security-policy)  ref_file="SECURITY.md" ;;
+          support)          ref_file="SUPPORT.md" ;;
+          changelog)        ref_file="CHANGELOG.md" ;;
+          *)                ref_file="$ref" ;;
         esac
         if ! grep -qi "$ref_file" "$PROJECT_ROOT/$found" 2>/dev/null; then
           missing_refs="${missing_refs:+$missing_refs, }$ref_file"
@@ -476,6 +481,28 @@ check_linter() {
     fi
   else
     emit "SKIP" "linter" "No config declared — verify manually"
+  fi
+}
+
+check_formatter() {
+  local config
+  config=$(std_field formatter config "")
+
+  if [[ -n "$config" ]]; then
+    if [[ -e "$PROJECT_ROOT/$config" ]]; then
+      META_FORMATTER_CFG="$config"
+      local tool
+      tool=$(std_field formatter tool "")
+      if [[ -n "$tool" ]]; then
+        emit "PASS" "formatter" "$tool config: $config"
+      else
+        emit "PASS" "formatter" "Config: $config"
+      fi
+    else
+      emit "$(fail_or_warn formatter)" "formatter" "Declared config $config not found"
+    fi
+  else
+    emit "SKIP" "formatter" "No config declared — verify manually"
   fi
 }
 
@@ -850,6 +877,10 @@ check_lockfile() {
   esac
 }
 
+check_runtime_version() {
+  emit "SKIP" "runtime-version" "Verify manually: project should declare its required runtime/language version (manifest field, dotfile, version-manager config, or README)"
+}
+
 check_package_metadata() {
   local manifest
   manifest=$(std_field package-metadata manifest "")
@@ -910,6 +941,38 @@ check_package_metadata() {
   fi
 }
 
+check_package_metadata_complete() {
+  emit "SKIP" "package-metadata-complete" "Verify manually: manifest fills in discoverability/governance fields beyond the bare minimum (keywords/topics, author/maintainer, bugs URL, homepage URL, contributors, funding)"
+}
+
+check_metadata_quality() {
+  emit "SKIP" "metadata-quality" "Verify manually: manifest description, repo description, README tagline, and keywords are accurate and informative (not terse placeholders), and consistent across surfaces"
+}
+
+check_security_automation() {
+  emit "SKIP" "security-automation" "Verify manually: project has automated SAST (e.g., CodeQL, Semgrep), SCA (e.g., dependency-review-action, npm audit, pip-audit), and supply-chain hardening (e.g., OSSF Scorecard, signed releases, pinned action versions) running in CI"
+}
+
+check_privacy_posture() {
+  emit "SKIP" "privacy-posture" "Verify manually: README and/or SECURITY.md state the project's privacy posture explicitly (e.g., what telemetry/data is or isn't collected, where prompts and outputs are sent, retention or sharing policy). A vague mention of 'privacy' is not a posture."
+}
+
+check_release_process() {
+  emit "SKIP" "release-process" "Verify manually: contributor-facing docs (CONTRIBUTING.md, RELEASING.md, or a docs/ release page) explain how a release is cut end-to-end — commit-message conventions, who/what creates the release PR, how versions are bumped, how the artifact is published, and how CHANGELOG entries appear. A bare 'we use release-please' line is not enough."
+}
+
+check_shell_completion() {
+  emit "SKIP" "shell-completion" "Verify manually: the CLI ships shell completion for at least bash and zsh — either as a built-in subcommand (e.g., '<cli> completion bash') that prints a script, or as static completion files installed by the package (e.g., share/bash-completion/, share/zsh/site-functions/). Document where users source or install the script."
+}
+
+check_visual_demo() {
+  emit "SKIP" "visual-demo" "Verify manually: README features an embedded visual demo of the project (animated GIF, asciinema cast, short video, or screenshot) prominently, ideally near the top. For CLIs, prefer a reproducible source (e.g., charmbracelet/vhs .tape file, asciinema cast). For libraries or UIs, a screenshot or short clip is fine. Static text alone is not a visual demo."
+}
+
+check_comparison() {
+  emit "SKIP" "comparison" "Verify manually: README discusses how this project compares to similar or alternative tools. Format is flexible — comparison table, bullet list of differences, or short prose section. Identify peer projects by name where possible, lead with what makes this project distinct (not feature parity), and acknowledge cases where alternatives are better. Public projects in crowded niches benefit most; novel projects can simply state that no direct alternatives exist."
+}
+
 check_publish_config() {
   case "$LANGUAGE" in
     typescript|javascript)
@@ -964,10 +1027,11 @@ check_publish_config() {
 
 # --- Initialize metadata (populated by check functions) ---
 META_LINTER_CFG=""
+META_FORMATTER_CFG=""
 
 # --- Run checks for each active standard ---
 
-ALL_STANDARDS=(readme readme-badges gitignore license tests claude-md goals spec linter coverage ci changelog contributing editorconfig docs code-of-conduct security-policy issue-templates pr-template support commit-convention release-automation dependency-updates lockfile package-metadata publish-config)
+ALL_STANDARDS=(readme readme-badges gitignore license tests claude-md goals spec linter formatter coverage ci changelog contributing editorconfig docs code-of-conduct security-policy security-automation privacy-posture issue-templates pr-template support commit-convention release-automation release-process dependency-updates lockfile runtime-version package-metadata package-metadata-complete metadata-quality publish-config shell-completion visual-demo comparison)
 
 for std in "${ALL_STANDARDS[@]}"; do
   if is_active "$std"; then
@@ -999,7 +1063,8 @@ if $JSON_OUTPUT; then
   jq -n --argjson results "$RESULTS_JSON" \
     --arg lang "$LANGUAGE" --arg fw "$META_FRAMEWORK" \
     --arg td "$META_TESTDIR" --arg lc "$META_LINTER_CFG" \
-    '{results: $results, metadata: {language: $lang, test_framework: $fw, test_directory: $td, linter_config: $lc}}'
+    --arg fc "$META_FORMATTER_CFG" \
+    '{results: $results, metadata: {language: $lang, test_framework: $fw, test_directory: $td, linter_config: $lc, formatter_config: $fc}}'
 else
   echo -e "${CYAN}Standards check: ${PROJECT_ROOT}${RESET}"
   echo ""

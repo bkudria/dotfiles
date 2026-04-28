@@ -25,6 +25,12 @@ standards:
   security-policy:
     required: true
 
+  security-automation:
+    required: true
+
+  privacy-posture:
+    required: true
+
   issue-templates:
     required: true
 
@@ -37,11 +43,17 @@ standards:
   release-automation:
     recommended: true
 
+  release-process:
+    required: true
+
   dependency-updates:
     required: true
 
   lockfile:
     recommended: true
+
+  runtime-version:
+    required: true
 
   editorconfig:
     required: true
@@ -52,12 +64,19 @@ standards:
   package-metadata:
     required: true
 
+  package-metadata-complete:
+    required: true
+
+  metadata-quality:
+    required: true
+
   publish-config:
     required: true
 
   readme:
     sections: [Installation, Usage]
     recommended_sections: [Quick Start]
+    references: [goals, spec, contributing, code-of-conduct, security-policy, support, changelog]
 
   readme-badges:
     recommended: true
@@ -66,4 +85,10 @@ standards:
     current_year: true
 
   docs:
+    recommended: true
+
+  visual-demo:
+    recommended: true
+
+  comparison:
     recommended: true
