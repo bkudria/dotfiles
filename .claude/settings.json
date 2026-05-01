@@ -8,6 +8,9 @@
     "commit": "",
     "pr": ""
   },
+  "permissions": {
+    "defaultMode": "auto"
+  },
   "statusLine": {
     "type": "command",
     "command": "~/.config/ccstatusline/scripts/dispatch.sh",
@@ -21,7 +24,8 @@
     "typescript-lsp@claude-plugins-official": true,
     "ruby-lsp@claude-plugins-official": true,
     "plugin-dev@claude-plugins-official": true,
-    "triage@bkudria-cc-plugins": true
+    "triage@bkudria-cc-plugins": true,
+    "allium@juxt-plugins": true
   },
   "extraKnownMarketplaces": {
     "bkudria-cc-plugins": {
@@ -37,15 +41,11 @@
       }
     }
   },
-  "effortLevel": "xhigh",
-  "permissions": {
-    "defaultMode": "auto"
-  },
-  "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "preferredNotifChannel": "iterm2_with_bell",
   "terminalProgressBarEnabled": false,
   "teammateMode": "auto",
+  "skipAutoPermissionPrompt": true,
   "voiceEnabled": true
 }
