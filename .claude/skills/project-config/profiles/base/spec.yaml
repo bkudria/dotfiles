@@ -1,23 +1,28 @@
 required: true
-description: A SPEC file exists at the project root or under docs/.
+description: A specification document exists in the project.
 notes: |
-  Looks for SPEC.md, specification.md, design.md at the project root, then
-  under docs/. A bare `spec.md` at the project root is checked only when
-  no `spec/` test directory exists, to avoid confusing rspec layouts with
-  a specification document.
+  Looks for any non-executable document that describes the project's
+  intended behaviour, design, or requirements — prose formats
+  (Markdown, RST, AsciiDoc, plain text, org-mode) and structured
+  behavioural specs (Allium) all count. Conventional locations:
+  project root, docs/, spec/, specs/. Implementation source files
+  and test files do not count, even if located under spec/ — an
+  rspec-style spec/ of `*_spec.rb` is not a specification document.
+  Distinct from allium/spec, which insists specifically on a
+  .allium artefact.
 check:
-  script: |
-    cd "$PROJECT_ROOT"
-    candidates=(SPEC.md specification.md design.md)
-    if [[ ! -d spec ]]; then
-      candidates+=(spec.md)
-    fi
-    candidates+=(docs/SPEC.md docs/spec.md docs/specification.md docs/design.md)
-    for f in "${candidates[@]}"; do
-      [[ -e "$f" ]] || continue
-      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
-      echo "$f exists"
-      exit 0
-    done
-    echo "No SPEC file found"
-    exit 1
+  prompt: |
+    Verify that the project at $PROJECT_ROOT contains at least one
+    specification document. A specification document is a
+    non-executable, non-test file that describes the project's
+    intended behaviour, design, or requirements. Look in the project
+    root and in docs/, spec/, and specs/ directories. Acceptable
+    forms include Markdown (e.g. SPEC.md, specification.md,
+    design.md), other prose formats (RST, AsciiDoc, plain text,
+    org-mode), and structured specification formats such as Allium
+    (*.allium). Implementation source files and test files do not
+    count, even if located under spec/ — for example, an rspec-style
+    spec/ directory containing `*_spec.rb` files is not by itself a
+    specification document. Report met (with the path of the spec
+    document found) or unmet (with what was looked for and not
+    found).

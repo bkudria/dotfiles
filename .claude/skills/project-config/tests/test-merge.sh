@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests for `run-audit.sh --merge <collect-file> <responses-dir>`
+# Tests for `run-audit.sh --merge <state-dir>`
 set -euo pipefail
 
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -50,9 +50,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/coverage-run" $'```json\n{"met":true,"detail":"ok"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/coverage-run" $'```json\n{"met":true,"detail":"ok"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 pending_len=$(echo "$out" | jq '.pending | length')
@@ -77,9 +77,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":false,"detail":"missing"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":false,"detail":"missing"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 assert_eq "met=false required=true → FAIL" "FAIL" "$status"
 
@@ -96,9 +96,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/y" $'```json\n{"met":false,"detail":"absent"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/y" $'```json\n{"met":false,"detail":"absent"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 assert_eq "met=false required=false → SUGG" "SUGG" "$status"
 
@@ -117,9 +117,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 total=$(echo "$out" | jq '.resolved | length')
 existing_status=$(echo "$out" | jq -r '.resolved[] | select(.id=="base/readme") | .status')
 existing_detail=$(echo "$out" | jq -r '.resolved[] | select(.id=="base/readme") | .detail')
@@ -140,9 +140,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 dc=$(echo "$out" | jq -r '.disabled_count')
 assert_eq "disabled_count preserved" "7" "$dc"
 
@@ -159,14 +159,14 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 assert_eq "missing response → FAIL" "FAIL" "$status"
 assert_contains "detail mentions no response" "no response" "$detail"
 
-# --- Test 8: response with no JSON block → FAIL with detail "no fenced JSON block" ---
+# --- Test 8: response with no JSON payload (neither fenced block nor raw JSON) → FAIL ---
 collect=$(cat <<'EOF'
 {
   "resolved": [],
@@ -179,13 +179,13 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" "Just some prose, no JSON block here at all."
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" "Just some prose, no JSON block here at all."
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
-assert_eq "no JSON block → FAIL" "FAIL" "$status"
-assert_contains "detail mentions no JSON block" "no fenced JSON block" "$detail"
+assert_eq "no JSON payload → FAIL" "FAIL" "$status"
+assert_contains "detail mentions no JSON payload" "no JSON payload" "$detail"
 
 # --- Test 9: malformed JSON inside fence → FAIL with detail mentioning JSON ---
 collect=$(cat <<'EOF'
@@ -200,9 +200,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 assert_eq "malformed JSON → FAIL" "FAIL" "$status"
@@ -221,9 +221,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":"yes","detail":"ok"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":"yes","detail":"ok"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 assert_eq "non-bool met → FAIL" "FAIL" "$status"
@@ -242,13 +242,34 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'A long prose explanation.\n\nMultiple paragraphs.\n\n```json\n{"met":true,"detail":"clean"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'A long prose explanation.\n\nMultiple paragraphs.\n\n```json\n{"met":true,"detail":"clean"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 assert_eq "prose-before block → PASS" "PASS" "$status"
 assert_eq "prose-before block → detail clean" "clean" "$detail"
+
+# --- Test 11b: contract-compliant raw JSON (no fence, no prose) → PASS ---
+collect=$(cat <<'EOF'
+{
+  "resolved": [],
+  "pending": [
+    {"id": "base/x", "required": true, "description": "x", "rendered_prompt": "..."}
+  ],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect" > "$dir/collect.json"
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" '{"met":true,"detail":"raw"}'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
+status=$(echo "$out" | jq -r '.resolved[0].status')
+detail=$(echo "$out" | jq -r '.resolved[0].detail')
+assert_eq "raw JSON (no fence) → PASS" "PASS" "$status"
+assert_eq "raw JSON detail" "raw" "$detail"
 
 # --- Test 12: runtime trailer after JSON block → still extracts ---
 collect=$(cat <<'EOF'
@@ -263,9 +284,9 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\nagentId: a2132711ed27 (use SendMessage with to: \'a2132711\' to continue this agent)\n<usage>total_tokens: 1234 tool_uses: 2 duration_ms: 5000</usage>\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\nagentId: a2132711ed27 (use SendMessage with to: \'a2132711\' to continue this agent)\n<usage>total_tokens: 1234 tool_uses: 2 duration_ms: 5000</usage>\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 assert_eq "runtime trailer after block → PASS" "PASS" "$status"
@@ -284,51 +305,23 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":false,"detail":"first"}\n```\nMore prose.\n```json\n{"met":true,"detail":"last"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/x" $'```json\n{"met":false,"detail":"first"}\n```\nMore prose.\n```json\n{"met":true,"detail":"last"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 status=$(echo "$out" | jq -r '.resolved[0].status')
 detail=$(echo "$out" | jq -r '.resolved[0].detail')
 assert_eq "multiple blocks → uses LAST status" "PASS" "$status"
 assert_eq "multiple blocks → uses LAST detail" "last" "$detail"
 
-# --- Test 14: collect-file path doesn't exist → exit 1 ---
+# --- Test 14: state-dir missing collect.json → exit 1 ---
 dir=$(mktemp -d); TMPDIRS+=("$dir")
-mkdir -p "$dir/r"
+mkdir -p "$dir/responses"
 set +e
-err=$("$RUNNER" --merge "$dir/no-such.json" "$dir/r" 2>&1 >/dev/null)
+err=$("$RUNNER" --merge "$dir" 2>&1 >/dev/null)
 rc=$?
 set -e
-assert_exit_code "missing collect file → exit 1" "1" "$rc"
+assert_exit_code "missing collect.json → exit 1" "1" "$rc"
 assert_contains "error mentions collect" "collect" "$err"
-
-# --- Test 15: responses-dir doesn't exist → exit 1 ---
-dir=$(mktemp -d); TMPDIRS+=("$dir")
-echo '{"resolved":[],"pending":[],"disabled_count":0}' > "$dir/collect.json"
-set +e
-err=$("$RUNNER" --merge "$dir/collect.json" "$dir/no-such-dir" 2>&1 >/dev/null)
-rc=$?
-set -e
-assert_exit_code "missing responses dir → exit 1" "1" "$rc"
-assert_contains "error mentions responses" "responses" "$err"
-
-# --- Test 16: collect-file accepts - (stdin) ---
-collect=$(cat <<'EOF'
-{
-  "resolved": [],
-  "pending": [
-    {"id": "base/x", "required": true, "description": "x", "rendered_prompt": "..."}
-  ],
-  "disabled_count": 0
-}
-EOF
-)
-dir=$(mktemp -d); TMPDIRS+=("$dir")
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/x" $'```json\n{"met":true,"detail":"ok"}\n```\n'
-out=$(echo "$collect" | "$RUNNER" --merge - "$dir/r")
-status=$(echo "$out" | jq -r '.resolved[0].status')
-assert_eq "stdin collect → PASS resolved" "PASS" "$status"
 
 # --- Test 17: empty pending array (no merge needed) ---
 collect=$(cat <<'EOF'
@@ -343,14 +336,86 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 total=$(echo "$out" | jq '.resolved | length')
 pending_len=$(echo "$out" | jq '.pending | length')
 dc=$(echo "$out" | jq -r '.disabled_count')
 assert_eq "empty-pending preserves resolved length" "1" "$total"
 assert_eq "empty-pending output pending=[]" "0" "$pending_len"
 assert_eq "empty-pending preserves disabled_count" "2" "$dc"
+
+# --- Test S1: merge propagates required_overrides from collect to merged ---
+# The render layer needs the project's `required:` list to filter out
+# already-listed entries from the suggestion block, so merge must not drop it.
+collect=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme", "status": "PASS", "detail": ".", "description": ".", "intrinsic_required": true}
+  ],
+  "pending": [],
+  "required_overrides": ["base/lockfile"],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect" > "$dir/collect.json"
+mkdir -p "$dir/responses"
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
+overrides_len=$(echo "$out" | jq '.required_overrides | length')
+overrides_first=$(echo "$out" | jq -r '.required_overrides[0]')
+assert_eq "merge propagates required_overrides length" "1" "$overrides_len"
+assert_eq "merge propagates required_overrides entry" "base/lockfile" "$overrides_first"
+
+# --- Test S2: merge propagates intrinsic_required for collect-resolved entries ---
+collect=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme",   "status": "PASS", "detail": ".", "description": ".", "intrinsic_required": true},
+    {"id": "base/lockfile", "status": "PASS", "detail": ".", "description": ".", "intrinsic_required": false}
+  ],
+  "pending": [],
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect" > "$dir/collect.json"
+mkdir -p "$dir/responses"
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
+readme_intrinsic=$(echo "$out" | jq -r '.resolved[] | select(.id=="base/readme") | .intrinsic_required')
+lock_intrinsic=$(echo "$out" | jq -r '.resolved[] | select(.id=="base/lockfile") | .intrinsic_required')
+assert_eq "intrinsic_required preserved for resolved (true)"  "true"  "$readme_intrinsic"
+assert_eq "intrinsic_required preserved for resolved (false)" "false" "$lock_intrinsic"
+
+# --- Test S3: merge carries intrinsic_required from pending entries ---
+# When a pending entry resolves through merge, the resulting resolved row must
+# also expose intrinsic_required so render can apply the SUGG-style filter
+# uniformly regardless of check kind.
+collect=$(cat <<'EOF'
+{
+  "resolved": [],
+  "pending": [
+    {"id": "base/p1", "required": false, "intrinsic_required": false, "description": ".", "rendered_prompt": "..."},
+    {"id": "base/p2", "required": true,  "intrinsic_required": true,  "description": ".", "rendered_prompt": "..."}
+  ],
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect" > "$dir/collect.json"
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/p1" '{"met":true,"detail":"ok"}'
+write_response "$dir/responses" "base/p2" '{"met":true,"detail":"ok"}'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
+p1_intrinsic=$(echo "$out" | jq -r '.resolved[] | select(.id=="base/p1") | .intrinsic_required')
+p2_intrinsic=$(echo "$out" | jq -r '.resolved[] | select(.id=="base/p2") | .intrinsic_required')
+assert_eq "pending→resolved intrinsic_required preserved (false)" "false" "$p1_intrinsic"
+assert_eq "pending→resolved intrinsic_required preserved (true)"  "true"  "$p2_intrinsic"
 
 # --- Test 18: output JSON shape invariants ---
 collect=$(cat <<'EOF'
@@ -369,10 +434,10 @@ EOF
 )
 dir=$(mktemp -d); TMPDIRS+=("$dir")
 echo "$collect" > "$dir/collect.json"
-mkdir -p "$dir/r"
-write_response "$dir/r" "base/c" $'```json\n{"met":true,"detail":"c-ok"}\n```\n'
-write_response "$dir/r" "base/d" $'```json\n{"met":false,"detail":"d-absent"}\n```\n'
-out=$("$RUNNER" --merge "$dir/collect.json" "$dir/r")
+mkdir -p "$dir/responses"
+write_response "$dir/responses" "base/c" $'```json\n{"met":true,"detail":"c-ok"}\n```\n'
+write_response "$dir/responses" "base/d" $'```json\n{"met":false,"detail":"d-absent"}\n```\n'
+out=$("$RUNNER" --merge "$dir" && cat "$dir/merged.json")
 total=$(echo "$out" | jq '.resolved | length')
 pending_len=$(echo "$out" | jq '.pending | length')
 dc=$(echo "$out" | jq -r '.disabled_count')

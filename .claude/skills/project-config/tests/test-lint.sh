@@ -193,6 +193,112 @@ assert_exit_code "--skill rejects extra top-level keys" "1" "$rc"
 assert_contains "--skill error names the bad key" "unexpected" "$err"
 rm -rf "$SKILL_TMP/profiles/badfx4"
 
+# --- Test R1: well-formed required: list passes ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - testfx/optional
+EOF
+set +e
+out=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "well-formed required: list exits 0" "0" "$rc"
+rm -rf "$proj"
+
+# --- Test R2: required: as a map (not a list) fails ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  testfx/optional: yes
+EOF
+set +e
+err=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "required: as map fails" "1" "$rc"
+assert_contains "error mentions required must be list" "required" "$err"
+rm -rf "$proj"
+
+# --- Test R3: malformed required entry (no slash) fails ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - notvalid
+EOF
+set +e
+err=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "malformed required entry fails" "1" "$rc"
+assert_contains "error mentions malformed entry" "notvalid" "$err"
+rm -rf "$proj"
+
+# --- Test R4: required entry referring to a profile not in profiles list ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - extra/extra
+EOF
+set +e
+err=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "stale required (profile not selected) fails" "1" "$rc"
+assert_contains "error mentions stale id" "extra/extra" "$err"
+rm -rf "$proj"
+
+# --- Test R5: required entry referring to a non-existent standard ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - testfx/nonexistent
+EOF
+set +e
+err=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "stale required (standard missing) fails" "1" "$rc"
+assert_contains "error mentions missing id" "testfx/nonexistent" "$err"
+rm -rf "$proj"
+
+# --- Test R6: required entry whose standard is already required: true (no-op) fails ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - testfx/marker
+EOF
+set +e
+err=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "no-op required (already required: true) fails" "1" "$rc"
+assert_contains "error mentions already-required id" "testfx/marker" "$err"
+rm -rf "$proj"
+
+# --- Test R7: same id in both required: and disabled: fails ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - testfx/optional
+disabled:
+  testfx/optional: "Conflicting"
+EOF
+set +e
+err=$(run_lint "$proj/project.yaml" 2>&1)
+rc=$?
+set -e
+assert_exit_code "id in both required and disabled fails" "1" "$rc"
+assert_contains "error mentions conflict" "testfx/optional" "$err"
+rm -rf "$proj"
+
 # --- Test 11: --skill mode allows optional notes ---
 mkdir -p "$SKILL_TMP/profiles/okfx"
 cat > "$SKILL_TMP/profiles/okfx/with-notes.yaml" <<'EOF'

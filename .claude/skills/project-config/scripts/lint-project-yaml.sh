@@ -133,7 +133,7 @@ lint_project_yaml() {
   fi
 
   local extras
-  extras=$(yq -r 'keys | .[] | select(. != "profiles" and . != "disabled")' "$pyaml" 2>/dev/null || true)
+  extras=$(yq -r 'keys | .[] | select(. != "profiles" and . != "disabled" and . != "required")' "$pyaml" 2>/dev/null || true)
   if [[ -n "$extras" ]]; then
     while IFS= read -r k; do
       [[ -n "$k" ]] && err "project.yaml has unexpected top-level key: $k"
@@ -194,6 +194,53 @@ lint_project_yaml() {
     reason=$(yq -r ".disabled.\"$key\" // \"\"" "$pyaml" 2>/dev/null)
     [[ -n "$reason" ]] || err "disabled key '$key' has empty reason (a non-empty string is required)"
   done < <(yq -r '.disabled // {} | keys | .[]?' "$pyaml" 2>/dev/null || true)
+
+  local has_required required_kind
+  has_required=$(yq -r 'has("required")' "$pyaml" 2>/dev/null)
+  if [[ "$has_required" == "true" ]]; then
+    required_kind=$(yq -r '.required | type' "$pyaml" 2>/dev/null)
+    if [[ "$required_kind" != "!!seq" ]]; then
+      err "project.yaml 'required' must be a list of '<profile>/<standard>' strings"
+    else
+      while IFS= read -r entry; do
+        [[ -n "$entry" ]] || continue
+        local profile_part basename_part
+        profile_part="${entry%%/*}"
+        basename_part="${entry##*/}"
+        if [[ "$profile_part" == "$entry" || -z "$basename_part" ]]; then
+          err "required entry '$entry' must be of the form '<profile>/<standard>'"
+          continue
+        fi
+
+        local in_selected=0
+        for vp in "${valid_profiles[@]}"; do
+          [[ "$vp" == "$profile_part" ]] && in_selected=1 && break
+        done
+        if [[ "$in_selected" -eq 0 ]]; then
+          err "required entry '$entry' references profile '$profile_part' which is not in the selected profiles list"
+          continue
+        fi
+
+        local std_path="$SKILL_DIR/profiles/$profile_part/$basename_part.yaml"
+        if [[ ! -f "$std_path" ]]; then
+          err "required entry '$entry' references a standard that does not exist: $std_path"
+          continue
+        fi
+
+        local std_required
+        std_required=$(yq -r '.required' "$std_path" 2>/dev/null)
+        if [[ "$std_required" == "true" ]]; then
+          err "required entry '$entry' is a no-op: standard is already 'required: true' in its YAML"
+        fi
+
+        local in_disabled
+        in_disabled=$(yq -r ".disabled.\"$entry\" // \"\"" "$pyaml" 2>/dev/null)
+        if [[ -n "$in_disabled" ]]; then
+          err "id '$entry' appears in both 'required:' and 'disabled:' (mutually exclusive)"
+        fi
+      done < <(yq -r '.required[]?' "$pyaml" 2>/dev/null || true)
+    fi
+  fi
 
   for profile in "${valid_profiles[@]}"; do
     while IFS= read -r f; do

@@ -1,36 +1,58 @@
 #!/usr/bin/env bash
 # run-audit.sh — Three-phase audit runner for the project-config skill.
 #
+# Every verb operates on a state-dir produced by --init. The state-dir holds
+# canonical files: collect.json (collect output), responses/<id>.txt
+# (sub-agent verdicts), merged.json (merge output).
+#
 # Usage:
-#   run-audit.sh --collect <project-root>
+#   run-audit.sh --init
+#       Emits a fresh state-dir path on stdout.
+#
+#   run-audit.sh --collect <project-root> <state-dir>
 #       Reads <project-root>/project.yaml, walks selected profile directories,
-#       and emits {"resolved": [...], "pending": [...], "disabled_count": N}.
+#       and writes <state-dir>/collect.json with shape
+#       {"resolved": [...], "pending": [...], "disabled_count": N,
+#        "project_context": "..."}.
 #       Each deterministic check (check.script) runs immediately and lands in
 #       `resolved` with status PASS/FAIL/SUGG. Each prompt-based check
 #       (check.prompt) goes to `pending` with its rendered prompt for
-#       sub-agent verification.
+#       sub-agent verification, plus the response_path the agent should
+#       Write its verdict to.
 #
-#   run-audit.sh --merge <collect-file|-> <responses-dir>
-#       Folds sub-agent responses into the collect output. Reads the JSON
-#       produced by --collect from a file path or `-` (stdin), looks up each
-#       pending entry's response at <responses-dir>/<id>.txt, extracts the
-#       last fenced JSON block ({"met": bool, "detail": string}), and emits
-#       a merged results JSON with every entry resolved to PASS/FAIL/SUGG.
-#       Missing files, parse failures, or non-bool `met` resolve to FAIL.
+#   run-audit.sh --merge <state-dir>
+#       Folds sub-agent responses into the collect output. Reads
+#       <state-dir>/collect.json, looks up each pending entry's response at
+#       <state-dir>/responses/<id>.txt, extracts the JSON ({"met": bool,
+#       "detail": string}), and writes <state-dir>/merged.json with every
+#       entry resolved to PASS/FAIL/SUGG. Missing files, parse failures, or
+#       non-bool `met` resolve to FAIL.
 #
-#   run-audit.sh --render <results-json|->
-#       Reads a results JSON ({"resolved": [...], "disabled_count": N})
-#       from a file path or `-` (stdin), and emits the markdown audit table,
-#       per-status counts, optional disabled-count line, and remediation list.
+#   run-audit.sh --render <state-dir>
+#       Reads <state-dir>/merged.json and emits the markdown audit table,
+#       per-status counts, and optional disabled-count line. Always exits 0
+#       on successful render. For CI pass/fail signal, use --check.
+#
+#   run-audit.sh --check <state-dir>
+#       Reads <state-dir>/merged.json and exits 1 if any resolved entry has
+#       status FAIL, 0 otherwise. Operational errors (missing file,
+#       malformed JSON, unresolved pending entries) exit ≥2 to distinguish
+#       from "audit had FAILs."
 set -euo pipefail
 
 SKILL_DIR="${CLAUDE_SKILL_DIR:-${HOME}/.claude/skills/project-config}"
 
 usage() {
   echo "Usage:" >&2
-  echo "  run-audit.sh --collect <project-root>" >&2
-  echo "  run-audit.sh --merge   <collect-file|-> <responses-dir>" >&2
-  echo "  run-audit.sh --render  <results-json|->" >&2
+  echo "  run-audit.sh --init" >&2
+  echo "  run-audit.sh --collect <project-root> <state-dir>" >&2
+  echo "  run-audit.sh --merge   <state-dir>" >&2
+  echo "  run-audit.sh --render  <state-dir>" >&2
+  echo "  run-audit.sh --check   <state-dir>" >&2
+  echo "" >&2
+  echo "  Each verb except --init reads from / writes to canonical files inside" >&2
+  echo "  <state-dir>: collect.json, responses/<id>.txt, merged.json. Use --init" >&2
+  echo "  to obtain a fresh state-dir." >&2
   exit 1
 }
 
@@ -48,17 +70,107 @@ require_cmd() {
 }
 require_cmd yq jq
 
+# ───── --init ───────────────────────────────────────────────────────────────
+
+init() {
+  local dir
+  dir=$(mktemp -d "${TMPDIR:-/tmp}/project-config-audit.XXXXXX")
+  echo "$dir"
+}
+
+# ───── project-context detection ────────────────────────────────────────────
+# Detect language/runtime + (when applicable) package manager from manifest
+# files in the project root. Emits a multi-line "Detected project context"
+# block that the runner prepends to every prompt-based rendered_prompt, so
+# sub-agents skip the redundant discovery preamble. Emits empty string when
+# no manifest matches; the runner then skips the header (graceful fallback).
+
+detect_project_context() {
+  local root="${1:-}"
+  [[ -d "$root" ]] || { printf ''; return; }
+
+  local language="" manifest="" pm=""
+
+  if [[ -f "$root/package.json" ]]; then
+    language="JavaScript/TypeScript (Node.js)"
+    manifest="package.json"
+    if [[ -f "$root/bun.lock" || -f "$root/bun.lockb" ]]; then
+      pm="bun"
+    elif [[ -f "$root/pnpm-lock.yaml" ]]; then
+      pm="pnpm"
+    elif [[ -f "$root/yarn.lock" ]]; then
+      pm="yarn"
+    elif [[ -f "$root/package-lock.json" ]]; then
+      pm="npm"
+    fi
+  elif [[ -f "$root/Gemfile" ]]; then
+    language="Ruby"
+    manifest="Gemfile"
+  elif [[ -f "$root/pyproject.toml" ]]; then
+    language="Python"
+    manifest="pyproject.toml"
+  elif [[ -f "$root/requirements.txt" ]]; then
+    language="Python"
+    manifest="requirements.txt"
+  elif [[ -f "$root/setup.py" ]]; then
+    language="Python"
+    manifest="setup.py"
+  elif [[ -f "$root/Cargo.toml" ]]; then
+    language="Rust"
+    manifest="Cargo.toml"
+  elif [[ -f "$root/go.mod" ]]; then
+    language="Go"
+    manifest="go.mod"
+  elif [[ -f "$root/deno.json" ]]; then
+    language="Deno"
+    manifest="deno.json"
+  elif [[ -f "$root/deno.jsonc" ]]; then
+    language="Deno"
+    manifest="deno.jsonc"
+  elif [[ -f "$root/pubspec.yaml" ]]; then
+    language="Dart"
+    manifest="pubspec.yaml"
+  elif [[ -f "$root/Package.swift" ]]; then
+    language="Swift"
+    manifest="Package.swift"
+  fi
+
+  if [[ -z "$language" ]]; then
+    printf ''
+    return
+  fi
+
+  printf 'Detected project context (auto-detected from manifest files; verify before relying on it):\n'
+  printf -- '- Language/runtime: %s\n' "$language"
+  if [[ -n "$pm" ]]; then
+    printf -- '- Package manager: %s\n' "$pm"
+  fi
+  printf -- '- Primary manifest: %s\n' "$manifest"
+}
+
 # ───── --collect ────────────────────────────────────────────────────────────
 
 collect() {
   local project_root="${1:-}"
-  [[ -n "$project_root" ]] || usage
+  local state_dir="${2:-}"
+  [[ -n "$project_root" && -n "$state_dir" ]] || usage
   project_root="${project_root%/}"
+  [[ -d "$state_dir" ]] || {
+    echo "Error: state-dir not found: $state_dir" >&2
+    exit 1
+  }
 
   [[ -f "$project_root/project.yaml" ]] || {
     echo "Error: $project_root/project.yaml not found" >&2
     exit 1
   }
+
+  local runner_dir lint_script
+  runner_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  lint_script="$runner_dir/lint-project-yaml.sh"
+  if [[ -x "$lint_script" ]]; then
+    "$lint_script" "$project_root/project.yaml" >/dev/null || exit 1
+  fi
 
   local pyaml="$project_root/project.yaml"
   local profiles
@@ -72,9 +184,26 @@ collect() {
     [[ -n "$k" ]] && DISABLED["$k"]=1
   done <<<"$disabled_keys"
 
+  local required_overrides
+  required_overrides=$(yq -r '.required[]?' "$pyaml" 2>/dev/null || true)
+
+  declare -A REQUIRED_OVERRIDE
+  while IFS= read -r k; do
+    [[ -n "$k" ]] && REQUIRED_OVERRIDE["$k"]=1
+  done <<<"$required_overrides"
+
+  local required_overrides_json
+  required_overrides_json=$(yq -o=json -I=0 '.required // []' "$pyaml" 2>/dev/null || true)
+  if [[ -z "$required_overrides_json" || "$required_overrides_json" == "null" ]]; then
+    required_overrides_json='[]'
+  fi
+
   local resolved_json="[]"
   local pending_json="[]"
   local disabled_count=0
+
+  local project_context
+  project_context=$(detect_project_context "$project_root")
 
   while IFS= read -r profile; do
     [[ -n "$profile" ]] || continue
@@ -110,6 +239,11 @@ collect() {
         exit 1
       fi
 
+      local effective_required="$required"
+      if [[ -n "${REQUIRED_OVERRIDE[$id]:-}" ]]; then
+        effective_required="true"
+      fi
+
       if [[ "$has_script" == "true" ]]; then
         local script_body status detail exit_code stdout_capture
         script_body=$(yq -r '.check.script' "$std_yaml")
@@ -122,7 +256,7 @@ $script_body" 2>&1)
 
         if [[ "$exit_code" -eq 0 ]]; then
           status="PASS"
-        elif [[ "$required" == "true" ]]; then
+        elif [[ "$effective_required" == "true" ]]; then
           status="FAIL"
         else
           status="SUGG"
@@ -134,15 +268,30 @@ $script_body" 2>&1)
         local prompt_body rendered req_bool
         prompt_body=$(yq -r '.check.prompt' "$std_yaml")
         rendered="${prompt_body//\$PROJECT_ROOT/$project_root}"
-        if [[ "$required" == "true" ]]; then req_bool=true; else req_bool=false; fi
-        pending_json=$(jq -c --arg id "$id" --argjson req "$req_bool" --arg desc "$description" --arg p "$rendered" \
-          '. + [{id:$id, required:$req, description:$desc, rendered_prompt:$p}]' <<<"$pending_json")
+        if [[ -n "$project_context" ]]; then
+          rendered="${project_context}
+${rendered}"
+        fi
+        if [[ "$effective_required" == "true" ]]; then req_bool=true; else req_bool=false; fi
+        local response_path directive
+        response_path="$state_dir/responses/$id.txt"
+        directive="Verify the standard below. After verification, use the Write tool to save your verdict to this absolute path:
+
+  $response_path
+
+The file's contents must be exactly one JSON object: {\"met\": true|false, \"detail\": \"<one-line summary>\"} — nothing else, no fenced code block, no surrounding prose. The runner reads only that file; your conversational reply is ignored.
+
+"
+        rendered="${directive}${rendered}"
+        pending_json=$(jq -c --arg id "$id" --argjson req "$req_bool" --arg desc "$description" --arg p "$rendered" --arg rp "$response_path" \
+          '. + [{id:$id, required:$req, description:$desc, response_path:$rp, rendered_prompt:$p}]' <<<"$pending_json")
       fi
     done < <(find "$pdir" -maxdepth 1 -type f -name '*.yaml' | sort)
   done <<<"$profiles"
 
-  jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" --argjson dc "$disabled_count" \
-    '{resolved:$resolved, pending:$pending, disabled_count:$dc}'
+  jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" --argjson dc "$disabled_count" --arg pc "$project_context" \
+    '{resolved:$resolved, pending:$pending, disabled_count:$dc, project_context:$pc}' \
+    > "$state_dir/collect.json"
 }
 
 # ───── --merge ──────────────────────────────────────────────────────────────
@@ -157,26 +306,35 @@ extract_last_json_block() {
   '
 }
 
-merge() {
-  local collect_source="${1:-}"
-  local responses_dir="${2:-}"
-  [[ -n "$collect_source" && -n "$responses_dir" ]] || usage
+# Extract a JSON payload from a sub-agent response. Per the dispatch
+# directive, agents Write a single raw JSON object to their response_path.
+# Try that contract first; fall back to extracting the last fenced
+# ```json ... ``` block for backward compatibility with older responses.
+extract_json_payload() {
+  local input="$1"
+  if echo "$input" | jq -e '.' >/dev/null 2>&1; then
+    printf '%s' "$input"
+    return
+  fi
+  local block
+  block=$(extract_last_json_block "$input")
+  if [[ -n "$block" ]]; then
+    printf '%s' "$block"
+  fi
+}
 
-  [[ -d "$responses_dir" ]] || {
-    echo "Error: responses dir not found: $responses_dir" >&2
+merge() {
+  local state_dir="${1:-}"
+  [[ -n "$state_dir" && -d "$state_dir" ]] || usage
+  [[ -f "$state_dir/collect.json" ]] || {
+    echo "Error: collect.json not found in state-dir: $state_dir/collect.json" >&2
     exit 1
   }
+  local responses_dir="$state_dir/responses"
+  [[ -d "$responses_dir" ]] || mkdir -p "$responses_dir"
 
   local collect_json
-  if [[ "$collect_source" == "-" ]]; then
-    collect_json=$(cat)
-  else
-    [[ -f "$collect_source" ]] || {
-      echo "Error: collect file not found: $collect_source" >&2
-      exit 1
-    }
-    collect_json=$(cat "$collect_source")
-  fi
+  collect_json=$(cat "$state_dir/collect.json")
 
   local resolved pending_count disabled_count
   resolved=$(jq -c '.resolved // []' <<<"$collect_json")
@@ -196,11 +354,11 @@ merge() {
       detail="no response file at $response_path"
     else
       response=$(cat "$response_path")
-      json_block=$(extract_last_json_block "$response")
+      json_block=$(extract_json_payload "$response")
 
       if [[ -z "$json_block" ]]; then
         status="FAIL"
-        detail="no fenced JSON block in response"
+        detail="no JSON payload in response"
       else
         set +e
         echo "$json_block" | jq '.' >/dev/null 2>&1
@@ -237,25 +395,21 @@ merge() {
   done
 
   jq -n --ascii-output --argjson resolved "$resolved" --argjson dc "$disabled_count" \
-    '{resolved:$resolved, pending:[], disabled_count:$dc}'
+    '{resolved:$resolved, pending:[], disabled_count:$dc}' \
+    > "$state_dir/merged.json"
 }
 
 # ───── --render ─────────────────────────────────────────────────────────────
 
 render() {
-  local source="${1:-}"
-  [[ -n "$source" ]] || usage
-
+  local state_dir="${1:-}"
+  [[ -n "$state_dir" && -d "$state_dir" ]] || usage
+  [[ -f "$state_dir/merged.json" ]] || {
+    echo "Error: merged.json not found in state-dir: $state_dir/merged.json" >&2
+    exit 1
+  }
   local results
-  if [[ "$source" == "-" ]]; then
-    results=$(cat)
-  else
-    [[ -f "$source" ]] || {
-      echo "Error: results file not found: $source" >&2
-      exit 1
-    }
-    results=$(cat "$source")
-  fi
+  results=$(cat "$state_dir/merged.json")
 
   local pending_count
   pending_count=$(jq '.pending // [] | length' <<<"$results")
@@ -291,14 +445,41 @@ render() {
   if [[ "$disabled_count" -gt 0 ]]; then
     echo "${disabled_count} standards disabled in project.yaml"
   fi
-  echo
-  echo "## Remediation"
-  jq -r '
-    [.[] | select(.status=="FAIL" or .status=="SUGG")]
-    | .[]
-    | "- **[\(.status)] \(.id)** — \(.description)\n  - detail: \(.detail)"
-  ' <<<"$sorted"
+}
 
+# ───── --check ──────────────────────────────────────────────────────────────
+# CI pass/fail signal. Reads the same JSON shape as --render and exits:
+#   0  — no FAIL rows (audit passed)
+#   1  — at least one FAIL row (audit failed)
+#   2  — operational error (missing file, malformed JSON, unresolved pending)
+
+check() {
+  local state_dir="${1:-}"
+  [[ -n "$state_dir" && -d "$state_dir" ]] || usage
+  [[ -f "$state_dir/merged.json" ]] || {
+    echo "Error: merged.json not found in state-dir: $state_dir/merged.json" >&2
+    exit 2
+  }
+  local results
+  results=$(cat "$state_dir/merged.json")
+
+  jq -e . <<<"$results" >/dev/null 2>&1 || {
+    echo "Error: results JSON is malformed" >&2
+    exit 2
+  }
+
+  local pending_count
+  pending_count=$(jq '.pending // [] | length' <<<"$results")
+  if [[ "$pending_count" -gt 0 ]]; then
+    local pending_ids
+    pending_ids=$(jq -r '.pending // [] | map(.id) | join(", ")' <<<"$results")
+    echo "Error: results JSON has $pending_count unresolved pending entry/entries; resolve them before checking." >&2
+    echo "Pending: $pending_ids" >&2
+    exit 2
+  fi
+
+  local fail_count
+  fail_count=$(jq '[.resolved[]? | select(.status=="FAIL")] | length' <<<"$results")
   if [[ "$fail_count" -gt 0 ]]; then
     exit 1
   fi
@@ -307,8 +488,10 @@ render() {
 # ───── dispatch ─────────────────────────────────────────────────────────────
 
 case "$MODE" in
+  --init)    init    "$@" ;;
   --collect) collect "$@" ;;
   --merge)   merge   "$@" ;;
   --render)  render  "$@" ;;
+  --check)   check   "$@" ;;
   *) usage ;;
 esac

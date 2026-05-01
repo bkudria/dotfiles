@@ -6,7 +6,7 @@ argument-hint: "[audit|scaffold|check]"
 
 # Project Config
 
-Manage project standards compliance through `project.yaml` — a per-project configuration file that declares which **profiles** (directories under `profiles/`) apply, and optionally which inherited standards are **disabled** (with a reason). Projects without `project.yaml` are not tracked.
+Manage project standards compliance through `project.yaml` — a per-project configuration file that declares which **profiles** (directories under `profiles/`) apply, optionally which inherited standards are **disabled** (with a reason), and optionally which suggested standards are **required** (severity upgraded from `SUGG` to `FAIL`). Projects without `project.yaml` are not tracked.
 
 Each standard is a self-contained YAML file under `profiles/<profile>/`: it declares whether it's required, a one-line description, and exactly one of `check.script` (deterministic shell) or `check.prompt` (sub-agent verification). Standard identity in audits is `<profile>/<basename>`.
 
@@ -39,5 +39,5 @@ Each standard is a self-contained YAML file under `profiles/<profile>/`: it decl
 | `workflows/scaffold.md` | Scaffold mode — interview, project.yaml generation, file creation |
 | `references/project-yaml-schema.md` | project.yaml + standard YAML schema reference |
 | `profiles/<profile>/<basename>.yaml` | Self-contained standard YAMLs (`required`, `description`, `check.{script,prompt}`, optional `notes`). Filename is the standard's identity. |
-| `scripts/run-audit.sh` | Three-phase audit runner: `--collect <project-root>` emits resolved/pending JSON, `--merge <collect-file> <responses-dir>` folds sub-agent responses in, `--render <results-json\|->` formats the table |
+| `scripts/run-audit.sh` | Audit runner. Five verbs, all operating on a state-dir:<br>• `--init` → emits a fresh state-dir on stdout<br>• `--collect <project-root> <state-dir>` → writes `<state-dir>/collect.json`<br>• `--merge <state-dir>` → folds `<state-dir>/responses/<id>.txt` into `<state-dir>/merged.json`<br>• `--render <state-dir>` → formats the FAIL/SUGG table (always exits 0 on success)<br>• `--check <state-dir>` → CI pass/fail signal (1 if any FAIL row, 0 otherwise, ≥2 on operational error) |
 | `scripts/lint-project-yaml.sh` | Validates a project.yaml's schema (`<path>`) or every standard YAML (`--skill`) |

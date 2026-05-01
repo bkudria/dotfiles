@@ -5,7 +5,7 @@ prompt: |
 labels:
   name: "Skill correctly describes its profile contents and language-agnostic verification"
 assertions:
-  - check: "Output names the standards activated by the base profile (e.g., readme, gitignore, license, tests, claude-md, goals, spec, linter, formatter, coverage, plus tests-run, linter-run, coverage-run)"
+  - check: "Output names the standards activated by the base profile (e.g., readme, gitignore, license, tests, claude-md, goals, spec, linter, formatter, coverage, plus tests-run, linter-run, coverage-run, commit-convention, lockfile, runtime-version)"
     note: "The full list lives under profiles/base/ — every YAML there is a standard"
   - check: "Output explains that the skill itself is intentionally language-agnostic — there is no `language:` key in project.yaml and no per-standard tool overrides"
   - check: "Output explains that prompt-based standards (like base/lockfile, base/coverage, base/coverage-run, base/linter-run, base/tests-run) hand verification to a sub-agent that determines the project's language and the appropriate tool from manifest files at audit time"

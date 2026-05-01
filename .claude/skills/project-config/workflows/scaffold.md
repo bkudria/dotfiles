@@ -12,15 +12,17 @@ Ask the user:
 
 1. **Which profiles to enable.** The profiles available are the directories under `profiles/`. Each profile's standards are the YAML files inside its directory.
 2. **Whether any standards should be disabled** for this project (with reasoning). A disabled standard must specify why — empty reasons fail lint. Disabling is for legitimate exemptions (e.g., "single-maintainer pre-1.0 project; CoC adoption deferred"), not for hiding inconvenient truths.
+3. **Whether any suggested standards should be upgraded to required** (severity tightened from `SUGG` to `FAIL`). List them under `required:`. Capture the rationale in conversation; the file itself stores no reason. Use this when the project enforces a standard that its profile ships as a suggestion (e.g., a Bun project committing the lockfile).
 
 Do not ask about project name, description, language, status, visibility, repo, or any per-standard parameters. The new schema does not support them. The skill is intentionally language- and tool-agnostic; standards inspect the project itself rather than reading declarations.
 
 ## Step 2: Generate project.yaml (mandatory, first file created)
 
-The first file written is `project.yaml`. The schema accepts exactly two top-level keys:
+The first file written is `project.yaml`. The schema accepts exactly three top-level keys:
 
 - `profiles:` — list of profile names matching directories under `profiles/`.
 - `disabled:` — optional map of `<profile>/<basename>` → non-empty reason string.
+- `required:` — optional list of `<profile>/<basename>` whose unmet result is upgraded from `SUGG` to `FAIL` for this project.
 
 Minimal example:
 

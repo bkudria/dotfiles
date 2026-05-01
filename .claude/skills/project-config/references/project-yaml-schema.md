@@ -4,14 +4,15 @@
 
 ## Top-level keys
 
-Exactly two top-level keys are accepted. Anything else fails `scripts/lint-project-yaml.sh`.
+Exactly three top-level keys are accepted. Anything else fails `scripts/lint-project-yaml.sh`.
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
 | `profiles` | list of strings | yes | Names of profiles to activate. Each must match a directory under `profiles/`. |
 | `disabled` | map of strings | no | Map of `<profile>/<basename>` → non-empty reason string. |
+| `required` | list of strings | no | List of `<profile>/<basename>` whose unmet result is upgraded from `SUGG` to `FAIL` for this project. |
 
-There is no metadata block (no `name`, `description`, `language`, `status`, `visibility`, `repo`). There is no `standards:` block — standards are not configurable per-project.
+There is no metadata block (no `name`, `description`, `language`, `status`, `visibility`, `repo`). There is no `standards:` block — checks themselves are not parameterized per-project; only their severity is.
 
 ## `profiles:`
 
@@ -38,6 +39,27 @@ Lint fails on:
 - A `disabled:` key whose profile is not in the project's `profiles:` list.
 - A `disabled:` key whose `<basename>` does not exist as a YAML file in the named profile.
 
+## `required:`
+
+A list of `<profile>/<basename>` strings (matching the audit identity of an activated standard) whose unmet result is upgraded from `SUGG` to `FAIL` for this project. Useful when a standard is shipped as suggested in its profile but the project wants to enforce it. Symmetric with `disabled:`: both override an inherited standard's severity, in opposite directions.
+
+```yaml
+required:
+  - base/lockfile
+  - public/release-automation
+```
+
+The override only changes how an *unmet* result is reported. A standard that already passes is unaffected. Standards already declared `required: true` in their YAML must not be listed here — that's a no-op.
+
+Lint fails on:
+
+- An entry that does not match `<profile>/<basename>`.
+- An entry whose profile is not in the project's `profiles:` list.
+- An entry whose `<basename>` does not exist as a YAML file in the named profile.
+- An entry whose underlying standard is already `required: true` (no-op).
+- An entry that also appears as a key in `disabled:` (mutually exclusive — a standard cannot be both disabled and upgraded).
+- A `required:` value that is not a list (e.g., a map or scalar).
+
 ## Examples
 
 **Minimal — base profile only:**
@@ -56,6 +78,16 @@ disabled:
   public/comparison: "Novel project — no direct alternatives exist."
 ```
 
+**Project that tightens a suggested standard into a required one:**
+
+```yaml
+profiles: [base, public]
+
+required:
+  - base/lockfile
+  - public/release-automation
+```
+
 **CLI tool:**
 
 ```yaml
@@ -64,14 +96,14 @@ profiles: [base, public, cli]
 
 ## What is NOT in this file
 
-The new schema deliberately drops the following — none of them are accepted, all of them fail lint:
+The schema deliberately drops the following — none of them are accepted, all of them fail lint:
 
 - Metadata: `name`, `description`, `language`, `status`, `visibility`, `repo`.
-- Per-standard parameters: `tests.framework`, `tests.directory`, `license.spdx`, `coverage.ratchet`, `coverage.config`, `linter.tool`, `linter.config`, `claude-md.sections`, `readme.sections`, `readme.references`, `package-metadata.manifest`, etc.
-- Severity enums: `recommended:` is gone; standards declare `required: true` (failure is FAIL) or `required: false` (failure is SUGG) inside their own YAML.
+- Per-standard parameters: `tests.framework`, `tests.directory`, `license.spdx`, `coverage.ratchet`, `coverage.config`, `linter.tool`, `linter.config`, `claude-md.sections`, `readme.sections`, `readme.references`, `package-metadata.manifest`, etc. The behaviour of a check is fully described inside its own YAML and is not parameterized per-project.
+- Severity enums: `recommended:` is gone. A standard declares `required: true` (failure is FAIL) or `required: false` (failure is SUGG) in its own YAML. A project may upgrade individual standards via `required:` (this file), but cannot loosen them — that's what `disabled:` is for.
 - Profile composition operators: there is no deep-merge or "later overrides earlier" — each profile's standards run independently.
 
-If you need a stricter check, add a separate standard YAML in a profile directory (e.g., `profiles/public/readme-sections.yaml` is a separate file from `profiles/base/readme.yaml`).
+If you need a stricter *check* (not just stricter severity), add a separate standard YAML in a profile directory (e.g., `profiles/public/readme-sections.yaml` is a separate file from `profiles/base/readme.yaml`).
 
 ## Standard YAML schema
 
@@ -80,7 +112,7 @@ Each YAML file under `profiles/<profile>/` is a self-contained standard. The sta
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `required` | boolean | yes | `true` ⇒ unmet causes audit failure (`FAIL`). `false` ⇒ unmet is reported as a suggestion (`SUGG`), does not fail audit. |
-| `description` | string | yes | One-line prose explaining what this standard verifies. Surfaced in the remediation list and lint summary. |
+| `description` | string | yes | One-line prose explaining what this standard verifies. Persisted into `collect.json` and `merged.json`; consulted during fix-plan synthesis (`workflows/audit.md` step 4) to give plan items the standard's intent. Not printed by `--render` directly. |
 | `check` | object | yes | Exactly one of `check.script` or `check.prompt`. Never both, never neither. |
 | `check.script` | string | — | Bash script executed under `set -euo pipefail` with `$PROJECT_ROOT` set. Exit 0 = met; non-zero = unmet. The last non-empty stdout line becomes the row's `Detail`. |
 | `check.prompt` | string | — | Prompt rendered with `$PROJECT_ROOT` substituted, then sent to a sub-agent for verification. The sub-agent returns a `{"met": bool, "detail": string}` JSON block. |
@@ -142,6 +174,26 @@ check:
 - The prompt's responsibility is **what** to verify and what evidence to surface. The audit workflow (`workflows/audit.md` step 2) wraps every prompt with a response-format instruction that requires the verifier to end its response with a fenced JSON block of the form `{"met": bool, "detail": string}`. **Do not specify a response format inside the prompt itself** — the wrapper handles it, and a duplicated/conflicting instruction in the prompt would compete with the wrapper.
 - Convention: phrase the reporting expectation as "Report met (with `<evidence>`) or unmet (with `<gap>`)". This produces a natural one-line `detail` that the wrapper-injected JSON block absorbs. Every existing prompt-based standard follows this pattern.
 - The audit workflow combines `met` with the standard's `required:` flag to produce `PASS`/`FAIL`/`SUGG`. There is no intermediate `MANUAL` row in the audit table — prompt-based standards resolve to one of the three statuses before the table is rendered.
+
+### When to use script vs prompt
+
+Pick `check.script` when met/unmet reduces to file/dir presence or pattern matching on fixed paths — anything bash can verify without parsing structured config formats or interpreting content semantically. Pick `check.prompt` when the check requires detecting the ecosystem to know where to look, parsing structured config (JSON/TOML/YAML) to inspect a value, or interpreting human-written content for substantive meaning.
+
+| Pick `script` when | Pick `prompt` when |
+|---|---|
+| File or directory presence at fixed paths (`[[ -e ]]`, `[[ -d ]]`) | Determining the file/field to inspect requires knowing the ecosystem |
+| Grepping for a literal pattern in a fixed file (`grep -q '^# ' README.md`) | Reading a value out of structured config (JSON/TOML/YAML) |
+| Search space is finite, listable, language-independent | Interpreting natural-language content for meaning |
+| One mechanism is canonical across ecosystems | Multiple equally-valid mechanisms exist (Dependabot vs Renovate vs scheduled CI) |
+
+Worked examples:
+
+- **`base/tests` (script)** — looks for `spec/`, `test/`, `tests/`, or `__tests__/`. Four fixed directories, finite, language-independent.
+- **`base/coverage` (prompt)** — verifies that a coverage threshold is configured. The threshold lives in language-specific config (`jest.config.*`, `pyproject.toml`, `.coveragerc`, `vitest.config.*`, etc.) and requires reading a *value*, not just presence — a script would need to parse several structured formats.
+- **`base/runtime-version` (prompt)** — declared via the `engines` field in `package.json`, OR `.nvmrc`/`.node-version`, OR `.tool-versions`/`mise.toml`, OR README prose. The dotfile sources are pure presence checks, but the `engines` source requires JSON parsing — and the standard's intent is to verify *any* of these, so the whole check tips into prompt territory.
+- **`public/security-policy` (script)** — looks for `SECURITY.md`, `SECURITY`, `SECURITY.txt`, or `.github/SECURITY.md`. Four fixed paths, no parsing, language-independent → script.
+
+When a check straddles the line, pick `prompt`. The sub-agent dispatch is cheap (haiku tier per `workflows/audit.md`); the cost of an incorrect script is a brittle, language-specific check that silently fails the moment the project onboards a new ecosystem.
 
 ## Lint
 
