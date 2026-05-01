@@ -1,0 +1,16 @@
+required: true
+description: Manifest description, repo description, README tagline, and keywords are accurate, informative, and consistent.
+notes: |
+  Distinct from package-metadata-complete, which only checks PRESENCE
+  of fields. This standard checks QUALITY: descriptions are not terse
+  placeholders, taglines are accurate, keywords/topics are
+  discoverability-friendly, and the same description does not vary
+  wildly across surfaces.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has metadata of acceptable
+    quality. Inspect: the manifest description, the repo description
+    (if accessible), the README's first paragraph or tagline, and any
+    keywords or topics. Report met (with the surfaces inspected and a
+    one-line judgement of consistency and informativeness) or unmet
+    (with concrete examples of placeholder/terse/inconsistent text).

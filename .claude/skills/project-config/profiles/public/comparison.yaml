@@ -1,0 +1,20 @@
+required: false
+description: README discusses how this project compares to similar or alternative tools.
+notes: |
+  Public projects in crowded niches benefit most. Format is flexible:
+  comparison table, bullet list of differences, or short prose section.
+  Should identify peer projects by name where possible, lead with what
+  makes this project distinct (not feature parity), and acknowledge
+  cases where alternatives are better. Novel projects can simply state
+  that no direct alternatives exist.
+check:
+  prompt: |
+    Verify that the README at $PROJECT_ROOT discusses how this project
+    compares to similar or alternative tools. The discussion should
+    identify peer projects by name where possible, lead with
+    differentiation rather than feature parity, and acknowledge where
+    alternatives are better suited. Report met (with the section
+    location and one-line summary of the differentiation) or unmet
+    (noting whether the project is in a crowded niche where comparison
+    would help, vs. novel where stating "no direct alternatives" would
+    suffice).

@@ -1,0 +1,16 @@
+required: true
+description: The project's coverage tool runs and meets its configured threshold.
+notes: |
+  Runtime-verification standard. Executes coverage and reports both the
+  measured percentage and whether the configured threshold (ratchet)
+  was met. Distinct from `coverage`, which only checks that a threshold
+  is configured.
+check:
+  prompt: |
+    Verify that coverage for the project at $PROJECT_ROOT runs and meets
+    its configured threshold. Determine the coverage tool and threshold
+    from manifest files and conventional project-root configuration, then
+    execute coverage without modifying the working tree. Report met (with
+    the measured percentage and the threshold) or unmet (with the
+    measured percentage, the threshold, and a brief summary of the
+    largest uncovered areas).

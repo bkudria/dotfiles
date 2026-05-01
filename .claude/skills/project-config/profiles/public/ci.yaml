@@ -1,0 +1,30 @@
+required: true
+description: A continuous integration configuration exists for the project.
+notes: |
+  Looks for any conventional CI configuration: .github/workflows/ with at
+  least one workflow file, .gitlab-ci.yml, .travis.yml, Jenkinsfile, or a
+  .circleci/ or .buildkite/ directory.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    if [[ -d .github/workflows ]]; then
+      count=$(find .github/workflows -maxdepth 1 \( -name '*.yml' -o -name '*.yaml' \) 2>/dev/null | wc -l | tr -d ' ')
+      if [[ "$count" -gt 0 ]]; then
+        echo ".github/workflows/ has $count workflow files"
+        exit 0
+      fi
+    fi
+    for f in .gitlab-ci.yml .travis.yml Jenkinsfile; do
+      if [[ -e "$f" ]]; then
+        echo "$f exists"
+        exit 0
+      fi
+    done
+    for d in .circleci .buildkite; do
+      if [[ -d "$d" ]]; then
+        echo "$d/ exists"
+        exit 0
+      fi
+    done
+    echo "No CI configuration found"
+    exit 1

@@ -1,0 +1,16 @@
+required: true
+description: The project's package manifest declares the basic metadata fields.
+notes: |
+  Prompt-based because manifest formats vary by ecosystem. The verifier
+  determines the manifest type, checks for the basic metadata fields
+  (name, version, license, description, repository), and reports
+  missing fields.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has a package manifest
+    declaring the basic metadata. Determine the manifest format from
+    the project root, then verify it includes name, version, license,
+    description, and repository fields. Report met (with the manifest
+    path and confirmation that key fields are populated) or unmet
+    (with the manifest path and the list of missing or placeholder
+    fields).

@@ -1,40 +1,92 @@
 # Audit Mode
 
-> **References:** `references/standards-catalog.md` (file paths, detection rules), `references/project-yaml-schema.md` (schema details). Read `standards-catalog.md` for standards marked SKIP by the script, or when writing remediation for FAIL standards.
+> **References:** `references/project-yaml-schema.md` (project.yaml schema), `profiles/` (every standard YAML lives in its profile directory; the YAML itself describes what it checks).
+
+The audit runs in three phases: **collect** (deterministic checks), **resolve** (sub-agent verification of prompt-based standards), then **render** (final table + remediation). The audit passes iff zero `FAIL` rows are present in the rendered table.
 
 ## Steps
 
-1. Run `scripts/check-standards.sh <project-root> --json` first — this performs deterministic file existence and config checks for all standards. The JSON output includes a `metadata` block with `language`, `test_framework`, and `test_directory`. Use the results array as the baseline for the compliance table; use the metadata to avoid redundant file reads.
-2. For any standards marked `SKIP` by the script, run the appropriate manual check (see `references/standards-catalog.md`)
-3. Follow symlinks — a symlink to the right content counts as meeting the standard
-4. **File existence checks — root-only, exact filenames:**
-   - Check **only the project root** — never search recursively into `node_modules/`, `vendor/`, `.git/`, or other dependency directories
-   - **Do not use Glob for root-only checks** — Glob always searches recursively and will match files deep in `node_modules/`, wasting tokens. Instead, use `Read` on specific filenames (it returns an error if the file doesn't exist) or `Bash ls <project-root>/<filename>`.
-   - Prefer the script's `--json` metadata (`test_framework`, `test_directory`) over manual file searches when possible
-5. **Runtime Verification** — run the actual tools. Skip a `.run` check if its parent infrastructure check FAILed (no point running tests if no test directory exists).
-   - **Linter**: If `linter` passed, run the project's linter. Report as a `linter.run` row — PASS if clean (exit 0), FAIL if violations found. Include violation count in Detail.
-   - **Tests + Coverage**: If both `tests` and `coverage` passed, run the test suite **with coverage enabled** in a single command to avoid running tests twice. Report `tests.run` (pass/fail counts) and `coverage.run` (coverage percentage) from the same run. If only `tests` passed (coverage FAILed), run tests without coverage.
-   - If a command fails due to missing dependencies, attempt one install-and-retry cycle.
-   - `.run` rows are binary PASS/FAIL only — no WARN.
-6. Output a markdown compliance table with exactly these columns:
+### 1. Collect
 
-```
-| Standard     | Status | Detail                          |
-|-------------|--------|---------------------------------|
-| readme      | PASS   | README.md exists, has title     |
-| tests       | PASS   | tests/ exists, vitest config    |
-| tests.run   | PASS   | vitest: 14/14 passing           |
-| license     | WARN   | File exists but no SPDX match   |
-| linter      | PASS   | eslint.config.js found          |
-| linter.run  | PASS   | eslint: clean (0 problems)      |
-| coverage    | PASS   | Configured with ratchet         |
-| coverage.run| PASS   | 94.2% line coverage             |
+Run:
+
+```bash
+scripts/run-audit.sh --collect <project-root>
 ```
 
-`.run` rows appear immediately after their parent infrastructure row. They are only present when the parent passed.
+The runner reads `<project-root>/project.yaml`, walks every YAML in each selected profile's directory, executes deterministic `check.script` standards immediately, and emits JSON of the form:
 
-Status values: `PASS`, `FAIL`, `WARN`. Use these exact words.
+```json
+{
+  "resolved": [
+    { "id": "base/readme", "status": "PASS", "detail": "...", "description": "..." }
+  ],
+  "pending": [
+    { "id": "public/lockfile", "required": false, "description": "...", "rendered_prompt": "..." }
+  ],
+  "disabled_count": 0
+}
+```
 
-7. If the project uses profiles, also check for redundant entries — fields in `standards:` or metadata that are identical to profile defaults. Report redundant entries as WARN rows in the compliance table (e.g., `| readme.required | WARN | Redundant — inherited from base profile |`, `| status | WARN | Redundant — matches base profile default |`).
-8. Below the table, output a summary line: `**X/Y checks passing.**` where X = number of PASS rows and Y = total rows in the table. Count all rows including `.run` rows. WARN counts as not passing (same as FAIL for counting purposes).
-9. Below the summary, output a **prioritized remediation plan** — rank fixes by impact, most impactful first. Explain WHY each fix matters and what to do. If all standards pass, omit the remediation section entirely. When writing remediation for FAILed standards, it can be useful to run the tool even though the infrastructure check failed — e.g., running coverage on a project without a ratchet to discover the current coverage level and inform the fix.
+`resolved` entries already carry final `PASS`/`FAIL`/`SUGG` status. `pending` entries need sub-agent verification before the audit table can be rendered. Disabled standards never appear in either array — only their count.
+
+Save the JSON to a temp file (or capture it in a shell variable). You will need the full payload again for the render step.
+
+### 2. Resolve pending standards
+
+For every entry in `pending`, dispatch a `general-purpose` sub-agent — **all in a single message of parallel `Agent` tool calls**. Each sub-agent's prompt is the rendered prompt prefixed with the response-format instruction below:
+
+> Verify the standard described below against the project. Use any tools you need (Read, Grep, Bash, etc.) to confirm or refute. End your response with a fenced JSON block of the form `\`\`\`json\n{"met": <bool>, "detail": "<one-line summary>"}\n\`\`\`` and nothing after that block.
+>
+> Standard description: `<description from pending entry>`
+>
+> Standard verification prompt:
+>
+> `<rendered_prompt from pending entry>`
+
+After all sub-agents return, parse the trailing JSON block from each response. Combine `met` with the entry's `required` flag using this rule:
+
+| `met` | `required` | Final status |
+|-------|-----------|--------------|
+| `true` | any | `PASS` |
+| `false` | `true` | `FAIL` |
+| `false` | `false` | `SUGG` |
+
+Append each resolved entry to the `resolved` list (carry over `id`, `description`, the sub-agent's one-line `detail`, and the computed `status`). The merged JSON should look like the original `resolved` plus the newly-resolved formerly-pending entries.
+
+**Sub-agent failure handling.** If a sub-agent's response cannot be parsed as the expected JSON block, or the sub-agent errors out, treat that standard as `FAIL` regardless of `required:` and put the parse/error reason in `detail`. Failure to verify is itself a failure.
+
+### 3. Render
+
+Pass the merged results JSON to the runner's render phase:
+
+```bash
+echo "$MERGED_JSON" | scripts/run-audit.sh --render -
+```
+
+(Or write the JSON to a file and pass the path.)
+
+The runner emits, in order:
+
+- A markdown table with three columns (`Standard`, `Status`, `Detail`) sorted FAIL → SUGG → PASS, alphabetical by id within each bucket.
+- A blank line, then a per-status count: `X PASS, Y FAIL, Z SUGG`.
+- Optionally, a single line `N standards disabled in project.yaml` (omitted when N == 0).
+- A blank line, then `## Remediation` listing every FAIL/SUGG row's `id` + `description` + `detail`.
+
+The render step never invents `MANUAL`, `SKIP`, or `DISABLED` rows. Every row in the table is one of `PASS`, `FAIL`, `SUGG`. Disabled standards are absent from the table entirely; their existence is only signaled by the count line below the table.
+
+### 4. Synthesize a prioritized fix plan
+
+The runner's remediation list is mechanical — every FAIL/SUGG entry, ordered by status. Below the runner's output, write a brief **prioritized fix plan**: top 3-5 highest-impact items first, FAILs ahead of SUGGs by default, each with one-line "do X" guidance. Use your judgement about which fixes unlock the most value (e.g., adding a license is more impactful than adding a code-of-conduct).
+
+If the table contains zero `FAIL` and zero `SUGG` rows, omit the prioritized plan.
+
+### 5. Pass/fail signal
+
+The audit **passes** iff the rendered table contains zero `FAIL` rows. `SUGG` rows are non-blocking. The runner mirrors this: `--render` exits **1** when the table contains ≥1 `FAIL` row, **0** otherwise. Runtime/input errors (missing project.yaml, malformed standard, unresolved pending entries, etc.) also exit non-zero. CI pipelines can use `$?` directly without grepping stdout.
+
+## Notes
+
+- The runner does not invoke sub-agents itself — it only walks YAML, executes scripts, and formats output. The sub-agent dispatch in step 2 is interactive (driven by Claude in the main thread) and is not designed to run from CI.
+- Standards are activated by directory listing: every `.yaml` file under `profiles/<profile-name>/` is a standard. To skip a standard for a specific project, list it in the project's `disabled:` map with a non-empty reason — see `references/project-yaml-schema.md`.
+- A standard's behaviour is fully described inside its YAML. There is no parameterization from `project.yaml`. If you need a stricter variant, add a separate standard YAML in a profile (e.g., `public/readme-sections.yaml` is a separate file from `base/readme.yaml`).

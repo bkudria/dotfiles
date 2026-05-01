@@ -1,15 +1,16 @@
 prompt: |
   Audit the standards for a TypeScript project at ~/code/example-ts.
-  It uses profiles: [base] with tests framework: vitest and directory: tests.
-  All infrastructure files exist: README.md (references GOALS.md and SPEC.md),
-  .gitignore, LICENSE (MIT), tests/ directory with vitest.config.ts,
-  CLAUDE.md, GOALS.md, SPEC.md, eslint.config.js,
-  and vitest.config.ts has coverage configured with thresholds.
+  It uses `profiles: [base]`.
+  All infrastructure files exist: README.md, .gitignore, LICENSE (MIT),
+  tests/ directory with vitest.config.ts, CLAUDE.md, GOALS.md, SPEC.md,
+  eslint.config.js, and vitest.config.ts has coverage configured with
+  thresholds.
   Run the full audit.
 labels:
-  name: "Audit includes runtime verification — runs linter, tests, and coverage"
+  name: "Audit includes runtime-verification standards from base profile"
 assertions:
-  - check: "Output includes a row for linter runtime results (e.g. linter.run) showing whether the linter passed or failed, not just that a linter config file exists"
-  - check: "Output includes a row for test suite runtime results (e.g. tests.run) showing pass/fail counts from actually running the tests, not just that a test directory exists"
-  - check: "Output includes a row for coverage runtime results (e.g. coverage.run) showing an actual coverage percentage from running coverage, not just that coverage is configured"
-  - check: "The infrastructure check rows (tests, linter, coverage) still appear separately from the runtime rows — runtime verification supplements infrastructure checks, it does not replace them"
+  - check: "Output includes a base/linter-run row with a verdict that reflects actually running the linter (e.g., issue count) — not just confirming the config exists"
+  - check: "Output includes a base/tests-run row with a verdict that reflects actually running the tests (e.g., pass/fail counts) — not just confirming a test directory exists"
+  - check: "Output includes a base/coverage-run row with a verdict that reflects actually running coverage (e.g., a measured percentage) — not just confirming coverage is configured"
+  - check: "The deterministic infrastructure rows (base/tests, base/linter, base/coverage) appear separately from the *-run rows — both kinds of standards run, neither replaces the other"
+    note: "Each YAML in profiles/base/ is its own standard; the audit lists every one"

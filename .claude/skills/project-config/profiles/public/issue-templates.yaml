@@ -1,0 +1,32 @@
+required: true
+description: Issue templates exist in the conventional GitHub or GitLab location.
+notes: |
+  Looks for .github/ISSUE_TEMPLATE/ with at least one template
+  (excluding config.yml/yaml), .gitlab/issue_templates/ with templates,
+  or the legacy single-file .github/ISSUE_TEMPLATE.md. Templates reduce
+  triage friction and steer reporters toward the information you need.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    if [[ -d .github/ISSUE_TEMPLATE ]]; then
+      count=$(find .github/ISSUE_TEMPLATE -maxdepth 1 -type f \
+        \( -name '*.md' -o -name '*.yml' -o -name '*.yaml' \) \
+        ! -name 'config.yml' ! -name 'config.yaml' 2>/dev/null | wc -l | tr -d ' ')
+      if [[ "$count" -gt 0 ]]; then
+        echo ".github/ISSUE_TEMPLATE/ has $count templates"
+        exit 0
+      fi
+    fi
+    if [[ -d .gitlab/issue_templates ]]; then
+      count=$(find .gitlab/issue_templates -maxdepth 1 -type f -name '*.md' 2>/dev/null | wc -l | tr -d ' ')
+      if [[ "$count" -gt 0 ]]; then
+        echo ".gitlab/issue_templates/ has $count templates"
+        exit 0
+      fi
+    fi
+    if [[ -f .github/ISSUE_TEMPLATE.md ]]; then
+      echo ".github/ISSUE_TEMPLATE.md exists (legacy single-file form)"
+      exit 0
+    fi
+    echo "No issue templates found"
+    exit 1

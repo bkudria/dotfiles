@@ -1,0 +1,26 @@
+required: true
+description: A CHANGELOG file exists in Keep-a-Changelog format with an [Unreleased] section.
+notes: |
+  Looks for CHANGELOG.md, CHANGELOG, HISTORY.md, or CHANGES.md. Verifies
+  Keep-a-Changelog version-section format (`## [version]`) and the
+  presence of an `[Unreleased]` section. Public projects benefit from
+  release-note discipline; the [Unreleased] section is the social
+  contract that PRs go somewhere visible before a release.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in CHANGELOG.md CHANGELOG HISTORY.md CHANGES.md; do
+      [[ -e "$f" && -s "$f" ]] || continue
+      if ! grep -q '## \[' "$f" 2>/dev/null; then
+        echo "$f exists but no Keep-a-Changelog version sections found"
+        exit 1
+      fi
+      if ! grep -qi '## \[Unreleased\]' "$f" 2>/dev/null; then
+        echo "$f exists but no [Unreleased] section"
+        exit 1
+      fi
+      echo "$f exists with [Unreleased] section"
+      exit 0
+    done
+    echo "No CHANGELOG file found"
+    exit 1

@@ -1,0 +1,14 @@
+required: true
+description: The project's test suite passes when run.
+notes: |
+  This is a runtime-verification standard. Determine the test runner from
+  the project's manifest and conventional configuration files, run the
+  suite, and report whether tests pass. Distinct from `tests` (which only
+  checks that a test directory exists).
+check:
+  prompt: |
+    Verify that the test suite for the project at $PROJECT_ROOT runs and
+    passes. Determine the project's test runner from manifest files and
+    conventional configuration in the project root, then execute the suite
+    in a way that does not modify the working tree. Report met (with
+    pass/fail counts) or unmet (with the failure reason).

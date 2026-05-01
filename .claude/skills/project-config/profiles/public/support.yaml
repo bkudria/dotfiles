@@ -1,0 +1,16 @@
+required: false
+description: A SUPPORT file exists at the project root, under .github/, or under docs/.
+notes: |
+  SUPPORT.md tells users where to ask questions vs. file bugs, where
+  to find paid support if any, and what response times to expect.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in SUPPORT.md .github/SUPPORT.md docs/SUPPORT.md; do
+      if [[ -e "$f" && -s "$f" ]]; then
+        echo "$f exists"
+        exit 0
+      fi
+    done
+    echo "No SUPPORT file found"
+    exit 1

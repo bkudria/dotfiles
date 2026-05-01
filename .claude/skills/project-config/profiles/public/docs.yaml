@@ -1,0 +1,18 @@
+required: false
+description: A docs/ or doc/ directory exists with at least one file.
+notes: |
+  Looks for either docs/ or doc/ at the project root and counts files.
+  An empty directory does not count.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for d in docs doc; do
+      [[ -d "$d" ]] || continue
+      count=$(find "$d" -maxdepth 1 -type f 2>/dev/null | wc -l | tr -d ' ')
+      if [[ "$count" -gt 0 ]]; then
+        echo "$d/ exists ($count files)"
+        exit 0
+      fi
+    done
+    echo "No docs/ or doc/ directory with files found"
+    exit 1

@@ -1,0 +1,16 @@
+required: true
+description: A CONTRIBUTING file exists at the project root.
+notes: |
+  Public projects need contributor onboarding. Looks for CONTRIBUTING.md
+  or CONTRIBUTING (extensionless).
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in CONTRIBUTING.md CONTRIBUTING; do
+      if [[ -e "$f" && -s "$f" ]]; then
+        echo "$f exists"
+        exit 0
+      fi
+    done
+    echo "No CONTRIBUTING file found"
+    exit 1

@@ -1,0 +1,16 @@
+required: true
+description: A CODE_OF_CONDUCT file exists at the project root.
+notes: |
+  Looks for CODE_OF_CONDUCT.md, CODE_OF_CONDUCT (extensionless), or
+  CODE_OF_CONDUCT.txt.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in CODE_OF_CONDUCT.md CODE_OF_CONDUCT CODE_OF_CONDUCT.txt; do
+      if [[ -e "$f" && -s "$f" ]]; then
+        echo "$f exists"
+        exit 0
+      fi
+    done
+    echo "No CODE_OF_CONDUCT file found"
+    exit 1

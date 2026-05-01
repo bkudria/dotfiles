@@ -1,0 +1,19 @@
+required: true
+description: A README file exists, is non-empty, and has at least one heading.
+notes: |
+  Looks for any of these filenames in priority order: README.md, README,
+  README.txt, README.rdoc, README.org. The first match wins; subsequent
+  variants are not checked. An empty file or one with no headings counts
+  as unmet — empty README files were a recurring drift in early audits.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in README.md README README.txt README.rdoc README.org; do
+      [[ -e "$f" ]] || continue
+      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
+      grep -q '^#' "$f" || { echo "$f exists but has no headings"; exit 1; }
+      echo "$f exists, has heading"
+      exit 0
+    done
+    echo "No README file found"
+    exit 1

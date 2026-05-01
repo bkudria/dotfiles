@@ -1,0 +1,14 @@
+required: false
+description: The project commits a language-appropriate lockfile.
+notes: |
+  Prompt-based because conventional lockfile filenames vary by ecosystem.
+  The verifier inspects manifest files in the project root, determines
+  the language(s) and package manager(s), and looks for the conventional
+  lockfile.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT commits a language-appropriate
+    lockfile. Determine the language and package manager from manifest
+    files in the project root, then check for the conventional lockfile
+    of that ecosystem. Report met (with the lockfile path found) or
+    unmet (with what was looked for and not found).

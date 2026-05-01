@@ -1,6 +1,6 @@
 prompt: |
   Audit the project config for this TypeScript project.
-  The project has a project.yaml with profiles: [base], and all required files
+  The project has a project.yaml with `profiles: [base]`, and all required files
   exist at the project root (README.md, .gitignore, LICENSE, CLAUDE.md, GOALS.md,
   SPEC.md, eslint.config.js, vitest.config.ts, tests/ directory).
   The project also has a node_modules/ directory with hundreds of packages,

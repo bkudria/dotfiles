@@ -1,0 +1,16 @@
+required: true
+description: The project has a coverage configuration with a minimum threshold (ratchet) configured.
+notes: |
+  Verifies that some coverage threshold or ratchet is configured. The
+  specific threshold value is not enforced — the standard's intent is
+  "the project commits to a measurable bar", not "the bar is X%".
+  Distinct from coverage-run, which executes coverage.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has a coverage configuration
+    with a minimum threshold (ratchet) set. Determine the project's
+    language and coverage tool from manifest files and conventional
+    project-root files. Then check whether the coverage configuration
+    includes a threshold or minimum percentage. Report met (with the
+    config location and the threshold found) or unmet (with what was
+    looked for and not found, or "config exists but no threshold set").

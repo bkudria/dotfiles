@@ -1,0 +1,16 @@
+required: true
+description: A .gitignore file exists at the project root.
+notes: |
+  Presence-only check at the project root. Public-only secret-pattern
+  enforcement (e.g., requiring `.env` to be ignored) lives in a separate
+  standard under the public profile, so this base check stays universal
+  across visibilities.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    if [[ -e .gitignore ]]; then
+      echo ".gitignore exists"
+      exit 0
+    fi
+    echo "No .gitignore found"
+    exit 1

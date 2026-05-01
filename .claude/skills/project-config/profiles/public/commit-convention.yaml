@@ -1,0 +1,21 @@
+required: true
+description: A commit-message convention is configured and enforced.
+notes: |
+  Prompt-based because commit-convention enforcement spans multiple
+  tools (commitlint, gitlint, conform, czg, custom git hooks) and
+  may also be expressed via CI workflows that lint commits or via
+  CONTRIBUTING.md plus a hook script. The convention itself
+  (Conventional Commits, gitmoji, custom prefixes) varies too.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT configures and enforces
+    a commit-message convention. Inspect for: a commit-message linter
+    config (e.g., commitlint.config.*, .commitlintrc*, gitlint config,
+    conform config), a git hook script that validates commits (under
+    .husky/, .git-hooks/, .githooks/, or referenced from package.json
+    "husky"/"simple-git-hooks" sections), CI workflows that lint or
+    check commit messages, or a CONTRIBUTING.md section declaring the
+    convention together with an enforcement mechanism. Report met
+    (with the convention name if discoverable and the configuration
+    location) or unmet (with what was searched and a concrete next
+    step — e.g., "add commitlint config + husky commit-msg hook").

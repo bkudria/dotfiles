@@ -1,0 +1,15 @@
+required: true
+description: The project has a code formatter configured.
+notes: |
+  Prompt-based because conventional formatter configurations vary widely
+  by language. The verifier inspects manifest files and conventional
+  project-root files to determine whether a formatter is configured.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has a code formatter
+    configured. Determine the project's language(s) from manifest files
+    and conventional project-root files. Then check whether a formatter
+    configuration exists for that language (a config file in the project
+    root, or formatter configuration embedded in an existing manifest).
+    Report met (with the formatter name and config location) or unmet
+    (with what was looked for and not found).

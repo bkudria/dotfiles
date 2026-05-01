@@ -1,9 +1,14 @@
 prompt: |
-  What linter config file should I have for a Python project that
-  uses project.yaml standards? And what about coverage tracking?
+  My project.yaml says `profiles: [base]`. What standards will the audit run?
+  Are any of them language-specific? How does the audit pick the right
+  linter or coverage tool for my Python project?
 labels:
-  name: "Language-aware standard detection knowledge"
+  name: "Skill correctly describes its profile contents and language-agnostic verification"
 assertions:
-  - check: "Output mentions Python-specific linter tools like ruff, flake8, or pylint — not generic or Ruby/JS linters"
-  - check: "Output mentions Python-specific coverage tools like coverage.py or .coveragerc — not SimpleCov or istanbul"
-  - check: "Output references the language-aware auto-detection behavior from the standards catalog"
+  - check: "Output names the standards activated by the base profile (e.g., readme, gitignore, license, tests, claude-md, goals, spec, linter, formatter, coverage, plus tests-run, linter-run, coverage-run)"
+    note: "The full list lives under profiles/base/ — every YAML there is a standard"
+  - check: "Output explains that the skill itself is intentionally language-agnostic — there is no `language:` key in project.yaml and no per-standard tool overrides"
+  - check: "Output explains that prompt-based standards (like base/lockfile, base/coverage, base/coverage-run, base/linter-run, base/tests-run) hand verification to a sub-agent that determines the project's language and the appropriate tool from manifest files at audit time"
+    note: "Language-awareness lives at audit time inside the sub-agent verifier, not in the skill's static configuration"
+  - check: "Output does NOT claim the skill has a `standards-catalog.md` or a hard-coded mapping of languages to tools"
+    note: "The catalog file was deleted as part of the re-architecture; its content lives inside per-standard YAMLs"

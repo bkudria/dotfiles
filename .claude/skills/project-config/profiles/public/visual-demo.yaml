@@ -1,0 +1,16 @@
+required: false
+description: README features an embedded visual demo (animated GIF, asciinema cast, video, or screenshot).
+notes: |
+  Visual demos prominently placed near the top of a README dramatically
+  improve discoverability and onboarding. For CLIs, prefer a
+  reproducible source (e.g., charmbracelet/vhs .tape file, asciinema
+  cast). For libraries or UIs, a screenshot or short clip is fine.
+  Static text alone is not a visual demo.
+check:
+  prompt: |
+    Verify that the README at $PROJECT_ROOT features an embedded visual
+    demo prominently (ideally near the top). Acceptable forms include
+    animated GIF, asciinema cast, short video, or screenshot. For CLIs,
+    a reproducible source (vhs .tape, asciinema cast) is preferred.
+    Report met (with the type and location) or unmet (noting whether
+    any non-static media was found at all).

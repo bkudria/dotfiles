@@ -1,0 +1,18 @@
+required: true
+description: A CLAUDE.md or AGENTS.md file exists at the project root and is non-empty.
+notes: |
+  Either filename is accepted; the first match wins. Section-specific
+  enforcement is intentionally NOT performed — every project organizes
+  agent-facing notes differently, and section requirements were a
+  recurring source of false-positive failures.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in CLAUDE.md AGENTS.md; do
+      [[ -e "$f" ]] || continue
+      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
+      echo "$f exists"
+      exit 0
+    done
+    echo "No CLAUDE.md or AGENTS.md found"
+    exit 1

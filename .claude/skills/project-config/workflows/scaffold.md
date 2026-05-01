@@ -1,80 +1,74 @@
 # Scaffold Mode
 
-> **References:** `references/project-yaml-schema.md` (complete schema, examples, DRY rules), `references/profiles/` (profile definitions), `references/standards-catalog.md` (standard details for file creation).
+> **References:** `references/project-yaml-schema.md` (full schema), `profiles/` (every standard YAML in each profile directory describes what that profile activates).
 
 **STOP. Do not create any files until the interview is complete and project.yaml is written.**
 
-Scaffold mode has a strict ordering. Violating this order (e.g., creating README.md before project.yaml exists) is incorrect.
+Scaffold mode has a strict ordering. The first file written must be `project.yaml`. Every other file is created based on what `project.yaml`'s selected profiles activate.
 
 ## Step 1: Interview (mandatory)
 
-The `base` profile is always included. **Only ask about fields the profile does NOT default**:
+Ask the user:
 
-- **Ask:** name, description, language
-- **Ask:** which additional standards to enable beyond the profile (present the full catalog from `references/standards-catalog.md`)
-- **Ask:** standard-specific overrides only (e.g., test framework/directory if not the language default)
-- **Do NOT ask about:** status, visibility, license SPDX, or any other field the selected profile already defaults. Assume profile defaults unless the user volunteers an override.
+1. **Which profiles to enable.** The profiles available are the directories under `profiles/`. Each profile's standards are the YAML files inside its directory.
+2. **Whether any standards should be disabled** for this project (with reasoning). A disabled standard must specify why — empty reasons fail lint. Disabling is for legitimate exemptions (e.g., "single-maintainer pre-1.0 project; CoC adoption deferred"), not for hiding inconvenient truths.
 
-Do not create any files until the interview is complete.
+Do not ask about project name, description, language, status, visibility, repo, or any per-standard parameters. The new schema does not support them. The skill is intentionally language- and tool-agnostic; standards inspect the project itself rather than reading declarations.
 
 ## Step 2: Generate project.yaml (mandatory, first file created)
 
-The **first file written** must be `project.yaml`. It contains:
-- Only metadata that differs from profile defaults (typically just name, description, language)
-- A `profiles:` declaration (e.g., `profiles: [base]`)
-- Under `standards:`, **only overrides and additions** — NOT profile defaults
+The first file written is `project.yaml`. The schema accepts exactly two top-level keys:
 
-**DRY rule**: When a profile is selected, do NOT repeat anything the profile already provides — this applies to both metadata defaults and standards. Only include:
-- **Metadata overrides**: Fields with values different from the profile defaults (e.g., `status: active` when the profile defaults to `experimental`)
-- **Standard additions**: Standards not in the profile (e.g., `ci`) — these need `required: true`
-- **Standard overrides**: Fields with values different from the profile (e.g., specific `framework`) — omit `required: true` if the profile already sets it
+- `profiles:` — list of profile names matching directories under `profiles/`.
+- `disabled:` — optional map of `<profile>/<basename>` → non-empty reason string.
 
-This is the central artifact. All other files are derived from what project.yaml declares.
-
-Example using the base profile:
+Minimal example:
 
 ```yaml
-name: scuttlerun
-description: Multi-turn Claude session driver
-language: typescript
 profiles: [base]
-
-# Only overrides — profile handles the rest
-standards:
-  tests:
-    framework: vitest
-    directory: tests
 ```
 
-The base profile provides: readme, gitignore, license (MIT), tests, claude-md, goals, spec, linter, coverage — all required. It also defaults status to `experimental` and visibility to `private`. None of that needs repeating.
+Public OSS project disabling a standard:
+
+```yaml
+profiles: [base, public]
+
+disabled:
+  public/code-of-conduct: "Single-maintainer pre-1.0 project; CoC adoption deferred until v1.0."
+  public/comparison: "Novel project — no direct alternatives exist."
+```
+
+Anything else (`name`, `description`, `language`, `status`, `visibility`, per-standard knobs like `tests.framework` or `license.spdx`) fails lint. The standards inspect the project directly to figure out what they need.
+
+After writing `project.yaml`, run `scripts/lint-project-yaml.sh <project-root>/project.yaml`. Lint must exit 0 before continuing.
 
 ## Step 3: Create standard files
 
-Based on what project.yaml declares (including profile-inherited standards), create the required files:
-README.md, GOALS.md, SPEC.md, LICENSE, .gitignore, CLAUDE.md, CONTRIBUTING.md, etc.
+For each standard activated by the selected profiles (and not disabled in `project.yaml`), create the files it expects. Read the standard's YAML to understand what it checks. For example:
+
+- `base/readme.yaml` checks for a README.md (or other conventional README filename) with a heading → create `README.md`.
+- `base/license.yaml` checks for a LICENSE file → create `LICENSE`.
+- `base/gitignore.yaml` checks for `.gitignore` → create `.gitignore`.
+- `base/claude-md.yaml` checks for CLAUDE.md → create `CLAUDE.md`.
+- `base/goals.yaml`, `base/spec.yaml` → create `GOALS.md`, `SPEC.md`.
+- `public/contributing.yaml` → create `CONTRIBUTING.md`.
+- `public/changelog.yaml` → create `CHANGELOG.md`.
+- `public/code-of-conduct.yaml` → create `CODE_OF_CONDUCT.md` (skip if disabled).
+- `public/security-policy.yaml` → create `SECURITY.md`.
+- `public/editorconfig.yaml` → create `.editorconfig`.
+
+For standards that need configuration files (linter config, formatter config, CI config, package manifest, etc.), choose a sensible default appropriate to the project's actual language/tooling and create it.
 
 ## Step 4: Verify
 
-Run an immediate audit (see `workflows/audit.md`) to confirm all declared standards pass.
+Run an immediate audit (see `workflows/audit.md`). The audit must show zero `FAIL` rows for the scaffold to be considered successful. `SUGG` rows are non-blocking but worth reviewing.
 
 ## Profiles
 
-Profiles are presets stored in `references/profiles/` as YAML files. A profile provides metadata defaults and standard configurations that can be overridden per-project.
+Profiles are directories under `profiles/`. Selecting `profiles: [base]` activates **every YAML file** in `profiles/base/`. Profiles do not merge or override each other — if both `profiles/base/readme.yaml` and `profiles/public/readme-sections.yaml` exist and both profiles are selected, both checks run independently.
 
-### Built-in Profiles
+To disable a profile-inherited standard for a specific project, list its `<profile>/<basename>` in the project's `disabled:` map with a non-empty reason. To strengthen a check (e.g., require additional README sections beyond what `base/readme.yaml` enforces), add a separate standard YAML to a profile directory rather than parameterizing an existing one.
 
-| Profile | Metadata Defaults | Required Standards |
-|---------|-------------------|-------------------|
-| `base` | status: experimental, visibility: private | readme, gitignore, license (MIT), tests, claude-md, goals, spec, linter, coverage |
+### Adding a new profile
 
-### Using a Profile
-
-Reference it in project.yaml with `profiles: [base]`. Profile values are defaults — any explicit entries in project.yaml override the profile (both metadata and standards). To keep project.yaml DRY, only include entries that differ from the profile. Use `scripts/lint-project-yaml.sh` to check for redundant entries.
-
-### Creating Custom Profiles
-
-1. Create `references/profiles/{profile-name}.yaml`
-2. Define `defaults:` for metadata and `standards:` for standard configurations
-3. Reference it in project.yaml with `profiles: [{profile-name}]`
-
-Multiple profiles can be composed: `profiles: [base, ruby-gem]`. Later profiles override earlier ones.
+Create `profiles/<profile-name>/` and drop self-contained standard YAMLs into it. Each standard YAML must specify `required: bool`, `description: <one-line>`, and exactly one of `check.script` or `check.prompt`. Optional `notes:` carries maintainer-facing context. See `references/project-yaml-schema.md` for the full standard YAML schema.

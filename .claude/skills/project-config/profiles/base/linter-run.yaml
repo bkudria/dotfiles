@@ -1,0 +1,14 @@
+required: true
+description: The project's linter passes when run.
+notes: |
+  Runtime-verification standard. Executes the project's linter and reports
+  the result. Distinct from `linter`, which only checks that a linter is
+  configured.
+check:
+  prompt: |
+    Verify that the linter for the project at $PROJECT_ROOT runs and
+    passes. Determine the linter from manifest files and conventional
+    project-root configuration, then execute it without modifying the
+    working tree (no auto-fix). Report met (with the issue count, e.g.,
+    "0 issues") or unmet (with the issue count and a brief summary of
+    the most common categories).

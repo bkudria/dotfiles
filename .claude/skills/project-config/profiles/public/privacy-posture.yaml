@@ -1,0 +1,15 @@
+required: true
+description: README and/or SECURITY.md state the project's privacy posture explicitly.
+notes: |
+  Privacy posture means: what telemetry/data is or isn't collected,
+  where prompts and outputs are sent (for AI/agent projects), retention
+  or sharing policy. A vague mention of "privacy" is not a posture.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT explicitly states its
+    privacy posture in the README or SECURITY.md. Look for: what
+    telemetry or data is collected (or explicitly not collected), where
+    user prompts/outputs are sent (for AI/agent projects), retention
+    and sharing policy. Report met (with the posture summarized in one
+    sentence and the location it's stated) or unmet (with which
+    posture aspects are missing).

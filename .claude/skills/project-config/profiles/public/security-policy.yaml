@@ -1,0 +1,17 @@
+required: true
+description: A SECURITY policy file exists at the project root or under .github/.
+notes: |
+  Looks for SECURITY.md, SECURITY (extensionless), SECURITY.txt, or
+  .github/SECURITY.md. The policy gives security researchers a stable
+  channel for coordinated disclosure.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in SECURITY.md SECURITY SECURITY.txt .github/SECURITY.md; do
+      if [[ -e "$f" && -s "$f" ]]; then
+        echo "$f exists"
+        exit 0
+      fi
+    done
+    echo "No SECURITY file found"
+    exit 1

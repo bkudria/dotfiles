@@ -1,0 +1,24 @@
+required: false
+description: LICENSE file mentions the current calendar year in its copyright line.
+notes: |
+  Many MIT/BSD/Apache copyright lines need a manual yearly update. This
+  check is informational — a stale year does not invalidate a license,
+  but it's a small signal of project activity.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    found=""
+    for f in LICENSE LICENSE.md LICENSE.txt COPYING COPYING.md; do
+      [[ -e "$f" ]] && { found="$f"; break; }
+    done
+    if [[ -z "$found" ]]; then
+      echo "No LICENSE file found"
+      exit 1
+    fi
+    current_year=$(date +%Y)
+    if ! grep -q "$current_year" "$found"; then
+      echo "$found exists but copyright year $current_year not found"
+      exit 1
+    fi
+    echo "$found references current year $current_year"
+    exit 0

@@ -1,0 +1,17 @@
+required: true
+description: A GOALS file exists at the project root or under docs/.
+notes: |
+  Looks for GOALS.md, goals.md, goals.yaml at the project root, then under
+  docs/. GOALS captures the WHY of a project — what it is trying to do
+  and for whom. The companion SPEC standard captures the HOW.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in GOALS.md goals.md goals.yaml docs/GOALS.md docs/goals.md docs/goals.yaml; do
+      [[ -e "$f" ]] || continue
+      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
+      echo "$f exists"
+      exit 0
+    done
+    echo "No GOALS file found"
+    exit 1

@@ -1,0 +1,14 @@
+required: true
+description: The project declares its required runtime/language version.
+notes: |
+  Prompt-based because conventional version-pin locations vary widely:
+  manifest fields (e.g., a "engines" field), dotfiles
+  (e.g., .ruby-version, .nvmrc), version-manager configs (.tool-versions,
+  mise.toml), or README documentation.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT declares its required
+    runtime/language version somewhere discoverable. Check manifest
+    files for engine/runtime fields, version-pin dotfiles, version-manager
+    configs, and the README. Report met (with the location and version
+    declared) or unmet (with what was looked for and not found).

@@ -2,9 +2,11 @@ prompt: |
   I want to create a new Ruby CLI tool project called "datagrep".
   It should search structured data files. Set it up with project standards.
 labels:
-  name: "Scaffold mode interviews and generates project.yaml"
+  name: "Scaffold mode interviews and generates project.yaml under the new schema"
 assertions:
   - check: "Output asks questions about the project before generating files — does not immediately create files without interviewing"
-  - check: "Output creates or proposes a project.yaml file with metadata fields (name, description, language) and a profiles declaration"
-  - check: "The proposed project.yaml includes standard configurations with required/recommended settings or inherits them from a profile"
+  - check: "Output creates or proposes a project.yaml file containing only `profiles:` and optionally `disabled:` — no metadata fields, no `standards:` block"
+    note: "The new schema accepts exactly two top-level keys: profiles and disabled"
+  - check: "The proposed project.yaml selects at least one profile that exists under profiles/ (base, public, or cli)"
   - check: "Output mentions creating standard files like README.md, GOALS.md, or LICENSE — not just the project.yaml"
+    note: "Standard files are still created based on what the activated profiles' standards expect"

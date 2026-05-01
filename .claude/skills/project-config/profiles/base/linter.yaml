@@ -1,0 +1,17 @@
+required: true
+description: The project has a linter configured.
+notes: |
+  Prompt-based because conventional linter config filenames vary widely
+  by language and ecosystem. The verifier inspects the project's manifest
+  and root files to determine which linter (if any) is configured, rather
+  than the skill maintaining a fragile hardcoded list. Distinct from
+  linter-run, which actually executes the linter.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has a linter configured.
+    Determine the project's language(s) from manifest files and conventional
+    project-root files. Then check whether a linter configuration exists
+    for that language (a config file in the project root, or linter
+    configuration embedded in an existing manifest). Report met (with the
+    linter name and config location) or unmet (with what was looked for
+    and not found).

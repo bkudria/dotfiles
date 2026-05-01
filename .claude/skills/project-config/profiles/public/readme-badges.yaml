@@ -1,0 +1,23 @@
+required: false
+description: README has at least one status badge (build, coverage, version, license, etc.).
+notes: |
+  Detects badge URLs from common badge providers: shields.io, badge.svg
+  (GitHub Actions), codecov.io, badgen.net. Badges signal project
+  health and discoverability at a glance.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    found=""
+    for f in README.md README README.txt README.rdoc README.org; do
+      [[ -e "$f" ]] && { found="$f"; break; }
+    done
+    if [[ -z "$found" ]]; then
+      echo "No README file found"
+      exit 1
+    fi
+    if grep -qiE "img\.shields\.io|badge\.svg|codecov\.io|badgen\.net" "$found"; then
+      echo "Badge(s) found in $found"
+      exit 0
+    fi
+    echo "No status badges found in $found"
+    exit 1

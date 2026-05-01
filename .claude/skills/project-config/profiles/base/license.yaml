@@ -1,0 +1,18 @@
+required: true
+description: A LICENSE file exists at the project root using a conventional filename.
+notes: |
+  Looks for any of: LICENSE, LICENSE.md, LICENSE.txt, COPYING, COPYING.md.
+  The first match wins. SPDX identifier and content validation are
+  intentionally NOT enforced here — that lives in a separate standard
+  (e.g., public/license-current-year.yaml).
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in LICENSE LICENSE.md LICENSE.txt COPYING COPYING.md; do
+      [[ -e "$f" ]] || continue
+      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
+      echo "$f exists"
+      exit 0
+    done
+    echo "No LICENSE file found"
+    exit 1

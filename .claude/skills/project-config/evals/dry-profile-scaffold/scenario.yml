@@ -1,17 +1,16 @@
 prompt: |
   I want to create a new TypeScript CLI project called "taskflow".
   It's a task automation tool. Use the base profile as a starting point.
-  For tests, use vitest with a tests/ directory.
-  For CLAUDE.md, use sections: [What is taskflow, Commands, Architecture].
-  The project is private and experimental.
 
   Generate the project.yaml file.
 labels:
-  name: "Scaffold with profile generates DRY project.yaml"
+  name: "Scaffold generates minimal project.yaml under the new two-key schema"
 assertions:
   - check: "The generated project.yaml includes 'profiles: [base]' (array syntax, not singular 'profile:')"
-  - check: "The generated project.yaml does NOT contain 'status: experimental' or 'visibility: private' — these are inherited from the base profile defaults"
-  - check: "The generated project.yaml does NOT contain 'required: true' for readme, tests, claude-md, or license — these are inherited from the base profile"
-  - check: "The generated project.yaml includes tests.framework: vitest and tests.directory: tests as overrides"
-  - check: "The generated project.yaml includes claude-md.sections as an override (since base has no sections)"
-  - check: "The generated project.yaml does NOT include standalone entries for gitignore, goals, spec, linter, coverage, or license that merely repeat profile defaults"
+  - check: "The generated project.yaml does NOT contain any metadata fields — no `name`, `description`, `language`, `status`, `visibility`, or `repo` keys"
+    note: "The new schema rejects all metadata; standards inspect the project itself rather than reading declarations"
+  - check: "The generated project.yaml does NOT contain a `standards:` block"
+    note: "Standards are not configurable per-project; they live as self-contained YAMLs under profiles/"
+  - check: "The generated project.yaml does NOT contain `tests.framework`, `tests.directory`, `claude-md.sections`, or any other per-standard parameters"
+    note: "The new architecture is intentionally language- and tool-agnostic — there are no parameterized standards"
+  - check: "If a `disabled:` block is present, every entry has a non-empty reason string and a key of the form `<profile>/<basename>`"

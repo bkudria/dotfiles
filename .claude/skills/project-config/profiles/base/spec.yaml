@@ -1,0 +1,23 @@
+required: true
+description: A SPEC file exists at the project root or under docs/.
+notes: |
+  Looks for SPEC.md, specification.md, design.md at the project root, then
+  under docs/. A bare `spec.md` at the project root is checked only when
+  no `spec/` test directory exists, to avoid confusing rspec layouts with
+  a specification document.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    candidates=(SPEC.md specification.md design.md)
+    if [[ ! -d spec ]]; then
+      candidates+=(spec.md)
+    fi
+    candidates+=(docs/SPEC.md docs/spec.md docs/specification.md docs/design.md)
+    for f in "${candidates[@]}"; do
+      [[ -e "$f" ]] || continue
+      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
+      echo "$f exists"
+      exit 0
+    done
+    echo "No SPEC file found"
+    exit 1

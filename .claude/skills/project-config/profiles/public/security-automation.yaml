@@ -1,0 +1,15 @@
+required: true
+description: Automated security scans (SAST, SCA, supply-chain hardening) run in CI.
+notes: |
+  Prompt-based because the relevant tools span multiple categories
+  (static analysis, dependency vulnerability scanning, supply-chain
+  hardening) and configuration locations.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT runs automated security
+    scans in CI. Inspect CI configuration for: static analysis (SAST,
+    e.g., CodeQL, Semgrep), software-composition analysis (SCA, e.g.,
+    dependency-review-action, npm audit, pip-audit), and supply-chain
+    hardening (e.g., OSSF Scorecard, signed releases, pinned action
+    versions). Report met (with the scans found and where they're
+    configured) or unmet (with the categories absent).

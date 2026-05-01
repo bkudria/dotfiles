@@ -1,0 +1,18 @@
+required: true
+description: A conventional test directory exists at the project root.
+notes: |
+  Looks for any of: spec/, test/, tests/, __tests__/. Presence of a
+  conventional test directory is the only signal — framework choice and
+  internal test layout are out of scope. This is distinct from the
+  tests-run standard, which actually executes the suite.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for d in spec test tests __tests__; do
+      [[ -d "$d" ]] || continue
+      count=$(find "$d" -maxdepth 2 -type f 2>/dev/null | wc -l | tr -d ' ')
+      echo "$d/ exists ($count files)"
+      exit 0
+    done
+    echo "No test directory found (looked for spec/, test/, tests/, __tests__/)"
+    exit 1

@@ -1,303 +1,148 @@
 # project.yaml Schema
 
-Complete schema for the project configuration file. Place `project.yaml` in the project root.
+`project.yaml` lives in the project root and declares which profiles apply and which inherited standards (if any) are disabled. The schema is intentionally minimal — every other detail (which language, which framework, which sections to require) is the responsibility of individual standard YAMLs under `profiles/`.
 
-## Metadata Fields
+## Top-level keys
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `name` | string | yes | Project name |
-| `description` | string | yes | One-line project description |
-| `language` | string | no | Primary language (`ruby`, `javascript`, `typescript`, `python`, `rust`, `go`, `lua`, `shell`, etc.) |
-| `status` | enum | no | `active`, `archived`, `experimental` (default: `experimental`) |
-| `visibility` | enum | no | `public`, `private` (default: `private`) |
-| `repo` | string | no | Repository URL |
+Exactly two top-level keys are accepted. Anything else fails `scripts/lint-project-yaml.sh`.
 
-## Profiles Field
+| Key | Type | Required | Description |
+|-----|------|----------|-------------|
+| `profiles` | list of strings | yes | Names of profiles to activate. Each must match a directory under `profiles/`. |
+| `disabled` | map of strings | no | Map of `<profile>/<basename>` → non-empty reason string. |
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| `profiles` | list of strings | no | Names of profiles from `references/profiles/`. Later profiles override earlier ones. |
+There is no metadata block (no `name`, `description`, `language`, `status`, `visibility`, `repo`). There is no `standards:` block — standards are not configurable per-project.
 
-Profiles provide both **metadata defaults** (under `defaults:`) and **standard configurations** (under `standards:`). Any explicit entries in project.yaml override profile values. **DRY rule**: Only include entries that differ from or add to the profile — this applies to both metadata fields and standards. If the profile defaults `status: experimental`, do not repeat it. If the profile sets `required: true` for a standard, do not repeat it.
+## `profiles:`
 
-## Standards Configuration
-
-The `standards:` key maps standard names to their configuration. Each standard accepts:
-
-### Common Fields (all standards)
-
-| Field | Type | Default | Description |
-|-------|------|---------|-------------|
-| `required` | boolean | `true` | Whether this standard must pass. If `false`, use `recommended`. |
-| `recommended` | boolean | `false` | Whether to warn (not fail) on absence. Mutually exclusive with `required: true`. |
-
-### Standard-Specific Fields
-
-#### readme
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `sections` | list of strings | Required heading names (case-insensitive). Respects severity — FAIL if required, WARN if recommended. |
-| `recommended_sections` | list of strings | Heading names that should be present (always WARN if missing, never FAIL) |
-| `references` | list of standard names | Must contain links to these documents |
-
-#### license
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `spdx` | string | SPDX license identifier |
-| `current_year` | boolean | When true, verify the LICENSE file contains the current year in its copyright line |
-
-#### tests
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `framework` | string | Test framework name (for metadata/display) |
-| `directory` | string | Path to the test directory |
-| `config` | string | Path to the test framework config file |
-
-#### linter
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `tool` | string | Linter tool name (for metadata/display) |
-| `config` | string | Path to the linter config file |
-
-#### coverage
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `config` | string | Path to the file containing coverage configuration |
-| `ratchet_pattern` | string | Grep pattern to detect ratchet/threshold in the config file |
-
-#### claude-md
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `sections` | list of strings | Required heading names in CLAUDE.md |
-
-#### ci
-
-No standard-specific fields — just `required: true/false`.
-
-#### package-metadata
-
-| Field | Type | Description |
-|-------|------|-------------|
-| `manifest` | string | Path to the distribution manifest file (e.g., `package.json`, `Cargo.toml`, `pyproject.toml`) |
-
-#### security-policy
-
-No standard-specific fields — checks for SECURITY.md file existence.
-
-#### publish-config
-
-No standard-specific fields — auto-detects based on project language.
-
-#### All other standards
-
-No standard-specific fields — just `required` or `recommended`.
-
-## Complete Example (No Profile)
+A non-empty list of profile names. Each name must match an existing directory under `profiles/`. Selecting a profile activates **every** standard YAML in that directory. Profiles do not merge: if two profiles both define a standard with the same basename, both run independently and report independently. Standard identity in the audit is `<profile>/<basename>`.
 
 ```yaml
-# === Metadata ===
-name: chorearch
-description: A choreography architecture framework for Ruby
-language: ruby
-status: active
-visibility: public
-repo: https://github.com/bkudria/chorearch
-
-# === Standards ===
-standards:
-  readme:
-    required: true
-    sections:
-      - Installation
-      - Usage
-      - Development
-    references: [goals, spec, docs]
-
-  gitignore:
-    required: true
-
-  license:
-    required: true
-    spdx: MIT
-
-  tests:
-    required: true
-    framework: rspec
-    directory: spec
-
-  claude-md:
-    required: true
-    sections:
-      - Build commands
-      - Test commands
-      - Project overview
-
-  goals:
-    required: true
-
-  spec:
-    required: true
-
-  linter:
-    required: true
-
-  ci:
-    required: true
-
-  coverage:
-    required: true
-
-  changelog:
-    recommended: true
-
-  contributing:
-    required: true  # public project
-
-  editorconfig:
-    recommended: true
-
-  docs:
-    required: true
-
-  code-of-conduct:
-    recommended: true
-
-  security-policy:
-    required: true
-
-  package-metadata:
-    required: true
-    manifest: chorearch.gemspec
-
-  publish-config:
-    required: true
+profiles: [base, public]
 ```
 
-## Minimal Example (with base profile)
+## `disabled:`
 
-The base profile provides sensible defaults — most projects only need to declare what's unique:
+A map whose keys are `<profile>/<basename>` strings (matching the audit identity of an activated standard) and whose values are non-empty reason strings. Disabled standards are omitted from the audit table entirely — they have no row, no status, and do not contribute to any count. The reasons live in `project.yaml`; the audit table only surfaces a count line ("N standards disabled in project.yaml").
 
 ```yaml
-name: scuttlerun
-description: Multi-turn Claude session driver
-language: typescript
+disabled:
+  public/code-of-conduct: "Single-maintainer pre-1.0 project; CoC adoption deferred until v1.0."
+  public/comparison: "Novel project — no direct alternatives exist."
+```
+
+Lint fails on:
+
+- Empty/missing reason.
+- A `disabled:` key that does not match `<profile>/<basename>`.
+- A `disabled:` key whose profile is not in the project's `profiles:` list.
+- A `disabled:` key whose `<basename>` does not exist as a YAML file in the named profile.
+
+## Examples
+
+**Minimal — base profile only:**
+
+```yaml
 profiles: [base]
-
-standards:
-  tests:
-    framework: vitest
-    directory: tests
 ```
 
-The base profile handles: readme, gitignore, license (MIT), tests, claude-md, goals, spec, linter, coverage (all required), plus metadata defaults (status: experimental, visibility: private).
-
-## Minimal Example (no profile)
+**Public OSS project with selective disables:**
 
 ```yaml
-name: my-script
-description: A small utility script
-language: shell
-status: experimental
-
-standards:
-  readme:
-    required: true
-  gitignore:
-    required: true
-  tests:
-    recommended: true
-```
-
-## Profile Override Example (DRY)
-
-When using profiles, only include overrides and additions — never repeat profile defaults.
-
-```yaml
-name: chorearch
-description: A choreography architecture framework for Ruby
-language: ruby
-status: active       # override — base defaults to experimental
-visibility: public   # override — base defaults to private
-profiles: [base]
-
-standards:
-  # OVERRIDES — fields that differ from the profile
-  license:
-    spdx: Apache-2.0  # base defaults to MIT
-  tests:
-    framework: rspec
-    directory: spec
-
-  # ADDITIONS — standards the profile does not include
-  ci:
-    required: true
-  contributing:
-    required: true
-  changelog:
-    recommended: true
-```
-
-### What NOT to Write
-
-```yaml
-# BAD — redundant entries when using profiles
-profiles: [base]
-status: experimental         # REDUNDANT — matches base default
-visibility: private          # REDUNDANT — matches base default
-standards:
-  readme:
-    required: true           # REDUNDANT — base already sets this
-  gitignore:
-    required: true           # REDUNDANT — fully matches profile, remove entire entry
-  license:
-    required: true           # REDUNDANT — base already sets this
-    spdx: MIT                # REDUNDANT — base already sets this
-  tests:
-    required: true           # REDUNDANT — base already sets this
-    framework: vitest        # OK — override (not in profile)
-```
-
-## Redundancy Lint
-
-Run `scripts/lint-project-yaml.sh <path-to-project.yaml>` to detect fields that duplicate profile defaults. Use `--fix` to auto-remove redundant entries.
-
-A field is redundant when:
-- The project declares `profiles:`
-- The profile defines the same field (metadata default or standard field)
-- The values are identical
-
-Fields NOT in the profile are additions (always kept). Fields with different values from the profile are overrides (always kept).
-
-## Public Profile Example
-
-The public profile adds open-source release standards on top of base:
-
-```yaml
-name: scuttlerun
-description: Multi-turn Claude session driver
-language: typescript
 profiles: [base, public]
 
-standards:
-  tests:
-    framework: vitest
-    config: vitest.config.ts
-    directory: tests
-  linter:
-    tool: eslint
-    config: eslint.config.js
-  coverage:
-    config: vitest.config.ts
-    ratchet_pattern: thresholds
-  package-metadata:
-    manifest: package.json
+disabled:
+  public/code-of-conduct: "Single-maintainer pre-1.0 project; CoC adoption deferred until v1.0."
+  public/comparison: "Novel project — no direct alternatives exist."
 ```
 
-The base profile handles: readme, gitignore, license (MIT), tests, claude-md, goals, spec, linter, coverage (all required). The public profile adds: ci, contributing, changelog, code-of-conduct, security-policy, package-metadata, publish-config (all required), readme sections [Usage] + recommended [Badges], license current_year check, docs (recommended).
+**CLI tool:**
+
+```yaml
+profiles: [base, public, cli]
+```
+
+## What is NOT in this file
+
+The new schema deliberately drops the following — none of them are accepted, all of them fail lint:
+
+- Metadata: `name`, `description`, `language`, `status`, `visibility`, `repo`.
+- Per-standard parameters: `tests.framework`, `tests.directory`, `license.spdx`, `coverage.ratchet`, `coverage.config`, `linter.tool`, `linter.config`, `claude-md.sections`, `readme.sections`, `readme.references`, `package-metadata.manifest`, etc.
+- Severity enums: `recommended:` is gone; standards declare `required: true` (failure is FAIL) or `required: false` (failure is SUGG) inside their own YAML.
+- Profile composition operators: there is no deep-merge or "later overrides earlier" — each profile's standards run independently.
+
+If you need a stricter check, add a separate standard YAML in a profile directory (e.g., `profiles/public/readme-sections.yaml` is a separate file from `profiles/base/readme.yaml`).
+
+## Standard YAML schema
+
+Each YAML file under `profiles/<profile>/` is a self-contained standard. The standard's identity is its filename without `.yaml`; there is no `name:` field.
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| `required` | boolean | yes | `true` ⇒ unmet causes audit failure (`FAIL`). `false` ⇒ unmet is reported as a suggestion (`SUGG`), does not fail audit. |
+| `description` | string | yes | One-line prose explaining what this standard verifies. Surfaced in the remediation list and lint summary. |
+| `check` | object | yes | Exactly one of `check.script` or `check.prompt`. Never both, never neither. |
+| `check.script` | string | — | Bash script executed under `set -euo pipefail` with `$PROJECT_ROOT` set. Exit 0 = met; non-zero = unmet. The last non-empty stdout line becomes the row's `Detail`. |
+| `check.prompt` | string | — | Prompt rendered with `$PROJECT_ROOT` substituted, then sent to a sub-agent for verification. The sub-agent returns a `{"met": bool, "detail": string}` JSON block. |
+| `notes` | string | no | Multi-paragraph maintainer-facing context (file precedence rules, why this standard exists, edge cases, links). Never surfaced in audit output. |
+
+### Deterministic example
+
+```yaml
+required: true
+description: A README file exists, is non-empty, and has at least one heading.
+notes: |
+  Looks for any of these filenames in priority order: README.md, README,
+  README.txt, README.rdoc, README.org. The first match wins; subsequent
+  variants are not checked. An empty file or one with no headings counts
+  as unmet.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    for f in README.md README README.txt README.rdoc README.org; do
+      [[ -e "$f" ]] || continue
+      [[ -s "$f" ]] || { echo "$f exists but is empty"; exit 1; }
+      grep -q '^#' "$f" || { echo "$f exists but has no headings"; exit 1; }
+      echo "$f exists, has heading"
+      exit 0
+    done
+    echo "No README file found"
+    exit 1
+```
+
+### Prompt-based example
+
+```yaml
+required: false
+description: The project commits a language-appropriate lockfile.
+notes: |
+  Prompt-based because conventional lockfile filenames vary by ecosystem
+  (Cargo.lock, package-lock.json, yarn.lock, pnpm-lock.yaml, Gemfile.lock,
+  poetry.lock, uv.lock, etc.). The verifier determines the language from
+  manifest files and checks for the conventional lockfile of that ecosystem.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT commits a language-appropriate
+    lockfile. Determine the language and package manager from manifest
+    files in the project root, then check for the conventional lockfile of
+    that ecosystem. Report met (with the lockfile path found) or unmet
+    (with what was looked for and not found).
+```
+
+### Script contract
+
+- `$PROJECT_ROOT` is set when the script runs.
+- Script runs under `set -euo pipefail`. Standards may relax that internally if needed.
+- Exit 0 = met. Exit non-zero = unmet.
+- Stdout's last non-empty line = the row's `Detail`.
+
+### Prompt contract
+
+- `$PROJECT_ROOT` placeholder is interpolated at runtime (literal string substitution, before sending the prompt to the sub-agent).
+- Manual verification (sub-agent) returns `{"met": bool, "detail": string}` in a fenced JSON code block. The audit workflow combines `met` with the standard's `required:` flag to produce `PASS`/`FAIL`/`SUGG`. There is no intermediate `MANUAL` row in the audit table — prompt-based standards resolve to one of the three statuses before the table is rendered.
+
+## Lint
+
+`scripts/lint-project-yaml.sh <project-root>/project.yaml` validates a project.yaml: top-level keys, profile existence, disabled keys/values, and that each disabled key resolves to an existing standard in a selected profile.
+
+`scripts/lint-project-yaml.sh --skill` (no project.yaml needed) validates **every** standard YAML across all profile directories: required fields, exactly-one-of check shape, `notes:` non-empty if present, no unknown keys.

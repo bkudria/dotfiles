@@ -1,0 +1,15 @@
+required: true
+description: An .editorconfig file exists at the project root.
+notes: |
+  EditorConfig sets cross-editor whitespace and encoding defaults so
+  contributors don't fight tabs-vs-spaces or trailing-whitespace battles
+  on every PR.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    if [[ -e .editorconfig && -s .editorconfig ]]; then
+      echo ".editorconfig exists"
+      exit 0
+    fi
+    echo "No .editorconfig found"
+    exit 1

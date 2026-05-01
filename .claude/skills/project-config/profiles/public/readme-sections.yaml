@@ -1,0 +1,30 @@
+required: true
+description: README has Installation and Usage sections.
+notes: |
+  Public projects need contributor- and user-facing entry points. This
+  standard checks the README for `## Installation` and `## Usage`
+  headings (case-insensitive). Distinct from base/readme (which only
+  verifies a README exists with at least one heading).
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    found=""
+    for f in README.md README README.txt README.rdoc README.org; do
+      [[ -e "$f" ]] && { found="$f"; break; }
+    done
+    if [[ -z "$found" ]]; then
+      echo "No README file found"
+      exit 1
+    fi
+    missing=""
+    for sect in "Installation" "Usage"; do
+      if ! grep -qiE "^##[[:space:]]+$sect" "$found"; then
+        missing="${missing:+$missing, }$sect"
+      fi
+    done
+    if [[ -n "$missing" ]]; then
+      echo "$found exists but missing sections: $missing"
+      exit 1
+    fi
+    echo "$found has Installation and Usage sections"
+    exit 0

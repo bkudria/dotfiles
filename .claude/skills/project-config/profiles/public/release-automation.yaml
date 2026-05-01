@@ -1,0 +1,21 @@
+required: false
+description: A release-automation mechanism is configured.
+notes: |
+  Prompt-based because release automation can be implemented via many
+  tools (release-please, semantic-release, changesets, GoReleaser,
+  Maven Release Plugin, Gradle release plugin) or hand-rolled CI
+  scripts that perform version bump, tag, and publish end-to-end.
+  required: false because not every public project needs full release
+  automation, but most benefit from it.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has automated releases.
+    Inspect for: release-please (release-please-config.json,
+    .release-please-manifest.json, or workflows referencing
+    release-please-action), semantic-release (.releaserc*,
+    release.config.*), changesets (.changeset/), GoReleaser
+    (.goreleaser.{yml,yaml}), Maven Release Plugin (release-related
+    plugin entries in pom.xml), Gradle release plugins, or custom CI
+    workflows that bump version, tag, and publish artifacts in one
+    pipeline. Report met (with the mechanism and config/workflow
+    location) or unmet (with what was searched and not found).

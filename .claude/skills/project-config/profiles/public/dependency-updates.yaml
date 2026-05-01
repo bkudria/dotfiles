@@ -1,0 +1,20 @@
+required: true
+description: An automated dependency-update mechanism is configured.
+notes: |
+  Prompt-based because automated dependency updates can be implemented
+  via Dependabot, Renovate, Snyk, scheduled CI workflows running
+  package-manager update commands (npm-check-updates, pip-tools,
+  cargo update, etc.), or third-party services. The standard verifies
+  the convention exists by any mechanism, not by detecting a specific
+  tool's config file.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has an automated
+    dependency-update mechanism. Inspect for: Dependabot config
+    (.github/dependabot.{yml,yaml}), Renovate config (renovate.json*,
+    .renovaterc*, .github/renovate.*), Snyk/Scout integration in CI,
+    or scheduled CI workflows (e.g., .github/workflows/*.yml with
+    cron triggers) that run dependency-bump commands like
+    npm-check-updates, pip-tools compile/sync, or `cargo update`.
+    Report met (with the mechanism and config/workflow path) or
+    unmet (with the categories searched and not found).

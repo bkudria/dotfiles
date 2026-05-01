@@ -1,0 +1,17 @@
+required: true
+description: Publish configuration controls what files ship in the published artifact.
+notes: |
+  Prompt-based because the conventional location varies by ecosystem
+  (e.g., explicit ignore files, manifest "files" arrays, or
+  inclusion/exclusion fields). The verifier determines the manifest
+  type and checks the appropriate publish-config mechanism.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT controls what files end up
+    in the published artifact. Determine the package manifest type,
+    then check for the appropriate publish-config mechanism (an
+    explicit ignore file, a manifest field that allow-lists files, or
+    an exclude/include list). Report met (with the file or field that
+    controls publishing) or unmet (with what was looked for and not
+    found, and the consequence — usually "everything in the working
+    tree gets shipped").

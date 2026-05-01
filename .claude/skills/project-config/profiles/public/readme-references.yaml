@@ -1,0 +1,31 @@
+required: false
+description: README references the standard governance/contributor docs.
+notes: |
+  Verifies the README links to GOALS.md, SPEC.md, CONTRIBUTING.md,
+  CODE_OF_CONDUCT.md, SECURITY.md, SUPPORT.md, and CHANGELOG.md. The
+  README is the on-ramp; if those docs aren't linked, contributors
+  won't find them. The check is required: false because a thoughtfully
+  curated README may legitimately omit some references.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    found=""
+    for f in README.md README README.txt README.rdoc README.org; do
+      [[ -e "$f" ]] && { found="$f"; break; }
+    done
+    if [[ -z "$found" ]]; then
+      echo "No README file found"
+      exit 1
+    fi
+    missing=""
+    for ref in GOALS.md SPEC.md CONTRIBUTING.md CODE_OF_CONDUCT.md SECURITY.md SUPPORT.md CHANGELOG.md; do
+      if ! grep -qi "$ref" "$found"; then
+        missing="${missing:+$missing, }$ref"
+      fi
+    done
+    if [[ -n "$missing" ]]; then
+      echo "$found exists but missing references: $missing"
+      exit 1
+    fi
+    echo "$found references all standard docs"
+    exit 0

@@ -1,0 +1,16 @@
+required: true
+description: Contributor-facing docs explain how releases are cut end-to-end.
+notes: |
+  Distinct from release-automation, which only checks that a tool is
+  configured. This standard verifies that the PROCESS — commit
+  conventions, release-PR creation, version bumps, artifact publish,
+  CHANGELOG updates — is documented somewhere a contributor can find.
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT documents how a release
+    is cut end-to-end. Inspect CONTRIBUTING.md, RELEASING.md (if it
+    exists), docs/ release pages, and any inline release-process notes.
+    The process should explain: commit-message conventions, who or what
+    creates the release PR, how versions are bumped, how the artifact
+    is published, and how CHANGELOG entries appear. Report met (with
+    the doc location and a one-line summary) or unmet (with the gaps).
