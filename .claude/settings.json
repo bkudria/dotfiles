@@ -41,6 +41,7 @@
       }
     }
   },
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
   "theme": "auto",
   "preferredNotifChannel": "iterm2_with_bell",
