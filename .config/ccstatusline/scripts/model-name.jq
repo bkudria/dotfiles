@@ -11,4 +11,6 @@ else
   .model.display_name // $id // "Unknown"
 end) as $name |
 ({low: "·", medium: "•", high: "●", xhigh: "⬤", max: "✦"}[.effort.level // ""] // "") as $effort |
-if $effort == "" then $name else $name + " " + $effort end
+# Trailing space pads the effort glyph from the segment edge; ZWNJ (\u200C) keeps
+# ccstatusline's whitespace-trimmer from eating the space.
+if $effort == "" then $name else $name + " " + $effort + " \u200C" end

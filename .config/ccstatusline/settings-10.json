@@ -5,36 +5,36 @@
       {
         "id": "27cf83f3-1ada-41d6-98b5-529822fc4c8d",
         "type": "custom-command",
+        "commandPath": "$HOME/.config/ccstatusline/scripts/context-bar.jq",
         "color": "black",
-        "backgroundColor": "bgBrightYellow",
-        "commandPath": "$HOME/.config/ccstatusline/scripts/context-bar.jq"
+        "backgroundColor": "bgBrightYellow"
+      },
+      {
+        "id": "7b052110-78f4-4e6f-bf75-2c992255ecca",
+        "type": "custom-command",
+        "commandPath": "$HOME/.config/ccstatusline/scripts/model-name.jq",
+        "color": "black",
+        "backgroundColor": "bgBrightGreen"
+      },
+      {
+        "id": "a6de6cd0-6df6-4a49-8b3a-435e8d82d4b2",
+        "type": "custom-command",
+        "commandPath": "$HOME/.config/ccstatusline/scripts/session-id.jq",
+        "color": "brightWhite",
+        "backgroundColor": "bgGreen"
       },
       {
         "id": "e28c0acc-5f96-4cd1-a90a-2b92665c0ebd",
         "type": "custom-command",
-        "color": "black",
-        "backgroundColor": "bgBrightGreen",
-        "commandPath": "pwd | xargs basename"
+        "commandPath": "pwd | xargs basename",
+        "color": "brightWhite",
+        "backgroundColor": "bgCyan"
       },
       {
         "id": "73d3f910-0d52-4e39-b573-67c7a61ce758",
         "type": "git-branch",
         "color": "brightWhite",
-        "backgroundColor": "bgGreen"
-      },
-      {
-        "id": "a6de6cd0-6df6-4a49-8b3a-435e8d82d4b2",
-        "type": "custom-command",
-        "color": "brightWhite",
-        "backgroundColor": "bgCyan",
-        "commandPath": "$HOME/.config/ccstatusline/scripts/session-id.jq"
-      },
-      {
-        "id": "7b052110-78f4-4e6f-bf75-2c992255ecca",
-        "type": "custom-command",
-        "color": "brightWhite",
-        "backgroundColor": "bgBlue",
-        "commandPath": "$HOME/.config/ccstatusline/scripts/model-name.jq"
+        "backgroundColor": "bgBlue"
       }
     ]
   ],
