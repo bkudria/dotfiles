@@ -39,5 +39,5 @@ Each standard is a self-contained YAML file under `profiles/<profile>/`: it decl
 | `workflows/scaffold.md` | Scaffold mode — interview, project.yaml generation, file creation |
 | `references/project-yaml-schema.md` | project.yaml + standard YAML schema reference |
 | `profiles/<profile>/<basename>.yaml` | Self-contained standard YAMLs (`required`, `description`, `check.{script,prompt}`, optional `notes`). Filename is the standard's identity. |
-| `scripts/run-audit.sh` | Two-phase audit runner: `--collect <project-root>` emits resolved/pending JSON, `--render <results-json\|->` formats the table |
+| `scripts/run-audit.sh` | Three-phase audit runner: `--collect <project-root>` emits resolved/pending JSON, `--merge <collect-file> <responses-dir>` folds sub-agent responses in, `--render <results-json\|->` formats the table |
 | `scripts/lint-project-yaml.sh` | Validates a project.yaml's schema (`<path>`) or every standard YAML (`--skill`) |

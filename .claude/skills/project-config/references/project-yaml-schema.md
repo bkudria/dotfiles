@@ -139,7 +139,9 @@ check:
 ### Prompt contract
 
 - `$PROJECT_ROOT` placeholder is interpolated at runtime (literal string substitution, before sending the prompt to the sub-agent).
-- Manual verification (sub-agent) returns `{"met": bool, "detail": string}` in a fenced JSON code block. The audit workflow combines `met` with the standard's `required:` flag to produce `PASS`/`FAIL`/`SUGG`. There is no intermediate `MANUAL` row in the audit table — prompt-based standards resolve to one of the three statuses before the table is rendered.
+- The prompt's responsibility is **what** to verify and what evidence to surface. The audit workflow (`workflows/audit.md` step 2) wraps every prompt with a response-format instruction that requires the verifier to end its response with a fenced JSON block of the form `{"met": bool, "detail": string}`. **Do not specify a response format inside the prompt itself** — the wrapper handles it, and a duplicated/conflicting instruction in the prompt would compete with the wrapper.
+- Convention: phrase the reporting expectation as "Report met (with `<evidence>`) or unmet (with `<gap>`)". This produces a natural one-line `detail` that the wrapper-injected JSON block absorbs. Every existing prompt-based standard follows this pattern.
+- The audit workflow combines `met` with the standard's `required:` flag to produce `PASS`/`FAIL`/`SUGG`. There is no intermediate `MANUAL` row in the audit table — prompt-based standards resolve to one of the three statuses before the table is rendered.
 
 ## Lint
 

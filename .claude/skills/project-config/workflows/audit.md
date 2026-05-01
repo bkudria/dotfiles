@@ -11,10 +11,10 @@ The audit runs in three phases: **collect** (deterministic checks), **resolve** 
 Run:
 
 ```bash
-scripts/run-audit.sh --collect <project-root>
+scripts/run-audit.sh --collect <project-root> > /tmp/audit-collect.json
 ```
 
-The runner reads `<project-root>/project.yaml`, walks every YAML in each selected profile's directory, executes deterministic `check.script` standards immediately, and emits JSON of the form:
+The runner reads `<project-root>/project.yaml` (and exits with a descriptive error if missing — there's no need to pre-read or `cat` it yourself), walks every YAML in each selected profile's directory, executes deterministic `check.script` standards immediately, and emits JSON of the form:
 
 ```json
 {
@@ -30,11 +30,19 @@ The runner reads `<project-root>/project.yaml`, walks every YAML in each selecte
 
 `resolved` entries already carry final `PASS`/`FAIL`/`SUGG` status. `pending` entries need sub-agent verification before the audit table can be rendered. Disabled standards never appear in either array — only their count.
 
-Save the JSON to a temp file (or capture it in a shell variable). You will need the full payload again for the render step.
+The collect output is persisted to a file because it is consumed twice in the next step: once by you to enumerate `pending[]` for sub-agent dispatch, and once as the merge phase's first argument. Re-running `--collect` re-executes every deterministic `check.script` standard, so capture once. Shell variables don't persist across Bash tool_uses — only files do.
+
+To inspect the pending entries before dispatch:
+
+```bash
+jq -r '.pending[].id' /tmp/audit-collect.json
+```
 
 ### 2. Resolve pending standards
 
-For every entry in `pending`, dispatch a `general-purpose` sub-agent — **all in a single message of parallel `Agent` tool calls**. Each sub-agent's prompt is the rendered prompt prefixed with the response-format instruction below:
+For every entry in `pending`, dispatch a `general-purpose` sub-agent. Each sub-agent's prompt is the rendered prompt prefixed with the response-format instruction below.
+
+**GATE — Single-message dispatch. Before sending your dispatch message, count the Agent tool_use blocks it contains. That count MUST equal `pending.length` from the collect output. Do NOT split dispatches across multiple messages — a dispatch message with fewer Agent tool_uses than `pending.length` is malformed and must be revised before sending.**
 
 > Verify the standard described below against the project. Use any tools you need (Read, Grep, Bash, etc.) to confirm or refute. End your response with a fenced JSON block of the form `\`\`\`json\n{"met": <bool>, "detail": "<one-line summary>"}\n\`\`\`` and nothing after that block.
 >
@@ -44,7 +52,17 @@ For every entry in `pending`, dispatch a `general-purpose` sub-agent — **all i
 >
 > `<rendered_prompt from pending entry>`
 
-After all sub-agents return, parse the trailing JSON block from each response. Combine `met` with the entry's `required` flag using this rule:
+After all sub-agents return, build a responses directory and pipe it to the merge phase:
+
+1. Create a temp directory: `RESPONSES_DIR=$(mktemp -d)`.
+2. For each pending entry, write the sub-agent's full raw response text to `$RESPONSES_DIR/<id>.txt`. Slashes in `id` become subdirectory separators (e.g., `base/coverage-run` → `$RESPONSES_DIR/base/coverage-run.txt`). Prefer one Write tool_use per file in a single parallel-dispatch message — same shape as the sub-agent dispatch above.
+3. Merge:
+
+```bash
+scripts/run-audit.sh --merge /tmp/audit-collect.json "$RESPONSES_DIR" > /tmp/audit-merged.json
+```
+
+The runner extracts the LAST fenced JSON block from each response (ignoring prose before it and any runtime-appended trailers after it), validates `met` and `detail`, applies the status rule below, and treats missing files / parse failures / non-bool `met` as `FAIL` regardless of `required:` — the "failure to verify is itself a failure" contract is enforced by the runner, not by narration.
 
 | `met` | `required` | Final status |
 |-------|-----------|--------------|
@@ -52,28 +70,24 @@ After all sub-agents return, parse the trailing JSON block from each response. C
 | `false` | `true` | `FAIL` |
 | `false` | `false` | `SUGG` |
 
-Append each resolved entry to the `resolved` list (carry over `id`, `description`, the sub-agent's one-line `detail`, and the computed `status`). The merged JSON should look like the original `resolved` plus the newly-resolved formerly-pending entries.
-
-**Sub-agent failure handling.** If a sub-agent's response cannot be parsed as the expected JSON block, or the sub-agent errors out, treat that standard as `FAIL` regardless of `required:` and put the parse/error reason in `detail`. Failure to verify is itself a failure.
-
 ### 3. Render
 
 Pass the merged results JSON to the runner's render phase:
 
 ```bash
-echo "$MERGED_JSON" | scripts/run-audit.sh --render -
+scripts/run-audit.sh --render /tmp/audit-merged.json
 ```
 
-(Or write the JSON to a file and pass the path.)
+(Or pipe via stdin: `cat /tmp/audit-merged.json | scripts/run-audit.sh --render -`.)
 
 The runner emits, in order:
 
-- A markdown table with three columns (`Standard`, `Status`, `Detail`) sorted FAIL → SUGG → PASS, alphabetical by id within each bucket.
+- A markdown table with three columns (`Standard`, `Status`, `Detail`) listing only `FAIL` and `SUGG` rows, sorted FAIL → SUGG, alphabetical by id within each bucket. PASS rows are intentionally omitted from the table — the per-status count line preserves the PASS total.
 - A blank line, then a per-status count: `X PASS, Y FAIL, Z SUGG`.
 - Optionally, a single line `N standards disabled in project.yaml` (omitted when N == 0).
 - A blank line, then `## Remediation` listing every FAIL/SUGG row's `id` + `description` + `detail`.
 
-The render step never invents `MANUAL`, `SKIP`, or `DISABLED` rows. Every row in the table is one of `PASS`, `FAIL`, `SUGG`. Disabled standards are absent from the table entirely; their existence is only signaled by the count line below the table.
+The render step never invents `MANUAL`, `SKIP`, or `DISABLED` rows. Every row in the table is `FAIL` or `SUGG`. PASS rows and disabled standards are absent from the table; their existence is signaled only by the count line below the table.
 
 ### 4. Synthesize a prioritized fix plan
 

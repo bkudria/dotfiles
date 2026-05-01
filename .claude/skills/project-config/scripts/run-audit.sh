@@ -21,7 +21,8 @@ SKILL_DIR="${CLAUDE_SKILL_DIR:-${HOME}/.claude/skills/project-config}"
 usage() {
   echo "Usage:" >&2
   echo "  run-audit.sh --collect <project-root>" >&2
-  echo "  run-audit.sh --render <results-json|->" >&2
+  echo "  run-audit.sh --merge   <collect-file|-> <responses-dir>" >&2
+  echo "  run-audit.sh --render  <results-json|->" >&2
   exit 1
 }
 
@@ -136,6 +137,101 @@ $script_body" 2>&1)
     '{resolved:$resolved, pending:$pending, disabled_count:$dc}'
 }
 
+# ───── --merge ──────────────────────────────────────────────────────────────
+
+extract_last_json_block() {
+  local input="$1"
+  printf '%s\n' "$input" | awk '
+    /^```json[[:space:]]*$/ { in_block=1; buf=""; next }
+    /^```[[:space:]]*$/     { if (in_block) { last_block=buf; in_block=0 }; next }
+    in_block                { buf = buf $0 "\n" }
+    END                     { printf "%s", last_block }
+  '
+}
+
+merge() {
+  local collect_source="${1:-}"
+  local responses_dir="${2:-}"
+  [[ -n "$collect_source" && -n "$responses_dir" ]] || usage
+
+  [[ -d "$responses_dir" ]] || {
+    echo "Error: responses dir not found: $responses_dir" >&2
+    exit 1
+  }
+
+  local collect_json
+  if [[ "$collect_source" == "-" ]]; then
+    collect_json=$(cat)
+  else
+    [[ -f "$collect_source" ]] || {
+      echo "Error: collect file not found: $collect_source" >&2
+      exit 1
+    }
+    collect_json=$(cat "$collect_source")
+  fi
+
+  local resolved pending_count disabled_count
+  resolved=$(jq -c '.resolved // []' <<<"$collect_json")
+  pending_count=$(jq '.pending // [] | length' <<<"$collect_json")
+  disabled_count=$(jq -r '.disabled_count // 0' <<<"$collect_json")
+
+  local i id required description response_path response status detail json_block met
+  local parse_rc met_rc
+  for ((i = 0; i < pending_count; i++)); do
+    id=$(jq -r ".pending[$i].id" <<<"$collect_json")
+    required=$(jq -r ".pending[$i].required" <<<"$collect_json")
+    description=$(jq -r ".pending[$i].description // \"\"" <<<"$collect_json")
+    response_path="$responses_dir/$id.txt"
+
+    if [[ ! -f "$response_path" ]]; then
+      status="FAIL"
+      detail="no response file at $response_path"
+    else
+      response=$(cat "$response_path")
+      json_block=$(extract_last_json_block "$response")
+
+      if [[ -z "$json_block" ]]; then
+        status="FAIL"
+        detail="no fenced JSON block in response"
+      else
+        set +e
+        echo "$json_block" | jq '.' >/dev/null 2>&1
+        parse_rc=$?
+        set -e
+        if [[ "$parse_rc" -ne 0 ]]; then
+          status="FAIL"
+          detail="malformed JSON block: parse error"
+        else
+          set +e
+          echo "$json_block" | jq -e '.met == true or .met == false' >/dev/null 2>&1
+          met_rc=$?
+          set -e
+          if [[ "$met_rc" -ne 0 ]]; then
+            status="FAIL"
+            detail="malformed JSON block: missing or non-bool .met"
+          else
+            met=$(echo "$json_block" | jq -r '.met')
+            detail=$(echo "$json_block" | jq -r '.detail // ""')
+            if [[ "$met" == "true" ]]; then
+              status="PASS"
+            elif [[ "$required" == "true" ]]; then
+              status="FAIL"
+            else
+              status="SUGG"
+            fi
+          fi
+        fi
+      fi
+    fi
+
+    resolved=$(jq -c --arg id "$id" --arg s "$status" --arg d "$detail" --arg desc "$description" \
+      '. + [{id:$id, status:$s, detail:$d, description:$desc}]' <<<"$resolved")
+  done
+
+  jq -n --ascii-output --argjson resolved "$resolved" --argjson dc "$disabled_count" \
+    '{resolved:$resolved, pending:[], disabled_count:$dc}'
+}
+
 # ───── --render ─────────────────────────────────────────────────────────────
 
 render() {
@@ -181,7 +277,7 @@ render() {
 
   echo "| Standard | Status | Detail |"
   echo "| --- | --- | --- |"
-  jq -r '.[] | "| \(.id) | \(.status) | \(.detail) |"' <<<"$sorted"
+  jq -r '.[] | select(.status != "PASS") | "| \(.id) | \(.status) | \(.detail) |"' <<<"$sorted"
   echo
   echo "${pass_count} PASS, ${fail_count} FAIL, ${sugg_count} SUGG"
   if [[ "$disabled_count" -gt 0 ]]; then
@@ -204,6 +300,7 @@ render() {
 
 case "$MODE" in
   --collect) collect "$@" ;;
+  --merge)   merge   "$@" ;;
   --render)  render  "$@" ;;
   *) usage ;;
 esac
