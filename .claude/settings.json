@@ -10,8 +10,9 @@
   },
   "statusLine": {
     "type": "command",
-    "command": "npx ccstatusline",
-    "padding": 0
+    "command": "~/.config/ccstatusline/scripts/dispatch.sh",
+    "padding": 0,
+    "refreshInterval": 1
   },
   "enabledPlugins": {
     "security-guidance@claude-plugins-official": true,
