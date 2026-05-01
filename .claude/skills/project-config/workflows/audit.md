@@ -54,8 +54,8 @@ For every entry in `pending`, dispatch a `general-purpose` sub-agent. Each sub-a
 
 After all sub-agents return, build a responses directory and pipe it to the merge phase:
 
-1. Create a temp directory: `RESPONSES_DIR=$(mktemp -d)`.
-2. For each pending entry, write the sub-agent's full raw response text to `$RESPONSES_DIR/<id>.txt`. Slashes in `id` become subdirectory separators (e.g., `base/coverage-run` → `$RESPONSES_DIR/base/coverage-run.txt`). Prefer one Write tool_use per file in a single parallel-dispatch message — same shape as the sub-agent dispatch above.
+1. Create a temp directory: `RESPONSES_DIR=$(mktemp -d) && echo "$RESPONSES_DIR"`. Capture the path from stdout and use that literal in every subsequent tool_use; no separate persistence file is needed.
+2. For each pending entry, write the sub-agent's full raw response text to `$RESPONSES_DIR/<id>.txt`. Slashes in `id` become subdirectory separators (e.g., `base/coverage-run` → `$RESPONSES_DIR/base/coverage-run.txt`). The Write tool autocreates parent directories, so no `mkdir -p` is needed beforehand. Prefer one Write tool_use per file in a single parallel-dispatch message — same shape as the sub-agent dispatch above.
 3. Merge:
 
 ```bash
@@ -89,11 +89,13 @@ The runner emits, in order:
 
 The render step never invents `MANUAL`, `SKIP`, or `DISABLED` rows. Every row in the table is `FAIL` or `SUGG`. PASS rows and disabled standards are absent from the table; their existence is signaled only by the count line below the table.
 
+**GATE — Verbatim render. The render phase's stdout — the FAIL/SUGG table, the `X PASS, Y FAIL, Z SUGG` count line, the optional `N standards disabled` line, and the `## Remediation` section — IS the audit. Present it verbatim. Do NOT paraphrase detail cells, prepend headings, edit the count line into prose, or replace the `## Remediation` section. The prioritized fix plan in step 4 is an additional section appended below the runner's output, never a substitute for any of it.**
+
 ### 4. Synthesize a prioritized fix plan
 
-The runner's remediation list is mechanical — every FAIL/SUGG entry, ordered by status. Below the runner's output, write a brief **prioritized fix plan**: top 3-5 highest-impact items first, FAILs ahead of SUGGs by default, each with one-line "do X" guidance. Use your judgement about which fixes unlock the most value (e.g., adding a license is more impactful than adding a code-of-conduct).
+The runner's remediation list is mechanical — every FAIL/SUGG entry, ordered by status. Below the runner's output, write a **prioritized fix plan**: each item is one line of "do X" guidance.
 
-If the table contains zero `FAIL` and zero `SUGG` rows, omit the prioritized plan.
+**GATE — Plan composition. List every FAIL (no upper bound), ordered by the profile sequence in `project.yaml` — e.g., with `profiles: [base, public]`, all `base` FAILs precede all `public` FAILs. Within each profile group, order by your judgement of which fix unlocks the most value (e.g., adding a license is more impactful than adding a code-of-conduct). SUGGs are excluded from the plan whenever any FAIL exists; if zero FAILs exist, list SUGGs using the same profile-then-judgement ordering. If zero FAIL and zero SUGG rows exist, omit the plan entirely.**
 
 ### 5. Pass/fail signal
 

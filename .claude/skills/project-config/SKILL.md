@@ -1,6 +1,6 @@
 ---
 name: project-config
-description: "TRIGGER when the user asks to audit a project, check compliance, or assess project standards — including: \"audit this project\", \"let's audit\", \"project audit\", \"check this project\", \"check compliance\", \"audit the project\". Also triggers for scaffolding: \"new project\", \"scaffold project\", \"project setup\". This is THE handler for all project audit requests — do not manually explore the codebase, load this skill instead."
+description: "Manage project standards compliance — audit existing projects, scaffold new ones, or check what standards apply. Triggers: \"audit this project\", \"project audit\", \"check compliance\", \"new project\", \"scaffold project\", \"project setup\"."
 argument-hint: "[audit|scaffold|check]"
 ---
 

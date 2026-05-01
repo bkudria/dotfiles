@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# run-audit.sh — Two-phase audit runner for the project-config skill.
+# run-audit.sh — Three-phase audit runner for the project-config skill.
 #
 # Usage:
 #   run-audit.sh --collect <project-root>
@@ -10,7 +10,15 @@
 #       (check.prompt) goes to `pending` with its rendered prompt for
 #       sub-agent verification.
 #
-#   run-audit.sh --render <results-json>
+#   run-audit.sh --merge <collect-file|-> <responses-dir>
+#       Folds sub-agent responses into the collect output. Reads the JSON
+#       produced by --collect from a file path or `-` (stdin), looks up each
+#       pending entry's response at <responses-dir>/<id>.txt, extracts the
+#       last fenced JSON block ({"met": bool, "detail": string}), and emits
+#       a merged results JSON with every entry resolved to PASS/FAIL/SUGG.
+#       Missing files, parse failures, or non-bool `met` resolve to FAIL.
+#
+#   run-audit.sh --render <results-json|->
 #       Reads a results JSON ({"resolved": [...], "disabled_count": N})
 #       from a file path or `-` (stdin), and emits the markdown audit table,
 #       per-status counts, optional disabled-count line, and remediation list.

@@ -1,6 +1,6 @@
 ---
 name: skillcraft
-description: "IMPORTANT: MUST load when creating, editing, or reviewing any file in ~/.claude/skills/*/ — SKILL.md, references, workflows, scripts, or evals. Creates, audits, improves, and updates Claude Code skills; integrates content from external sources. Use when creating a skill, auditing a skill, bootstrapping evals, improving a skill, or integrating a source."
+description: "MANDATORY load before any Read/Edit/Write to ANY file under ~/.claude/skills/*/ — includes scripts/*, workflows/*, references/*, evals/*, assets/*, provenance.yml, NOT just SKILL.md. Creates, audits, improves, and updates Claude Code skills; integrates content from external sources. TRIGGER when: editing/creating/reviewing any file inside a skill directory; creating a new skill; auditing or improving a skill; bootstrapping evals for a skill; integrating or folding in an external source; updating skills from upstream. DO NOT skip because \"it's only a script change\" or \"only a workflow tweak\" — load first, lightweight checks are cheap."
 argument-hint: "[skill name, path, or 'update']"
 ---
 
@@ -10,7 +10,7 @@ Create, audit, improve, and update Claude Code skills.
 
 ## When to Use
 
-- **ANY time any file within a skill directory** (`~/.claude/skills/*/`) **is being edited** — not just SKILL.md, but also scripts, references, workflows, and other skill files. Load this skill first so lightweight checks apply automatically.
+- **Before ANY Read/Edit/Write on a file under `~/.claude/skills/*/`** — `SKILL.md`, `scripts/`, `workflows/`, `references/`, `evals/`, `assets/`, `provenance.yml`, etc. Load first; the Lightweight Mode checks are cheap and run inline.
 - Creating a brand new Claude Code skill
 - Auditing a skill for quality issues
 - Fixing broken frontmatter or references
