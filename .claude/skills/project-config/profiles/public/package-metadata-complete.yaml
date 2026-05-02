@@ -4,14 +4,14 @@ description: The project's manifest fills in discoverability/governance fields
 notes: |
   Distinct from package-metadata, which only checks the BASIC fields.
   This standard verifies discoverability/governance metadata: keywords
-  or topics, author/maintainer, bugs URL, homepage URL, contributors,
-  etc. — fields that affect how the package surfaces on
-  registries and how users find help.
+  or topics, author/maintainer, bugs URL, homepage URL, etc. — fields
+  that affect how the package surfaces on registries and how users find
+  help.
 check:
   prompt: |
     Verify that the project at $PROJECT_ROOT has a manifest that fills
     in discoverability and governance fields beyond the bare minimum.
     Determine the manifest type, then check for: keywords/topics,
-    author/maintainer, bugs URL, homepage URL, contributors, and Report
-    met (with the fields populated) or unmet (with the missing or
-    placeholder fields).
+    author/maintainer, bugs URL, homepage URL, and Report met (with
+    the fields populated) or unmet (with the missing or placeholder
+    fields).
