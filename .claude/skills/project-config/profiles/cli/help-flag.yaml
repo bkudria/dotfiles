@@ -1,0 +1,31 @@
+required: true
+description: Both `-h` and `--help` print non-trivial usage output, including for any subcommands.
+notes: |
+  clig.dev: "These all show help — myapp, myapp --help, myapp -h."
+  Both short and long forms must work, and if the CLI has subcommands,
+  `myapp sub --help` and `myapp sub -h` must work too. "Non-trivial"
+  means the output describes purpose, lists at least some flags, or
+  points to other docs — not an empty banner.
+
+  Detect subcommands via the manifest's CLI library (clap, cobra,
+  commander, click, argparse subparsers, thor, oclif, dispatch, etc.)
+  or from running `<cli> --help` and parsing the COMMANDS section.
+  If the CLI has no subcommands, the per-subcommand requirement
+  trivially holds.
+
+  Required because a CLI that fails `--help` is fundamentally broken
+  for new users — it's the universal first interaction.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT responds to both `-h` and
+    `--help` with non-trivial usage output. Locate the entry point.
+    If cheap to invoke, run `<cli> --help` and `<cli> -h` and
+    inspect the output; otherwise inspect source for both flag
+    handlers. Detect any subcommands (from the CLI library used)
+    and verify each one also responds to `--help` and `-h` (e.g.,
+    `<cli> sub --help`). "Non-trivial" means the output describes
+    purpose, lists at least some flags, or points to other docs
+    — not just an empty banner. Report met (with the entry point,
+    evidence of `-h`/`--help` for the top level, and a count of
+    subcommands verified) or unmet (with which flag form or
+    subcommand path is missing or returns only a stub).

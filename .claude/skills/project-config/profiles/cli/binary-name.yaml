@@ -1,0 +1,45 @@
+required: false
+description: The binary name(s) shipped by the project use lowercase letters/digits/dashes only and don't collide with POSIX/coreutils commands.
+notes: |
+  clig.dev N2-N5: "Lowercase letters; dashes only if needed. No
+  uppercase. Don't collide with established commands (the
+  ImageMagick/Windows `convert` cautionary tale)."
+
+  Sources of the binary name vary by ecosystem:
+  - `package.json` `bin` field (object keys or sole filename)
+  - `Cargo.toml` `[[bin]]` `name`
+  - `pyproject.toml` `[project.scripts]` keys
+  - `gemspec` `executables`
+  - files in `bin/` or `exe/`
+  - Makefile install targets that drop into PATH locations
+
+  Each emitted name should match `^[a-z][a-z0-9-]*$` and not
+  shadow a POSIX or commonly-installed coreutils command. Prompt-
+  based because the manifest formats vary widely and the canonical
+  name lives in language-specific config.
+
+  Default severity is SUGG because rename-after-release is hard
+  and many established CLIs predate this guidance. New projects
+  should pin to FAIL.
+check:
+  prompt: |
+    Verify that the binary name(s) shipped by the project at
+    $PROJECT_ROOT use lowercase letters, digits, and dashes only,
+    and do not collide with POSIX or coreutils commands. Detect
+    binary names from the language manifest:
+    - `Cargo.toml` `[[bin]]` `name` field,
+    - `package.json` `bin` (object keys or sole filename),
+    - `pyproject.toml` `[project.scripts]` keys,
+    - gemspec `executables`,
+    - files in `bin/` or `exe/`,
+    - Makefile install targets dropping into `$(PREFIX)/bin`.
+
+    For each name, verify (1) it matches `^[a-z][a-z0-9-]*$`,
+    and (2) it is not in the set of POSIX utilities or common
+    coreutils (`ls`, `cp`, `mv`, `rm`, `cat`, `grep`, `find`,
+    `awk`, `sed`, `head`, `tail`, `sort`, `uniq`, `cut`, `wc`,
+    `tar`, `gzip`, `convert`, `link`, `test`, `time`, `which`,
+    `tr`, `xargs`, `tee`, `diff`, `patch`, `make`, `git`, etc.).
+    Report met (with the binary name(s) and a note that no
+    collision was found) or unmet (with the name(s) that violate
+    naming rules or collide with established commands).

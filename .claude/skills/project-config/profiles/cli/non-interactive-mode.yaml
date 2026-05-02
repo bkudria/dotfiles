@@ -1,0 +1,38 @@
+required: false
+description: The CLI is fully usable in non-interactive contexts via `--no-input` or per-prompt flag equivalents.
+notes: |
+  clig.dev IN3-IN4 + A11: "Support `--no-input`. When `--no-input`
+  is set and input is required, fail immediately and tell the user
+  how to provide it. Never *require* a prompt — always provide a
+  flag/arg path for non-interactive use." CI, scripts, and headless
+  systems cannot answer prompts; a CLI that requires interaction is
+  unusable in those environments.
+
+  Acceptable forms: a global `--no-input` / `--non-interactive` /
+  `--yes` flag that disables all prompts and surfaces a clear error
+  when input is missing; OR every interactive prompt has a
+  corresponding flag, env var, or arg that supplies the value.
+
+  Companion to `cli/interactive-tty-gating`: this standard ensures
+  a non-interactive *path* exists; that one ensures the runtime
+  *picks* the right path automatically.
+
+  Default severity is SUGG because some CLIs are interactive-by-
+  design (REPLs, wizards) and the requirement does not apply. CLIs
+  intended for CI/scripting should pin via `required:`.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT can be used in fully
+    non-interactive contexts. Detect interactive prompts in source
+    — `inquirer`, `prompts`, `gum`, `read -p`, `tty.gets`,
+    `input()`, `dialoguer`, `Console.ReadLine`, `bufio.NewScanner
+    (os.Stdin)`, etc. If no interactive prompts exist, report met.
+    Otherwise verify one of: (1) a global `--no-input` /
+    `--non-interactive` / `--yes` flag that disables prompts and
+    produces a clear error when input is missing, OR (2) each
+    interactive prompt has a corresponding flag/env/arg path that
+    supplies the value without prompting. The verifier may run the
+    CLI with stdin redirected from `/dev/null` and confirm it does
+    not hang or silently degrade. Report met (with the mechanism
+    and a one-line summary) or unmet (listing the prompts that
+    have no non-interactive path).

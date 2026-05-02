@@ -1,0 +1,32 @@
+required: false
+description: Interactive prompts only run when stdin is a TTY; non-TTY input fails fast with instructions.
+notes: |
+  clig.dev IN1-IN2: "Only prompt / use interactive elements if
+  stdin is a TTY. When stdin is non-TTY and input is required,
+  error out with instructions on which flag to pass." Without this
+  gate, scripts that pipe input or redirect stdin will hang on a
+  hidden prompt — one of the most frustrating CLI failure modes
+  because there's no visible signal to debug.
+
+  Companion to `cli/non-interactive-mode`: that standard ensures a
+  non-interactive *path* exists; this one ensures the runtime
+  *picks* the right path automatically. Trivially met for CLIs with
+  no prompts.
+
+  Default severity is SUGG. Pin to FAIL when running the CLI in CI
+  is a primary use case.
+check:
+  prompt: |
+    Verify that interactive prompts in the CLI at $PROJECT_ROOT
+    only fire when stdin is a TTY. Inspect source: each prompt
+    invocation should be guarded by an `isatty(stdin)` /
+    `STDIN.tty?` / `process.stdin.isTTY` / `IsTerminal(os.Stdin.Fd())`
+    check, OR the prompting library used must itself gate on TTY.
+    When stdin is not a TTY, the CLI should either (a) fall back
+    to a flag/env value, or (b) error with a message that tells
+    the user which flag to pass — not silently hang. The verifier
+    may run `echo "" | <cli>` or `<cli> < /dev/null` if cheap, and
+    confirm no prompt blocks. If the CLI has no prompts, report
+    met. Report met (with the gating mechanism and behaviour on
+    non-TTY input) or unmet (with the prompt sites that lack TTY
+    gating or that hang silently when stdin is redirected).

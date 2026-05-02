@@ -1,0 +1,37 @@
+required: false
+description: Network calls have explicit, sensible default timeouts.
+notes: |
+  clig.dev R7: "Make things time out (sensible default timeouts on
+  network ops)." Default HTTP client timeouts in many languages are
+  effectively unbounded:
+  - Python `requests.get(...)` with no `timeout=` waits forever,
+  - Go `net/http.Client{}` zero-valued has no timeout,
+  - Node `fetch()` has no default timeout (until experimental
+    AbortSignal.timeout is wired up),
+  - Ruby `Net::HTTP` defaults are very long.
+
+  A CLI that hangs forever on a slow proxy is broken in CI and on
+  flaky networks. Acceptable: a default connect+read timeout in
+  the low seconds-to-tens-of-seconds range, configurable via flag
+  or env. Long-running operations (downloads, streams) should use
+  streaming reads with per-chunk timeouts rather than a single
+  whole-request cap.
+
+  Default severity is SUGG. CLIs that are heavy network clients
+  (deploy tools, API clients, package managers) should pin to FAIL
+  — a hang in a release pipeline is expensive.
+check:
+  prompt: |
+    Verify that network calls in the CLI at $PROJECT_ROOT have
+    explicit default timeouts. First detect whether the CLI does
+    network I/O — search for `http.`, `fetch(`, `requests.`,
+    `urllib`, `net/http`, `reqwest`, `axios`, `Faraday`, `HTTParty`,
+    `URI.open`, `Net::HTTP`, `hyper::Client`, etc. If no network
+    I/O is present, report met with that fact. Otherwise, inspect
+    the HTTP client construction for explicit timeout config
+    (request timeout, connect timeout, read timeout). The standard
+    meets if every HTTP client created has at least one explicit
+    timeout in the seconds-to-tens-of-seconds range; default-`None`
+    or default-zero (unbounded) constructions are unmet. Report
+    met (with the client(s) and the timeout values observed) or
+    unmet (listing the call sites that construct unbounded clients).

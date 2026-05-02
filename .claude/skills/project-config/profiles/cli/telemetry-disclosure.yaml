@@ -1,0 +1,43 @@
+required: false
+description: If the CLI phones home, collection is opt-in or opt-out is disclosed and easy to disable.
+notes: |
+  clig.dev AN1-AN5: "Never phone home usage / crash data without
+  consent. If you collect data, be explicit about: what, why,
+  anonymity, anonymization method, and retention period. Prefer
+  opt-in. If opt-out, disclose clearly on first run AND on the
+  website, and make it easy to disable. Document collection in
+  FAQs / docs."
+
+  Trivially met if the CLI does not phone home at all. Otherwise
+  the bar is: a documented disclosure (README/docs), a one-flag
+  or one-env disable, and either a true opt-in (no first-run
+  collection) or a clear first-run banner.
+
+  Default severity is SUGG because most CLIs don't have telemetry.
+  Projects that collect any data should pin to FAIL — the audit's
+  job here is to keep telemetry honest as features are added over
+  time.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT either does not phone
+    home, or — if it does — discloses collection and provides
+    easy opt-out (or is opt-in by default). Detect telemetry:
+    search source for analytics SDKs (segment, mixpanel,
+    amplitude, posthog, sentry, rollbar, bugsnag, datadog,
+    honeycomb), HTTP POSTs to telemetry endpoints, periodic "ping"
+    calls, or first-run network calls unrelated to the CLI's
+    declared function.
+
+    If no telemetry is detected, report met. Otherwise verify:
+    (1) README/docs include a telemetry section covering what data
+        is collected, why, anonymization, and retention,
+    (2) a clearly-named flag (`--no-telemetry`, `--telemetry=off`,
+        `--no-track`) or env var (`<APP>_TELEMETRY=0`,
+        `DO_NOT_TRACK=1`) disables collection,
+    (3) collection is either opt-in (off by default, requires
+        explicit user action) OR a first-run banner discloses
+        collection and the disable mechanism.
+
+    Report met (with the disclosure location, the opt mechanism,
+    and the default state) or unmet (listing the missing items —
+    typically silent collection or no documented disable).

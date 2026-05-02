@@ -1,0 +1,36 @@
+required: false
+description: Subcommands share global flags consistently and have no confusable name pairs.
+notes: |
+  clig.dev S3: "Be consistent across subcommands." Concretely: a
+  global flag like `--quiet`, `--no-color`, `--json`, or `--config`
+  should behave the same regardless of which subcommand it is passed
+  under. S6: avoid confusable subcommand pairs (`update` vs
+  `upgrade`, `info` vs `show`, `delete` vs `remove` with no
+  documented difference) — they trap users.
+
+  Trivially met if the CLI has no subcommands. Otherwise the
+  verifier inspects the subcommand tree (CLI library declaration
+  or `<cli> --help`) and checks both axes: shared-flag parity
+  (no `--quiet` here and `--silent` there) and absence of
+  confusable noun/verb pairs.
+
+  Default severity is SUGG because subcommand structure is a design
+  decision; small CLIs frequently make local trade-offs. CLIs with
+  larger surface areas (10+ subcommands) should pin to FAIL.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT, if it has subcommands,
+    treats global flags consistently across them and avoids
+    confusable subcommand names. Detect subcommands from the CLI
+    library declarations or by running `<cli> --help` and parsing
+    the COMMANDS section. For each global flag (e.g., `--quiet`,
+    `--verbose`, `--no-color`, `--json`, `--config`, `--output`),
+    confirm the name is consistent across subcommands (no `--quiet`
+    here and `--silent` there) and that, where supported, behaves
+    the same way. Scan the subcommand list for confusable pairs
+    (e.g., `update`/`upgrade`, `list`/`show`, `delete`/`remove`
+    with no documented difference). If the CLI has no subcommands,
+    report met with that fact. Otherwise report met (with the
+    subcommand count and a one-line summary of consistency) or
+    unmet (naming the inconsistencies — flag names that drift, or
+    confusable subcommand pairs).

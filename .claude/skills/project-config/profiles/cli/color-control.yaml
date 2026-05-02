@@ -1,0 +1,45 @@
+required: false
+description: Color output auto-disables off-TTY, honors `NO_COLOR` and `TERM=dumb`, and a `--no-color` flag is provided.
+notes: |
+  Combined standard covering clig.dev O15-O18: color must be
+  disabled automatically when stdout is not a TTY (O15), when
+  `NO_COLOR` is set to any non-empty value (O16), and when
+  `TERM=dumb` (O17); a `--no-color` flag (or equivalent like
+  `--color=never` / `--color=auto|always|never`) must be provided
+  as an explicit override (O18).
+
+  Trivially met if the CLI emits no ANSI escapes at all (some
+  output filters, some CI-only tools). Otherwise all four behaviours
+  need to hold. The verifier may run the CLI under
+  `<cli> | cat`, `NO_COLOR=1 <cli>`, `TERM=dumb <cli>`, and
+  `<cli> --no-color` to observe; or inspect the color library's
+  configuration when it centralises these checks (most modern
+  color libraries already honor `NO_COLOR` and TTY detection).
+
+  Default severity is SUGG because output-only or color-free CLIs
+  are trivially compliant. Color-using CLIs should pin via
+  `required: [cli/color-control]` — broken color in pipelines is a
+  classic UX trap (garbled logs in CI, walls of escapes in pagers).
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT controls color output
+    across four channels: (1) auto-disable when stdout is not a
+    TTY, (2) auto-disable when `NO_COLOR` env var is set to any
+    non-empty value, (3) auto-disable when `TERM=dumb`, and (4) a
+    `--no-color` flag (or equivalent like `--color=never` or
+    `--color=auto|always|never`) overrides to disable.
+
+    First determine whether the CLI uses color at all — search
+    source for ANSI escape codes (`\033[`, `\x1b[`) and color
+    libraries (chalk, colorette, picocolors, ansi_term, colored,
+    termcolor, owo-colors, fmt color helpers, click.style,
+    rich.console, colorama, Rainbow, Pastel, etc.). If the CLI
+    emits no color, report met with that fact.
+
+    Otherwise verify each channel by inspecting the color library's
+    configuration and any explicit gates. The verifier may run the
+    CLI in each mode if it can be invoked cheaply. Report met (with
+    the color library/mechanism and a confirmation for each channel)
+    or unmet (listing the specific channels that fail — e.g.,
+    "honors NO_COLOR but does not auto-disable when piped, and no
+    --no-color flag").

@@ -1,0 +1,29 @@
+required: false
+description: "`--help` output includes program description, an example invocation, flag descriptions, and a docs/support URL."
+notes: |
+  clig.dev's "Help" section enumerates four staples: a one-line
+  program description, example invocations (lead with examples per
+  H10), flag descriptions (unless many — in which case point to a
+  longer reference), and a link to web documentation, support, or
+  the source repository.
+
+  Most modern CLI libraries surface description, examples, and the
+  flag table by default given decent metadata; the URL is the most
+  commonly missed item. Format flexibility is intentional — a single
+  concise example block at the top satisfies the bar; a sprawling
+  cheat sheet is fine too.
+
+  Default severity is SUGG because layout choices vary widely and
+  some CLIs intentionally minimise help output. Projects that want
+  enforced help quality should pin via `required: [cli/help-content]`.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT emits a `--help` output
+    that contains: (1) a one-line program description, (2) at least
+    one concrete example invocation, (3) descriptions of available
+    flags, and (4) a URL to web documentation, support, or the
+    source repo. Run `<cli> --help` if cheap; otherwise inspect the
+    help-string declarations in source (the CLI library's metadata).
+    Report met (with one short quote per item or a confirmation
+    that the item is present) or unmet (listing the specific items
+    missing).

@@ -1,0 +1,40 @@
+required: false
+description: A flag is provided for machine-readable output (`--json`, `--yaml`, `--format=json|yaml`, or equivalent).
+notes: |
+  clig.dev O5-O6 recommends `--json` for valid, machine-readable
+  output suitable for piping to other tools (`<cli> --json | jq ...`).
+  YAML output serves the same purpose for ecosystems that prefer
+  YAML (Kubernetes-adjacent CLIs, Ansible, infrastructure tooling).
+  Some CLIs offer `--format=json|yaml|text` instead of separate
+  flags; that's equally acceptable.
+
+  The standard meets if any one of `--json`, `--yaml`, or a
+  `--format` flag accepting a structured format (json|yaml|toml)
+  is supported. Output should be valid in the declared format
+  (round-trips through `jq`, `yq`, or equivalent without errors).
+  For CLIs whose primary output is already line-based and pipeable
+  (one-record-per-line `--plain` style), a `--plain` flag is
+  equally acceptable — line-orientation is itself a stable machine
+  interface.
+
+  Default severity is SUGG because not every CLI produces structured
+  output worth serialising. CLIs that ship API-like or query-like
+  responses (kubectl, gh, aws) should pin to FAIL — scripting
+  against human-readable output is brittle and forces consumers
+  into fragile awk/grep tricks.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT provides a machine-readable
+    output mode via one of: `--json`, `--yaml`, `--format=<json|yaml|
+    toml>`, or `--plain` (line-based tabular). Inspect source for
+    the flag declarations and the formatting code paths. If cheap
+    to invoke, run the CLI with the flag and confirm the output
+    parses (e.g., `<cli> ... --json | jq -e .`,
+    `<cli> ... --yaml | yq -e .`) or — for `--plain` — that each
+    line is a self-contained record. For CLIs whose only output is
+    already trivially pipeable (filenames, IDs, single-value queries),
+    report met with that fact and note that an explicit flag is not
+    required. Report met (with the flag name, the format(s)
+    supported, and a one-line confirmation that output parses) or
+    unmet (with the kinds of output the CLI produces and a
+    recommendation for which structured-output flag would suit).

@@ -1,0 +1,33 @@
+required: false
+description: A `-q` / `--quiet` flag (or verbosity axis) suppresses non-essential output.
+notes: |
+  clig.dev O8: "Provide -q/--quiet to suppress non-essential output."
+  Useful for scripted invocation, cron jobs, and CI logs where a
+  CLI's status chatter is noise. Quiet does not mean silent —
+  errors should still go to stderr, and the standard exit-code
+  contract still holds; only progress, hints, and informational
+  messages are suppressed.
+
+  Acceptable forms: `-q`, `--quiet`, `--silent`, or a verbosity
+  axis like `-v`/`-vv`/`-vvv` whose default already produces no
+  chatter. Mutually exclusive `--quiet`/`--verbose` is the most
+  common shape.
+
+  Default severity is SUGG because terse CLIs (and CLIs whose only
+  output is the result itself) effectively run in quiet mode by
+  default and don't need an explicit flag.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT provides a flag to
+    suppress non-essential output. Acceptable forms: `-q`/`--quiet`,
+    `--silent`, or a verbosity axis whose minimum already produces
+    no chatter. Inspect source for the flag declaration. If cheap
+    to invoke, confirm `<cli> -q` (or equivalent) on a typical
+    successful operation produces less output than the default.
+    The flag should not suppress error output to stderr — only
+    status, progress, and informational messages. If the CLI's
+    default output is already minimal (only the requested data,
+    no chatter), report met with that fact. Report met (with the
+    flag name and what it suppresses) or unmet (with what was
+    searched for and a note on whether default output is already
+    minimal enough that a quiet flag is unnecessary).
