@@ -1,0 +1,37 @@
+required: false
+description: The CLI ships scrut Markdown snapshot tests that pass.
+notes: |
+  scrut is a Rust-binary CLI snapshot tester
+  (https://github.com/facebookincubator/scrut). Tests are Markdown files
+  (`.md`) containing ` ```scrut ` code fences that capture commands and
+  expected output. The upstream scrut skill deprecates the legacy Cram
+  `.t` format in favour of Markdown, so this standard only counts
+  Markdown tests; projects with only `.t` files are unmet with a
+  migration nudge.
+
+  Discovery is layout-flexible: tests may live under any path the project
+  conventionally uses (e.g. `tests/`, `examples/`, `counter-examples/`,
+  `cli-tests/`) or be invoked from a Rakefile, Makefile, package.json
+  script, or CI config that calls `scrut test`. The standard verifies
+  both presence (at least one Markdown file with a `scrut` fence) and
+  that running `scrut test` against the discovered root(s) exits 0.
+
+  Default severity is SUGG because scrut is one of several valid CLI
+  testing choices. Projects that rely on scrut should pin this to FAIL
+  in their project.yaml via `required: [cli/scrut-tests]`. Projects on
+  another framework can disable it via the `disabled:` map with a reason.
+check:
+  prompt: |
+    Verify that the CLI at $PROJECT_ROOT ships scrut snapshot tests and
+    that they pass. scrut tests are Markdown files (`.md`) containing
+    ` ```scrut ` code fences; do not count Cram-format `.t` files (the
+    upstream tooling deprecates them). Discover test files by searching
+    conventional locations (`tests/`, `examples/`, `counter-examples/`,
+    `cli-tests/`) and by inspecting any Rakefile, Makefile, package.json
+    scripts, or CI workflow that invokes `scrut test`. Once test roots
+    are identified, run `scrut test` against them without modifying the
+    working tree (do not pass `--update` or run `scrut update`). Report
+    met (with the test root paths and the pass count) or unmet (with
+    what was looked for and not found, or — if tests ran but failed —
+    the failure summary; mention any `.t` files encountered as a
+    migration suggestion).
