@@ -45,6 +45,8 @@ run_collect_required() {
 }
 
 # --- Test 1: Node.js project (package.json) detected and surfaced ---
+# Detected-context block is baked into the per-entry prompt file (read via
+# prompt_path), not into the JSON.
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
@@ -52,14 +54,17 @@ EOF
 cat > "$proj/package.json" <<'EOF'
 {"name": "x", "version": "0.0.0"}
 EOF
-out=$(run_collect_required "$proj")
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+out=$(cat "$state/collect-required.json")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
-prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
+prompt_path=$(printf '%s' "$out" | jq -r '.pending[0].prompt_path')
+prompt=$(cat "$prompt_path" 2>/dev/null || echo "")
 assert_contains "project_context names Node.js" "Node.js" "$context"
-assert_contains "rendered_prompt carries detected-context block" "Detected project context" "$prompt"
-assert_contains "rendered_prompt names Node.js"          "Node.js"                     "$prompt"
-assert_contains "rendered_prompt names primary manifest" "package.json"                "$prompt"
-rm -rf "$proj"
+assert_contains "prompt file carries detected-context block" "Detected project context" "$prompt"
+assert_contains "prompt file names Node.js"          "Node.js"                     "$prompt"
+assert_contains "prompt file names primary manifest" "package.json"                "$prompt"
+rm -rf "$proj" "$state"
 
 # --- Test 2: Node + pnpm-lock.yaml → package manager identified ---
 proj=$(mktemp -d)
@@ -70,10 +75,13 @@ cat > "$proj/package.json" <<'EOF'
 {"name": "x", "version": "0.0.0"}
 EOF
 touch "$proj/pnpm-lock.yaml"
-out=$(run_collect_required "$proj")
-prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
-assert_contains "rendered_prompt names pnpm package manager" "pnpm" "$prompt"
-rm -rf "$proj"
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+out=$(cat "$state/collect-required.json")
+prompt_path=$(printf '%s' "$out" | jq -r '.pending[0].prompt_path')
+prompt=$(cat "$prompt_path" 2>/dev/null || echo "")
+assert_contains "prompt file names pnpm package manager" "pnpm" "$prompt"
+rm -rf "$proj" "$state"
 
 # --- Test 3: Ruby project (Gemfile) ---
 proj=$(mktemp -d)
@@ -120,20 +128,23 @@ assert_contains "project_context names Go" "Go" "$context"
 rm -rf "$proj"
 
 # --- Test 7: Project with no recognised manifest → context_block is empty,
-#             rendered_prompt has no "Detected project context" header ---
+#             prompt file has no "Detected project context" header ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
 EOF
-out=$(run_collect_required "$proj")
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+out=$(cat "$state/collect-required.json")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
-prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
+prompt_path=$(printf '%s' "$out" | jq -r '.pending[0].prompt_path')
+prompt=$(cat "$prompt_path" 2>/dev/null || echo "")
 assert_eq "project_context is empty when no manifest" "" "$context"
-assert_not_contains "rendered_prompt has no context header" "Detected project context" "$prompt"
-rm -rf "$proj"
+assert_not_contains "prompt file has no context header" "Detected project context" "$prompt"
+rm -rf "$proj" "$state"
 
 # --- Test 8: Detection happens once; same context appears in collect-required.json
-#             top-level field and in every pending rendered_prompt across both scopes. ---
+#             top-level field and in every pending entry's prompt file across both scopes. ---
 mkdir -p "$SKILL_TMP/profiles/probe2"
 cat > "$SKILL_TMP/profiles/probe2/manual2.yaml" <<'EOF'
 required: false
@@ -155,10 +166,14 @@ CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope sugge
 combined=$(jq -n --slurpfile r "$state/collect-required.json" --slurpfile s "$state/collect-suggested.json" \
   '{pending: ($r[0].pending + $s[0].pending)}')
 pending_count=$(printf '%s' "$combined" | jq '.pending | length')
-all_have_context=$(printf '%s' "$combined" \
-  | jq '[.pending[] | select(.rendered_prompt | contains("Detected project context"))] | length')
 assert_eq "two prompt-based pending entries (combined across scopes)" "2" "$pending_count"
-assert_eq "both pending prompts include the context block"            "2" "$all_have_context"
+all_have_context=0
+while IFS= read -r ppath; do
+  if [[ -n "$ppath" ]] && grep -q "Detected project context" "$ppath" 2>/dev/null; then
+    all_have_context=$((all_have_context + 1))
+  fi
+done < <(printf '%s' "$combined" | jq -r '.pending[].prompt_path')
+assert_eq "both pending entries' prompt files include the context block" "2" "$all_have_context"
 rm -rf "$proj" "$state"
 rm -rf "$SKILL_TMP/profiles/probe2"
 

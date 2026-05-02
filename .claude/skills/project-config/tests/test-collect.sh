@@ -157,25 +157,35 @@ assert_eq "optional resolves SUGG when missing & !required" "SUGG" "$opt_status"
 rm -rf "$proj"
 
 # --- Test 4: prompt-based standard goes to pending in --scope required ---
+# Prompt content lives in a per-entry file (state-dir/prompts/<id>.txt); the
+# pending entry carries prompt_path, NOT rendered_prompt.
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker" "$proj/.opt"
-out=$(run_collect_scope "$proj" required)
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+out=$(cat "$state/collect-required.json")
 pending_count=$(printf '%s' "$out" | jq '.pending | length')
 pending_id=$(printf '%s' "$out" | jq -r '.pending[0].id')
 pending_required=$(printf '%s' "$out" | jq -r '.pending[0].required')
-pending_prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
+pending_prompt_path=$(printf '%s' "$out" | jq -r '.pending[0].prompt_path')
+pending_has_prompt_path=$(printf '%s' "$out" | jq '.pending[0] | has("prompt_path")')
+pending_has_rendered_prompt=$(printf '%s' "$out" | jq '.pending[0] | has("rendered_prompt")')
 manual_in_resolved=$(printf '%s' "$out" | jq '[.resolved[] | select(.id=="testfx/manual")] | length')
 assert_eq "exactly one pending entry" "1" "$pending_count"
 assert_eq "pending id is correct" "testfx/manual" "$pending_id"
 assert_eq "pending required flag carried" "true" "$pending_required"
-assert_contains "rendered_prompt has \$PROJECT_ROOT substituted" "$proj" "$pending_prompt"
+assert_eq "pending entry has prompt_path field" "true" "$pending_has_prompt_path"
+assert_eq "pending entry does NOT have rendered_prompt field" "false" "$pending_has_rendered_prompt"
+assert_contains "prompt_path points under prompts/ in state-dir" "/prompts/" "$pending_prompt_path"
+prompt_contents=$(cat "$pending_prompt_path" 2>/dev/null || echo "")
+assert_contains "prompt file has \$PROJECT_ROOT substituted" "$proj" "$prompt_contents"
 assert_eq "manual standard NOT in resolved" "0" "$manual_in_resolved"
 has_response_path=$(printf '%s' "$out" | jq '.pending[0] | has("response_path")')
 assert_eq "state-dir collect includes response_path" "true" "$has_response_path"
-rm -rf "$proj"
+rm -rf "$proj" "$state"
 
 # --- Test 5: disabled standards omitted + counted (regardless of scope) ---
 proj=$(mktemp -d)
@@ -428,5 +438,45 @@ out=$(run_collect_scope "$proj" required)
 suggested_total=$(printf '%s' "$out" | jq -r '.suggested_total')
 assert_eq "disabled effective-suggested standards excluded from suggested_total" "0" "$suggested_total"
 rm -rf "$proj"
+
+# --- Test SZ1: collect-<scope>.json size is bounded by metadata, not prompt body.
+#               With 50 prompt-based standards each carrying a ~1500-char prompt
+#               body, the index file must remain well under the Read tool's 25k
+#               token cap (~100k bytes for ASCII; we assert < 60k for headroom). ---
+mkdir -p "$SKILL_TMP/profiles/big"
+big_body=""
+# Build a ~1500-char body using a deterministic filler.
+for _ in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15; do
+  big_body+="Verify standard at \$PROJECT_ROOT and confirm it meets the bar. "
+done
+for i in $(seq 1 50); do
+  cat > "$SKILL_TMP/profiles/big/std-$i.yaml" <<EOF
+required: false
+description: "Big test standard $i."
+check:
+  prompt: |
+    $big_body
+EOF
+done
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [big]
+EOF
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope suggested >/dev/null
+size=$(wc -c < "$state/collect-suggested.json" | tr -d ' ')
+[[ $size -lt 60000 ]] && under_limit=true || under_limit=false
+assert_eq "collect-suggested.json under 60k bytes for 50 prompt standards" "true" "$under_limit"
+rm -rf "$proj" "$state"
+rm -rf "$SKILL_TMP/profiles/big"
+
+# --- Test W1: workflows/audit.md GATE references prompt_path (per-entry file
+#              format) instead of the obsolete rendered_prompt field. ---
+WORKFLOW="$REAL_SKILL_DIR/workflows/audit.md"
+prompt_path_count=$(grep -c "prompt_path" "$WORKFLOW" || true)
+[[ $prompt_path_count -ge 2 ]] && enough_prompt_path=true || enough_prompt_path=false
+assert_eq "workflows/audit.md mentions prompt_path at least twice" "true" "$enough_prompt_path"
+old_gate_present=$(grep -c "single Read is the canonical pre-dispatch inspection" "$WORKFLOW" || true)
+assert_eq "workflows/audit.md has dropped the obsolete 'single Read' GATE wording" "0" "$old_gate_present"
 
 summary

@@ -149,7 +149,9 @@ state=$("$RUNNER" --init)
 assert_eq "--init path does not contain literal XXXXXX" "1" "$no_literal_x"
 rm -rf "$state"
 
-# --- Test 9: --collect stamps response_path on each pending entry ---
+# --- Test 9: --collect stamps response_path and prompt_path on each pending
+#             entry; the prompt file at prompt_path embeds the directive
+#             (mentions response_path and the Write tool). ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
@@ -159,9 +161,13 @@ state=$("$RUNNER" --init)
 CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 response_path=$(jq -r '.pending[] | select(.id=="testfx/manual") | .response_path' "$state/collect-required.json")
 assert_eq "response_path equals state-dir/responses/<id>.txt" "$state/responses/testfx/manual.txt" "$response_path"
-rendered_prompt=$(jq -r '.pending[] | select(.id=="testfx/manual") | .rendered_prompt' "$state/collect-required.json")
-assert_contains "rendered_prompt mentions response_path" "$state/responses/testfx/manual.txt" "$rendered_prompt"
-assert_contains "rendered_prompt instructs Write tool use" "Write" "$rendered_prompt"
+prompt_path=$(jq -r '.pending[] | select(.id=="testfx/manual") | .prompt_path' "$state/collect-required.json")
+assert_eq "prompt_path equals state-dir/prompts/<id>.txt" "$state/prompts/testfx/manual.txt" "$prompt_path"
+[[ -f "$prompt_path" ]] && prompt_exists=true || prompt_exists=false
+assert_eq "prompt file exists at prompt_path" "true" "$prompt_exists"
+prompt_contents=$(cat "$prompt_path" 2>/dev/null || echo "")
+assert_contains "prompt file mentions response_path" "$state/responses/testfx/manual.txt" "$prompt_contents"
+assert_contains "prompt file instructs Write tool use" "Write" "$prompt_contents"
 rm -rf "$proj" "$state"
 
 # --- Test 10: --merge accepts response file containing only raw JSON (no fences) ---

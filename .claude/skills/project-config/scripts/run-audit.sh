@@ -103,9 +103,10 @@ init() {
 # ───── project-context detection ────────────────────────────────────────────
 # Detect language/runtime + (when applicable) package manager from manifest
 # files in the project root. Emits a multi-line "Detected project context"
-# block that the runner prepends to every prompt-based rendered_prompt, so
-# sub-agents skip the redundant discovery preamble. Emits empty string when
-# no manifest matches; the runner then skips the header (graceful fallback).
+# block that the runner bakes into every prompt-based standard's rendered
+# prompt file (state-dir/prompts/<id>.txt), so sub-agents skip the redundant
+# discovery preamble. Emits empty string when no manifest matches; the runner
+# then skips the header (graceful fallback).
 
 detect_project_context() {
   local root="${1:-}"
@@ -351,8 +352,9 @@ $script_body" 2>&1)
 ${rendered}"
         fi
         if [[ "$effective_required" == "true" ]]; then req_bool=true; else req_bool=false; fi
-        local response_path directive
+        local response_path prompt_path directive
         response_path="$state_dir/responses/$id.txt"
+        prompt_path="$state_dir/prompts/$id.txt"
         directive="Verify the standard below. After verification, use the Write tool to save your verdict to this absolute path:
 
   $response_path
@@ -361,8 +363,10 @@ The file's contents must be exactly one JSON object: {\"met\": true|false, \"det
 
 "
         rendered="${directive}${rendered}"
-        pending_json=$(jq -c --arg id "$id" --argjson req "$req_bool" --argjson ir "$intrinsic_bool" --arg desc "$description" --arg p "$rendered" --arg rp "$response_path" \
-          '. + [{id:$id, required:$req, intrinsic_required:$ir, description:$desc, response_path:$rp, rendered_prompt:$p}]' <<<"$pending_json")
+        mkdir -p "$(dirname "$prompt_path")"
+        printf '%s' "$rendered" > "$prompt_path"
+        pending_json=$(jq -c --arg id "$id" --argjson req "$req_bool" --argjson ir "$intrinsic_bool" --arg desc "$description" --arg pp "$prompt_path" --arg rp "$response_path" \
+          '. + [{id:$id, required:$req, intrinsic_required:$ir, description:$desc, response_path:$rp, prompt_path:$pp}]' <<<"$pending_json")
       fi
     done < <(find "$pdir" -maxdepth 1 -type f -name '*.yaml' | sort)
   done <<<"$profiles"
