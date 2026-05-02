@@ -1,7 +1,7 @@
 ---
 name: project-config
-description: "Manage project standards compliance — audit existing projects, scaffold new ones, or check what standards apply. Triggers: \"audit this project\", \"project audit\", \"check compliance\", \"new project\", \"scaffold project\", \"project setup\"."
-argument-hint: "[audit|scaffold|check]"
+description: "Manage project standards compliance — audit existing projects or scaffold new ones. Triggers: \"audit this project\", \"project audit\", \"check compliance\", \"new project\", \"scaffold project\", \"project setup\"."
+argument-hint: "[audit|scaffold]"
 ---
 
 # Project Config
@@ -14,7 +14,6 @@ Each standard is a self-contained YAML file under `profiles/<profile>/`: it decl
 
 - Auditing an existing project's standards compliance
 - Scaffolding a new project with the right structure
-- Checking what standards a project should meet
 - Creating or updating a project.yaml file
 - Setting up a new project from scratch ("new project", "project setup")
 
@@ -24,7 +23,6 @@ Each standard is a self-contained YAML file under `profiles/<profile>/`: it decl
 |------|---------|--------|
 | **Audit** | "audit this project", "project audit", "check compliance" | Read `workflows/audit.md` |
 | **Scaffold** | "new project", "scaffold project" | Read `workflows/scaffold.md` |
-| **Check** | "project config", "what standards" | Read `project.yaml`, list selected profiles + disabled entries, summarize what would be audited |
 
 ## Dependencies
 

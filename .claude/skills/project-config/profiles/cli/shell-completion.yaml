@@ -13,5 +13,4 @@ check:
     (search the codebase, --help output, or docs) or static completion
     files in conventional installation paths. Report met (with the
     mechanism — built-in subcommand or static files — and where it is
-    documented) or unmet (with what was looked for and a suggestion of
-    which mechanism would suit this CLI).
+    documented) or unmet (with what was looked for and not found).

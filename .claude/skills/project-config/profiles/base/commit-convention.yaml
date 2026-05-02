@@ -17,5 +17,4 @@ check:
     check commit messages, or a CONTRIBUTING.md section declaring the
     convention together with an enforcement mechanism. Report met
     (with the convention name if discoverable and the configuration
-    location) or unmet (with what was searched and a concrete next
-    step — e.g., "add commitlint config + husky commit-msg hook").
+    location) or unmet (with what was searched and not found).

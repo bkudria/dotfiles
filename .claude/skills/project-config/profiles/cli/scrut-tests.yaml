@@ -33,5 +33,4 @@ check:
     working tree (do not pass `--update` or run `scrut update`). Report
     met (with the test root paths and the pass count) or unmet (with
     what was looked for and not found, or — if tests ran but failed —
-    the failure summary; mention any `.t` files encountered as a
-    migration suggestion).
+    the failure summary; note any `.t` files encountered).

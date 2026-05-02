@@ -66,5 +66,5 @@ check:
     `~/.<app>/`, `~/.<app>cache/`, etc.) without an XDG fallback.
     Report met (with each applicable category, the resolution
     mechanism, and the resolved default) or unmet (listing the
-    specific category whose path is non-XDG and recommending the
-    XDG dir for it).
+    specific category whose path is non-XDG and the path it
+    currently uses).

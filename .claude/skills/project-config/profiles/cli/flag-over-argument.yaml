@@ -46,5 +46,4 @@ check:
     positional, no positionals, or only flags meet trivially.
     Report met (with the subcommand inventory and a one-line
     summary of which fall into each category) or unmet (listing
-    subcommands with non-obvious 2+ positional shapes that should
-    accept flags instead).
+    subcommands with non-obvious 2+ positional shapes).
