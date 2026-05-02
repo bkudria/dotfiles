@@ -1,0 +1,27 @@
+required: true
+description: At least one .allium specification file exists in the project.
+notes: |
+  Looks for *.allium files anywhere in the project up to depth 3,
+  skipping conventional vendor and build directories (.git,
+  node_modules, vendor, target, dist, build). Naturally covers the
+  conventional locations: project root, allium/, spec/, specs/,
+  docs/. Distinct from base/spec, which accepts any non-executable
+  specification document; allium/spec insists specifically on a
+  .allium artefact.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    found=$(find . -maxdepth 3 -type f -name "*.allium" \
+      -not -path "./.git/*" \
+      -not -path "./node_modules/*" \
+      -not -path "./vendor/*" \
+      -not -path "./target/*" \
+      -not -path "./dist/*" \
+      -not -path "./build/*" \
+      2>/dev/null | head -n 1)
+    if [[ -n "$found" ]]; then
+      echo "${found#./} exists"
+      exit 0
+    fi
+    echo "No .allium files found"
+    exit 1

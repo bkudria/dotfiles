@@ -76,6 +76,7 @@ The runner emits, in order:
 - A markdown table with three columns (`Standard`, `Status`, `Detail`) listing only `FAIL` and `SUGG` rows, sorted FAIL → SUGG, alphabetical by id within each bucket. PASS rows are intentionally omitted from the table — the per-status count line preserves the PASS total.
 - A blank line, then a per-status count: `X PASS, Y FAIL, Z SUGG`.
 - Optionally, a single line `N standards disabled in project.yaml` (omitted when N == 0).
+- Optionally, a "lock-in" suggestion block. When the audit completely passes (zero `FAIL`, zero `SUGG`) AND at least one PASSing standard is SUGG-style (its standard YAML has `required: false`) AND not already in the project's `required:` list, the runner appends a single sentence and a copy-pasteable YAML block listing those eligible IDs alphabetically. Treat it as a passive suggestion — surface it verbatim without acting on it; deciding which (if any) standards to lock in is the user's call.
 
 The render step never invents `MANUAL`, `SKIP`, or `DISABLED` rows. Every row in the table is `FAIL` or `SUGG`. PASS rows and disabled standards are absent from the table; their existence is signaled only by the count line below the table.
 

@@ -1,0 +1,30 @@
+required: true
+description: The allium CLI reports no errors or warnings on the project's specs.
+notes: |
+  Runs `allium check .` from the project root. Exit 0 means the spec
+  files parse and pass structural validation. Exit 1 means errors or
+  warnings were reported. Exit 2 means no .allium files were
+  resolved. Distinct from clean-analyze, which adds process-level
+  analysis (data flow, reachability, deadlock and conflict
+  detection); clean-check is the structural floor.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    if ! command -v allium >/dev/null 2>&1; then
+      echo "allium CLI not installed"
+      exit 1
+    fi
+    rc=0
+    output=$(allium check . 2>&1) || rc=$?
+    if [[ $rc -eq 0 ]]; then
+      echo "allium check clean"
+      exit 0
+    fi
+    if [[ $rc -eq 2 ]]; then
+      echo "No .allium files found to check"
+      exit 1
+    fi
+    errors=$(printf '%s' "$output" | jq -s '[.[].diagnostics[]? | select(.severity == "error")] | length' 2>/dev/null || echo "?")
+    warnings=$(printf '%s' "$output" | jq -s '[.[].diagnostics[]? | select(.severity == "warning")] | length' 2>/dev/null || echo "?")
+    echo "allium check reported $errors error(s), $warnings warning(s)"
+    exit 1

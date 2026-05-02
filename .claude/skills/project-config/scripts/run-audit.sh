@@ -244,6 +244,9 @@ collect() {
         effective_required="true"
       fi
 
+      local intrinsic_bool
+      if [[ "$required" == "true" ]]; then intrinsic_bool=true; else intrinsic_bool=false; fi
+
       if [[ "$has_script" == "true" ]]; then
         local script_body status detail exit_code stdout_capture
         script_body=$(yq -r '.check.script' "$std_yaml")
@@ -262,8 +265,8 @@ $script_body" 2>&1)
           status="SUGG"
         fi
 
-        resolved_json=$(jq -c --arg id "$id" --arg s "$status" --arg d "$detail" --arg desc "$description" \
-          '. + [{id:$id, status:$s, detail:$d, description:$desc}]' <<<"$resolved_json")
+        resolved_json=$(jq -c --arg id "$id" --arg s "$status" --arg d "$detail" --arg desc "$description" --argjson ir "$intrinsic_bool" \
+          '. + [{id:$id, status:$s, detail:$d, description:$desc, intrinsic_required:$ir}]' <<<"$resolved_json")
       else
         local prompt_body rendered req_bool
         prompt_body=$(yq -r '.check.prompt' "$std_yaml")
@@ -283,14 +286,14 @@ The file's contents must be exactly one JSON object: {\"met\": true|false, \"det
 
 "
         rendered="${directive}${rendered}"
-        pending_json=$(jq -c --arg id "$id" --argjson req "$req_bool" --arg desc "$description" --arg p "$rendered" --arg rp "$response_path" \
-          '. + [{id:$id, required:$req, description:$desc, response_path:$rp, rendered_prompt:$p}]' <<<"$pending_json")
+        pending_json=$(jq -c --arg id "$id" --argjson req "$req_bool" --argjson ir "$intrinsic_bool" --arg desc "$description" --arg p "$rendered" --arg rp "$response_path" \
+          '. + [{id:$id, required:$req, intrinsic_required:$ir, description:$desc, response_path:$rp, rendered_prompt:$p}]' <<<"$pending_json")
       fi
     done < <(find "$pdir" -maxdepth 1 -type f -name '*.yaml' | sort)
   done <<<"$profiles"
 
-  jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" --argjson dc "$disabled_count" --arg pc "$project_context" \
-    '{resolved:$resolved, pending:$pending, disabled_count:$dc, project_context:$pc}' \
+  jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" --argjson dc "$disabled_count" --argjson ro "$required_overrides_json" --arg pc "$project_context" \
+    '{resolved:$resolved, pending:$pending, required_overrides:$ro, disabled_count:$dc, project_context:$pc}' \
     > "$state_dir/collect.json"
 }
 
@@ -336,17 +339,19 @@ merge() {
   local collect_json
   collect_json=$(cat "$state_dir/collect.json")
 
-  local resolved pending_count disabled_count
+  local resolved pending_count disabled_count required_overrides
   resolved=$(jq -c '.resolved // []' <<<"$collect_json")
   pending_count=$(jq '.pending // [] | length' <<<"$collect_json")
   disabled_count=$(jq -r '.disabled_count // 0' <<<"$collect_json")
+  required_overrides=$(jq -c '.required_overrides // []' <<<"$collect_json")
 
-  local i id required description response_path response status detail json_block met
+  local i id required description intrinsic_required response_path response status detail json_block met
   local parse_rc met_rc
   for ((i = 0; i < pending_count; i++)); do
     id=$(jq -r ".pending[$i].id" <<<"$collect_json")
     required=$(jq -r ".pending[$i].required" <<<"$collect_json")
     description=$(jq -r ".pending[$i].description // \"\"" <<<"$collect_json")
+    intrinsic_required=$(jq -r ".pending[$i].intrinsic_required // false" <<<"$collect_json")
     response_path="$responses_dir/$id.txt"
 
     if [[ ! -f "$response_path" ]]; then
@@ -390,12 +395,12 @@ merge() {
       fi
     fi
 
-    resolved=$(jq -c --arg id "$id" --arg s "$status" --arg d "$detail" --arg desc "$description" \
-      '. + [{id:$id, status:$s, detail:$d, description:$desc}]' <<<"$resolved")
+    resolved=$(jq -c --arg id "$id" --arg s "$status" --arg d "$detail" --arg desc "$description" --argjson ir "$intrinsic_required" \
+      '. + [{id:$id, status:$s, detail:$d, description:$desc, intrinsic_required:$ir}]' <<<"$resolved")
   done
 
-  jq -n --ascii-output --argjson resolved "$resolved" --argjson dc "$disabled_count" \
-    '{resolved:$resolved, pending:[], disabled_count:$dc}' \
+  jq -n --ascii-output --argjson resolved "$resolved" --argjson dc "$disabled_count" --argjson ro "$required_overrides" \
+    '{resolved:$resolved, pending:[], required_overrides:$ro, disabled_count:$dc}' \
     > "$state_dir/merged.json"
 }
 
@@ -444,6 +449,28 @@ render() {
   echo "${pass_count} PASS, ${fail_count} FAIL, ${sugg_count} SUGG"
   if [[ "$disabled_count" -gt 0 ]]; then
     echo "${disabled_count} standards disabled in project.yaml"
+  fi
+
+  if [[ "$fail_count" -eq 0 && "$sugg_count" -eq 0 ]]; then
+    local overrides_json eligible_ids
+    overrides_json=$(jq -c '.required_overrides // []' <<<"$results")
+    eligible_ids=$(jq -r --argjson overrides "$overrides_json" '
+      [.resolved[]
+       | select(.status == "PASS" and .intrinsic_required == false)
+       | select((.id as $id | $overrides | index($id)) | not)
+       | .id]
+      | sort
+      | .[]?
+    ' <<<"$results")
+    if [[ -n "$eligible_ids" ]]; then
+      echo
+      echo "All standards pass — to enforce them going forward, add to project.yaml:"
+      echo
+      echo "required:"
+      while IFS= read -r eid; do
+        [[ -n "$eid" ]] && echo "  - $eid"
+      done <<<"$eligible_ids"
+    fi
   fi
 }
 

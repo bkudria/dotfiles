@@ -1,0 +1,30 @@
+required: false
+description: No `open question` declarations remain in any .allium file.
+notes: |
+  Greps every *.allium file in the project (depth ≤ 3) for lines
+  beginning with `open question`. Open questions are intentional
+  during elicitation — they capture undecided design points so the
+  spec can move forward without prematurely committing — but
+  long-lived open questions usually indicate decisions that should
+  be made and folded into the spec proper. SUGG (not FAIL) because
+  some questions legitimately remain open while waiting on external
+  input.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    matches=$(find . -maxdepth 3 -type f -name "*.allium" \
+      -not -path "./.git/*" \
+      -not -path "./node_modules/*" \
+      -not -path "./vendor/*" \
+      -not -path "./target/*" \
+      -not -path "./dist/*" \
+      -not -path "./build/*" \
+      -print0 2>/dev/null \
+      | xargs -0 grep -nE '^[[:space:]]*open question' 2>/dev/null || true)
+    if [[ -z "$matches" ]]; then
+      echo "No open questions found"
+      exit 0
+    fi
+    count=$(printf '%s\n' "$matches" | wc -l | tr -d ' ')
+    echo "$count open question(s) remaining"
+    exit 1

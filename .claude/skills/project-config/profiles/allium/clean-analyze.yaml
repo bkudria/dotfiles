@@ -1,0 +1,31 @@
+required: false
+description: The allium CLI's process-level analysis reports no findings.
+notes: |
+  Runs `allium analyse .` from the project root. `analyse` extends
+  `check` with process-level analysis: data flow tracing, edge
+  reachability, deadlock detection, conflict detection, and invariant
+  verification. Findings are SUGG (not FAIL) because process-level
+  observations frequently represent intentional WIP during early
+  spec evolution — for example, a deferred branch of a state machine
+  that the implementation hasn't reached yet. Distinct from
+  clean-check, which only checks structural validity.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    if ! command -v allium >/dev/null 2>&1; then
+      echo "allium CLI not installed"
+      exit 1
+    fi
+    rc=0
+    output=$(allium analyse . 2>&1) || rc=$?
+    if [[ $rc -eq 0 ]]; then
+      echo "allium analyse clean"
+      exit 0
+    fi
+    if [[ $rc -eq 2 ]]; then
+      echo "No .allium files found to analyse"
+      exit 1
+    fi
+    findings=$(printf '%s' "$output" | jq -s '[.[].findings[]?] | length' 2>/dev/null || echo "?")
+    echo "allium analyse reported $findings finding(s)"
+    exit 1

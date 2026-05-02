@@ -51,6 +51,8 @@ required:
 
 The override only changes how an *unmet* result is reported. A standard that already passes is unaffected. Standards already declared `required: true` in their YAML must not be listed here — that's a no-op.
 
+When an audit completely passes (zero `FAIL`, zero `SUGG`), `--render` appends a "lock-in" suggestion block listing every PASSing standard whose underlying YAML has `required: false` AND that is not already in this list. The suggestion is purely informational — adopting it tightens future regression severity from `SUGG` to `FAIL`.
+
 Lint fails on:
 
 - An entry that does not match `<profile>/<basename>`.

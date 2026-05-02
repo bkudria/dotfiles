@@ -1,0 +1,26 @@
+required: true
+description: README references the project's Allium specification.
+notes: |
+  Verifies that the README mentions the Allium spec — by file
+  extension (`.allium`) or as the standalone word "allium". The
+  README is the contributor on-ramp; without a pointer to the spec,
+  contributors won't know it exists or that it is the authoritative
+  source of behavioural truth. Looks for any of: README.md, README,
+  README.txt, README.rdoc, README.org. Match is case-insensitive.
+check:
+  script: |
+    cd "$PROJECT_ROOT"
+    found=""
+    for f in README.md README README.txt README.rdoc README.org; do
+      [[ -e "$f" ]] && { found="$f"; break; }
+    done
+    if [[ -z "$found" ]]; then
+      echo "No README file found"
+      exit 1
+    fi
+    if grep -qiE '\.allium|\ballium\b' "$found"; then
+      echo "$found references the Allium spec"
+      exit 0
+    fi
+    echo "$found exists but does not reference the Allium spec"
+    exit 1
