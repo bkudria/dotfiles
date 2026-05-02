@@ -1,19 +1,29 @@
 #!/usr/bin/env bash
-# run-audit.sh — Three-phase audit runner for the project-config skill.
+# run-audit.sh — Two-pass audit runner for the project-config skill.
 #
 # Every verb operates on a state-dir produced by --init. The state-dir holds
-# canonical files: collect.json (collect output), responses/<id>.txt
-# (sub-agent verdicts), merged.json (merge output).
+# canonical files: collect-required.json (round-1 output),
+# collect-suggested.json (round-2 output, only after the gate passes),
+# responses/<id>.txt (sub-agent verdicts), merged.json (union of present
+# collect-*.json with sub-agent responses folded in).
+#
+# Suggested standards are gated behind required-pass: round 2 runs only if
+# every required standard from round 1 has status PASS. This saves haiku
+# dispatches on failing audits and keeps the output focused on FAILs.
 #
 # Usage:
 #   run-audit.sh --init
 #       Emits a fresh state-dir path on stdout.
 #
-#   run-audit.sh --collect <project-root> <state-dir>
+#   run-audit.sh --collect <project-root> <state-dir> --scope <required|suggested>
 #       Reads <project-root>/project.yaml, walks selected profile directories,
-#       and writes <state-dir>/collect.json with shape
-#       {"resolved": [...], "pending": [...], "disabled_count": N,
-#        "project_context": "..."}.
+#       and writes <state-dir>/collect-<scope>.json with shape
+#       {"resolved": [...], "pending": [...], ...}.
+#       --scope required walks only effective-required standards (intrinsic
+#       `required: true` OR id in project.yaml's `required:` overrides) and
+#       additionally stashes `suggested_total` (count of would-have-been-
+#       suggested standards, after the disabled filter).
+#       --scope suggested walks only effective-suggested standards.
 #       Each deterministic check (check.script) runs immediately and lands in
 #       `resolved` with status PASS/FAIL/SUGG. Each prompt-based check
 #       (check.prompt) goes to `pending` with its rendered prompt for
@@ -21,17 +31,28 @@
 #       Write its verdict to.
 #
 #   run-audit.sh --merge <state-dir>
-#       Folds sub-agent responses into the collect output. Reads
-#       <state-dir>/collect.json, looks up each pending entry's response at
-#       <state-dir>/responses/<id>.txt, extracts the JSON ({"met": bool,
-#       "detail": string}), and writes <state-dir>/merged.json with every
-#       entry resolved to PASS/FAIL/SUGG. Missing files, parse failures, or
-#       non-bool `met` resolve to FAIL.
+#       Folds sub-agent responses into the collect outputs. Reads every
+#       <state-dir>/collect-*.json present, looks up each pending entry's
+#       response at <state-dir>/responses/<id>.txt, extracts the JSON
+#       ({"met": bool, "detail": string}), and writes <state-dir>/merged.json
+#       with every entry resolved to PASS/FAIL/SUGG. Missing files, parse
+#       failures, or non-bool `met` resolve to FAIL. The output records
+#       `scopes_collected` (which collect files were present) so render can
+#       surface the skipped count when round 2 was gated out.
+#
+#   run-audit.sh --gate <state-dir>
+#       Reads <state-dir>/merged.json and exits 0 if every effective-required
+#       entry has status PASS, 1 if any has status FAIL. Operational errors
+#       (missing file, malformed JSON) exit ≥2. Use this between round 1's
+#       --merge and round 2's --collect --scope suggested to decide whether
+#       to spend cost on suggested checks.
 #
 #   run-audit.sh --render <state-dir>
 #       Reads <state-dir>/merged.json and emits the markdown audit table,
-#       per-status counts, and optional disabled-count line. Always exits 0
-#       on successful render. For CI pass/fail signal, use --check.
+#       per-status counts, optional disabled-count line, and (when round 2
+#       was skipped due to required failures) a count of suggested standards
+#       skipped. Always exits 0 on successful render. For CI pass/fail
+#       signal, use --check.
 #
 #   run-audit.sh --check <state-dir>
 #       Reads <state-dir>/merged.json and exits 1 if any resolved entry has
@@ -45,14 +66,15 @@ SKILL_DIR="${CLAUDE_SKILL_DIR:-${HOME}/.claude/skills/project-config}"
 usage() {
   echo "Usage:" >&2
   echo "  run-audit.sh --init" >&2
-  echo "  run-audit.sh --collect <project-root> <state-dir>" >&2
+  echo "  run-audit.sh --collect <project-root> <state-dir> --scope <required|suggested>" >&2
   echo "  run-audit.sh --merge   <state-dir>" >&2
+  echo "  run-audit.sh --gate    <state-dir>" >&2
   echo "  run-audit.sh --render  <state-dir>" >&2
   echo "  run-audit.sh --check   <state-dir>" >&2
   echo "" >&2
   echo "  Each verb except --init reads from / writes to canonical files inside" >&2
-  echo "  <state-dir>: collect.json, responses/<id>.txt, merged.json. Use --init" >&2
-  echo "  to obtain a fresh state-dir." >&2
+  echo "  <state-dir>: collect-required.json, collect-suggested.json (optional)," >&2
+  echo "  responses/<id>.txt, merged.json. Use --init to obtain a fresh state-dir." >&2
   exit 1
 }
 
@@ -151,9 +173,49 @@ detect_project_context() {
 # ───── --collect ────────────────────────────────────────────────────────────
 
 collect() {
-  local project_root="${1:-}"
-  local state_dir="${2:-}"
+  local project_root="" state_dir="" scope=""
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --scope)
+        scope="${2:-}"
+        if [[ -z "$scope" ]]; then
+          echo "Error: --scope requires a value (required|suggested)" >&2
+          exit 1
+        fi
+        shift 2
+        ;;
+      --scope=*)
+        scope="${1#--scope=}"
+        shift
+        ;;
+      --*)
+        echo "Error: unknown flag: $1" >&2
+        exit 1
+        ;;
+      *)
+        if [[ -z "$project_root" ]]; then
+          project_root="$1"
+        elif [[ -z "$state_dir" ]]; then
+          state_dir="$1"
+        else
+          echo "Error: unexpected argument: $1" >&2
+          exit 1
+        fi
+        shift
+        ;;
+    esac
+  done
+
   [[ -n "$project_root" && -n "$state_dir" ]] || usage
+  if [[ -z "$scope" ]]; then
+    echo "Error: --collect requires --scope <required|suggested>" >&2
+    exit 1
+  fi
+  if [[ "$scope" != "required" && "$scope" != "suggested" ]]; then
+    echo "Error: invalid --scope value: $scope (must be 'required' or 'suggested')" >&2
+    exit 1
+  fi
+
   project_root="${project_root%/}"
   [[ -d "$state_dir" ]] || {
     echo "Error: state-dir not found: $state_dir" >&2
@@ -201,6 +263,7 @@ collect() {
   local resolved_json="[]"
   local pending_json="[]"
   local disabled_count=0
+  local suggested_total=0
 
   local project_context
   project_context=$(detect_project_context "$project_root")
@@ -242,6 +305,18 @@ collect() {
       local effective_required="$required"
       if [[ -n "${REQUIRED_OVERRIDE[$id]:-}" ]]; then
         effective_required="true"
+      fi
+
+      # Scope filter: only collect standards matching the requested scope.
+      # During --scope required, count effective-suggested standards into
+      # suggested_total so render can surface the skipped count even when
+      # the suggested round never runs.
+      if [[ "$scope" == "required" && "$effective_required" != "true" ]]; then
+        suggested_total=$((suggested_total + 1))
+        continue
+      fi
+      if [[ "$scope" == "suggested" && "$effective_required" == "true" ]]; then
+        continue
       fi
 
       local intrinsic_bool
@@ -292,9 +367,20 @@ The file's contents must be exactly one JSON object: {\"met\": true|false, \"det
     done < <(find "$pdir" -maxdepth 1 -type f -name '*.yaml' | sort)
   done <<<"$profiles"
 
-  jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" --argjson dc "$disabled_count" --argjson ro "$required_overrides_json" --arg pc "$project_context" \
-    '{resolved:$resolved, pending:$pending, required_overrides:$ro, disabled_count:$dc, project_context:$pc}' \
-    > "$state_dir/collect.json"
+  local out_path="$state_dir/collect-$scope.json"
+  if [[ "$scope" == "required" ]]; then
+    jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" \
+          --argjson dc "$disabled_count" --argjson ro "$required_overrides_json" \
+          --arg pc "$project_context" --argjson st "$suggested_total" \
+      '{resolved:$resolved, pending:$pending, required_overrides:$ro, disabled_count:$dc, project_context:$pc, suggested_total:$st}' \
+      > "$out_path"
+  else
+    jq -n --ascii-output --argjson resolved "$resolved_json" --argjson pending "$pending_json" \
+          --argjson dc "$disabled_count" --argjson ro "$required_overrides_json" \
+          --arg pc "$project_context" \
+      '{resolved:$resolved, pending:$pending, required_overrides:$ro, disabled_count:$dc, project_context:$pc}' \
+      > "$out_path"
+  fi
 }
 
 # ───── --merge ──────────────────────────────────────────────────────────────
@@ -329,29 +415,69 @@ extract_json_payload() {
 merge() {
   local state_dir="${1:-}"
   [[ -n "$state_dir" && -d "$state_dir" ]] || usage
-  [[ -f "$state_dir/collect.json" ]] || {
-    echo "Error: collect.json not found in state-dir: $state_dir/collect.json" >&2
+
+  # Backward compatibility: support legacy collect.json (used by older tests
+  # that hand-craft a fixture). Otherwise, prefer collect-required.json (and
+  # optionally collect-suggested.json) per the two-pass flow.
+  local sources=()
+  local scopes_collected_json='[]'
+  local has_collect_required=false has_collect_suggested=false has_legacy=false
+  if [[ -f "$state_dir/collect-required.json" ]]; then
+    sources+=("$state_dir/collect-required.json")
+    has_collect_required=true
+  fi
+  if [[ -f "$state_dir/collect-suggested.json" ]]; then
+    sources+=("$state_dir/collect-suggested.json")
+    has_collect_suggested=true
+  fi
+  if [[ ${#sources[@]} -eq 0 && -f "$state_dir/collect.json" ]]; then
+    sources+=("$state_dir/collect.json")
+    has_legacy=true
+  fi
+  if [[ ${#sources[@]} -eq 0 ]]; then
+    echo "Error: no collect file found in state-dir: $state_dir (expected collect-required.json)" >&2
     exit 1
-  }
+  fi
+
+  if [[ "$has_collect_required" == "true" ]]; then
+    scopes_collected_json='["required"]'
+    if [[ "$has_collect_suggested" == "true" ]]; then
+      scopes_collected_json='["required","suggested"]'
+    fi
+  fi
+
   local responses_dir="$state_dir/responses"
   [[ -d "$responses_dir" ]] || mkdir -p "$responses_dir"
 
-  local collect_json
-  collect_json=$(cat "$state_dir/collect.json")
+  # Combine resolved + pending across all sources. Top-level scalars
+  # (disabled_count, required_overrides, suggested_total, project_context)
+  # are taken from the first source (collect-required.json under the new
+  # flow; collect.json under legacy).
+  local resolved='[]' pending='[]'
+  local disabled_count required_overrides suggested_total
+  disabled_count=$(jq -r '.disabled_count // 0' "${sources[0]}")
+  required_overrides=$(jq -c '.required_overrides // []' "${sources[0]}")
+  suggested_total=$(jq -r '.suggested_total // 0' "${sources[0]}")
 
-  local resolved pending_count disabled_count required_overrides
-  resolved=$(jq -c '.resolved // []' <<<"$collect_json")
-  pending_count=$(jq '.pending // [] | length' <<<"$collect_json")
-  disabled_count=$(jq -r '.disabled_count // 0' <<<"$collect_json")
-  required_overrides=$(jq -c '.required_overrides // []' <<<"$collect_json")
+  local src
+  for src in "${sources[@]}"; do
+    local src_resolved src_pending
+    src_resolved=$(jq -c '.resolved // []' "$src")
+    src_pending=$(jq -c '.pending // []' "$src")
+    resolved=$(jq -c --argjson a "$resolved" --argjson b "$src_resolved" -n '$a + $b')
+    pending=$(jq -c --argjson a "$pending" --argjson b "$src_pending" -n '$a + $b')
+  done
+
+  local pending_count
+  pending_count=$(jq 'length' <<<"$pending")
 
   local i id required description intrinsic_required response_path response status detail json_block met
   local parse_rc met_rc
   for ((i = 0; i < pending_count; i++)); do
-    id=$(jq -r ".pending[$i].id" <<<"$collect_json")
-    required=$(jq -r ".pending[$i].required" <<<"$collect_json")
-    description=$(jq -r ".pending[$i].description // \"\"" <<<"$collect_json")
-    intrinsic_required=$(jq -r ".pending[$i].intrinsic_required // false" <<<"$collect_json")
+    id=$(jq -r ".[$i].id" <<<"$pending")
+    required=$(jq -r ".[$i].required" <<<"$pending")
+    description=$(jq -r ".[$i].description // \"\"" <<<"$pending")
+    intrinsic_required=$(jq -r ".[$i].intrinsic_required // false" <<<"$pending")
     response_path="$responses_dir/$id.txt"
 
     if [[ ! -f "$response_path" ]]; then
@@ -399,8 +525,10 @@ merge() {
       '. + [{id:$id, status:$s, detail:$d, description:$desc, intrinsic_required:$ir}]' <<<"$resolved")
   done
 
-  jq -n --ascii-output --argjson resolved "$resolved" --argjson dc "$disabled_count" --argjson ro "$required_overrides" \
-    '{resolved:$resolved, pending:[], required_overrides:$ro, disabled_count:$dc}' \
+  jq -n --ascii-output --argjson resolved "$resolved" --argjson dc "$disabled_count" \
+        --argjson ro "$required_overrides" --argjson sc "$scopes_collected_json" \
+        --argjson st "$suggested_total" \
+    '{resolved:$resolved, pending:[], required_overrides:$ro, disabled_count:$dc, scopes_collected:$sc, suggested_total:$st}' \
     > "$state_dir/merged.json"
 }
 
@@ -442,6 +570,15 @@ render() {
   sugg_count=$(jq '[.[] | select(.status=="SUGG")] | length' <<<"$sorted")
   disabled_count=$(jq -r '.disabled_count // 0' <<<"$results")
 
+  # scopes_collected defaults to ["required","suggested"] when absent so that
+  # legacy merged.json fixtures (without the field) skip the new "suggested
+  # skipped" line — preserves prior render behaviour.
+  local has_suggested_scope suggested_total
+  has_suggested_scope=$(jq -r '
+    (.scopes_collected // ["required","suggested"]) | index("suggested") != null
+  ' <<<"$results")
+  suggested_total=$(jq -r '.suggested_total // 0' <<<"$results")
+
   echo "| Standard | Status | Detail |"
   echo "| --- | --- | --- |"
   jq -r '.[] | select(.status != "PASS") | "| \(.id) | \(.status) | \(.detail) |"' <<<"$sorted"
@@ -450,8 +587,14 @@ render() {
   if [[ "$disabled_count" -gt 0 ]]; then
     echo "${disabled_count} standards disabled in project.yaml"
   fi
+  if [[ "$has_suggested_scope" == "false" && "$suggested_total" -gt 0 ]]; then
+    echo "${suggested_total} suggested standards skipped (required failures present)"
+  fi
 
-  if [[ "$fail_count" -eq 0 && "$sugg_count" -eq 0 ]]; then
+  # Lock-in suggestion fires only when the suggested round actually ran:
+  # without that data we cannot tell which SUGG-style standards would have
+  # PASSed, so the suggestion would be unfounded.
+  if [[ "$fail_count" -eq 0 && "$sugg_count" -eq 0 && "$has_suggested_scope" == "true" ]]; then
     local overrides_json eligible_ids
     overrides_json=$(jq -c '.required_overrides // []' <<<"$results")
     eligible_ids=$(jq -r --argjson overrides "$overrides_json" '
@@ -512,12 +655,57 @@ check() {
   fi
 }
 
+# ───── --gate ───────────────────────────────────────────────────────────────
+# Mid-flow gate between round 1 (required) and round 2 (suggested). Reads
+# merged.json and exits:
+#   0  — every effective-required entry has status PASS (run round 2)
+#   1  — at least one effective-required entry has status FAIL (skip round 2)
+#   2  — operational error (missing file, malformed JSON)
+#
+# Effective-required: an entry whose intrinsic_required=true OR whose id
+# appears in required_overrides. Suggested entries (intrinsic_required=false
+# and not overridden) never affect the gate; their presence with FAIL/SUGG
+# status is a no-op as far as round 2 eligibility is concerned.
+
+gate() {
+  local state_dir="${1:-}"
+  [[ -n "$state_dir" && -d "$state_dir" ]] || usage
+  [[ -f "$state_dir/merged.json" ]] || {
+    echo "Error: merged.json not found in state-dir: $state_dir/merged.json" >&2
+    exit 2
+  }
+  local results
+  results=$(cat "$state_dir/merged.json")
+
+  jq -e . <<<"$results" >/dev/null 2>&1 || {
+    echo "Error: results JSON is malformed" >&2
+    exit 2
+  }
+
+  local required_fail_count
+  required_fail_count=$(jq '
+    (.required_overrides // []) as $overrides
+    | [.resolved[]?
+       | select(
+           .intrinsic_required == true
+           or (.id as $id | $overrides | index($id)) != null
+         )
+       | select(.status == "FAIL")]
+    | length
+  ' <<<"$results")
+
+  if [[ "$required_fail_count" -gt 0 ]]; then
+    exit 1
+  fi
+}
+
 # ───── dispatch ─────────────────────────────────────────────────────────────
 
 case "$MODE" in
   --init)    init    "$@" ;;
   --collect) collect "$@" ;;
   --merge)   merge   "$@" ;;
+  --gate)    gate    "$@" ;;
   --render)  render  "$@" ;;
   --check)   check   "$@" ;;
   *) usage ;;

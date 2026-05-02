@@ -114,7 +114,7 @@ Each YAML file under `profiles/<profile>/` is a self-contained standard. The sta
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | `required` | boolean | yes | `true` ⇒ unmet causes audit failure (`FAIL`). `false` ⇒ unmet is reported as a suggestion (`SUGG`), does not fail audit. |
-| `description` | string | yes | One-line prose explaining what this standard verifies. Persisted into `collect.json` and `merged.json`; consulted during fix-plan synthesis (`workflows/audit.md` step 4) to give plan items the standard's intent. Not printed by `--render` directly. |
+| `description` | string | yes | One-line prose explaining what this standard verifies. Persisted into `collect-required.json` / `collect-suggested.json` and `merged.json`; consulted during fix-plan synthesis (`workflows/audit.md` step 4) to give plan items the standard's intent. Not printed by `--render` directly. |
 | `check` | object | yes | Exactly one of `check.script` or `check.prompt`. Never both, never neither. |
 | `check.script` | string | — | Bash script executed under `set -euo pipefail` with `$PROJECT_ROOT` set. Exit 0 = met; non-zero = unmet. The last non-empty stdout line becomes the row's `Detail`. |
 | `check.prompt` | string | — | Prompt rendered with `$PROJECT_ROOT` substituted, then sent to a sub-agent for verification. The sub-agent returns a `{"met": bool, "detail": string}` JSON block. |

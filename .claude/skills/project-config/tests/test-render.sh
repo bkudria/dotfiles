@@ -298,4 +298,97 @@ sugg_section=$(printf '%s\n' "$out" | awk '/^required:/{flag=1; next} flag')
 order=$(printf '%s\n' "$sugg_section" | awk '/^  - /{sub(/^  - /,""); print}' | tr '\n' ' ')
 assert_eq "suggestion block lists eligibles alphabetically" "base/alpha base/lockfile public/zeta " "$order"
 
+# ===== Two-pass render tests: skipped-suggested line + lock-in guard =====
+
+# --- Test SK1: scopes_collected==["required"] AND any FAIL AND suggested_total > 0
+#               → emit "N suggested standards skipped" line ---
+results=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme",  "status": "FAIL", "detail": "missing", "description": ".", "intrinsic_required": true}
+  ],
+  "scopes_collected": ["required"],
+  "suggested_total": 5,
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+out=$(render_state "$results")
+assert_contains "skipped-line: surfaces suggested_total" "5 suggested standards skipped" "$out"
+assert_contains "skipped-line: mentions required failures" "required failures" "$out"
+
+# --- Test SK2: scopes_collected==["required"] AND suggested_total == 0 → no skipped line ---
+results=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme",  "status": "FAIL", "detail": "missing", "description": ".", "intrinsic_required": true}
+  ],
+  "scopes_collected": ["required"],
+  "suggested_total": 0,
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+out=$(render_state "$results")
+assert_not_contains "no skipped line when suggested_total=0" "suggested standards skipped" "$out"
+
+# --- Test SK3: scopes_collected==["required","suggested"] → no skipped line regardless ---
+results=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme",  "status": "FAIL", "detail": "missing", "description": ".", "intrinsic_required": true},
+    {"id": "base/linter",  "status": "SUGG", "detail": ".",       "description": ".", "intrinsic_required": false}
+  ],
+  "scopes_collected": ["required","suggested"],
+  "suggested_total": 1,
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+out=$(render_state "$results")
+assert_not_contains "no skipped line when suggested scope ran" "suggested standards skipped" "$out"
+
+# --- Test SK4: lock-in suggestion suppressed when scopes_collected lacks "suggested" ---
+# Even with all required PASS and an eligible PASS-style standard, the lock-in
+# suggestion can't fire because the suggested round never ran — there's no way
+# to know which SUGG-style standards would have PASSed.
+results=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme",   "status": "PASS", "detail": "ok", "description": ".", "intrinsic_required": true},
+    {"id": "base/lockfile", "status": "PASS", "detail": "ok", "description": ".", "intrinsic_required": false}
+  ],
+  "scopes_collected": ["required"],
+  "suggested_total": 0,
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+out=$(render_state "$results")
+assert_not_contains "lock-in suppressed when suggested scope absent" "to enforce them going forward" "$out"
+
+# --- Test SK5: skipped line appears AFTER the count line and (if present) disabled line ---
+results=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme",  "status": "FAIL", "detail": "missing", "description": ".", "intrinsic_required": true}
+  ],
+  "scopes_collected": ["required"],
+  "suggested_total": 2,
+  "required_overrides": [],
+  "disabled_count": 1
+}
+EOF
+)
+out=$(render_state "$results")
+count_pos=$(printf '%s\n' "$out" | grep -n "PASS, 1 FAIL" | head -1 | cut -d: -f1)
+skip_pos=$(printf '%s\n' "$out" | grep -n "suggested standards skipped" | head -1 | cut -d: -f1)
+disabled_pos=$(printf '%s\n' "$out" | grep -n "standards disabled" | head -1 | cut -d: -f1)
+assert_eq "skipped line appears after count line" "true" "$([[ -n "$skip_pos" && -n "$count_pos" && $skip_pos -gt $count_pos ]] && echo true || echo false)"
+assert_eq "skipped line appears after disabled line" "true" "$([[ -n "$skip_pos" && -n "$disabled_pos" && $skip_pos -gt $disabled_pos ]] && echo true || echo false)"
+
 summary

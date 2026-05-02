@@ -1,0 +1,23 @@
+prompt: |
+  I have a Ruby project at ~/code/sparse-gem with this project.yaml:
+
+  ```yaml
+  profiles: [base, public]
+  ```
+
+  The project has: README.md (a few lines, no Installation/Usage headings), Gemfile, and a spec/ directory with spec_helper.rb. It's missing LICENSE, CLAUDE.md, GOALS.md, CONTRIBUTING.md, .rubocop.yml, and .github/workflows/.
+
+  Audit the project against its standards.
+labels:
+  name: "Required-FAIL audit skips the suggested round"
+assertions:
+  - check: "The audit dispatches sub-agents only for required-scope prompt-based standards in round 1, then halts the suggested round after detecting required FAILs (no round-2 dispatches happen)"
+    note: "The two-pass flow is the gating contract — saving haiku cost is the WHY"
+  - check: "Output contains a markdown table listing each non-PASS standard with its compliance status (one of PASS, FAIL, or SUGG)"
+  - check: "Required failures (e.g., base/license, base/claude-md, base/goals, public/contributing) appear as FAIL rows in the table"
+  - check: "No SUGG rows appear in the table — suggested standards were never collected, so they cannot show up"
+  - check: "The output includes a single line of the form `N suggested standards skipped (required failures present)` after the count line, where N matches the count of suggested-scope standards in the project's selected profiles (after the disabled filter)"
+    note: "This is the key new render behavior — it tells the user that more checks exist but were intentionally deferred"
+  - check: "The pass/fail summary surfaces FAIL counts but does NOT include a lock-in suggestion block (`to enforce them going forward, add to project.yaml:`)"
+    note: "Lock-in only fires when the suggested round actually ran"
+  - check: "Output includes a prioritized remediation plan listing the FAIL fixes (no SUGG fixes are listed since none were collected)"

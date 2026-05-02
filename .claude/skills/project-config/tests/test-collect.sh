@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Tests for `run-audit.sh --collect <project-root>`
+# Tests for `run-audit.sh --collect <project-root> <state-dir> --scope <scope>`
 set -euo pipefail
 
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -51,62 +51,118 @@ check:
     Verify thingy at $PROJECT_ROOT.
 EOF
 
-run_collect() {
-  local project_root="$1"
+run_collect_scope() {
+  local project_root="$1" scope="$2"
   local state; state=$(mktemp -d)
-  CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$project_root" "$state" >/dev/null
-  cat "$state/collect.json"
+  CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$project_root" "$state" --scope "$scope" >/dev/null
+  cat "$state/collect-$scope.json"
   rm -rf "$state"
 }
 
-# --- Test 1: deterministic PASS for required, met ---
+# --- Test A1: --collect without --scope errors with a clear message ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+state=$(mktemp -d)
+set +e
+err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" 2>&1 >/dev/null)
+rc=$?
+set -e
+assert_eq "--collect without --scope exits non-zero" "1" "$rc"
+assert_contains "error mentions --scope requirement" "scope" "$err"
+rm -rf "$proj" "$state"
+
+# --- Test A2: --collect with invalid --scope errors ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+state=$(mktemp -d)
+set +e
+err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope foo 2>&1 >/dev/null)
+rc=$?
+set -e
+assert_eq "--collect with invalid --scope exits non-zero" "1" "$rc"
+assert_contains "error mentions invalid scope value" "scope" "$err"
+rm -rf "$proj" "$state"
+
+# --- Test A3: --scope required writes collect-required.json (not collect.json) ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+assert_eq "--scope required writes collect-required.json" "true" "$([[ -f "$state/collect-required.json" ]] && echo true || echo false)"
+assert_eq "--scope required does NOT write collect.json" "false" "$([[ -f "$state/collect.json" ]] && echo true || echo false)"
+assert_eq "--scope required does NOT write collect-suggested.json" "false" "$([[ -f "$state/collect-suggested.json" ]] && echo true || echo false)"
+rm -rf "$proj" "$state"
+
+# --- Test A4: --scope suggested writes collect-suggested.json ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope suggested >/dev/null
+assert_eq "--scope suggested writes collect-suggested.json" "true" "$([[ -f "$state/collect-suggested.json" ]] && echo true || echo false)"
+assert_eq "--scope suggested does NOT write collect.json" "false" "$([[ -f "$state/collect.json" ]] && echo true || echo false)"
+rm -rf "$proj" "$state"
+
+# --- Test 1: deterministic PASS for required, met (--scope required) ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker" "$proj/.opt"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/marker") | .status')
 detail=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/marker") | .detail')
 desc=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/marker") | .description')
 assert_eq "marker resolves PASS when present" "PASS" "$status"
 assert_eq "marker detail comes from script stdout" ".marker present" "$detail"
 assert_eq "description carried into resolved" "A .marker file exists at the project root." "$desc"
-opt_status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/optional") | .status')
+out_sugg=$(run_collect_scope "$proj" suggested)
+opt_status=$(printf '%s' "$out_sugg" | jq -r '.resolved[] | select(.id=="testfx/optional") | .status')
 assert_eq "optional resolves PASS when met" "PASS" "$opt_status"
 rm -rf "$proj"
 
-# --- Test 2: deterministic FAIL for required, unmet ---
+# --- Test 2: deterministic FAIL for required, unmet (--scope required) ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.opt"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/marker") | .status')
 detail=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/marker") | .detail')
 assert_eq "marker resolves FAIL when missing & required" "FAIL" "$status"
 assert_eq "FAIL detail comes from script stdout" ".marker missing" "$detail"
 rm -rf "$proj"
 
-# --- Test 3: deterministic SUGG for not-required, unmet ---
+# --- Test 3: deterministic SUGG for not-required, unmet (--scope suggested) ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" suggested)
 opt_status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/optional") | .status')
 assert_eq "optional resolves SUGG when missing & !required" "SUGG" "$opt_status"
 rm -rf "$proj"
 
-# --- Test 4: prompt-based standard goes to pending, not resolved ---
+# --- Test 4: prompt-based standard goes to pending in --scope required ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker" "$proj/.opt"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 pending_count=$(printf '%s' "$out" | jq '.pending | length')
 pending_id=$(printf '%s' "$out" | jq -r '.pending[0].id')
 pending_required=$(printf '%s' "$out" | jq -r '.pending[0].required')
@@ -121,7 +177,7 @@ has_response_path=$(printf '%s' "$out" | jq '.pending[0] | has("response_path")'
 assert_eq "state-dir collect includes response_path" "true" "$has_response_path"
 rm -rf "$proj"
 
-# --- Test 5: disabled standards omitted from both arrays + counted ---
+# --- Test 5: disabled standards omitted + counted (regardless of scope) ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<EOF
 profiles: [testfx]
@@ -129,13 +185,18 @@ disabled:
   testfx/optional: "Not relevant for this project"
 EOF
 touch "$proj/.marker"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 disabled_count=$(printf '%s' "$out" | jq -r '.disabled_count')
 optional_in_resolved=$(printf '%s' "$out" | jq '[.resolved[] | select(.id=="testfx/optional")] | length')
 optional_in_pending=$(printf '%s' "$out" | jq '[.pending[] | select(.id=="testfx/optional")] | length')
-assert_eq "disabled_count == 1" "1" "$disabled_count"
-assert_eq "disabled standard absent from resolved" "0" "$optional_in_resolved"
-assert_eq "disabled standard absent from pending" "0" "$optional_in_pending"
+assert_eq "disabled_count == 1 (--scope required)" "1" "$disabled_count"
+assert_eq "disabled standard absent from required-resolved" "0" "$optional_in_resolved"
+assert_eq "disabled standard absent from required-pending" "0" "$optional_in_pending"
+out_sugg=$(run_collect_scope "$proj" suggested)
+optional_in_sugg=$(printf '%s' "$out_sugg" | jq '[.resolved[] | select(.id=="testfx/optional")] | length')
+optional_in_sugg_pending=$(printf '%s' "$out_sugg" | jq '[.pending[] | select(.id=="testfx/optional")] | length')
+assert_eq "disabled standard absent from suggested-resolved" "0" "$optional_in_sugg"
+assert_eq "disabled standard absent from suggested-pending" "0" "$optional_in_sugg_pending"
 rm -rf "$proj"
 
 # --- Test 6: malformed standard (neither script nor prompt) is a runner error ---
@@ -151,7 +212,7 @@ profiles: [badfx]
 EOF
 state=$(mktemp -d)
 set +e
-err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" 2>&1 >/dev/null)
+err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required 2>&1 >/dev/null)
 rc=$?
 set -e
 assert_eq "malformed standard exits non-zero" "1" "$rc"
@@ -159,7 +220,8 @@ assert_contains "malformed standard error mentions id" "badfx/empty" "$err"
 rm -rf "$proj" "$state"
 rm -rf "$SKILL_TMP/profiles/badfx"
 
-# --- Test R1: SUGG standard listed in required: + unmet → resolved as FAIL ---
+# --- Test R1: SUGG standard listed in required: + unmet → resolved as FAIL,
+#              and routed into --scope required (not suggested) ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
@@ -167,9 +229,12 @@ required:
   - testfx/optional
 EOF
 touch "$proj/.marker"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 opt_status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/optional") | .status')
 assert_eq "optional upgraded to FAIL via required: list" "FAIL" "$opt_status"
+out_sugg=$(run_collect_scope "$proj" suggested)
+opt_in_sugg=$(printf '%s' "$out_sugg" | jq '[.resolved[] | select(.id=="testfx/optional")] | length')
+assert_eq "overridden SUGG-intrinsic standard NOT in suggested scope" "0" "$opt_in_sugg"
 rm -rf "$proj"
 
 # --- Test R2: SUGG standard NOT in required: still resolves SUGG when unmet ---
@@ -178,7 +243,7 @@ cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" suggested)
 opt_status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/optional") | .status')
 assert_eq "optional stays SUGG without required: override" "SUGG" "$opt_status"
 rm -rf "$proj"
@@ -198,32 +263,27 @@ profiles: [promptfx]
 required:
   - promptfx/sugg-prompt
 EOF
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 pending_required=$(printf '%s' "$out" | jq -r '.pending[] | select(.id=="promptfx/sugg-prompt") | .required')
 assert_eq "prompt SUGG promoted to required:true in pending" "true" "$pending_required"
 rm -rf "$proj"
 rm -rf "$SKILL_TMP/profiles/promptfx"
 
-# --- Test S1: collect.json carries intrinsic_required on each resolved entry ---
-# This is the per-entry record of the standard YAML's `required:` field, so the
-# render layer can decide which PASSing standards are SUGG-style and worth
-# suggesting for the project's `required:` list.
+# --- Test S1: collect-required.json carries intrinsic_required on each resolved entry ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker" "$proj/.opt"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
+out_sugg=$(run_collect_scope "$proj" suggested)
 marker_intrinsic=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/marker") | .intrinsic_required')
-opt_intrinsic=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="testfx/optional") | .intrinsic_required')
+opt_intrinsic=$(printf '%s' "$out_sugg" | jq -r '.resolved[] | select(.id=="testfx/optional") | .intrinsic_required')
 assert_eq "intrinsic_required reflects standard YAML (required: true)"  "true"  "$marker_intrinsic"
 assert_eq "intrinsic_required reflects standard YAML (required: false)" "false" "$opt_intrinsic"
 rm -rf "$proj"
 
-# --- Test S2: collect.json pending entries also carry intrinsic_required ---
-# An override via `required:` should not bury the underlying standard YAML's
-# value — `required` is the effective severity, `intrinsic_required` is the
-# unparameterised baseline. Render needs the baseline.
+# --- Test S2: pending entries carry intrinsic_required even when overridden ---
 mkdir -p "$SKILL_TMP/profiles/promptfx2"
 cat > "$SKILL_TMP/profiles/promptfx2/sugg-prompt.yaml" <<'EOF'
 required: false
@@ -238,7 +298,7 @@ profiles: [promptfx2]
 required:
   - promptfx2/sugg-prompt
 EOF
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 pending_required=$(printf '%s' "$out" | jq -r '.pending[] | select(.id=="promptfx2/sugg-prompt") | .required')
 pending_intrinsic=$(printf '%s' "$out" | jq -r '.pending[] | select(.id=="promptfx2/sugg-prompt") | .intrinsic_required')
 assert_eq "pending effective required reflects override (true)"   "true"  "$pending_required"
@@ -246,9 +306,7 @@ assert_eq "pending intrinsic_required reflects YAML (false)"      "false" "$pend
 rm -rf "$proj"
 rm -rf "$SKILL_TMP/profiles/promptfx2"
 
-# --- Test S3: collect.json carries required_overrides at top level ---
-# This is the project's `required:` list verbatim; render uses it to suppress
-# already-listed entries from the suggestion block.
+# --- Test S3: collect-required.json carries required_overrides at top level ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
@@ -256,7 +314,7 @@ required:
   - testfx/optional
 EOF
 touch "$proj/.marker" "$proj/.opt"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 overrides_len=$(printf '%s' "$out" | jq '.required_overrides | length')
 overrides_first=$(printf '%s' "$out" | jq -r '.required_overrides[0]')
 assert_eq "required_overrides length matches project.yaml" "1" "$overrides_len"
@@ -269,7 +327,7 @@ cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker"
-out=$(run_collect "$proj")
+out=$(run_collect_scope "$proj" required)
 overrides_len=$(printf '%s' "$out" | jq '.required_overrides | length')
 overrides_type=$(printf '%s' "$out" | jq -r '.required_overrides | type')
 assert_eq "required_overrides is empty when omitted" "0"     "$overrides_len"
@@ -289,11 +347,86 @@ EOF
 touch "$proj/.marker" "$proj/.opt"
 state=$(mktemp -d)
 set +e
-err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" 2>&1 >/dev/null)
+err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required 2>&1 >/dev/null)
 rc=$?
 set -e
 assert_eq "schema-invalid project.yaml exits non-zero" "1" "$rc"
 assert_contains "lint error mentions unexpected key" "unexpected" "$err"
 rm -rf "$proj" "$state"
+
+# ===== New tests for two-pass behavior =====
+
+# --- Test B1: --scope required walks ONLY effective-required standards ---
+# testfx has marker (required), optional (suggested), manual (required).
+# --scope required should include marker + manual; optional must be absent.
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+out=$(run_collect_scope "$proj" required)
+has_marker=$(printf '%s' "$out" | jq '[.resolved[] | select(.id=="testfx/marker")] | length')
+has_manual=$(printf '%s' "$out" | jq '[.pending[]  | select(.id=="testfx/manual")] | length')
+has_optional_resolved=$(printf '%s' "$out" | jq '[.resolved[] | select(.id=="testfx/optional")] | length')
+has_optional_pending=$(printf '%s' "$out" | jq '[.pending[]  | select(.id=="testfx/optional")] | length')
+assert_eq "required scope includes marker"   "1" "$has_marker"
+assert_eq "required scope includes manual"   "1" "$has_manual"
+assert_eq "required scope EXCLUDES optional from resolved" "0" "$has_optional_resolved"
+assert_eq "required scope EXCLUDES optional from pending"  "0" "$has_optional_pending"
+rm -rf "$proj"
+
+# --- Test B2: --scope suggested walks ONLY effective-suggested standards ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker" "$proj/.opt"
+out=$(run_collect_scope "$proj" suggested)
+has_optional=$(printf '%s' "$out" | jq '[.resolved[] | select(.id=="testfx/optional")] | length')
+has_marker=$(printf '%s' "$out" | jq '[.resolved[] | select(.id=="testfx/marker")] | length')
+has_manual=$(printf '%s' "$out" | jq '[.pending[]  | select(.id=="testfx/manual")] | length')
+assert_eq "suggested scope includes optional" "1" "$has_optional"
+assert_eq "suggested scope EXCLUDES marker"   "0" "$has_marker"
+assert_eq "suggested scope EXCLUDES manual"   "0" "$has_manual"
+rm -rf "$proj"
+
+# --- Test C1: collect-required.json includes suggested_total counting effective-suggesteds ---
+# testfx has marker (req) + optional (sugg) + manual (req).
+# Without overrides: suggested_total should be 1 (optional only).
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+out=$(run_collect_scope "$proj" required)
+suggested_total=$(printf '%s' "$out" | jq -r '.suggested_total')
+assert_eq "suggested_total counts effective-suggested standards" "1" "$suggested_total"
+rm -rf "$proj"
+
+# --- Test C2: suggested_total is 0 when all standards are required (intrinsic or override) ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+required:
+  - testfx/optional
+EOF
+touch "$proj/.marker"
+out=$(run_collect_scope "$proj" required)
+suggested_total=$(printf '%s' "$out" | jq -r '.suggested_total')
+assert_eq "suggested_total=0 when all standards effective-required" "0" "$suggested_total"
+rm -rf "$proj"
+
+# --- Test C3: disabled standards do NOT count in suggested_total ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<EOF
+profiles: [testfx]
+disabled:
+  testfx/optional: "not relevant"
+EOF
+touch "$proj/.marker"
+out=$(run_collect_scope "$proj" required)
+suggested_total=$(printf '%s' "$out" | jq -r '.suggested_total')
+assert_eq "disabled effective-suggested standards excluded from suggested_total" "0" "$suggested_total"
+rm -rf "$proj"
 
 summary

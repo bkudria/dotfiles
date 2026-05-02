@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Tests for the state-dir alternate signatures of run-audit.sh:
+# Tests for the state-dir signatures of run-audit.sh:
 #   run-audit.sh --init
-#   run-audit.sh --collect <project-root> <state-dir>
+#   run-audit.sh --collect <project-root> <state-dir> --scope <required|suggested>
 #   run-audit.sh --merge  <state-dir>
 #   run-audit.sh --render <state-dir>
 set -euo pipefail
@@ -55,20 +55,21 @@ empty1_count=$(find "$state1" -mindepth 1 -maxdepth 1 | wc -l | tr -d ' ')
 assert_eq "--init dir is initially empty" "0" "$empty1_count"
 rm -rf "$state1" "$state2"
 
-# --- Test 2: --collect <project-root> <state-dir> writes collect.json there ---
+# --- Test 2: --collect <project-root> <state-dir> --scope required writes
+#             collect-required.json there ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker"
 state=$("$RUNNER" --init)
-CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" >/dev/null
-[[ -f "$state/collect.json" ]] && cj_exists=1 || cj_exists=0
-assert_eq "--collect <root> <state-dir> writes <state-dir>/collect.json" "1" "$cj_exists"
-status=$(jq -r '.resolved[] | select(.id=="testfx/marker") | .status' "$state/collect.json")
-assert_eq "collect.json content has correct PASS for marker" "PASS" "$status"
-pending_id=$(jq -r '.pending[0].id' "$state/collect.json")
-assert_eq "collect.json content has manual standard pending" "testfx/manual" "$pending_id"
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+[[ -f "$state/collect-required.json" ]] && cj_exists=1 || cj_exists=0
+assert_eq "--collect writes collect-required.json" "1" "$cj_exists"
+status=$(jq -r '.resolved[] | select(.id=="testfx/marker") | .status' "$state/collect-required.json")
+assert_eq "collect-required.json has correct PASS for marker" "PASS" "$status"
+pending_id=$(jq -r '.pending[0].id' "$state/collect-required.json")
+assert_eq "collect-required.json has manual standard pending" "testfx/manual" "$pending_id"
 rm -rf "$proj" "$state"
 
 # --- Test 3: --collect with state-dir is idempotent (re-running overwrites cleanly) ---
@@ -78,24 +79,24 @@ profiles: [testfx]
 EOF
 touch "$proj/.marker"
 state=$("$RUNNER" --init)
-CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" >/dev/null
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 # Second invocation — must succeed, must not error on noclobber, must overwrite
 set +e
-err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" 2>&1 >/dev/null)
+err=$(CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required 2>&1 >/dev/null)
 rc=$?
 set -e
 assert_exit_code "--collect rerun against same state-dir succeeds" "0" "$rc"
 assert_eq "--collect rerun does not print noclobber error" "" "$err"
 rm -rf "$proj" "$state"
 
-# --- Test 4: --merge <state-dir> reads collect.json + responses/, writes merged.json ---
+# --- Test 4: --merge <state-dir> reads collect-required.json + responses/, writes merged.json ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker"
 state=$("$RUNNER" --init)
-CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" >/dev/null
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 mkdir -p "$state/responses/testfx"
 printf '%s' $'```json\n{"met":true,"detail":"verified"}\n```\n' > "$state/responses/testfx/manual.txt"
 "$RUNNER" --merge "$state" >/dev/null
@@ -112,7 +113,7 @@ profiles: [testfx]
 EOF
 touch "$proj/.marker"
 state=$("$RUNNER" --init)
-CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" >/dev/null
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 mkdir -p "$state/responses/testfx"
 printf '%s' $'```json\n{"met":true,"detail":"verified"}\n```\n' > "$state/responses/testfx/manual.txt"
 "$RUNNER" --merge "$state" >/dev/null
@@ -121,14 +122,14 @@ assert_contains "render output has table header" "| Standard | Status | Detail |
 assert_contains "render output has count line" "PASS" "$out"
 rm -rf "$proj" "$state"
 
-# --- Test 6: --merge fails clearly when state-dir lacks collect.json ---
+# --- Test 6: --merge fails clearly when state-dir lacks any collect file ---
 state=$("$RUNNER" --init)
 mkdir -p "$state/responses"
 set +e
 err=$("$RUNNER" --merge "$state" 2>&1 >/dev/null)
 rc=$?
 set -e
-assert_exit_code "--merge missing collect.json exits 1" "1" "$rc"
+assert_exit_code "--merge missing collect file exits 1" "1" "$rc"
 assert_contains "--merge error mentions collect" "collect" "$err"
 rm -rf "$state"
 
@@ -148,17 +149,17 @@ state=$("$RUNNER" --init)
 assert_eq "--init path does not contain literal XXXXXX" "1" "$no_literal_x"
 rm -rf "$state"
 
-# --- Test 9: --collect <root> <state-dir> stamps response_path on each pending entry ---
+# --- Test 9: --collect stamps response_path on each pending entry ---
 proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [testfx]
 EOF
 touch "$proj/.marker"
 state=$("$RUNNER" --init)
-CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" >/dev/null
-response_path=$(jq -r '.pending[] | select(.id=="testfx/manual") | .response_path' "$state/collect.json")
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+response_path=$(jq -r '.pending[] | select(.id=="testfx/manual") | .response_path' "$state/collect-required.json")
 assert_eq "response_path equals state-dir/responses/<id>.txt" "$state/responses/testfx/manual.txt" "$response_path"
-rendered_prompt=$(jq -r '.pending[] | select(.id=="testfx/manual") | .rendered_prompt' "$state/collect.json")
+rendered_prompt=$(jq -r '.pending[] | select(.id=="testfx/manual") | .rendered_prompt' "$state/collect-required.json")
 assert_contains "rendered_prompt mentions response_path" "$state/responses/testfx/manual.txt" "$rendered_prompt"
 assert_contains "rendered_prompt instructs Write tool use" "Write" "$rendered_prompt"
 rm -rf "$proj" "$state"
@@ -170,7 +171,7 @@ profiles: [testfx]
 EOF
 touch "$proj/.marker"
 state=$("$RUNNER" --init)
-CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" >/dev/null
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 mkdir -p "$state/responses/testfx"
 printf '%s' '{"met":true,"detail":"raw-json verified"}' > "$state/responses/testfx/manual.txt"
 "$RUNNER" --merge "$state" >/dev/null

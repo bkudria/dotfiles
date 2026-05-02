@@ -4,7 +4,7 @@
 # The runner detects language / runtime / package manager once from manifest
 # files in the project root and prepends a "Detected project context" block to
 # every prompt-based standard's rendered_prompt. It also surfaces the detected
-# context as a top-level `project_context` field in collect.json.
+# context as a top-level `project_context` field in collect-<scope>.json.
 set -euo pipefail
 
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -36,11 +36,11 @@ check:
     exit 0
 EOF
 
-run_collect() {
+run_collect_required() {
   local project_root="$1"
   local state; state=$(mktemp -d)
-  CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$project_root" "$state" >/dev/null
-  cat "$state/collect.json"
+  CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$project_root" "$state" --scope required >/dev/null
+  cat "$state/collect-required.json"
   rm -rf "$state"
 }
 
@@ -52,7 +52,7 @@ EOF
 cat > "$proj/package.json" <<'EOF'
 {"name": "x", "version": "0.0.0"}
 EOF
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
 prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
 assert_contains "project_context names Node.js" "Node.js" "$context"
@@ -70,7 +70,7 @@ cat > "$proj/package.json" <<'EOF'
 {"name": "x", "version": "0.0.0"}
 EOF
 touch "$proj/pnpm-lock.yaml"
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
 assert_contains "rendered_prompt names pnpm package manager" "pnpm" "$prompt"
 rm -rf "$proj"
@@ -81,7 +81,7 @@ cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
 EOF
 echo "source 'https://rubygems.org'" > "$proj/Gemfile"
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
 assert_contains "project_context names Ruby" "Ruby" "$context"
 rm -rf "$proj"
@@ -92,7 +92,7 @@ cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
 EOF
 echo "[project]" > "$proj/pyproject.toml"
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
 assert_contains "project_context names Python" "Python" "$context"
 rm -rf "$proj"
@@ -103,7 +103,7 @@ cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
 EOF
 echo "[package]" > "$proj/Cargo.toml"
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
 assert_contains "project_context names Rust" "Rust" "$context"
 rm -rf "$proj"
@@ -114,7 +114,7 @@ cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
 EOF
 echo "module example.com/x" > "$proj/go.mod"
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
 assert_contains "project_context names Go" "Go" "$context"
 rm -rf "$proj"
@@ -125,15 +125,15 @@ proj=$(mktemp -d)
 cat > "$proj/project.yaml" <<'EOF'
 profiles: [probe]
 EOF
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 context=$(printf '%s' "$out" | jq -r '.project_context // ""')
 prompt=$(printf '%s' "$out" | jq -r '.pending[0].rendered_prompt')
 assert_eq "project_context is empty when no manifest" "" "$context"
 assert_not_contains "rendered_prompt has no context header" "Detected project context" "$prompt"
 rm -rf "$proj"
 
-# --- Test 8: Detection happens once; same context appears in collect.json
-#             top-level field and in every pending rendered_prompt ---
+# --- Test 8: Detection happens once; same context appears in collect-required.json
+#             top-level field and in every pending rendered_prompt across both scopes. ---
 mkdir -p "$SKILL_TMP/profiles/probe2"
 cat > "$SKILL_TMP/profiles/probe2/manual2.yaml" <<'EOF'
 required: false
@@ -149,13 +149,17 @@ EOF
 cat > "$proj/package.json" <<'EOF'
 {"name": "x"}
 EOF
-out=$(run_collect "$proj")
-pending_count=$(printf '%s' "$out" | jq '.pending | length')
-all_have_context=$(printf '%s' "$out" \
+state=$(mktemp -d)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope suggested >/dev/null
+combined=$(jq -n --slurpfile r "$state/collect-required.json" --slurpfile s "$state/collect-suggested.json" \
+  '{pending: ($r[0].pending + $s[0].pending)}')
+pending_count=$(printf '%s' "$combined" | jq '.pending | length')
+all_have_context=$(printf '%s' "$combined" \
   | jq '[.pending[] | select(.rendered_prompt | contains("Detected project context"))] | length')
-assert_eq "two prompt-based pending entries"               "2" "$pending_count"
-assert_eq "both pending prompts include the context block" "2" "$all_have_context"
-rm -rf "$proj"
+assert_eq "two prompt-based pending entries (combined across scopes)" "2" "$pending_count"
+assert_eq "both pending prompts include the context block"            "2" "$all_have_context"
+rm -rf "$proj" "$state"
 rm -rf "$SKILL_TMP/profiles/probe2"
 
 # --- Test 9: Script-based standards are unaffected (no rendered_prompt is
@@ -167,7 +171,7 @@ EOF
 cat > "$proj/package.json" <<'EOF'
 {"name": "x"}
 EOF
-out=$(run_collect "$proj")
+out=$(run_collect_required "$proj")
 script_status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="probe/script") | .status')
 assert_eq "script-based standard resolves normally" "PASS" "$script_status"
 rm -rf "$proj"

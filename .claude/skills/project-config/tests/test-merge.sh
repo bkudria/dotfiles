@@ -451,4 +451,137 @@ assert_eq "shape: original resolved present" "1" "$has_a"
 assert_eq "shape: pending-derived resolved present" "1" "$has_c"
 assert_eq "shape: SUGG status for d (met=false, required=false)" "SUGG" "$status_d"
 
+# ===== Two-pass merge tests =====
+
+# --- Test M1: --merge with only collect-required.json sets scopes_collected=["required"] ---
+collect_req=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme", "status": "PASS", "detail": "ok", "description": ".", "intrinsic_required": true}
+  ],
+  "pending": [],
+  "required_overrides": [],
+  "disabled_count": 0,
+  "suggested_total": 3
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect_req" > "$dir/collect-required.json"
+mkdir -p "$dir/responses"
+"$RUNNER" --merge "$dir" >/dev/null
+sc=$(jq -c '.scopes_collected' "$dir/merged.json")
+assert_eq "merge with only collect-required.json sets scopes_collected" '["required"]' "$sc"
+st=$(jq -r '.suggested_total' "$dir/merged.json")
+assert_eq "merge propagates suggested_total from collect-required.json" "3" "$st"
+n=$(jq '.resolved | length' "$dir/merged.json")
+assert_eq "merge with required only emits one resolved entry" "1" "$n"
+
+# --- Test M2: --merge with both collect files sets scopes_collected=["required","suggested"] ---
+collect_req=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/readme", "status": "PASS", "detail": "ok", "description": ".", "intrinsic_required": true}
+  ],
+  "pending": [],
+  "required_overrides": [],
+  "disabled_count": 0,
+  "suggested_total": 1
+}
+EOF
+)
+collect_sugg=$(cat <<'EOF'
+{
+  "resolved": [
+    {"id": "base/lockfile", "status": "PASS", "detail": "ok", "description": ".", "intrinsic_required": false}
+  ],
+  "pending": [],
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect_req"  > "$dir/collect-required.json"
+echo "$collect_sugg" > "$dir/collect-suggested.json"
+mkdir -p "$dir/responses"
+"$RUNNER" --merge "$dir" >/dev/null
+sc=$(jq -c '.scopes_collected' "$dir/merged.json")
+assert_eq "merge with both collect files records both scopes" '["required","suggested"]' "$sc"
+n=$(jq '.resolved | length' "$dir/merged.json")
+assert_eq "merge with both collects unions resolved arrays" "2" "$n"
+has_lockfile=$(jq '[.resolved[] | select(.id=="base/lockfile")] | length' "$dir/merged.json")
+assert_eq "merge includes suggested-scope entry" "1" "$has_lockfile"
+
+# --- Test M3: re-running --merge after adding collect-suggested.json overwrites
+#              the prior round-1 merged.json with the union ---
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect_req" > "$dir/collect-required.json"
+mkdir -p "$dir/responses"
+"$RUNNER" --merge "$dir" >/dev/null
+n_round1=$(jq '.resolved | length' "$dir/merged.json")
+assert_eq "round-1 merge: one entry" "1" "$n_round1"
+# Now add collect-suggested.json and re-merge
+echo "$collect_sugg" > "$dir/collect-suggested.json"
+"$RUNNER" --merge "$dir" >/dev/null
+n_round2=$(jq '.resolved | length' "$dir/merged.json")
+sc_round2=$(jq -c '.scopes_collected' "$dir/merged.json")
+assert_eq "round-2 merge overwrites with union: two entries" "2" "$n_round2"
+assert_eq "round-2 merge updates scopes_collected" '["required","suggested"]' "$sc_round2"
+
+# --- Test M4: suggested_total defaults to 0 in merged.json when omitted ---
+collect_legacy=$(cat <<'EOF'
+{
+  "resolved": [],
+  "pending": [],
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect_legacy" > "$dir/collect.json"
+mkdir -p "$dir/responses"
+"$RUNNER" --merge "$dir" >/dev/null
+st=$(jq -r '.suggested_total' "$dir/merged.json")
+assert_eq "merge defaults suggested_total to 0 when collect lacks it" "0" "$st"
+
+# --- Test M5: pending entries from BOTH collect files are dispatched in merge ---
+# Verifies that pending arrays union correctly and sub-agent responses for
+# either scope are honored.
+collect_req=$(cat <<'EOF'
+{
+  "resolved": [],
+  "pending": [
+    {"id": "base/p-req", "required": true, "intrinsic_required": true, "description": ".", "rendered_prompt": "..."}
+  ],
+  "required_overrides": [],
+  "disabled_count": 0,
+  "suggested_total": 1
+}
+EOF
+)
+collect_sugg=$(cat <<'EOF'
+{
+  "resolved": [],
+  "pending": [
+    {"id": "base/p-sugg", "required": false, "intrinsic_required": false, "description": ".", "rendered_prompt": "..."}
+  ],
+  "required_overrides": [],
+  "disabled_count": 0
+}
+EOF
+)
+dir=$(mktemp -d); TMPDIRS+=("$dir")
+echo "$collect_req"  > "$dir/collect-required.json"
+echo "$collect_sugg" > "$dir/collect-suggested.json"
+mkdir -p "$dir/responses/base"
+write_response "$dir/responses" "base/p-req"  '{"met":true,"detail":"ok"}'
+write_response "$dir/responses" "base/p-sugg" '{"met":false,"detail":"absent"}'
+"$RUNNER" --merge "$dir" >/dev/null
+status_req=$(jq -r '.resolved[] | select(.id=="base/p-req") | .status' "$dir/merged.json")
+status_sugg=$(jq -r '.resolved[] | select(.id=="base/p-sugg") | .status' "$dir/merged.json")
+assert_eq "merge resolves required pending across both collect files" "PASS" "$status_req"
+assert_eq "merge resolves suggested pending across both collect files" "SUGG" "$status_sugg"
+
 summary
