@@ -1,9 +1,10 @@
 required: false
 description: The binary name(s) shipped by the project use lowercase letters/digits/dashes only and don't collide with POSIX/coreutils commands.
 notes: |
-  clig.dev N2-N5: "Lowercase letters; dashes only if needed. No
-  uppercase. Don't collide with established commands (the
-  ImageMagick/Windows `convert` cautionary tale)."
+  Binary names should use lowercase letters, with dashes only if
+  needed. No uppercase. Don't collide with established commands
+  (the ImageMagick/Windows `convert` cautionary tale is the
+  canonical warning).
 
   Sources of the binary name vary by ecosystem:
   - `package.json` `bin` field (object keys or sole filename)

@@ -1,0 +1,57 @@
+required: false
+description: Subcommands that delegate to a sub-process accept `--` to stop flag parsing and forward remaining arguments verbatim.
+notes: |
+  CLIs that wrap, exec, or otherwise hand arguments to another
+  program need a way to say "stop interpreting these as my flags
+  — they belong to the inner tool". The convention is `--`: the
+  parser treats `--` as a sentinel and passes everything after it
+  through unchanged.
+
+  Example: `<cli> run -a myapp -- myscript.sh -a arg1` should
+  invoke `myscript.sh -a arg1` without the outer parser
+  consuming the inner `-a`.
+
+  Trivially met if the CLI never spawns subprocesses, never
+  forwards user-supplied arguments to another program, or has no
+  subcommands shaped like `run`/`exec`/`invoke`/`call`/`shell`.
+  Otherwise: at least one such subcommand should accept `--` and
+  preserve everything after it (including dashes, flags, and
+  special characters) verbatim.
+
+  Most parser libraries support this for free — the most common
+  drift is consuming `--` itself (stripping it) when the inner
+  program may itself care, or accidentally re-parsing post-`--`
+  arguments because the parser was configured to disable
+  positional pass-through.
+
+  Default severity is SUGG because most CLIs don't exec other
+  programs. Wrapper CLIs (anything shaped like `run`, `exec`, or
+  `shell`) should pin to FAIL — broken `--` handling silently
+  corrupts arguments to the inner tool.
+check:
+  prompt: |
+    Verify that subcommands in the CLI at $PROJECT_ROOT which
+    delegate to a sub-process accept `--` to stop flag parsing
+    and forward remaining arguments verbatim. Identify delegation:
+    - search source for subprocess invocations (whatever
+      language-native API the project uses for spawning child
+      processes) reached from a subcommand handler;
+    - identify subcommands shaped like `run`, `exec`, `invoke`,
+      `call`, `shell`, `wrap`, or anything that accepts a command
+      string and runs it.
+
+    If no such subcommand exists, report met with that fact.
+    Otherwise verify: (1) the parser preserves `--` semantics
+    (does not error on `--` in the input, does not re-parse
+    arguments after `--`), and (2) post-`--` arguments — including
+    dashes, flags, and special characters — reach the inner
+    program unchanged. The check may run `<cli> <subcmd> -- echo
+    --help` (or equivalent) if the subcommand can be invoked
+    cheaply; otherwise inspect the parser configuration in source.
+
+    Report met (with the delegation site, the subcommand
+    inventory, and a confirmation that `--` is honored) or unmet
+    (with the specific subcommand whose `--` handling is broken or
+    absent — e.g., "the parser strips `--` before passing args to
+    the inner tool" or "post-`--` arguments are re-parsed as
+    flags").

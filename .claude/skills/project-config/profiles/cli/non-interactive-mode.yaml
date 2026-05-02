@@ -1,12 +1,13 @@
 required: false
 description: The CLI is fully usable in non-interactive contexts via `--no-input` or per-prompt flag equivalents.
 notes: |
-  clig.dev IN3-IN4 + A11: "Support `--no-input`. When `--no-input`
-  is set and input is required, fail immediately and tell the user
-  how to provide it. Never *require* a prompt — always provide a
-  flag/arg path for non-interactive use." CI, scripts, and headless
-  systems cannot answer prompts; a CLI that requires interaction is
-  unusable in those environments.
+  CLIs should support a `--no-input` (or `--non-interactive` /
+  `--yes`) flag. When it is set and input is required, the CLI
+  should fail immediately and tell the user how to provide the
+  input. A CLI should never *require* a prompt — every prompt
+  needs a flag/arg/env path for non-interactive use. CI, scripts,
+  and headless systems cannot answer prompts; a CLI that requires
+  interaction is unusable in those environments.
 
   Acceptable forms: a global `--no-input` / `--non-interactive` /
   `--yes` flag that disables all prompts and surfaces a clear error
@@ -24,9 +25,10 @@ check:
   prompt: |
     Verify that the CLI at $PROJECT_ROOT can be used in fully
     non-interactive contexts. Detect interactive prompts in source
-    — `inquirer`, `prompts`, `gum`, `read -p`, `tty.gets`,
-    `input()`, `dialoguer`, `Console.ReadLine`, `bufio.NewScanner
-    (os.Stdin)`, etc. If no interactive prompts exist, report met.
+    — calls to whatever interactive-prompt mechanism the project
+    uses (built-in input APIs, prompt libraries, shell `read`,
+    direct TTY reads of stdin, etc.). If no interactive prompts
+    exist, report met.
     Otherwise verify one of: (1) a global `--no-input` /
     `--non-interactive` / `--yes` flag that disables prompts and
     produces a clear error when input is missing, OR (2) each

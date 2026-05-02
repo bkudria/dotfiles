@@ -1,11 +1,12 @@
 required: false
 description: Env vars the CLI reads use uppercase letters/digits/underscores and are prefixed by the program name.
 notes: |
-  clig.dev EV2-EV4: "Naming: uppercase letters, digits, underscores
-  only; must not start with a digit. Avoid commandeering widely
-  used names." Standard convention: `<APP>_<KEY>` or
-  `<APP>_<MODULE>_<KEY>`. Examples: `KUBECONFIG`, `GH_TOKEN`,
-  `DOCKER_HOST`, `CARGO_HOME`, `RUST_LOG`.
+  Env var names should use uppercase letters, digits, and
+  underscores only; they must not start with a digit. Avoid
+  commandeering widely used names. Standard convention:
+  `<APP>_<KEY>` or `<APP>_<MODULE>_<KEY>`. Examples:
+  `KUBECONFIG`, `GH_TOKEN`, `DOCKER_HOST`, `CARGO_HOME`,
+  `RUST_LOG`.
 
   Names like `password` (lowercase), `MyApp.Config` (mixed-case,
   punctuation), or `PATH` (commandeering POSIX) violate the rule.
@@ -20,10 +21,9 @@ notes: |
 check:
   prompt: |
     Verify that environment variables read by the CLI at
-    $PROJECT_ROOT follow standard naming. Detect env-var reads —
-    `os.environ[...]`, `os.getenv(...)`, `process.env.X`,
-    `ENV[...]`, `std::env::var`, `getenv`, `os.Getenv`, etc. For
-    each name read by the CLI itself (excluding well-known generic
+    $PROJECT_ROOT follow standard naming. Detect env-var reads
+    — whatever language-native API the code uses for reading
+    environment variables. For each name read by the CLI itself (excluding well-known generic
     names like `NO_COLOR`, `EDITOR`, `HOME`, `PATH`,
     `HTTP(S)_PROXY`, `TMPDIR`, `TERM`, `SHELL`, `PAGER`):
     (1) the name matches `^[A-Z_][A-Z0-9_]*$`,

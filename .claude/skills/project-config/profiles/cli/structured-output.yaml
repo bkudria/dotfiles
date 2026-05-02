@@ -1,7 +1,7 @@
 required: false
 description: A flag is provided for machine-readable output (`--json`, `--yaml`, `--format=json|yaml`, or equivalent).
 notes: |
-  clig.dev O5-O6 recommends `--json` for valid, machine-readable
+  A `--json` flag conventionally produces valid, machine-readable
   output suitable for piping to other tools (`<cli> --json | jq ...`).
   YAML output serves the same purpose for ecosystems that prefer
   YAML (Kubernetes-adjacent CLIs, Ansible, infrastructure tooling).

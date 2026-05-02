@@ -1,12 +1,12 @@
 required: true
 description: The CLI exits 0 on success and non-zero on failure.
 notes: |
-  clig.dev B2: "Return zero exit code on success, non-zero on
-  failure." This is the bedrock of CLI composability — pipelines,
-  `&&` chains, CI gates, and `set -e` shell scripts all depend on
-  it. Use of additional exit codes for distinguishing failure modes
-  (sysexits.h conventions, language-specific code maps) is encouraged
-  but not required.
+  CLIs should return a zero exit code on success and a non-zero
+  code on failure. This is the bedrock of CLI composability —
+  pipelines, `&&` chains, CI gates, and `set -e` shell scripts
+  all depend on it. Use of additional exit codes for
+  distinguishing failure modes (sysexits.h conventions, language-
+  specific code maps) is encouraged but not required.
 
   Common failure modes that should produce non-zero: invalid args,
   unreadable files, network errors, validation failures, unhandled
@@ -21,10 +21,10 @@ check:
   prompt: |
     Verify that the CLI at $PROJECT_ROOT exits 0 on success and
     non-zero on failure. Inspect the entry point and major error
-    paths in source for explicit non-zero exits (`exit(1)`,
-    `os.Exit(1)`, `process.exit(1)`, `Kernel.exit(1)`,
-    `std::process::exit(1)`, raised-and-uncaught exceptions
-    propagated to the runtime). Look especially for catch/except/
+    paths in source for explicit non-zero exits (whatever the
+    language uses to set the process exit code, e.g., `exit(1)`
+    and equivalents) or raised-and-uncaught exceptions propagated
+    to the runtime. Look especially for catch/except/
     rescue/recover blocks that swallow errors and fall through with
     implicit exit 0. If the CLI ships tests asserting exit codes
     (CLI snapshot tests, integration tests that check `$?`), prefer

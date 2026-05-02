@@ -1,10 +1,10 @@
 required: false
 description: Deprecated flags or subcommands print a stderr warning that names the replacement and migration path.
 notes: |
-  clig.dev FP1-FP3: "Keep changes additive — new flag rather than
-  changing an existing flag's meaning. Warn before non-additive
-  changes, in the program itself, before users hit them. Deprecation
-  warnings must include how to update usage today to be future-safe."
+  Keep changes additive — add a new flag rather than changing an
+  existing flag's meaning. Warn before non-additive changes, in
+  the program itself, before users hit them. Deprecation warnings
+  must include how to update usage today to be future-safe.
 
   Trivially met for new projects with no deprecated paths. As soon
   as a flag/subcommand is removed or renamed, the standard requires
@@ -24,10 +24,11 @@ check:
     Verify that deprecated flags or subcommands in the CLI at
     $PROJECT_ROOT print a stderr warning that names the
     replacement. Detect deprecations:
-    - search source for `deprecated`, `@deprecated`,
-      `#[deprecated]`, `Kernel.warn`, `warnings.warn`,
-      `DeprecationWarning`, `console.warn` with "deprecated",
-      `"DEPRECATED:"` string literals;
+    - search source for deprecation markers and warning calls —
+      annotations like `deprecated`/`@deprecated`/`#[deprecated]`,
+      calls to whatever deprecation-warning API the language
+      provides, or `"DEPRECATED:"` string literals printed to
+      stderr;
     - cross-reference with the CHANGELOG for any flag/subcommand
       renames or removals in recent versions.
 

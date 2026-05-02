@@ -1,12 +1,12 @@
 required: true
 description: The CLI prints its version string on `--version`.
 notes: |
-  Every CLI should answer `--version` with at least its program name
-  and version. clig.dev pairs `-h`/`--help` and `--version` as the
-  baseline interaction; GNU coding standards additionally suggest
-  copyright and license. A short `-V` flag is conventional but
-  contested (some CLIs use `-v` for verbose); presence of the long
-  form is the bar.
+  Every CLI should answer `--version` with at least its program
+  name and version. The pairing of `-h`/`--help` and `--version`
+  is the baseline CLI interaction; GNU coding standards
+  additionally suggest copyright and license. A short `-V` flag
+  is conventional but contested (some CLIs use `-v` for verbose);
+  presence of the long form is the bar.
 
   The version string should match the project's package manifest
   (Cargo.toml, pyproject.toml, package.json, gemspec, etc.) so users

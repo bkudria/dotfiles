@@ -1,11 +1,19 @@
 required: false
-description: Common error paths suggest concrete next steps.
+description: Common error paths include actionable next steps; non-trivial errors follow the explanation + recovery + reference structure.
 notes: |
-  clig.dev E1-E2: "Catch errors and rewrite them for humans with
-  actionable next steps. Provide concrete suggestions in errors
-  (e.g., 'you might need to run `chmod +w file.txt`')." A raw
-  `Error: EACCES` is a dead end; a wrapped error pointing to the
-  fix is a conversation.
+  Catch errors and rewrite them for humans with actionable next
+  steps. Provide concrete suggestions in errors (e.g., "you might
+  need to run `chmod +w file.txt`"). A raw `Error: EACCES` is a
+  dead end; a wrapped error pointing to the fix is a conversation.
+
+  For non-trivial errors, a three-part structure helps users
+  recover quickly: explanation (what went wrong in plain
+  language), recovery (the concrete command, env var, or file
+  change that fixes it), and reference (a pointer to more
+  context — a doc URL, `<cli> help <topic>`, or a man page).
+  Trivial errors (`did you mean --help?`) need only the
+  recovery piece. Reserving the full structure for non-trivial
+  errors keeps the output proportional to the failure mode.
 
   High-yield targets: file-not-found ("create with `<cli> init`"),
   permission denied ("run with sudo, or set MYAPP_HOME"),
@@ -25,11 +33,20 @@ check:
     with actionable suggestions. Inspect source for error-handling
     code in: file I/O paths, permission errors, missing-config
     paths, network-call paths, and unknown-subcommand/typo handlers.
+
     The standard meets if at least three categories of common
-    errors include guidance — concrete commands to run, env vars
-    to set, files to create, or close-match suggestions. Cosmetic
-    improvements (red-coloured text, `Error:` prefix) without
-    next-step content do not count. Report met (naming the
-    categories and quoting one short example per category) or
-    unmet (listing the categories where errors surface as raw
-    exception messages or generic strings without guidance).
+    errors include guidance (concrete commands to run, env vars to
+    set, files to create, or close-match suggestions) AND
+    non-trivial errors among those categories include all three
+    parts of the explanation + recovery + reference structure:
+    plain-language description of what went wrong, a concrete fix,
+    and a pointer to more context (doc URL, `<cli> help <topic>`,
+    or man page). Trivial errors (typo correction, unknown-flag
+    suggestions) meet with the recovery piece alone.
+
+    Cosmetic improvements (red-coloured text, `Error:` prefix)
+    without next-step content do not count. Report met (naming the
+    categories, quoting one short example per category, and
+    confirming the 3-part structure for non-trivial errors) or
+    unmet (listing the categories that surface raw exceptions or
+    recovery-only messages where the full structure is needed).

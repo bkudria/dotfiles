@@ -1,0 +1,71 @@
+required: false
+description: Subcommands that read file content accept piped input on stdin and treat `-` as the stdin filename.
+notes: |
+  CLIs that operate on file content should be pipeable. A
+  subcommand that takes a file path argument for the purpose
+  of reading and processing its content should accept input
+  via stdin in one of two forms: (a) bare-stdin — when no
+  file argument is provided, read from stdin; or (b)
+  `-`-sentinel — when the file argument is the literal `-`,
+  read from stdin instead of opening a file. Either form (or
+  both) meets the standard; both is preferred because the
+  two conventions are independently useful (bare-stdin is
+  ergonomic at the prompt; `-` composes with subcommands
+  that take multiple file arguments).
+
+  Without stdin acceptance, users are forced to materialize
+  temporary files to compose with other tools:
+  `<other-cli> > tmp.txt && <cli> tmp.txt && rm tmp.txt`.
+  With it, the same composition becomes one pipe:
+  `<other-cli> | <cli>`. This is the line between a UNIX-
+  citizen CLI and one that breaks pipelines.
+
+  Trivially met for CLIs whose subcommands do not read file
+  content (deploy tools, daemons, REPLs, container/process
+  managers, CLIs that take file paths only for creating,
+  deleting, moving, or permission-changing files rather
+  than processing their content). When applicable, the
+  standard expects every file-content subcommand to support
+  stdin — not merely one demonstrative subcommand — because
+  partial support fragments the UNIX-composability story.
+
+  Default severity is SUGG because most CLIs are not data-
+  shaped. CLIs designed as filters or transformers (anything
+  in the lineage of `cat`, `grep`, `sed`, `jq`) should pin
+  via `required: [cli/stdin-input-support]` — broken stdin
+  handling defeats the entire purpose of such a tool.
+check:
+  prompt: |
+    Verify that subcommands in the CLI at $PROJECT_ROOT
+    which read file content accept piped input on stdin.
+    Identify file-content subcommands by inspecting source:
+    subcommands whose handler opens a file passed as a
+    positional argument and reads its bytes for processing
+    (parsing, transforming, counting, validating,
+    displaying, etc.). Subcommands that take file paths but
+    only create, delete, move, or permission-change files
+    without reading content do not count.
+
+    If no file-content subcommands exist, report met with
+    that fact. Otherwise, for each such subcommand verify at
+    least one of:
+    (a) bare-stdin: when invoked without the file argument,
+        the subcommand reads from stdin;
+    (b) `-`-sentinel: when invoked with the literal `-` as
+        the file argument, the subcommand reads from stdin
+        instead of attempting to open a file named `-`.
+    Both forms in one subcommand is preferred but not
+    required.
+
+    The verifier may run `echo <test-input> | <cli> <subcmd>`
+    and `echo <test-input> | <cli> <subcmd> -` if the
+    subcommand can be invoked cheaply; otherwise inspect the
+    file-opening logic in source for an early branch on the
+    argument value or a check on `isatty(stdin)` /
+    equivalent.
+
+    Report met (with the file-content subcommand inventory
+    and a one-line confirmation per subcommand of the
+    convention(s) supported) or unmet (listing the file-
+    content subcommands that only accept a file path and do
+    not read stdin in either form).

@@ -1,0 +1,50 @@
+required: false
+description: Subcommands prefer named flags over multiple positional arguments when input order is not obvious.
+notes: |
+  Named flags have several advantages over positional arguments:
+  they accept any order, yield clearer error messages (the parser
+  knows what's missing by name), enable shell-completion to
+  suggest values typed for the right slot, and make scripts
+  self-documenting at the call site (`fork --from src --to dst`
+  reads better than `fork src dst`).
+
+  Positional arguments are appropriate when:
+  - there is exactly one positional, OR
+  - the order is obvious from convention (`SRC DST` for copy/move,
+    `INPUT OUTPUT` for transformers), OR
+  - the arguments are variadic/rest of the same kind (a list of
+    files, a list of patterns).
+
+  The anti-pattern: a subcommand with two or more positionals
+  whose roles are *not* symmetric and *not* conventional, where
+  swapping them silently changes meaning (`fork dest source`
+  instead of `fork source dest`). Such subcommands should accept
+  flags instead.
+
+  Default severity is SUGG because positional arguments remain
+  idiomatic for many CLIs and the line between "obvious order" and
+  "scripting trap" is a judgment call.
+check:
+  prompt: |
+    Verify that subcommands in the CLI at $PROJECT_ROOT prefer
+    named flags over positional arguments when the order of
+    multiple inputs is not obvious. Inspect the subcommand
+    declarations in the project source.
+
+    For each subcommand declaring two or more positional arguments,
+    judge whether the order is obvious:
+    - obvious: `SRC DST`-style (copy, move, link, rename),
+      `INPUT OUTPUT`-style transforms, variadic or rest arguments
+      of one uniform kind (list of files, list of names);
+    - not obvious: positional names that suggest different roles
+      (`source-app destination-region`, `target user`,
+      `name value config`) where the parser cannot detect a
+      misordering.
+
+    The standard meets if every subcommand with 2+ positionals has
+    obvious-order or variadic semantics. Subcommands with one
+    positional, no positionals, or only flags meet trivially.
+    Report met (with the subcommand inventory and a one-line
+    summary of which fall into each category) or unmet (listing
+    subcommands with non-obvious 2+ positional shapes that should
+    accept flags instead).

@@ -1,0 +1,70 @@
+required: false
+description: User-level config, data, and cache files are stored under XDG-spec directories (`$XDG_CONFIG_HOME`, `$XDG_DATA_HOME`, `$XDG_CACHE_HOME`) or platform-native equivalents.
+notes: |
+  The XDG Base Directory Specification defines three categories of
+  per-user storage with stable, override-able defaults:
+  - `$XDG_CONFIG_HOME` (default `~/.config/<app>/`) for
+    user-edited preferences (typically YAML/JSON/TOML/INI).
+    Survives across versions; users may version-control it or
+    sync it across machines.
+  - `$XDG_DATA_HOME` (default `~/.local/share/<app>/`) for
+    persistent data the CLI generates that the user shouldn't
+    have to re-create (history, sessions, downloaded indexes,
+    custom plugins). Survives across versions; should not be
+    deleted on cleanup.
+  - `$XDG_CACHE_HOME` (default `~/.cache/<app>/`) for
+    re-derivable scratch (HTTP response caches, parser caches,
+    thumbnails). Safe to delete; the CLI should function (more
+    slowly) after a manual wipe.
+
+  Dropping a `~/.<app>rc` file, a `~/.<app>/` directory, or any
+  HOME-direct path in lieu of the XDG dirs is the older (pre-XDG)
+  convention. The modern expectation is the category-specific XDG
+  dir with override support via the corresponding env var.
+
+  Trivially met for CLIs that store nothing per-user (project-only
+  config, env-var-only config, no persistent state at all).
+  Otherwise: the CLI should read the relevant `$XDG_*_HOME` env
+  var if set, fall back to the spec default, and ideally migrate
+  any legacy `~/.<app>` content on first access for backwards
+  compat (the migration is optional for new CLIs).
+
+  Platform-native equivalents are acceptable on macOS and Windows:
+  - macOS: `~/Library/Application Support/<app>/` for config and
+    data, `~/Library/Caches/<app>/` for cache.
+  - Windows: `%APPDATA%\<app>\` for config, `%LOCALAPPDATA%\<app>\`
+    for data and cache (with a `Cache` subdirectory if the CLI
+    distinguishes the two).
+
+  Default severity is SUGG. CLIs that legitimately need to live
+  outside the user dirs (system services, root-owned daemons) are
+  trivially met for the per-user categories.
+check:
+  prompt: |
+    Verify that user-level config, data, and cache in the CLI at
+    $PROJECT_ROOT are stored under XDG-spec directories or
+    platform-native equivalents. For each category that applies:
+    - config (`$XDG_CONFIG_HOME` / `~/.config/<app>/`): inspect
+      source for config-path resolution — `XDG_CONFIG_HOME` reads,
+      `~/.config/` paths, or any language-native config-dir
+      helper that resolves to the XDG path;
+    - data (`$XDG_DATA_HOME` / `~/.local/share/<app>/`): look for
+      persistent-state writes — history files, session stores,
+      downloaded artefacts, plugin install dirs;
+    - cache (`$XDG_CACHE_HOME` / `~/.cache/<app>/`): look for
+      ephemeral writes — HTTP caches, parser caches, temporary
+      indexes.
+
+    Platform-native equivalents are acceptable: `~/Library/
+    Application Support/<app>/` and `~/Library/Caches/<app>/` on
+    macOS, `%APPDATA%\<app>\` and `%LOCALAPPDATA%\<app>\` on
+    Windows.
+
+    If the CLI has no user-level storage in a given category, that
+    category trivially meets. The standard is unmet for any
+    category whose writes go to a HOME-direct path (`~/.<app>rc`,
+    `~/.<app>/`, `~/.<app>cache/`, etc.) without an XDG fallback.
+    Report met (with each applicable category, the resolution
+    mechanism, and the resolved default) or unmet (listing the
+    specific category whose path is non-XDG and recommending the
+    XDG dir for it).

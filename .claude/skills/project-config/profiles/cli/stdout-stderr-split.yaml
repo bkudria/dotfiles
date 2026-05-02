@@ -1,18 +1,19 @@
 required: true
 description: Primary or machine-readable output goes to stdout; logs, status, and errors go to stderr.
 notes: |
-  clig.dev B3-B6: "Send primary output to stdout. Anything machine-
-  readable goes to stdout. Send messaging (logs, errors, status) to
-  stderr. When piped, stderr messages should reach the user, not the
-  next program." The discipline matters because users frequently pipe
-  CLI output to other tools (`<cli> | jq`, `<cli> | grep`, `<cli> >
-  file`); errors mixed into stdout corrupt downstream consumers.
+  Primary and machine-readable output goes to stdout. Logs, errors,
+  status, and other messaging go to stderr. When piped, stderr
+  messages should still reach the user rather than the next
+  program. The discipline matters because users frequently pipe
+  CLI output to other tools (`<cli> | jq`, `<cli> | grep`,
+  `<cli> > file`); errors mixed into stdout corrupt downstream
+  consumers.
 
-  The most common failures: a single `print`/`puts`/`println` API
-  used for both data and status messages; libraries that log to
-  stdout by default; progress bars or spinners drawn on stdout.
-  Python's stdlib `logging` defaults to stderr (good); Ruby's
-  `Logger.new(STDOUT)` defaults to stdout (bad if used for status).
+  The most common failures: a single print/output API used for
+  both data and status messages; libraries that log to stdout by
+  default; progress bars or spinners drawn on stdout. Some
+  language standard-library loggers default to stderr (good);
+  some default to stdout (bad if used for status).
 
   Required because mixed streams break pipelines and CI, often
   silently — the bug only manifests when output is consumed
@@ -21,12 +22,11 @@ check:
   prompt: |
     Verify that the CLI at $PROJECT_ROOT directs primary output to
     stdout and logs/errors/status messages to stderr. Inspect the
-    entry point and major output paths for the API used: stdout
-    (`print`, `puts`, `println!`, `fmt.Println`, `console.log`,
-    `print` to `sys.stdout`) versus stderr (`eprintln!`,
-    `console.error`, `print` to `sys.stderr`, `STDERR.puts`,
-    `fmt.Fprintln(os.Stderr, ...)`). Look at error reporting,
-    status/progress messages, and any log-library configuration.
+    entry point and major output paths for whether each output
+    call writes to stdout (the default for most print APIs) or
+    stderr (the language-native or library-provided stderr API).
+    Look at error reporting, status/progress messages, and any
+    log-library configuration.
     The standard meets if non-error output (data, query results,
     generated content) goes to stdout AND error/status output
     goes to stderr. Report met (with the pattern observed and a

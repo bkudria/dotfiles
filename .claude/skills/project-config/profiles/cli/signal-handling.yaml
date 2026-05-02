@@ -1,18 +1,17 @@
 required: false
 description: SIGINT exits promptly with a bounded cleanup window; a second Ctrl-C short-circuits remaining cleanup.
 notes: |
-  clig.dev SIG1-SIG5: "On Ctrl-C (SIGINT), exit as fast as possible.
-  Acknowledge the signal immediately. Add a timeout to all cleanup
-  code. A second Ctrl-C should skip remaining cleanup. Tell the
-  user what a second Ctrl-C will do." A CLI that hangs on Ctrl-C
-  is one of the most user-hostile CLI bugs.
+  On Ctrl-C (SIGINT), the CLI should exit as fast as possible.
+  Acknowledge the signal immediately, bound any cleanup code with
+  a timeout, and let a second Ctrl-C skip remaining cleanup. The
+  CLI should tell the user what a second Ctrl-C will do. A CLI
+  that hangs on Ctrl-C is one of the most user-hostile CLI bugs.
 
-  In most languages, default SIGINT raises an exception (Python
-  `KeyboardInterrupt`, Go context cancellation, Rust `ctrlc` crate,
-  Ruby `Interrupt`). The bar here is: (1) the CLI doesn't trap
-  SIGINT and ignore it, (2) any cleanup logic has a bounded
-  timeout or is fast (sub-second), (3) ideally a second SIGINT
-  exits immediately.
+  In most languages, default SIGINT either raises an exception or
+  cancels a context, propagating the signal to user code. The bar
+  here is: (1) the CLI doesn't trap SIGINT and ignore it, (2) any
+  cleanup logic has a bounded timeout or is fast (sub-second),
+  (3) ideally a second SIGINT exits immediately.
 
   Default severity is SUGG. CLIs that orchestrate long operations
   with mandatory cleanup (transactions, file locks, partial
@@ -23,9 +22,8 @@ check:
   prompt: |
     Verify that the CLI at $PROJECT_ROOT handles SIGINT (Ctrl-C)
     promptly and bounds any cleanup. Inspect signal handlers
-    (`signal.signal`, `os/signal`, `ctrlc::set_handler`,
-    `tokio::signal`, `Signal.trap`, `process.on('SIGINT')`),
-    top-level finally/defer blocks, and any long-running loops or
+    (whatever signal-handling API the project uses), top-level
+    finally/defer blocks, and any long-running loops or
     operations. The standard meets if: (1) SIGINT is not silently
     ignored or trapped to a no-op, (2) cleanup logic (file locks,
     temp files, transactions) is either quick or has a bounded

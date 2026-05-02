@@ -1,15 +1,15 @@
 required: false
 description: If the CLI invokes a pager, it does so only when stdout is a TTY and respects the `$PAGER` environment variable.
 notes: |
-  clig.dev O25-O27: "Use a pager when emitting lots of text. Only
-  invoke pager when stdin or stdout is a TTY. Use `less -FIRX` as
-  sensible default flags." `-F` quits if output fits on one screen,
+  Use a pager when emitting lots of text. Only invoke the pager
+  when stdin or stdout is a TTY. Sensible default flags for
+  `less` are `-FIRX`: `-F` quits if output fits on one screen,
   `-R` passes raw color codes through, `-X` disables alternate
-  screen so paged content remains in the scrollback after exit.
-  `-I` makes searches case-insensitive (a comfort default).
+  screen so paged content remains in the scrollback after exit,
+  and `-I` makes searches case-insensitive (a comfort default).
 
   Trivially met if the CLI does not invoke a pager. Otherwise: the
-  pager invocation must be gated on `isatty(stdout)`, must respect
+  pager invocation must be gated on a TTY check for stdout, must respect
   `$PAGER` (treat empty `$PAGER` as "no pager", treat
   `PAGER=cat` as a no-op pass-through), and ideally pass
   TTY-friendly flags. The most common drift is paging

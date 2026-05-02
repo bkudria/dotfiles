@@ -1,0 +1,47 @@
+required: false
+description: Each subcommand name uses lowercase letters/digits/dashes only, with optional `:` or space namespacing.
+notes: |
+  Subcommand names should use lowercase letters and dashes only.
+  Multi-word names use kebab-case (e.g.,
+  `topic:subtopic:command-with-dashes`). Underscores, camelCase,
+  and uppercase letters break muscle memory and shell-completion
+  expectations.
+
+  Naming style varies:
+  - colon-namespaced (`<topic>:<command>`)
+  - space-delimited (`<topic> <subcommand>`)
+  - flat (no nesting)
+
+  This standard applies to whichever style is used: each name part
+  (between `:` or space separators) should match
+  `^[a-z][a-z0-9-]*$`. The check inspects however the CLI registers
+  command names in the project source.
+
+  A common anti-pattern: a `<topic>:list` or `<topic>-list`
+  subcommand alongside a bare `<topic>` topic that already
+  enumerates members. If the parent topic lists by default, the
+  explicit `list` child is redundant.
+
+  Default severity is SUGG because rename-after-release is hard.
+  Greenfield projects should pin to FAIL.
+check:
+  prompt: |
+    Verify that subcommand names in the CLI at $PROJECT_ROOT use
+    lowercase letters, digits, and dashes only. Detect subcommand
+    names from however the project registers commands (parser
+    declarations, command-class definitions, file conventions, or
+    by running `<cli> --help` and parsing the COMMANDS section).
+
+    For each subcommand name, split on `:` and on space (whichever
+    the CLI uses for nesting) and verify each part matches
+    `^[a-z][a-z0-9-]*$` — no underscores, no camelCase, no
+    uppercase, no leading digits. If a `<topic>:list` or
+    `<topic>-list` subcommand exists, check whether the bare
+    `<topic>` already lists; if so, flag the `list` child as
+    redundant.
+
+    Trivially met if the CLI has no subcommands. Otherwise report
+    met (with the subcommand count and a one-line note that all
+    names match the pattern) or unmet (listing the names that
+    violate the pattern, plus any redundant `*:list` / `*-list`
+    siblings).

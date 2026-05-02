@@ -1,8 +1,9 @@
 required: false
 description: The CLI honors widely-used env vars where applicable (`NO_COLOR`, `EDITOR`, `PAGER`, `HTTP(S)_PROXY`, `TMPDIR`, `TERM`).
 notes: |
-  clig.dev EV5: a list of cross-tool env vars the CLI should respect
-  when its functionality intersects with them. Concretely:
+  Several cross-tool env vars are widely respected and should be
+  honored when the CLI's functionality intersects with them.
+  Concretely:
   - `NO_COLOR` if it emits color
   - `EDITOR` / `VISUAL` if it opens an editor
   - `PAGER` if it pages output

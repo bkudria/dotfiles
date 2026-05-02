@@ -1,8 +1,8 @@
 required: false
 description: Configuration precedence is documented (highest to lowest, e.g., flags > env > project config > user config > system).
 notes: |
-  clig.dev C8: "Precedence order: flags → shell env vars →
-  project-level config → user-level config → system-wide config."
+  The conventional precedence order is flags → shell env vars →
+  project-level config → user-level config → system-wide config.
   When a CLI accepts the same setting from multiple layers, users
   need to know which layer wins.
 
@@ -10,8 +10,8 @@ notes: |
   or just a single config file). For CLIs with multiple layers,
   the precedence must be documented (in `--help`, the README, or
   a docs page) AND match the implementation. A documented
-  deviation from the canonical clig.dev order is acceptable as
-  long as it is intentional and explained.
+  deviation from the canonical order is acceptable as long as it
+  is intentional and explained.
 
   Default severity is SUGG. CLIs with rich config schemes (deploy
   tools, build systems, package managers) should pin to FAIL —
@@ -28,7 +28,6 @@ check:
     statement (table, ordered list, or prose). The standard meets
     if precedence is documented AND the documented ordering matches
     the implementation OR a deliberate deviation from the canonical
-    clig.dev order (flags > env > project > user > system) is
-    explained. Report met (with the documentation location and
+    order (flags > env > project > user > system) is explained. Report met (with the documentation location and
     the ordering observed) or unmet (with the layers detected and
     the absence of any precedence documentation).

@@ -1,0 +1,48 @@
+required: false
+description: Destructive subcommands (delete/drop/purge/reset) confirm interactively or require an explicit bypass flag.
+notes: |
+  Operations that delete or destroy state without confirmation are
+  one of the most common CLI safety defects. The convention is:
+  prompt the user to confirm when running interactively (stdin is
+  a TTY), and require an explicit bypass flag (`--yes` /
+  `--force` / `--no-confirm`) for scripted contexts. Without this
+  gate, a typo or stale tab-completion can wipe data
+  irrecoverably.
+
+  Subcommand names that suggest destructive operations:
+  `delete`, `destroy`, `drop`, `purge`, `remove`, `rm`, `clear`,
+  `wipe`, `prune`, `reset`. Verbs alone are not always definitive
+  (`clear-screen` is harmless; `reset-config` may or may not be
+  destructive); the verifier judges per command whether the
+  operation actually destroys recoverable state.
+
+  Companion to `cli/interactive-tty-gating` (which governs *when*
+  prompts fire) and `cli/non-interactive-mode` (which governs the
+  scripting bypass mechanism). This standard adds the requirement
+  that the gate must exist for destructive operations specifically.
+
+  Default severity is SUGG. CLIs that mutate remote state, files,
+  or databases should pin to FAIL.
+check:
+  prompt: |
+    Verify that destructive subcommands in the CLI at $PROJECT_ROOT
+    confirm interactively and/or require an explicit bypass flag.
+    Identify destructive subcommands by name pattern (`delete`,
+    `destroy`, `drop`, `purge`, `remove`, `rm`, `clear`, `wipe`,
+    `prune`, `reset`, or any subcommand whose action mutates state
+    irreversibly) and judge per subcommand whether it actually
+    destroys recoverable state (some `clear-screen` or
+    `reset-display` verbs are non-destructive).
+
+    For each destructive subcommand, verify one of:
+    - an interactive confirmation prompt is invoked when stdin is
+      a TTY, AND a `--yes` / `--force` / `--no-confirm` flag
+      bypasses the prompt for non-interactive use, OR
+    - the operation refuses to proceed without a `--yes` /
+      `--force` flag regardless of TTY state.
+
+    Trivially met if the CLI has no destructive subcommands.
+    Report met (with the destructive-subcommand inventory and a
+    one-line confirmation per item that the gate is present) or
+    unmet (listing destructive subcommands that mutate without
+    consent paths).

@@ -1,9 +1,9 @@
 required: false
 description: A `-q` / `--quiet` flag (or verbosity axis) suppresses non-essential output.
 notes: |
-  clig.dev O8: "Provide -q/--quiet to suppress non-essential output."
-  Useful for scripted invocation, cron jobs, and CI logs where a
-  CLI's status chatter is noise. Quiet does not mean silent —
+  CLIs should provide `-q`/`--quiet` to suppress non-essential
+  output. Useful for scripted invocation, cron jobs, and CI logs
+  where a CLI's status chatter is noise. Quiet does not mean silent —
   errors should still go to stderr, and the standard exit-code
   contract still holds; only progress, hints, and informational
   messages are suppressed.
