@@ -14,9 +14,8 @@ notes: |
   - `HOME` for resolving user paths
   - `SHELL` if it spawns interactive shells
 
-  This is the symmetric companion to `cli/env-var-naming`: that
-  one governs *how the CLI names its own env vars*; this one
-  governs *which generic env vars the CLI should respect*.
+  This standard governs *which generic env vars the CLI should
+  respect*, not how the CLI names its own env vars.
 
   Many of these are honored by libraries automatically (HTTP
   libraries usually honor proxy vars; modern color libraries
