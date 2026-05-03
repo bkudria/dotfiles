@@ -169,6 +169,14 @@ detect_project_context() {
     printf -- '- Package manager: %s\n' "$pm"
   fi
   printf -- '- Primary manifest: %s\n' "$manifest"
+  if git -C "$root" rev-parse --is-inside-work-tree >/dev/null 2>&1; then
+    local listing
+    listing=$(git -C "$root" ls-files 2>/dev/null | head -200)
+    if [[ -n "$listing" ]]; then
+      printf -- '- Project file listing (git ls-files, max 200 entries):\n'
+      printf '%s\n' "$listing"
+    fi
+  fi
 }
 
 # ───── --collect ────────────────────────────────────────────────────────────

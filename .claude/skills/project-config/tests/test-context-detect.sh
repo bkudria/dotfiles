@@ -191,4 +191,24 @@ script_status=$(printf '%s' "$out" | jq -r '.resolved[] | select(.id=="probe/scr
 assert_eq "script-based standard resolves normally" "PASS" "$script_status"
 rm -rf "$proj"
 
+# --- Test 10: project_context includes a git-derived file listing ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [probe]
+EOF
+cat > "$proj/package.json" <<'EOF'
+{"name": "x"}
+EOF
+mkdir -p "$proj/src" "$proj/bin"
+touch "$proj/src/cli.ts" "$proj/bin/foo" "$proj/README.md"
+git -C "$proj" init -q
+git -C "$proj" add -A
+out=$(run_collect_required "$proj")
+context=$(printf '%s' "$out" | jq -r '.project_context // ""')
+assert_contains "project_context has file-listing header" "Project file listing" "$context"
+assert_contains "project_context lists package.json" "package.json" "$context"
+assert_contains "project_context lists src/cli.ts"   "src/cli.ts"    "$context"
+assert_contains "project_context lists bin/foo"      "bin/foo"       "$context"
+rm -rf "$proj"
+
 summary
