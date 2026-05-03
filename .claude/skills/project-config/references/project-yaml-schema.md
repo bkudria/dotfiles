@@ -118,7 +118,7 @@ Each YAML file under `profiles/<profile>/` is a self-contained standard. The sta
 | `check` | object | yes | Exactly one of `check.script` or `check.prompt`. Never both, never neither. |
 | `check.script` | string | — | Bash script executed under `set -euo pipefail` with `$PROJECT_ROOT` set. Exit 0 = met; non-zero = unmet. The last non-empty stdout line becomes the row's `Detail`. |
 | `check.prompt` | string | — | Prompt rendered with `$PROJECT_ROOT` substituted, then sent to a sub-agent for verification. The sub-agent returns a `{"met": bool, "detail": string}` JSON block. |
-| `notes` | string | no | Multi-paragraph maintainer-facing context (file precedence rules, why this standard exists, edge cases, links). Never surfaced in audit output. |
+| `notes` | string | no | Multi-paragraph maintainer-facing context (file precedence rules, why this standard exists, edge cases, links). For prompt-based standards, notes are threaded into the rendered verifier prompt as a labeled background section between `project_context` and the check body. For script-based standards, notes are not surfaced at runtime (there is no verifier to read them). Never surfaced in the rendered audit table or `--render` output. |
 
 ### Deterministic example
 

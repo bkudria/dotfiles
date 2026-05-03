@@ -36,6 +36,9 @@ EOF
 cat > "$SKILL_TMP/profiles/testfx/manual.yaml" <<'EOF'
 required: true
 description: "A manual standard verified by prompt."
+notes: |
+  Edge case to remember: the thingy can be in either /etc/thingy or
+  ~/.config/thingy; check ~/.config first (XDG precedence).
 check:
   prompt: |
     Verify thingy at $PROJECT_ROOT.
@@ -185,6 +188,27 @@ manual_status=$(jq -r '.resolved[] | select(.id=="testfx/manual") | .status' "$s
 manual_detail=$(jq -r '.resolved[] | select(.id=="testfx/manual") | .detail' "$state/merged.json")
 assert_eq "raw-JSON response resolves to PASS" "PASS" "$manual_status"
 assert_eq "raw-JSON detail carried through" "raw-json verified" "$manual_detail"
+rm -rf "$proj" "$state"
+
+# --- Test 11: prompt rendered for a YAML with notes embeds the notes
+#              under a labeled background section, between project_context
+#              and the check.prompt body. ---
+proj=$(mktemp -d)
+cat > "$proj/project.yaml" <<'EOF'
+profiles: [testfx]
+EOF
+touch "$proj/.marker"
+state=$("$RUNNER" --init)
+CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
+prompt_path=$(jq -r '.pending[] | select(.id=="testfx/manual") | .prompt_path' "$state/collect-required.json")
+prompt_contents=$(cat "$prompt_path" 2>/dev/null || echo "")
+assert_contains "prompt embeds the notes label"      "Maintainer notes for this standard" "$prompt_contents"
+assert_contains "prompt embeds the notes content"    "XDG precedence"                     "$prompt_contents"
+assert_contains "prompt still embeds the check body" "Verify thingy at"                   "$prompt_contents"
+notes_pos=$(printf '%s' "$prompt_contents" | awk '/Maintainer notes/ {print NR; exit}')
+check_pos=$(printf '%s' "$prompt_contents" | awk '/Verify thingy at/ {print NR; exit}')
+[[ -n "$notes_pos" && -n "$check_pos" && "$notes_pos" -lt "$check_pos" ]] && order_ok=1 || order_ok=0
+assert_eq "notes block appears before check body in rendered prompt" "1" "$order_ok"
 rm -rf "$proj" "$state"
 
 summary

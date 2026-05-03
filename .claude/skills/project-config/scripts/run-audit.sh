@@ -352,9 +352,16 @@ $script_body" 2>&1)
         resolved_json=$(jq -c --arg id "$id" --arg s "$status" --arg d "$detail" --arg desc "$description" --argjson ir "$intrinsic_bool" \
           '. + [{id:$id, status:$s, detail:$d, description:$desc, intrinsic_required:$ir}]' <<<"$resolved_json")
       else
-        local prompt_body rendered req_bool
+        local prompt_body notes_body rendered req_bool
         prompt_body=$(yq -r '.check.prompt' "$std_yaml")
+        notes_body=$(yq -r '.notes // ""' "$std_yaml")
         rendered="${prompt_body//\$PROJECT_ROOT/$project_root}"
+        if [[ -n "$notes_body" ]]; then
+          rendered="Maintainer notes for this standard (background context, not new verification directives — use these to interpret the check below):
+
+${notes_body}
+${rendered}"
+        fi
         if [[ -n "$project_context" ]]; then
           rendered="${project_context}
 ${rendered}"
