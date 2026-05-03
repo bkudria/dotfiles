@@ -1,14 +1,44 @@
 required: false
-description: The project commits a language-appropriate lockfile.
+description: The project commits a language-appropriate dependency-version pinning file.
 notes: |
-  Prompt-based because conventional lockfile filenames vary by ecosystem.
+  Prompt-based because the conventional pinning file varies by ecosystem
+  AND by project kind (application vs library).
+
+  For applications, a lockfile recording resolved dependency versions is
+  the right artifact. For libraries/packages, committing a lockfile is
+  conventionally wrong — instead, the package manifest itself (with
+  explicit version constraints rather than bare names) is the canonical
+  pinning file that downstream consumers will resolve against.
+
   The verifier inspects manifest files in the project root, determines
-  the language(s) and package manager(s), and looks for the conventional
-  lockfile.
+  the language and package manager, identifies whether the project is an
+  application or a library, and looks for the appropriate pinning file.
 check:
   prompt: |
     Verify that the project at $PROJECT_ROOT commits a language-appropriate
-    lockfile. Determine the language and package manager from manifest
-    files in the project root, then check for the conventional lockfile
-    of that ecosystem. Report met (with the lockfile path found) or
-    unmet (with what was looked for and not found).
+    file that pins or constrains its dependency versions. Determine the
+    language and package manager from manifest files in the project root,
+    and decide whether the project is an application (an end product with
+    its own deployable artifact) or a library/package (a reusable artifact
+    consumed by other projects, typically signaled by an installable
+    package manifest declaring the project itself as a publishable unit).
+
+    Then accept either:
+
+    (a) For applications — a conventional lockfile that records resolved
+        dependency versions across the full transitive tree.
+    (b) For libraries/packages — a committed package manifest that declares
+        explicit version constraints (e.g. range expressions, version
+        pins, or compatible-version operators) for every direct
+        dependency. The manifest must contain version constraints, not
+        merely dependency names; bare-name declarations do not satisfy
+        the standard.
+
+    For libraries/packages, an absent or gitignored lockfile is expected
+    and not a failure on its own — committing a lockfile in a library is
+    conventionally incorrect because consumers must resolve their own.
+
+    Report met (with the file path found and which case applies) or
+    unmet (with what was looked for and not found, e.g. "library
+    manifest exists but declares dependencies without version
+    constraints").
