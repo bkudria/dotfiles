@@ -1,0 +1,51 @@
+#!/bin/sh
+# Conventional Commits commit-msg hook.
+#
+# Validates the first non-comment line of a commit message against:
+#   <type>(<scope>)?!?: <subject>
+#
+# Allowed types: feat, fix, docs, style, refactor, perf, test, build, ci,
+#                chore, revert.
+#
+# Bypassed (exit 0 with no check): empty messages, merge commits, default
+# revert messages, and fixup!/squash! interactive-rebase markers.
+#
+# Wire it up per-repo with:
+#   git config hook.commit-msg.command <absolute-path-to-this-script>
+
+set -eu
+
+msg_file=$1
+subject=$(grep -v '^#' "$msg_file" | sed -n '1p' | sed 's/[[:space:]]*$//')
+
+case "$subject" in
+  "") exit 0 ;;
+  "Merge "*) exit 0 ;;
+  "Revert "*) exit 0 ;;
+  "fixup! "*|"squash! "*) exit 0 ;;
+esac
+
+pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9._/-]+\))?!?: .+'
+
+if printf '%s\n' "$subject" | grep -Eq "$pattern"; then
+  exit 0
+fi
+
+cat >&2 <<'EOF'
+Commit message does not follow Conventional Commits.
+
+  Format:  <type>(<scope>)?!?: <subject>
+
+  Allowed types:
+    feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
+
+  Examples:
+    feat: add init command for retrogator
+    fix(check): treat empty config as block
+    refactor(rewrite)!: change signature policy default
+    docs: explain the pre-push hook protocol
+
+  Bypassed automatically: merge commits, default revert messages,
+  fixup!/squash! commits, and empty messages.
+EOF
+exit 1
