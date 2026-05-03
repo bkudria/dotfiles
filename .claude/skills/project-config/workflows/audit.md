@@ -47,7 +47,9 @@ The runner reads `<project-root>/project.yaml` (and exits with a descriptive err
 
 `suggested_total` is the count of would-have-been-suggested standards that round 1 *deliberately skipped* — render uses it to surface the skipped count if the gate later trips.
 
-**GATE — No prompt extraction. Do NOT write prompt content to bash output, `/tmp/...`, or any side file. Read `$STATE_DIR/collect-required.json` once for the index — it lists each pending entry's `id`, `required`, `description`, `prompt_path`, and `response_path`. Then, for each pending entry, Read the file at its `prompt_path` and copy that file's contents verbatim into the corresponding Agent tool_use's `prompt` parameter. Do NOT `mkdir`, `for`-loop dump, `jq` enumerate, or echo prompts through Bash; the per-entry prompt files are the only sanctioned source of prompt text.**
+**GATE — No prompt extraction. Do NOT write prompt content to bash output, `/tmp/...`, or any side file. Read `$STATE_DIR/collect-required.json` once for the index — it lists each pending entry's `id`, `required`, `description`, `prompt_path`, and `response_path`. Then, for each pending entry, Read the file at its `prompt_path` and copy that file's contents verbatim into the corresponding Agent tool_use's `prompt` parameter. Do NOT `mkdir`, `for`-loop dump, `jq` enumerate, or echo prompts through Bash; the per-entry prompt files are the only sanctioned source of prompt text. Issue all `pending.length` Reads as parallel tool_use blocks in **one** assistant message — do not stream them across multiple turns.**
+
+**GATE — Single-message Reads (round 1). Before sending your Read message, count the Read tool_use blocks it contains. That count MUST equal `pending.length` from `collect-required.json`. Do NOT split Reads across multiple messages — a Read message with fewer Read tool_uses than `pending.length` is malformed and must be revised before sending.**
 
 For every entry in `pending`, dispatch a `general-purpose` sub-agent with `model: 'haiku'` whose prompt is the contents of the file at the entry's `prompt_path`, copied verbatim. The runner has already baked in the description, the prompt body, and a directive instructing the agent to write `{"met": true|false, "detail": "<one-line>"}` to its `response_path` using the Write tool. The agent's conversational reply is ignored; only the file matters.
 
@@ -90,7 +92,9 @@ scripts/run-audit.sh --collect <project-root> "$STATE_DIR" --scope suggested
 
 The runner walks the same profiles but **filters to effective-suggested standards only** (intrinsic `required: false` AND id NOT in project.yaml's `required:` overrides). Output is `<state-dir>/collect-suggested.json` with the same shape as round 1 (minus `suggested_total`).
 
-**GATE — No prompt extraction (round 2). Same rule as round 1: Read `collect-suggested.json` once for the index, then Read each pending entry's `prompt_path` to copy that file's contents verbatim into its Agent block. Do NOT mkdir, jq enumerate, or echo prompts through Bash.**
+**GATE — No prompt extraction (round 2). Same rule as round 1: Read `collect-suggested.json` once for the index, then Read each pending entry's `prompt_path` to copy that file's contents verbatim into its Agent block. Do NOT mkdir, jq enumerate, or echo prompts through Bash. Issue all `pending.length` Reads as parallel tool_use blocks in **one** assistant message — do not stream them across multiple turns.**
+
+**GATE — Single-message Reads (round 2). Before sending your Read message, count the Read tool_use blocks it contains. That count MUST equal `pending.length` from `collect-suggested.json`. Do NOT split Reads across multiple messages — a Read message with fewer Read tool_uses than `pending.length` is malformed and must be revised before sending.**
 
 For every entry in this round's `pending`, dispatch a `general-purpose` sub-agent with `model: 'haiku'` whose prompt is the contents of the file at the entry's `prompt_path`, copied verbatim. After all return, run merge again:
 
