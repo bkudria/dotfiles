@@ -397,30 +397,14 @@ The file's contents must be exactly one JSON object: {\"met\": true|false, \"det
 
 # ───── --merge ──────────────────────────────────────────────────────────────
 
-extract_last_json_block() {
-  local input="$1"
-  printf '%s\n' "$input" | awk '
-    /^```json[[:space:]]*$/ { in_block=1; buf=""; next }
-    /^```[[:space:]]*$/     { if (in_block) { last_block=buf; in_block=0 }; next }
-    in_block                { buf = buf $0 "\n" }
-    END                     { printf "%s", last_block }
-  '
-}
-
 # Extract a JSON payload from a sub-agent response. Per the dispatch
-# directive, agents Write a single raw JSON object to their response_path.
-# Try that contract first; fall back to extracting the last fenced
-# ```json ... ``` block for backward compatibility with older responses.
+# directive, agents Write a single raw JSON object to their response_path —
+# nothing else, no fenced code block, no surrounding prose. Anything that is
+# not a parseable raw JSON object is rejected and merge records FAIL.
 extract_json_payload() {
   local input="$1"
   if echo "$input" | jq -e '.' >/dev/null 2>&1; then
     printf '%s' "$input"
-    return
-  fi
-  local block
-  block=$(extract_last_json_block "$input")
-  if [[ -n "$block" ]]; then
-    printf '%s' "$block"
   fi
 }
 

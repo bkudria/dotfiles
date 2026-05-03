@@ -173,8 +173,8 @@ check:
 ### Prompt contract
 
 - `$PROJECT_ROOT` placeholder is interpolated at runtime (literal string substitution, before sending the prompt to the sub-agent).
-- The prompt's responsibility is **what** to verify and what evidence to surface. The audit workflow (`workflows/audit.md` step 2) wraps every prompt with a response-format instruction that requires the verifier to end its response with a fenced JSON block of the form `{"met": bool, "detail": string}`. **Do not specify a response format inside the prompt itself** — the wrapper handles it, and a duplicated/conflicting instruction in the prompt would compete with the wrapper.
-- Convention: phrase the reporting expectation as "Report met (with `<evidence>`) or unmet (with `<gap>`)". This produces a natural one-line `detail` that the wrapper-injected JSON block absorbs. Every existing prompt-based standard follows this pattern.
+- The prompt's responsibility is **what** to verify and what evidence to surface. The audit workflow (`workflows/audit.md` step 2) wraps every prompt with a response-format directive that requires the verifier to use the Write tool to save its verdict — exactly one raw JSON object of the form `{"met": bool, "detail": string}`, with no fenced code block and no surrounding prose — to its `response_path`. **Do not specify a response format inside the prompt itself** — the wrapper handles it, and a duplicated/conflicting instruction in the prompt would compete with the wrapper.
+- Convention: phrase the reporting expectation as "Report met (with `<evidence>`) or unmet (with `<gap>`)". This produces a natural one-line `detail` that the verifier emits as the JSON object's `detail` field. Every existing prompt-based standard follows this pattern.
 - The audit workflow combines `met` with the standard's `required:` flag to produce `PASS`/`FAIL`/`SUGG`. There is no intermediate `MANUAL` row in the audit table — prompt-based standards resolve to one of the three statuses before the table is rendered.
 
 ### When to use script vs prompt

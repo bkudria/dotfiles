@@ -98,7 +98,7 @@ touch "$proj/.marker"
 state=$("$RUNNER" --init)
 CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 mkdir -p "$state/responses/testfx"
-printf '%s' $'```json\n{"met":true,"detail":"verified"}\n```\n' > "$state/responses/testfx/manual.txt"
+printf '%s' '{"met":true,"detail":"verified"}' > "$state/responses/testfx/manual.txt"
 "$RUNNER" --merge "$state" >/dev/null
 [[ -f "$state/merged.json" ]] && mj_exists=1 || mj_exists=0
 assert_eq "--merge <state-dir> writes <state-dir>/merged.json" "1" "$mj_exists"
@@ -115,7 +115,7 @@ touch "$proj/.marker"
 state=$("$RUNNER" --init)
 CLAUDE_SKILL_DIR="$SKILL_TMP" "$RUNNER" --collect "$proj" "$state" --scope required >/dev/null
 mkdir -p "$state/responses/testfx"
-printf '%s' $'```json\n{"met":true,"detail":"verified"}\n```\n' > "$state/responses/testfx/manual.txt"
+printf '%s' '{"met":true,"detail":"verified"}' > "$state/responses/testfx/manual.txt"
 "$RUNNER" --merge "$state" >/dev/null
 out=$("$RUNNER" --render "$state")
 assert_contains "render output has table header" "| Standard | Status | Detail |" "$out"
