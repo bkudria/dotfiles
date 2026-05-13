@@ -1,0 +1,89 @@
+required: true
+description: CLAUDE.md or AGENTS.md frames the .allium spec, the implementation code, the tests, and a design-intent document as co-equal peer artifacts that must reflect each other.
+notes: |
+  CLAUDE.md (or AGENTS.md) must establish the project's four
+  authoritative artifacts — the behavioural contract (`.allium`), the
+  mechanism (the implementation source), the verification (the test
+  suite), and the design intent / rationale (a GOALS-style document) —
+  as PEERS that reflect each other, with an explicit obligation that
+  changing any one obliges checking and updating the others, and that
+  conflicts between them are reconciled rather than decided
+  unilaterally. The peer framing necessarily names the spec, so a
+  notes file that satisfies this standard also points agents at the
+  `.allium` artifact as the authoritative source of behavioural truth.
+
+  Model — the framing this standard looks for (any equivalent wording
+  satisfies it; the file and directory names below are placeholders):
+
+    GOALS.md, <project>.allium, the implementation in lib/, and the
+    tests in spec/ are peer artifacts: design intent, behavioural
+    contract, mechanism, and verification of the same system. The
+    four must reflect each other. Changing any one obliges checking
+    and updating the others; conflicts are reconciled, not
+    unilaterally decided.
+
+  Why all four roles: the spec without the code is aspirational; the
+  code without the spec drifts undocumented; either without the tests
+  is unverified; all three without a design-intent document lose the
+  WHY, so a future agent cannot tell a deliberate constraint from an
+  incidental implementation detail. Naming the four as peers, with the
+  mutual-reflection obligation, is what keeps an agent from "fixing"
+  the code against a stale spec (or vice versa) instead of reconciling
+  them.
+
+  base/claude-md checks only that an agent-facing notes file exists
+  and is non-empty; it does not constrain the file's contents. This
+  standard is the allium profile's stricter, content-level check: it
+  looks for a CONCEPT — the four-artifact peer framing plus the
+  change-one-check-the-others obligation — not a heading or a literal
+  phrase. Exact wording, section placement, and which filename holds
+  the design-intent document are all free. A bare mention of `.allium`
+  with no peer framing does not satisfy it. Accepts CLAUDE.md or
+  AGENTS.md (first match wins, matching base/claude-md). It does not
+  require any particular skill directives (for example "load
+  such-and-such before editing the spec") — only the peer framing and
+  the mutual-reflection obligation.
+check:
+  prompt: |
+    Verify that the agent-facing notes file at $PROJECT_ROOT frames the
+    project's four authoritative artifacts as co-equal peers.
+
+    Locate the notes file: prefer $PROJECT_ROOT/CLAUDE.md; if it is not
+    present, fall back to $PROJECT_ROOT/AGENTS.md (first match wins). If
+    neither is present, the standard is unmet.
+
+    Read that file. It is met only when the file does all of the
+    following:
+
+    1. Names the project's Allium specification — by file extension
+       (`.allium`) or by referring to "the Allium spec" / "the spec"
+       in a way that clearly points at the `.allium` artifact.
+    2. Names the implementation code — the source tree / library (for
+       example `lib/`, `src/`, the package directory).
+    3. Names the test suite (for example `spec/`, `test/`, `tests/`).
+    4. Names a design-intent or rationale document — a GOALS-style file
+       (`GOALS.md`, a "Goals" / "Rationale" / "Design intent" document,
+       or similar) that records why the project exists, distinct from
+       the spec.
+    5. Frames those four as PEERS — co-equal artifacts of the same
+       system that reflect (or must reflect) each other — not merely a
+       list of where things live.
+    6. States the mutual obligation: changing any one of the four
+       obliges checking and updating the others, and conflicts between
+       them are reconciled rather than decided unilaterally.
+
+    Be lenient about exact wording — this is a concept check, not a
+    literal-phrase match. Synonyms, different ordering, prose instead
+    of a list, and any filename for the design-intent document are all
+    fine; the background notes above show one form this framing takes
+    and are illustrative, not a required form. But all four roles
+    (1–4) must be named AND the peer framing and the mutual obligation
+    (5 and 6 together) must be expressed. A file that only mentions
+    `.allium` with no peer framing, or that names the four artifacts
+    without stating the change-one-update-the-others obligation, does
+    not satisfy the standard.
+
+    Report met (naming the file checked and quoting or paraphrasing the
+    peer-artifact passage) or unmet (naming the file checked and
+    listing which of the four roles and/or which half of the mutual
+    obligation were absent).
