@@ -1,0 +1,74 @@
+required: true
+description: The repository's default branch is protected against force-push and deletion via a GitHub ruleset.
+notes: |
+  GitHub surfaces a repo-overview banner ("Your main branch isn't
+  protected") warning that the default branch can be force-pushed or
+  deleted by anyone with write access. This standard verifies that a
+  ruleset is in place to block those two operations.
+
+  Scope:
+    - Rulesets only. Classic branch protection (the older
+      `branches/{branch}/protection` endpoint) does NOT satisfy this
+      standard — GitHub steers new repos toward rulesets and the
+      banner itself links to ruleset documentation.
+    - Minimum bar: an *active* ruleset that targets the default
+      branch and includes both the `non_fast_forward` and `deletion`
+      rules. Required status checks, required reviews, and signed
+      commits are orthogonal — not part of this standard's bar.
+    - GitHub-specific. Projects hosted elsewhere (GitLab, Bitbucket,
+      self-hosted GHE) report unmet; if a project genuinely lives
+      off GitHub, disable this standard in project.yaml with a
+      reason.
+
+  Vacuous-pass:
+    - No git remote configured (nothing to protect yet).
+    - The GitHub repo 404s on the API (the slug in the remote URL
+      doesn't point at an existing repo — new project, renamed,
+      moved).
+
+  Missing or unauthenticated `gh` reports as unmet with a clear
+  auditor-side diagnostic; fixing the audit environment is on the
+  operator, not the project.
+check:
+  prompt: |
+    Verify that the default branch of the project at $PROJECT_ROOT
+    is protected from force-push and deletion via a GitHub ruleset.
+
+    Resolution sequence (first match wins):
+      1. If `git -C $PROJECT_ROOT remote` is empty, report met
+         (vacuous: no upstream to protect).
+      2. Resolve `origin` (or the first remote if no `origin`) to a
+         host and an `<owner>/<repo>` slug. Accept both SSH
+         (`git@github.com:owner/repo.git`) and HTTPS
+         (`https://github.com/owner/repo[.git]`) forms; strip any
+         trailing `.git`. If the host is not `github.com`, report
+         unmet (this standard is GitHub-specific; disable in
+         project.yaml with a reason if the project lives
+         elsewhere).
+      3. Run `gh api repos/<owner>/<repo>`. If the call returns 404,
+         report met (vacuous: upstream slug does not exist on
+         GitHub). If `gh` is missing from PATH or `gh auth status`
+         exits non-zero, report unmet with an
+         "auditor: install/authenticate gh" diagnostic — do not
+         vacuous-pass on auditor-environment gaps. Otherwise read
+         `default_branch` from the response.
+      4. Run `gh api repos/<owner>/<repo>/rulesets`. For each
+         ruleset, fetch its detail
+         (`gh api repos/<owner>/<repo>/rulesets/<id>`) and treat it
+         as a match when ALL of:
+           - `enforcement` is `active` (not `disabled` or
+             `evaluate`),
+           - `conditions.ref_name` targets the default branch —
+             `~DEFAULT_BRANCH` in `include`, or `~ALL` in `include`
+             with no exclusion matching the default branch, or an
+             explicit pattern (`refs/heads/<default>` or a wildcard
+             that covers it) in `include`,
+           - the `rules` array contains entries with `type:
+             non_fast_forward` AND `type: deletion`.
+
+    Report met (with the matching ruleset id/name and a note on
+    which rule entries cover force-push and deletion) or unmet
+    (with the rulesets present on the repo and which of: active
+    enforcement, default-branch targeting, `non_fast_forward`,
+    `deletion` is missing — or "no rulesets configured" if the
+    list is empty).
