@@ -10,10 +10,14 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 # Environment variables
 export EDITOR='emacs-client-frame'
 export VISUAL='emacs-client-frame'
+
 # export PAGE=glow
 # export TERM=xterm-256color
 # export GOPATH=~/.go
 # export TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
+
+## Claude Code
+export ANTHROPIC_MODEL="claude-opus-4-7[1m]"
 
 # Aliases - only the unique ones not covered by other modules
 alias less=glow
