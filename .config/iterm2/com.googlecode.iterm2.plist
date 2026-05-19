@@ -19,7 +19,7 @@
 	<key>AiMaxTokens</key>
 	<integer>400000</integer>
 	<key>AiModel</key>
-	<string>gpt-5.1</string>
+	<string>gpt-5.2</string>
 	<key>AiResponseMaxTokens</key>
 	<integer>128000</integer>
 	<key>AitermURL</key>
@@ -1937,7 +1937,7 @@
 			<key>Show Timestamps</key>
 			<integer>2</integer>
 			<key>Silence Bell</key>
-			<true/>
+			<false/>
 			<key>Smart Cursor Color</key>
 			<false/>
 			<key>Smart Cursor Color (Dark)</key>
@@ -1985,13 +1985,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.63590961694717407</real>
+									<real>0.25685083866119385</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.6414334774017334</real>
+									<real>0.26314079761505127</real>
 									<key>Red Component</key>
-									<real>0.86000317335128784</real>
+									<real>0.46736389398574829</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2031,13 +2031,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.65761250257492065</real>
+									<real>0.28061807155609131</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.87652522325515747</real>
+									<real>0.47827190160751343</real>
 									<key>Red Component</key>
-									<real>0.89574497938156128</real>
+									<real>0.49609553813934326</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2075,13 +2075,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.65540963411331177</real>
+									<real>0.27846461534500122</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.89377599954605103</real>
+									<real>0.49482804536819458</real>
 									<key>Red Component</key>
-									<real>0.72450786828994751</real>
+									<real>0.34275767207145691</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2113,13 +2113,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.82982355356216431</real>
+									<real>0.43551152944564819</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.89269793033599854</real>
+									<real>0.49410122632980347</real>
 									<key>Red Component</key>
-									<real>0.68831604719161987</real>
+									<real>0.31301426887512207</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2151,13 +2151,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.8851432204246521</real>
+									<real>0.48745501041412354</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.72423571348190308</real>
+									<real>0.33745688199996948</real>
 									<key>Red Component</key>
-									<real>0.64865356683731079</real>
+									<real>0.26861107349395752</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2189,13 +2189,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.88204485177993774</real>
+									<real>0.48531460762023926</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.63566368818283081</real>
+									<real>0.25600045919418335</real>
 									<key>Red Component</key>
-									<real>0.75487619638442993</real>
+									<real>0.36754071712493896</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
@@ -2229,13 +2229,13 @@
 									<key>Alpha Component</key>
 									<real>1</real>
 									<key>Blue Component</key>
-									<real>0.76881867647171021</real>
+									<real>0.379524827003479</real>
 									<key>Color Space</key>
 									<string>P3</string>
 									<key>Green Component</key>
-									<real>0.64143049716949463</real>
+									<real>0.26313775777816772</real>
 									<key>Red Component</key>
-									<real>0.86000508069992065</real>
+									<real>0.4673653244972229</real>
 								</dict>
 							</dict>
 							<key>layout advanced configuration dictionary value</key>
