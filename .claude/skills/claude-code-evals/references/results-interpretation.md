@@ -49,7 +49,7 @@ This preserves the full run record, keeps the tool output small, and guarantees 
 | 0 | Pipeline completed. Individual failures are in the output, not the exit code |
 | 1 | Configuration error (invalid YAML, missing fields) |
 | 2 | Infrastructure error (tools not found, zero scenarios, all reps failed) |
-| 3 | Threshold failure — a scenario fell below `min_pass_rate` in craboodle.yaml |
+| 3 | Threshold failure — a scenario fell below `min_pass_rate` in evals.yaml |
 
 ---
 

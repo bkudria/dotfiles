@@ -1,26 +1,30 @@
 required: true
-description: A CHANGELOG file exists in Keep-a-Changelog format with an [Unreleased] section.
+description: A CHANGELOG file exists and tracks releases via either an [Unreleased] section or auto-generation by a release tool.
 notes: |
-  Looks for CHANGELOG.md, CHANGELOG, HISTORY.md, or CHANGES.md. Verifies
-  Keep-a-Changelog version-section format (`## [version]`) and the
-  presence of an `[Unreleased]` section. Public projects benefit from
-  release-note discipline; the [Unreleased] section is the social
-  contract that PRs go somewhere visible before a release.
+  Public projects benefit from release-note discipline. Two conventions
+  meet this standard:
+    1. A hand-managed CHANGELOG with an `[Unreleased]` section that PRs
+       contribute to before each release.
+    2. An auto-generated CHANGELOG (release-please, semantic-release,
+       changesets, etc.) where the tool prepends new dated sections.
+       Hand-writing `[Unreleased]` in this mode is the documented
+       anti-pattern: the tool does not rewrite `[Unreleased]`, and
+       contributors end up with a duplicate section.
+  Either convention produces a discoverable, dated change history.
 check:
-  script: |
-    cd "$PROJECT_ROOT"
-    for f in CHANGELOG.md CHANGELOG HISTORY.md CHANGES.md; do
-      [[ -e "$f" && -s "$f" ]] || continue
-      if ! grep -q '## \[' "$f" 2>/dev/null; then
-        echo "$f exists but no Keep-a-Changelog version sections found"
-        exit 1
-      fi
-      if ! grep -qi '## \[Unreleased\]' "$f" 2>/dev/null; then
-        echo "$f exists but no [Unreleased] section"
-        exit 1
-      fi
-      echo "$f exists with [Unreleased] section"
-      exit 0
-    done
-    echo "No CHANGELOG file found"
-    exit 1
+  prompt: |
+    Verify that the project at $PROJECT_ROOT has a CHANGELOG that tracks
+    releases. Look for CHANGELOG.md, CHANGELOG, HISTORY.md, or CHANGES.md.
+    The standard is met when EITHER:
+      (a) the file uses Keep-a-Changelog version-section format
+          (`## [version]`) AND contains an `[Unreleased]` section, OR
+      (b) the file uses dated version sections (e.g.,
+          `## [x.y.z] — YYYY-MM-DD` or `## [x.y.z](url) (YYYY-MM-DD)`)
+          AND a preamble or sibling configuration file indicates
+          auto-generation by a release tool (release-please,
+          semantic-release, changesets, or similar).
+    A hand-written `[Unreleased]` section alongside an auto-generated
+    CHANGELOG is a misconfiguration; report unmet with that diagnosis.
+    Report met (with the file, the form used, and the auto-gen tool if
+    applicable) or unmet (with what was found and why it doesn't satisfy
+    either form).

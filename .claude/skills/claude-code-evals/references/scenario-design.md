@@ -16,59 +16,62 @@ Structure eval scenarios to test meaningful behavior changes from your configura
 ## Directory Structure
 
 ```
-evals/
-├── craboodle.yaml                # Pipeline config (version, min_pass_rate, repeats, etc.)
-├── base.yaml                     # Scuttlerun defaults (model, tools, user, project)
-├── descriptive-scenario-id/
-│   ├── scenario.yaml             # Scuttlerun config (prompt + overrides)
-│   └── checks.yaml               # Pincenez config (context + checks)
-├── another-scenario/
-│   ├── scenario.yaml
-│   └── checks.yaml
-└── with-fixtures/
-    ├── scenario.yaml
-    ├── checks.yaml
-    └── seed-data.json            # Fixture files (injected via project.files)
+<root>/                           # skill root (next to SKILL.md), plugin root
+                                  #   (next to .claude-plugin/plugin.json),
+                                  #   or a generic eval suite directory
+├── evals.yaml                    # Pipeline + scuttlerun base config
+├── evals/
+│   ├── descriptive-scenario-id/
+│   │   ├── scenario.yaml         # Scuttlerun config (prompt + per-scenario overrides)
+│   │   └── checks.yaml           # Pincenez config (context + checks)
+│   ├── another-scenario/
+│   │   ├── scenario.yaml
+│   │   └── checks.yaml
+│   └── with-fixtures/
+│       ├── scenario.yaml
+│       ├── checks.yaml
+│       └── seed-data.json        # Fixture files (injected via project.files)
+└── ...                           # other skill / plugin assets, ignored at
+                                  #   scenario-discovery time
 ```
 
-Scenario IDs are the directory names. Use descriptive kebab-case names that indicate what the scenario tests.
+Scenario IDs are the directory names under `evals/`. Use descriptive kebab-case names that indicate what the scenario tests.
+
+The scenarios subdirectory is named `evals/` by default. Override with `scenarios.path: <dirname>` in evals.yaml if you need a different name (single directory name only — no slashes, no `.`/`..`).
+
+At run time craboodle stages a filtered view of `<root>` into `$TMPDIR` (excluding the scenarios subdirectory) and points scuttlerun at the staged view. This lets `project.skills: ['.']` in `scenarios.base` cleanly self-reference the skill / plugin at the eval root.
 
 ---
 
-## craboodle.yaml
+## evals.yaml
 
-Pipeline-level configuration. Lives at the root of the evals directory:
+Single config file at the eval root. Pipeline knobs live at the top level; the scuttlerun base config (shared across every scenario) is nested under `scenarios.base`:
 
 ```yaml
 version: "1"                      # Required
 min_pass_rate: 0.8                # Optional ratchet — exit 3 if any scenario below this
-max_budget_usd: 5.0               # Optional spending limit
-repeats: 5                        # Default repetitions per scenario
+max_budget_usd: 5.0               # Optional spending cap (no default)
+repeats: 3                        # Default repetitions per scenario (default: 3)
+artifact_retention_days: 7        # GC window for run artifacts (default: 7; 0 disables)
+
+scenarios:
+  # path: evals                   # Optional override of the scenarios subdirectory name
+  base:
+    # Scuttlerun base — merged into every scenario before scuttlerun runs.
+    # Same fields you'd put in a scenario.yaml (model, tools, additional_tools,
+    # project, user, etc.). Craboodle does NOT validate these; errors surface
+    # when scuttlerun runs (or when `craboodle list` invokes scuttlerun).
+    model: claude-sonnet-4-6
+    additional_tools:
+      - TodoWrite
+    project:
+      skills:
+        - .                       # Self-reference: the eval root is the skill / plugin
+      claude_md: |
+        Use relative paths.
 ```
 
-This file contains only craboodle-specific fields. Scuttlerun defaults belong in `base.yaml`.
-
----
-
-## base.yaml
-
-Shared scuttlerun defaults for all scenarios. Contains only fields that scuttlerun understands — no craboodle keys like `version` or `min_pass_rate`:
-
-```yaml
-model: claude-sonnet-4-6          # Default model
-tools:                            # Default tools
-  - Read
-  - Write
-  - Bash
-  - Glob
-  - Grep
-  - Edit
-project:
-  claude_md: |                    # Shared CLAUDE.md (scenarios can override)
-    Use relative paths.
-```
-
-Run `craboodle --help` for the full base.yaml field reference.
+Scaffold a fully-commented template with `craboodle init <root>`. Run `craboodle --help` for the live field reference.
 
 ---
 
@@ -80,13 +83,13 @@ Each scenario's scuttlerun configuration. Contains only scuttlerun fields — pr
 prompt: |                         # Required: realistic user task
   Write a function that validates email addresses.
 
-model: claude-sonnet-4-6         # Optional: override base.yaml model
+model: claude-sonnet-4-6         # Optional: override scenarios.base model
 project:
-  claude_md: |                    # Optional: override base.yaml CLAUDE.md
+  claude_md: |                    # Optional: override scenarios.base CLAUDE.md
     Always validate user input before processing.
 ```
 
-Do not put checks, context, repeats, or labels in scenario.yaml. Those belong in checks.yaml or craboodle.yaml.
+Do not put checks, context, repeats, or labels in scenario.yaml. Those belong in checks.yaml (checks) or evals.yaml (repeats and pipeline knobs).
 
 Run `craboodle --help` for the full scenario.yaml field reference.
 

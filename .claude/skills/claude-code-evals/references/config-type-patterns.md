@@ -192,7 +192,7 @@ checks:
 
 **What to test**: The agent delegates work to sub-agents and coordinates results correctly.
 
-**Inject via**: Include `Agent` in `tools` in scenario.yaml. Optionally configure sub-agent definitions via `sdk.agents`.
+**Inject via**: Add `Agent` via `additional_tools` in scenario.yaml (or under `scenarios.base.additional_tools` in evals.yaml to enable it across every scenario). Optionally configure sub-agent definitions via `sdk.agents`.
 
 **Key challenge**: Sub-agent behavior is only visible through the transcript. Assert on observable delegation patterns (Agent tool calls) and coordination outcomes (final result incorporates sub-agent work).
 
@@ -201,13 +201,7 @@ checks:
 prompt: |
   Research the best approach for implementing rate limiting in this Express app,
   then implement it.
-tools:
-  - Read
-  - Write
-  - Edit
-  - Bash
-  - Glob
-  - Grep
+additional_tools:
   - Agent
 project:
   files:
@@ -328,10 +322,10 @@ checks:
 
 **When to run**: After any change to a config component — skill edits, CLAUDE.md updates, hook modifications, dependency upgrades.
 
-**Pattern**: Keep a persistent `evals/` directory alongside your configuration. Run your suite after changes and review any scenarios with degraded pass rates.
+**Pattern**: Keep a persistent eval root alongside (or co-located with) your configuration — `evals.yaml` at the root with scenarios under `evals/`. Run the suite after changes and review any scenarios with degraded pass rates.
 
 ```bash
-craboodle run my-config/evals/
+craboodle run my-config/
 ```
 
 **Key principle**: Version your scenarios alongside the configs they test. When you change a config, the scenarios serve as regression tests. When you add new behavior, add new scenarios to cover it.

@@ -51,37 +51,43 @@ Run `<tool> --help` for CLI flags, YAML schemas, and field references.
 
 Evaluate whether a CLAUDE.md instruction changes behavior:
 
-**1. Scaffold the eval directory:**
+**1. Scaffold the eval root:**
 ```bash
 craboodle init my-evals/
 ```
 
-This creates `craboodle.yaml`. Then write `base.yaml` (scuttlerun defaults) alongside it:
+This creates `my-evals/evals.yaml` — a single, fully-commented config holding both pipeline knobs (top level) and a scuttlerun base config (under `scenarios.base`). The eval root can be a skill directory (next to `SKILL.md`), a plugin root (next to `.claude-plugin/plugin.json`), or any generic directory.
 
-**2. Write `base.yaml`** (scuttlerun defaults):
+**2. Edit `my-evals/evals.yaml`:**
 ```yaml
-model: claude-sonnet-4-6
-tools: [Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Skill]
+version: "1"
+min_pass_rate: 0.8
+
+scenarios:
+  base:
+    model: claude-sonnet-4-6
+    additional_tools:
+      - TodoWrite
+    project:
+      claude_md: |
+        Always write tests before production code. Use test-driven development.
 ```
 
-> The `tools:` array **replaces** scuttlerun's defaults — it does not extend them. The example above lists the 8 current defaults verbatim; edit as needed (drop `Skill` if no skills under test, drop `AskUserQuestion` if no multi-turn interaction, add any extra tools the scenario needs). Run `scuttlerun --help` for the current default list.
+> **`additional_tools:` vs `tools:`** — `additional_tools:` **adds to** scuttlerun's defaults (appended and deduped); `tools:` **replaces** them entirely. Defaults are `[Read, Write, Edit, Bash, Glob, Grep, AskUserQuestion, Skill]`. Use `additional_tools:` when you want defaults plus extras (e.g. `TodoWrite`, `Agent`); use `tools:` when you need an exact set (e.g. dropping `Skill` if no skills are under test, or `AskUserQuestion` if no multi-turn interaction). Run `scuttlerun --help` for the live default list.
 
 **3. Review lint rules** (before writing checks, learn what lint looks for):
 ```bash
 pincenez lint --help
 ```
 
-**4. Write `tdd-instruction/scenario.yaml`** (scuttlerun config only):
+**4. Write `my-evals/evals/tdd-instruction/scenario.yaml`** (per-scenario scuttlerun config):
 ```yaml
 prompt: |
   Write a function called isPrime that checks if a number is prime.
   Save it to prime.js.
-project:
-  claude_md: |
-    Always write tests before production code. Use test-driven development.
 ```
 
-**5. Write `tdd-instruction/checks.yaml`** (pincenez config only):
+**5. Write `my-evals/evals/tdd-instruction/checks.yaml`** (pincenez config):
 ```yaml
 checks:
   - test-before-code:
