@@ -48,7 +48,7 @@
       "Bash(gh pr review:*)",
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
-      "WebFetch(domain:docs.anthropic.com)",
+      "WebFetch(domain:docs.anthropic.com)"
     ],
     "deny": [
       "Read(**/.env*)",
