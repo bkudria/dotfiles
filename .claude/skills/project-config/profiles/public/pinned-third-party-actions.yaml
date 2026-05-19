@@ -1,0 +1,37 @@
+required: true
+description: Third-party CI components are pinned to immutable references (commit SHA, content digest), not floating tags.
+notes: |
+  CI workflows fetch external code: GitHub Actions, GitLab CI `include:`
+  from other repos, container images used as builders, reusable
+  workflows. Pinning to a mutable tag (e.g., `actions/checkout@v4` or
+  `node:24`) trusts whoever can rewrite that tag; pinning to a commit
+  SHA or content-addressed image digest is reproducible and immune to
+  silent compromise.
+
+  No carve-out for first-party publishers (`actions/*`, `github/*`):
+  the same rule applies. Automated bumps via Dependabot's
+  `package-ecosystem: github-actions` (a separate standard) keep pinned
+  SHAs current without sacrificing the integrity guarantee.
+
+  Out of scope: components referenced from within the same repository
+  (`./...`).
+check:
+  prompt: |
+    Verify that third-party CI components referenced by the project at
+    $PROJECT_ROOT are pinned to immutable references. Inspect every CI
+    configuration (.github/workflows/, .gitlab-ci.yml, .circleci/,
+    Jenkinsfile, .buildkite/, etc.) and check:
+      - GitHub Actions `uses:` — accept only 40-character commit SHAs.
+        Reject branch names, semver tags (`@v4`), or `@main`/`@master`.
+        A `# v4.4.1` trailing comment is conventional and not a
+        violation. Applies to actions/* and github/* too (no carve-out).
+      - GitLab CI `include:` from external projects — accept only `ref:`
+        pinned to a commit SHA or a signed tag.
+      - Container images used as build/CI environments — accept only
+        `image@sha256:...` digests, not floating tags like `:latest`,
+        `:24`, or `:bookworm`.
+      - Reusable workflows — same rules as Actions.
+    Local references (`./.github/...`, `./...`) are out of scope.
+    Report met (with workflows inspected and a sampling of pins) or
+    unmet (with concrete examples of unpinned references and the
+    file:line of each).

@@ -1,0 +1,42 @@
+required: true
+description: Release/publish pipeline runs only after the test/quality pipeline passes.
+notes: |
+  A release that bypasses tests can ship a broken artifact. The publish
+  step should depend on the CI/test pipeline having completed
+  successfully on the same revision.
+
+  Examples that meet this standard:
+    - A single workflow with `publish` declaring `needs: [test]`.
+    - A separate publish workflow triggered by `workflow_run` after CI
+      completes, with a conclusion check.
+    - A release-please-style flow where publish runs only when
+      `release_created` is emitted — the release PR ran through CI
+      before merge.
+    - GitLab pipeline stages where `publish` is in a later stage.
+
+  A bare `on: push` publish workflow without a `needs:`/stage gate is
+  the anti-pattern this standard catches.
+
+  Vacuous-pass: if no publish step exists in any CI configuration, the
+  standard is met. This standard checks the *safety* of automation, not
+  its presence (presence is covered by release-automation).
+check:
+  prompt: |
+    Verify that the project at $PROJECT_ROOT gates publish on a green
+    test pipeline. Identify the publish step (any job/stage that runs
+    `npm publish`, `cargo publish`, `gem push`, `twine upload`,
+    `docker push`, a release action, or equivalent).
+
+    If no publish step is detected in any CI configuration, report met
+    (vacuous-pass: no pipeline to gate; presence of automation is
+    checked separately by release-automation).
+
+    Otherwise confirm that the publish step is sequenced behind the
+    test/lint/build pipeline by one of: `needs:`/job dependency, stage
+    ordering, `workflow_run` trigger with conclusion check, or a
+    release-trigger that presupposes CI passing (e.g., a release-please
+    `release_created` output, where the release PR itself was gated
+    by branch protection requiring CI).
+
+    Report met (with the workflow path and a one-line description of
+    the gate) or unmet (with the publish trigger and why it's ungated).

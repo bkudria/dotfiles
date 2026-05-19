@@ -1,0 +1,31 @@
+required: true
+description: CI workflows declare an explicit permissions/token scope, preferably the least privilege needed.
+notes: |
+  Most CI systems grant workflows a default token with broader access
+  than the workflow needs. Public projects benefit from explicit,
+  least-privilege scoping on every workflow:
+    - GitHub Actions: a top-level or per-job `permissions:` block.
+    - GitLab CI: `id_tokens:` scoping and CI_JOB_TOKEN access rules.
+    - Other CI systems: equivalent token scoping.
+
+  Privileged scopes (`contents: write`, `id-token: write`, `packages:
+  write`) are not a failure if the workflow genuinely needs them —
+  only the absence of an explicit declaration is. A blanket
+  `permissions: write-all` (or equivalent "everything" grant) is
+  explicit but unsafe; treat it as unmet.
+check:
+  prompt: |
+    Verify that CI workflows under $PROJECT_ROOT declare explicit
+    permissions/token scopes. For each workflow file:
+      - GitHub Actions: confirm a top-level `permissions:` block, OR a
+        per-job `permissions:` block on every job. Workflows lacking
+        both rely on repo defaults; flag as unmet.
+      - GitLab CI / CircleCI / other: equivalent token scoping where
+        the CI system supports it (e.g., GitLab `id_tokens:`).
+    Flag `permissions: write-all` (or equivalent "everything" grants)
+    as unmet even though it is explicit — least-privilege is the
+    intent of this standard.
+    If no CI workflows exist, report met (nothing to scope).
+    Report met (with a per-workflow summary of declared scopes) or
+    unmet (with the workflows lacking any `permissions:` declaration
+    or using `write-all`).
