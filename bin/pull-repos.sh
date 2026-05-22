@@ -427,7 +427,7 @@ render_line() {
         fi
         ;;
     missing-origin-head)
-        printf "$fmt" "$rn" "no-head" "origin/HEAD unset (run: git remote set-head origin -a)"
+        # Suppress per-repo line; still tallied in summary as n_missing.
         ;;
     fetch-failed)
         local reason
