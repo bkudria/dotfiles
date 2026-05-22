@@ -147,14 +147,14 @@
       }
     }
   },
-  "effortLevel": "xhigh",
-  "skipDangerousModePermissionPrompt": true,
-  "theme": "auto",
-  "preferredNotifChannel": "iterm2_with_bell",
-  "terminalProgressBarEnabled": false,
-  "teammateMode": "auto",
-  "skipAutoPermissionPrompt": true,
-  "voiceEnabled": true,
   "alwaysThinkingEnabled": true,
-  "verbose": true
+  "effortLevel": "xhigh",
+  "preferredNotifChannel": "iterm2_with_bell",
+  "skipAutoPermissionPrompt": true,
+  "skipDangerousModePermissionPrompt": true,
+  "teammateMode": "auto",
+  "terminalProgressBarEnabled": false,
+  "theme": "auto",
+  "verbose": true,
+  "voiceEnabled": true
 }
