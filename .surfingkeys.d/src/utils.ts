@@ -60,16 +60,19 @@ const isFixedOrSticky = (element: HTMLElement) =>
 const getElement = (selector: Selector) =>
   api.getClickableElements(selector)[0];
 
+// const dispatchMouseClicks = (elements: HTMLAnchorElement[]) =>
+//   new Set(elements.map(element => element.href)).forEach(href =>
+//     api.RUNTIME('openLink', {
+//       tab: {
+//         tabbed: true,
+//         active: false,
+//       },
+//       url: href,
+//     })
+//   );
+
 const dispatchMouseClicks = (elements: HTMLAnchorElement[]) =>
-  new Set(elements.map(element => element.href)).forEach(href =>
-    api.RUNTIME('openLink', {
-      tab: {
-        tabbed: true,
-        active: false,
-      },
-      url: href,
-    })
-  );
+  new Set(elements).forEach(element => api.Hints.dispatchMouseClick(element));
 
 export const openStoryAndComments = ({
   story,
@@ -90,7 +93,7 @@ export const openStoryAndComments = ({
         ) as HTMLAnchorElement,
       ]);
     },
-    { active: false, tabbed: true }
+    { active: false, tabbed: true, multipleHits: false }
   );
 };
 
