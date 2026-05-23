@@ -143,7 +143,7 @@ export const scrollBy = (amount: number) =>
     })
   );
 
-type FieldSpec = { sel?: string; re?: RegExp };
+type FieldSpec = { sel?: string; re?: RegExp; cap: number };
 
 type GaugesSpec = {
   rows: string;
@@ -155,19 +155,8 @@ type GaugesSpec = {
 const GAUGE_STYLE_ID = 'surfingkeys-gauges';
 
 const GAUGE_CSS = `
-  .gauge         { width: 0%; }
-  .gauge-score   { border-bottom: 2px solid #fabd2f; }
-  .gauge-comment { border-top:    2px solid #fb4934; margin-bottom: 1ex; }
-  .gauge-1  { width: 1%;  }
-  .gauge-2  { width: 2%;  }
-  .gauge-3  { width: 3%;  }
-  .gauge-4  { width: 5%;  }
-  .gauge-5  { width: 8%;  }
-  .gauge-6  { width: 13%; }
-  .gauge-7  { width: 21%; }
-  .gauge-8  { width: 34%; }
-  .gauge-9  { width: 55%; }
-  .gauge-10 { width: 89%; }
+  .gauge-score   { border-bottom: 2px solid var(--gauge-score-color, #fabd2f); }
+  .gauge-comment { border-top:    2px solid var(--gauge-comment-color, #fb4934); margin-bottom: 1ex; }
 `;
 
 const injectGaugeStyles = () => {
@@ -178,15 +167,16 @@ const injectGaugeStyles = () => {
   document.head.appendChild(style);
 };
 
-const bucket = (n: number): string =>
-  Number(n)
-    .toString(Math.E)
-    .length.toString();
+const widthPercent = (value: number, cap: number): number => {
+  if (cap <= 0) return 0;
+  const ratio = Math.min(Math.max(value, 0) / cap, 1);
+  return Math.sqrt(ratio) * 100;
+};
 
 const extractNumber = (row: Element, field: FieldSpec): number | null => {
   const source = field.sel ? row.querySelector(field.sel) : row;
   if (!source) return null;
-  const text = (source as HTMLElement).innerText;
+  const text = source.textContent ?? '';
 
   if (field.re) {
     const match = text.match(field.re);
@@ -198,13 +188,21 @@ const extractNumber = (row: Element, field: FieldSpec): number | null => {
   return Number.isFinite(n) ? n : null;
 };
 
-const insertGauge = (target: Element, kind: string, n: number) =>
+const insertGauge = (
+  target: Element,
+  kind: string,
+  value: number,
+  cap: number
+) =>
   target.insertAdjacentHTML(
     'beforebegin',
-    `<div class="gauge ${kind} gauge-${bucket(n)}"></div>`
+    `<div class="gauge ${kind}" style="width: ${widthPercent(
+      value,
+      cap
+    ).toFixed(1)}%"></div>`
   );
 
-export const renderGauges = ({
+const renderGaugesNow = ({
   rows,
   anchor,
   score,
@@ -212,16 +210,31 @@ export const renderGauges = ({
 }: GaugesSpec) => {
   injectGaugeStyles();
   document.querySelectorAll(rows).forEach(row => {
+    const htmlRow = row as HTMLElement;
+    if (htmlRow.dataset.gauged) return;
     const target = row.querySelector(anchor);
     if (!target) return;
 
     const scoreValue = extractNumber(row, score);
-    if (scoreValue !== null) insertGauge(target, 'gauge-score', scoreValue);
+    if (scoreValue !== null)
+      insertGauge(target, 'gauge-score', scoreValue, score.cap);
 
     const commentsValue = extractNumber(row, comments);
     if (commentsValue !== null)
-      insertGauge(target, 'gauge-comment', commentsValue);
+      insertGauge(target, 'gauge-comment', commentsValue, comments.cap);
+
+    htmlRow.dataset.gauged = '1';
   });
+};
+
+export const renderGauges = (spec: GaugesSpec) => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => renderGaugesNow(spec), {
+      once: true,
+    });
+    return;
+  }
+  renderGaugesNow(spec);
 };
 
 export const darkReaderEnabled = () =>

@@ -1,5 +1,25 @@
 declare var settings: any;
 
+export const GAUGE_PALETTE = {
+  dark: { score: '#fabd2f', comment: '#fb4934' },
+  light: { score: '#b57614', comment: '#9d0006' },
+} as const;
+
+const THEME_VARS_STYLE_ID = 'surfingkeys-theme-vars';
+
+export const applyGaugeVars = (mode: keyof typeof GAUGE_PALETTE) => {
+  const { score, comment } = GAUGE_PALETTE[mode];
+  let style = document.getElementById(
+    THEME_VARS_STYLE_ID
+  ) as HTMLStyleElement | null;
+  if (!style) {
+    style = document.createElement('style');
+    style.id = THEME_VARS_STYLE_ID;
+    document.head.appendChild(style);
+  }
+  style.textContent = `:root { --gauge-score-color: ${score}; --gauge-comment-color: ${comment}; }`;
+};
+
 export const applyDarkTheme = () => {
   // gruvbox dark
   api.Hints.style(`
@@ -26,6 +46,8 @@ export const applyDarkTheme = () => {
     #sk_status, #sk_find {font-size: 20px;}
     div.hint-scrollable {background: #fbf1c7!important;}
   `;
+
+  applyGaugeVars('dark');
 };
 
 export const applyLightTheme = () => {
@@ -53,6 +75,8 @@ export const applyLightTheme = () => {
     .sk_theme #sk_omnibarSearchResult ul li.focused {background: #ebdbb2;}
     #sk_status, #sk_find {font-size: 20px;}
   `;
+
+  applyGaugeVars('light');
 };
 
 export const applyTheme = () => {
