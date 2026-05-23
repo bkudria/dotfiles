@@ -96,6 +96,19 @@ _process_repo_inner() {
         return 0
     fi
 
+    # Fetch early — non-destructive, safe even when we'll skip later.
+    # Defer reporting failure until after the skip-condition checks so a
+    # dirty/detached/missing-origin-head repo is reported as such rather
+    # than fetch-failed.
+    local fetch_failed=0 fetch_reason="" fetch_err
+    if ! fetch_err=$(git fetch --all --prune --quiet 2>&1 >/dev/null); then
+        fetch_failed=1
+        fetch_reason=$(printf '%s\n' "$fetch_err" |
+            grep -E '^(fatal:|error:|Permission denied|.*Permission denied)' |
+            head -1)
+        [[ -z "$fetch_reason" ]] && fetch_reason=$(printf '%s\n' "$fetch_err" | head -1)
+    fi
+
     local porcelain
     porcelain=$(git status --porcelain)
     local untracked_n=0 modified_n=0
@@ -132,16 +145,9 @@ _process_repo_inner() {
     # Reset $? — bash `set -e` is twitchy after a `&&` whose lhs was false.
     :
 
-    # Fetch
-    local fetch_err
-    if ! fetch_err=$(git fetch --all --prune --quiet 2>&1 >/dev/null); then
+    if ((fetch_failed)); then
         echo "STATUS=fetch-failed"
-        local reason
-        reason=$(printf '%s\n' "$fetch_err" |
-            grep -E '^(fatal:|error:|Permission denied|.*Permission denied)' |
-            head -1)
-        [[ -z "$reason" ]] && reason=$(printf '%s\n' "$fetch_err" | head -1)
-        echo "FETCH_ERR=$reason"
+        echo "FETCH_ERR=$fetch_reason"
         return 0
     fi
 
