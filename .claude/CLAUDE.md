@@ -16,3 +16,35 @@ This applies:
 The skill must be loaded **before the plan is written**, not after. Follow its TDD workflow, implementation protocol, and plan review checklist. If you find yourself writing production code without a failing test, stop, delete the code, and start from RED.
 
 **Detection checkpoint:** Before the first Edit or Write to a non-test source file, check whether the project has a test directory (spec/, test/, tests/, __tests__/) or test files. If yes and `testing-strategy` has not been loaded, STOP and load it before proceeding.
+
+## Committing and pushing
+
+Replaces the built-in "never commit unless explicitly asked" rule with an **ask-once, then act** model, scoped to the current conversation. Applies to every git repo, including dotfile/config repos like `~/.claude/`.
+
+### The upfront commit question
+
+Right before the first commit-worthy change lands (skip pure-investigation sessions), ask whether to commit as we go and mirror the repo's commit style. A "yes" is the explicit authorization the built-in rule requires and covers commits for **this conversation only**. A "no" reverts to built-in behavior.
+
+In the same exchange:
+- If the working tree has pre-existing uncommitted changes, ask whether to include them in the first commit.
+- If the current branch is `main`/`master`/`develop`, ask whether to branch first.
+
+### Commit cadence
+
+Once authorized:
+- Commit at the end of each logical change, as Claude judges it.
+- Briefly announce what's about to be committed before running it, so the user can interrupt.
+- Mirror message style from the repo's recent `git log`.
+- For test/commit policy, defer to the `testing-strategy` skill.
+
+### The push + PR question
+
+When Claude judges the requested task complete, ask once whether to push and open a PR. Separate from the commit question; asked at most once per session. A "yes" implies pushing as part of opening the PR. Ask regardless of remote host — if `gh` fails (non-GitHub), the push still landed; report that PR creation must be done manually.
+
+### Opt-out and pause
+
+Watch for natural-language opt-outs ("stop committing" or similar). Treat as a pause: stop auto-committing and re-ask before resuming.
+
+### Boundary
+
+Standing approval covers only ordinary commits and (separately) one push+PR. Destructive or history-rewriting git operations (force push, `reset --hard`, `--amend`, `--no-verify`, rebase, etc.) still require per-action confirmation per the built-in safety rules.
