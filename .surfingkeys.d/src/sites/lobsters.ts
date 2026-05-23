@@ -1,4 +1,4 @@
-import { openStoryAndComments } from '../utils';
+import { openStoryAndComments, renderGauges } from '../utils';
 import { Site } from './types';
 
 const lobsters: Site = {
@@ -16,6 +16,14 @@ const lobsters: Site = {
         }),
     },
   ],
+  onLoad: () => {
+    renderGauges({
+      rows: 'li.story',
+      anchor: '.byline',
+      score: { sel: '.voters', re: /(-?\d+)/ },
+      comments: { sel: '.comments_label a', re: /(\d+)\scomments?/ },
+    });
+  },
 };
 
 export default lobsters;

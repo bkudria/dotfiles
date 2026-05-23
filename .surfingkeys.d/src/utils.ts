@@ -143,6 +143,87 @@ export const scrollBy = (amount: number) =>
     })
   );
 
+type FieldSpec = { sel?: string; re?: RegExp };
+
+type GaugesSpec = {
+  rows: string;
+  anchor: string;
+  score: FieldSpec;
+  comments: FieldSpec;
+};
+
+const GAUGE_STYLE_ID = 'surfingkeys-gauges';
+
+const GAUGE_CSS = `
+  .gauge         { width: 0%; }
+  .gauge-score   { border-bottom: 2px solid #fabd2f; }
+  .gauge-comment { border-top:    2px solid #fb4934; margin-bottom: 1ex; }
+  .gauge-1  { width: 1%;  }
+  .gauge-2  { width: 2%;  }
+  .gauge-3  { width: 3%;  }
+  .gauge-4  { width: 5%;  }
+  .gauge-5  { width: 8%;  }
+  .gauge-6  { width: 13%; }
+  .gauge-7  { width: 21%; }
+  .gauge-8  { width: 34%; }
+  .gauge-9  { width: 55%; }
+  .gauge-10 { width: 89%; }
+`;
+
+const injectGaugeStyles = () => {
+  if (document.getElementById(GAUGE_STYLE_ID)) return;
+  const style = document.createElement('style');
+  style.id = GAUGE_STYLE_ID;
+  style.textContent = GAUGE_CSS;
+  document.head.appendChild(style);
+};
+
+const bucket = (n: number): string =>
+  Number(n)
+    .toString(Math.E)
+    .length.toString();
+
+const extractNumber = (row: Element, field: FieldSpec): number | null => {
+  const source = field.sel ? row.querySelector(field.sel) : row;
+  if (!source) return null;
+  const text = (source as HTMLElement).innerText;
+
+  if (field.re) {
+    const match = text.match(field.re);
+    if (!match) return null;
+    const n = Number(match[1]);
+    return Number.isFinite(n) ? n : null;
+  }
+  const n = Number(text.trim());
+  return Number.isFinite(n) ? n : null;
+};
+
+const insertGauge = (target: Element, kind: string, n: number) =>
+  target.insertAdjacentHTML(
+    'beforebegin',
+    `<div class="gauge ${kind} gauge-${bucket(n)}"></div>`
+  );
+
+export const renderGauges = ({
+  rows,
+  anchor,
+  score,
+  comments,
+}: GaugesSpec) => {
+  injectGaugeStyles();
+  document.querySelectorAll(rows).forEach(row => {
+    const target = row.querySelector(anchor);
+    if (!target) return;
+
+    const scoreValue = extractNumber(row, score);
+    if (scoreValue !== null) insertGauge(target, 'gauge-score', scoreValue);
+
+    const commentsValue = extractNumber(row, comments);
+    if (commentsValue !== null)
+      insertGauge(target, 'gauge-comment', commentsValue);
+  });
+};
+
 export const darkReaderEnabled = () =>
   document.querySelector('style.darkreader') ||
   document.querySelector('style#dark-reader-style');

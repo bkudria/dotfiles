@@ -1,4 +1,8 @@
-import { darkReaderEnabled, openStoryAndComments } from '../utils';
+import {
+  darkReaderEnabled,
+  openStoryAndComments,
+  renderGauges,
+} from '../utils';
 import { applyLightTheme } from '../theme';
 
 import { Site } from './types';
@@ -29,40 +33,11 @@ const hackernews: Site = {
   onLoad: () => {
     darkReaderEnabled() && applyLightTheme();
 
-    var scores = document.querySelectorAll(
-      'td.subtext span.subline:has(> span.score)'
-    );
-    scores.forEach(element => {
-      var html_element = element as HTMLElement;
-      if (html_element.innerText.match(/(\d+)\spoints/)) {
-        var match = html_element.innerText.match(/(\d+)\spoints/);
-        if (match) {
-          var scoreValue = Number(match[1])
-            .toString(Math.E)
-            .length.toString();
-          element.insertAdjacentHTML(
-            'beforebegin',
-            `<div class="gauge gauge-score gauge-${scoreValue}"></div>`
-          );
-        }
-      }
-    });
-
-    var links = document.querySelectorAll('td.subtext span.subline:has(> a)');
-    links.forEach(element => {
-      var html_element = element as HTMLElement;
-      if (html_element.innerText.match(/(\d+)\scomments/)) {
-        var match = html_element.innerText.match(/(\d+)\scomments/);
-        if (match) {
-          var commentsValue = Number(match[1])
-            .toString(Math.E)
-            .length.toString();
-          element.insertAdjacentHTML(
-            'beforebegin',
-            `<div class="gauge gauge-comment gauge-${commentsValue}"></div>`
-          );
-        }
-      }
+    renderGauges({
+      rows: 'td.subtext',
+      anchor: 'span.subline',
+      score: { re: /(\d+)\spoints/ },
+      comments: { re: /(\d+)\scomments/ },
     });
   },
 };
