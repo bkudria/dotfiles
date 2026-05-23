@@ -2,6 +2,7 @@
 - Always clarify when there are multiple valid approaches: use AskUserQuestion for quick clarifications, or EnterPlanMode for design decisions that need codebase exploration first.
 - Prefer asking over guessing. Use AskUserQuestion (or `advanced-ask` when its limits are hit) whenever in doubt — for design decisions, ambiguous requirements, implementation choices, or anything where you'd otherwise be making an assumption. This applies in all modes, not just Plan mode.
 - Treat the phrase "interview me" (or close variants like "interview me about") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this phrase appears, lean heavily toward asking questions before acting.
+- Keep ephemeral/local references out of persisted artifacts (commits, branch names, PR/issue bodies, code comments, docs). This covers task IDs, plan phases/step numbers, subagent IDs or names, and callbacks to prior turns/sessions. External tracker IDs (JIRA/Linear/GH issue #) are fine, and the rule only applies to artifacts — chat with the user is unaffected.
 
 ## TDD Gate
 
