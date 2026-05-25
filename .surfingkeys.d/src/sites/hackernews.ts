@@ -36,8 +36,8 @@ const hackernews: Site = {
     renderGauges({
       rows: 'td.subtext',
       anchor: 'span.subline',
-      score: { re: /(\d+)\spoints/, cap: 500 },
-      comments: { re: /(\d+)\scomments/, cap: 300 },
+      score: { re: /(\d+)\spoints/, k: 100 },
+      comments: { re: /(\d+)\scomments/, k: 30 },
     });
   },
 };

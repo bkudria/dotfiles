@@ -143,7 +143,7 @@ export const scrollBy = (amount: number) =>
     })
   );
 
-type FieldSpec = { sel?: string; re?: RegExp; cap: number };
+type FieldSpec = { sel?: string; re?: RegExp; k: number };
 
 type GaugesSpec = {
   rows: string;
@@ -167,10 +167,10 @@ const injectGaugeStyles = () => {
   document.head.appendChild(style);
 };
 
-const widthPercent = (value: number, cap: number): number => {
-  if (cap <= 0) return 0;
-  const ratio = Math.min(Math.max(value, 0) / cap, 1);
-  return Math.sqrt(ratio) * 100;
+export const widthPercent = (value: number, k: number): number => {
+  if (k <= 0) return 0;
+  const v = Math.max(value, 0);
+  return (100 * v) / (v + k);
 };
 
 const extractNumber = (row: Element, field: FieldSpec): number | null => {
@@ -192,13 +192,13 @@ const insertGauge = (
   target: Element,
   kind: string,
   value: number,
-  cap: number
+  k: number
 ) =>
   target.insertAdjacentHTML(
     'beforebegin',
     `<div class="gauge ${kind}" style="width: ${widthPercent(
       value,
-      cap
+      k
     ).toFixed(1)}%"></div>`
   );
 
@@ -217,11 +217,11 @@ const renderGaugesNow = ({
 
     const scoreValue = extractNumber(row, score);
     if (scoreValue !== null)
-      insertGauge(target, 'gauge-score', scoreValue, score.cap);
+      insertGauge(target, 'gauge-score', scoreValue, score.k);
 
     const commentsValue = extractNumber(row, comments);
     if (commentsValue !== null)
-      insertGauge(target, 'gauge-comment', commentsValue, comments.cap);
+      insertGauge(target, 'gauge-comment', commentsValue, comments.k);
 
     htmlRow.dataset.gauged = '1';
   });
