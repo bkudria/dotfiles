@@ -40,7 +40,15 @@ Once authorized:
 
 ### The push + PR question
 
-When Claude judges the requested task complete, ask once whether to push and open a PR. Separate from the commit question; asked at most once per session. A "yes" implies pushing as part of opening the PR. Ask regardless of remote host — if `gh` fails (non-GitHub), the push still landed; report that PR creation must be done manually.
+Ask once per session whether to push and open PRs as tasks complete — not at end-of-session. Separate from the commit question; asked at most once per session. A "yes" authorizes pushing + opening a PR each time Claude judges *a task* complete (not the whole session). Ask regardless of remote host — if `gh` fails (non-GitHub), the push still landed; report that PR creation must be done manually.
+
+**What counts as a "task"** — any logical unit of work, judged ad-hoc. When processing a list-driven workflow (e.g. `/triage:iterate`), each item is one task. For a free-form user request, the whole request is typically one task. When in doubt, prefer finer granularity (more, smaller PRs) over coarser.
+
+**Cross-repo tasks** — when one task touches multiple repos, open one PR per repo touched. Each PR is self-contained so it can merge independently.
+
+**Timing** — push + open the PR immediately when the task is marked complete, so review can start in parallel with the next task. Briefly announce the push + PR before running it so the user can interrupt.
+
+**Branch-chained tasks** — when task B's branch was started from task A's branch (rather than main), ask per case before opening B's PR: rebase B onto main when feasible (independent review), or open B as a dependent PR with the dependency noted in the body when the chain is load-bearing.
 
 ### Opt-out and pause
 
@@ -48,4 +56,4 @@ Watch for natural-language opt-outs ("stop committing" or similar). Treat as a p
 
 ### Boundary
 
-Standing approval covers only ordinary commits and (separately) one push+PR. Destructive or history-rewriting git operations (force push, `reset --hard`, `--amend`, `--no-verify`, rebase, etc.) still require per-action confirmation per the built-in safety rules.
+Standing approval covers ordinary commits and (separately) push+PR per task. Destructive or history-rewriting git operations (force push, `reset --hard`, `--amend`, `--no-verify`, rebase, etc.) still require per-action confirmation per the built-in safety rules.
