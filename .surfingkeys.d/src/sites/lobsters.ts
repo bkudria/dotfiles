@@ -20,8 +20,8 @@ const lobsters: Site = {
     renderGauges({
       rows: 'li.story',
       anchor: '.byline',
-      score: { sel: '.voters', re: /(-?\d+)/, k: 20 },
-      comments: { sel: '.comments_label a', re: /(\d+)\scomments?/, k: 5 },
+      score: { sel: '.voters', re: /(-?\d+)/, k: 50 },
+      comments: { sel: '.comments_label a', re: /(\d+)\scomments?/, k: 10 },
     });
   },
 };
