@@ -39,6 +39,7 @@
 /.config/chrome/Cached*
 !/.config/direnv/
 !/.config/gemsmith/
+!/.config/glow/
 !/.config/iterm2/
 !/.config/karabiner.edn
 

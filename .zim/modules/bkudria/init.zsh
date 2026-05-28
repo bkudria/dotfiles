@@ -20,7 +20,23 @@ export VISUAL='emacs-client-frame'
 export ANTHROPIC_MODEL="claude-opus-4-7[1m]"
 
 # Aliases - only the unique ones not covered by other modules
-alias less=glow
+less() {
+    local mode=light
+    [[ $(defaults read -g AppleInterfaceStyle 2>/dev/null) == Dark ]] && mode=dark
+    local bat_theme=gruvbox-$mode
+    local glow_style=$HOME/.config/glow/gruvbox-$mode.json
+
+    if (( $# == 0 )); then
+        command bat --theme=$bat_theme
+        return
+    fi
+
+    local f
+    for f in "$@"; do
+        [[ ${f:l} == *.md ]] || { command bat --theme=$bat_theme "$@"; return }
+    done
+    command glow -s $glow_style "$@"
+}
 alias mcp-cli='npx wong2/mcp-cli'
 alias senv='env | sort'
 
