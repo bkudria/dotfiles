@@ -33,9 +33,9 @@ less() {
 
     local f
     for f in "$@"; do
-        [[ ${f:l} == *.md ]] || { command bat --theme=$bat_theme "$@"; return }
+        [[ ${f:l} == *.md ]] || { command bat --theme=$bat_theme "$@"; return; }
     done
-    command glow -s $glow_style "$@"
+    command glow -s "$glow_style" "$@"
 }
 alias mcp-cli='npx wong2/mcp-cli'
 alias senv='env | sort'
