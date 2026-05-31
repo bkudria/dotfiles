@@ -1,0 +1,23 @@
+prompt: |
+  Audit the standards for a TypeScript project at ~/code/example-ts.
+  It uses `profiles: [base]`.
+  All infrastructure files exist: README.md, .gitignore, LICENSE (MIT),
+  tests/ directory with vitest.config.ts, CLAUDE.md, GOALS.md, SPEC.md,
+  eslint.config.js, package-lock.json, conventional commit history, and
+  vitest.config.ts has coverage configured with thresholds.
+  Run the full audit.
+labels:
+  name: "Audit delegates per-standard verification to the verify.js Workflow"
+assertions:
+  - check: "The agent verifies the prompt-based standards by calling the Workflow tool with a scriptPath ending in `verify.js`, not by spawning one Agent sub-agent per standard from the main thread"
+    note: "The fan-out moved out of fragile main-thread prose into workflows/verify.js; the Workflow call is the delegation signal this refactor introduces"
+  - check: "The transcript contains no per-standard Agent (sub-agent) tool calls issued by the main agent to verify standards — the verifier fan-out happens inside the workflow, so those dispatches never appear in this transcript"
+    note: "A main-thread Agent-per-standard dispatch would mean the old prose-driven single-message fan-out, which this refactor removes"
+  - check: "The deterministic runner steps still run in the main thread as Bash calls to scripts/run-audit.sh — at least --collect and --merge, plus --render and/or --check"
+    note: "Only the sub-agent fan-out was delegated; the deterministic verbs stay in the main thread, byte-for-byte unchanged"
+  - check: "Before each verify.js Workflow dispatch, the agent passes that round's pending index (standard ids and their prompt_path / response_path file paths) and does NOT dump any prompt file contents to Bash output or a side file"
+    note: "Prompt content stays in the per-entry prompt_path files; only paths and ids are handed to the workflow"
+  - check: "Output contains the runner's verbatim markdown table (Standard, Status, Detail columns) followed by a per-status count line of the form `X PASS, Y FAIL, Z SUGG`"
+    note: "The --render output IS the audit; it must be presented verbatim, not paraphrased"
+  - check: "If the suggested round runs (the required round had no FAIL), its per-standard verification is likewise delegated to a verify.js Workflow dispatch — not to main-thread Agent sub-agents"
+    note: "Suggested standards are gated behind required-pass; each round that runs is its own verify.js dispatch, never a main-thread fan-out"

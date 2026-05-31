@@ -47,15 +47,24 @@ The runner reads `<project-root>/project.yaml` (and exits with a descriptive err
 
 `suggested_total` is the count of would-have-been-suggested standards that round 1 *deliberately skipped* — render uses it to surface the skipped count if the gate later trips.
 
-**GATE — No prompt extraction. Do NOT write prompt content to bash output, `/tmp/...`, or any side file. Read `$STATE_DIR/collect-required.json` once for the index — it lists each pending entry's `id`, `required`, `description`, `prompt_path`, and `response_path`. Then, for each pending entry, Read the file at its `prompt_path` and copy that file's contents verbatim into the corresponding Agent tool_use's `prompt` parameter. Do NOT `mkdir`, `for`-loop dump, `jq` enumerate, or echo prompts through Bash; the per-entry prompt files are the only sanctioned source of prompt text. Issue all `pending.length` Reads as parallel tool_use blocks in **one** assistant message — do not stream them across multiple turns.**
+**GATE — No prompt extraction. Do NOT write prompt content to bash output, `/tmp/...`, or any side file. The pending entries carry only file *paths* (`prompt_path`, `response_path`) plus `id`/`required`/`description` — never prompt text. That index is exactly what gets handed to the workflow. Do NOT `cat`, `for`-loop dump, or echo any `prompt_path` file through Bash; the verifier agents inside the workflow Read those files themselves.**
 
-**GATE — Single-message Reads (round 1). Before sending your Read message, count the Read tool_use blocks it contains. That count MUST equal `pending.length` from `collect-required.json`. Do NOT split Reads across multiple messages — a Read message with fewer Read tool_uses than `pending.length` is malformed and must be revised before sending.**
+Extract the pending index (paths and ids only — no prompt content) and hand it to the verification workflow. The workflow fans out one `model: 'haiku'` verifier per pending entry; each agent Reads its `prompt_path` file, obeys the embedded directive, and Writes `{"met": true|false, "detail": "<one-line>"}` to its `response_path`. The runner has already baked the description, prompt body, and that write-directive into each prompt file. The `parallel()` inside the script makes the fan-out mechanical — there is no per-entry dispatch to drive or count by hand.
 
-For every entry in `pending`, dispatch a `general-purpose` sub-agent with `model: 'haiku'` whose prompt is the contents of the file at the entry's `prompt_path`, copied verbatim. The runner has already baked in the description, the prompt body, and a directive instructing the agent to write `{"met": true|false, "detail": "<one-line>"}` to its `response_path` using the Write tool. The agent's conversational reply is ignored; only the file matters.
+```bash
+jq -c '.pending' "$STATE_DIR/collect-required.json"
+```
 
-**GATE — Single-message dispatch (round 1). Before sending your dispatch message, count the Agent tool_use blocks it contains. That count MUST equal `pending.length` from `collect-required.json`. Do NOT split dispatches across multiple messages — a dispatch message with fewer Agent tool_uses than `pending.length` is malformed and must be revised before sending.**
+If that array is empty (every required standard was deterministic), skip the workflow and go straight to merge. Otherwise dispatch:
 
-After all sub-agents return, run merge:
+```
+Workflow({
+  scriptPath: "/Users/bkudria/.claude/skills/project-config/workflows/verify.js",
+  args: { scope: "required", pending: <the array printed by jq above> }
+})
+```
+
+**The `Workflow` call is non-blocking.** It returns a task id immediately; the fan-out then runs in the background. After invoking it, stop and wait — do not verify any standard yourself, and do not read the prompt or response files. You are re-prompted when the genuine `<task-notification>` arrives with `status: completed`; by then every verifier has written its `response_path`. Only then run merge:
 
 ```bash
 scripts/run-audit.sh --merge "$STATE_DIR"
@@ -92,19 +101,30 @@ scripts/run-audit.sh --collect <project-root> "$STATE_DIR" --scope suggested
 
 The runner walks the same profiles but **filters to effective-suggested standards only** (intrinsic `required: false` AND id NOT in project.yaml's `required:` overrides). Output is `<state-dir>/collect-suggested.json` with the same shape as round 1 (minus `suggested_total`).
 
-**GATE — No prompt extraction (round 2). Same rule as round 1: Read `collect-suggested.json` once for the index, then Read each pending entry's `prompt_path` to copy that file's contents verbatim into its Agent block. Do NOT mkdir, jq enumerate, or echo prompts through Bash. Issue all `pending.length` Reads as parallel tool_use blocks in **one** assistant message — do not stream them across multiple turns.**
+**GATE — No prompt extraction (round 2). Same rule as round 1: the pending entries carry only `prompt_path`/`response_path`, never prompt text. Do NOT `cat`, `for`-loop dump, or echo any prompt file through Bash; the workflow's verifier agents Read them.**
 
-**GATE — Single-message Reads (round 2). Before sending your Read message, count the Read tool_use blocks it contains. That count MUST equal `pending.length` from `collect-suggested.json`. Do NOT split Reads across multiple messages — a Read message with fewer Read tool_uses than `pending.length` is malformed and must be revised before sending.**
+Extract this round's pending index and hand it to the same workflow with `scope: "suggested"`:
 
-For every entry in this round's `pending`, dispatch a `general-purpose` sub-agent with `model: 'haiku'` whose prompt is the contents of the file at the entry's `prompt_path`, copied verbatim. After all return, run merge again:
+```bash
+jq -c '.pending' "$STATE_DIR/collect-suggested.json"
+```
+
+If the array is empty, skip the workflow and run merge directly. Otherwise dispatch:
+
+```
+Workflow({
+  scriptPath: "/Users/bkudria/.claude/skills/project-config/workflows/verify.js",
+  args: { scope: "suggested", pending: <the array printed by jq above> }
+})
+```
+
+As in round 1 the call is non-blocking: dispatch, then stop and wait for the `<task-notification>`. When it completes, every verifier has written its `response_path`; run merge again:
 
 ```bash
 scripts/run-audit.sh --merge "$STATE_DIR"
 ```
 
 The second merge reads BOTH `collect-required.json` and `collect-suggested.json`, unions their resolved/pending arrays, re-reads response files, and writes `merged.json` with `scopes_collected: ["required","suggested"]`.
-
-**GATE — Single-message dispatch (round 2). Before sending your dispatch message, count the Agent tool_use blocks it contains. That count MUST equal `pending.length` from `collect-suggested.json`. The single-message dispatch GATE applies independently to each round.**
 
 ### 3. Render
 
@@ -146,7 +166,7 @@ scripts/run-audit.sh --check "$STATE_DIR"
 
 ## Notes
 
-- The runner does not invoke sub-agents itself — it only walks YAML, executes scripts, and formats output. The sub-agent dispatch in steps 1a and 1c is interactive (driven by Claude in the main thread) and is not designed to run from CI.
+- The runner does not invoke sub-agents itself — it only walks YAML, executes scripts, and formats output. The per-standard verification in steps 1a and 1c is delegated to the `verify.js` Workflow, which fans out one verifier agent per pending entry; prompt content stays in the per-entry `prompt_path` files and is never dumped through Bash. The deterministic runner verbs (`--collect`/`--merge`/`--gate`/`--render`/`--check`) run directly and are CI-safe; the verification fan-out needs the Workflow runtime, so a bare-CI run resolves only the deterministic standards.
 - Standards are activated by directory listing: every `.yaml` file under `profiles/<profile-name>/` is a standard. To skip a standard for a specific project, list it in the project's `disabled:` map with a non-empty reason — see `references/project-yaml-schema.md`.
 - A standard's *check* is fully described inside its YAML. The only severity knob `project.yaml` can turn is the `required:` list, which upgrades named standards from `SUGG` to `FAIL`. The check itself remains unparameterized. If you need a stricter check, add a separate standard YAML in a profile (e.g., `public/readme-sections.yaml` is a separate file from `base/readme.yaml`).
 - The two-pass flow is the only audit flow. There is no single-pass `--collect` (without `--scope`); it errors clearly. The state-dir holds `collect-required.json` (always written), `collect-suggested.json` (only after gate=0), and `merged.json` (rebuilt on each `--merge` from the union of present collect files).
