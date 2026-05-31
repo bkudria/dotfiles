@@ -470,13 +470,27 @@ assert_eq "collect-suggested.json under 60k bytes for 50 prompt standards" "true
 rm -rf "$proj" "$state"
 rm -rf "$SKILL_TMP/profiles/big"
 
-# --- Test W1: workflows/audit.md GATE references prompt_path (per-entry file
-#              format) instead of the obsolete rendered_prompt field. ---
+# --- Test W1: workflows/audit.md delegates per-standard verification to the
+#              verify.js Workflow in both rounds, and no longer drives the
+#              fan-out via single-message dispatch GATEs in the main thread. ---
 WORKFLOW="$REAL_SKILL_DIR/workflows/audit.md"
+
+verify_ref_count=$(grep -c "verify.js" "$WORKFLOW" || true)
+[[ $verify_ref_count -ge 2 ]] && delegates_both_rounds=true || delegates_both_rounds=false
+assert_eq "workflows/audit.md dispatches verify.js in both rounds" "true" "$delegates_both_rounds"
+
+workflow_ref_count=$(grep -c "Workflow" "$WORKFLOW" || true)
+[[ $workflow_ref_count -ge 2 ]] && uses_workflow_tool=true || uses_workflow_tool=false
+assert_eq "workflows/audit.md dispatches via the Workflow tool" "true" "$uses_workflow_tool"
+
+old_dispatch_gate=$(grep -c "Single-message dispatch" "$WORKFLOW" || true)
+assert_eq "workflows/audit.md has dropped the single-message dispatch GATEs" "0" "$old_dispatch_gate"
+
+old_count_gate=$(grep -c "count the Agent tool_use blocks" "$WORKFLOW" || true)
+assert_eq "workflows/audit.md no longer asks Claude to count Agent tool_use blocks" "0" "$old_count_gate"
+
 prompt_path_count=$(grep -c "prompt_path" "$WORKFLOW" || true)
 [[ $prompt_path_count -ge 2 ]] && enough_prompt_path=true || enough_prompt_path=false
-assert_eq "workflows/audit.md mentions prompt_path at least twice" "true" "$enough_prompt_path"
-old_gate_present=$(grep -c "single Read is the canonical pre-dispatch inspection" "$WORKFLOW" || true)
-assert_eq "workflows/audit.md has dropped the obsolete 'single Read' GATE wording" "0" "$old_gate_present"
+assert_eq "workflows/audit.md still references the per-entry prompt_path file handshake" "true" "$enough_prompt_path"
 
 summary
