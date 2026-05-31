@@ -1,0 +1,43 @@
+prompt: |
+  Audit this project against its standards. The project is the current working
+  directory; its project.yaml declares `profiles: [base]`. Run the audit and
+  show the results.
+
+project:
+  git_init: true
+  files:
+    project.yaml: |
+      profiles:
+        - base
+    pyproject.toml: |
+      [project]
+      name = "example-py"
+      version = "0.1.0"
+      requires-python = ">=3.11"
+    README.md: |
+      # example-py
+
+      A small Python project.
+    .gitignore: |
+      __pycache__/
+      *.pyc
+    LICENSE: |
+      MIT License
+
+      Copyright (c) 2026 Example Author
+
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the "Software"),
+      to deal in the Software without restriction.
+    CLAUDE.md: |
+      # example-py
+
+      Guidance for working in this repository.
+    GOALS.md: |
+      # Goals
+
+      Why this project exists.
+    SPEC.md: |
+      # Specification
+
+      What this project does.

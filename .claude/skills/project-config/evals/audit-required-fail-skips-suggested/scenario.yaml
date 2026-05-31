@@ -1,0 +1,27 @@
+prompt: |
+  Audit this project against its standards. The project is the current working
+  directory; its project.yaml declares `profiles: [base, public]`. Run the
+  audit and show the results.
+
+project:
+  git_init: true
+  files:
+    project.yaml: |
+      profiles:
+        - base
+        - public
+    README.md: |
+      # sparse-gem
+
+      A sparse Ruby gem.
+    Gemfile: |
+      source "https://rubygems.org"
+
+      gem "rspec"
+    .gitignore: |
+      /pkg/
+      *.gem
+    spec/spec_helper.rb: |
+      RSpec.configure do |config|
+        config.disable_monkey_patching!
+      end

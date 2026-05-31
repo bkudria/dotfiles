@@ -1,0 +1,32 @@
+context: |
+  The user asked the project-config skill to scaffold a new TypeScript CLI
+  project. Scaffold mode interviews the user (which profiles, whether to disable
+  any standards) BEFORE creating files, then writes project.yaml first and the
+  standard files afterward. The new project.yaml schema accepts exactly two
+  top-level keys — profiles and (optional) disabled — and no metadata or
+  per-standard parameters.
+checks:
+  - asks-which-profiles:
+      check: "The agent emits a user-facing question that presents named profile choices (e.g. base, public, cli) and asks which to enable"
+  - asks-whether-to-disable:
+      check: "The agent asks the user whether any standards should be disabled"
+  - no-files-before-interview:
+      check: "No file-creation tool call appears before both interview questions have been asked"
+      note: "Scaffold mode requires completing the interview before any file creation"
+  - project-yaml-written-first:
+      check: "The first file the agent writes is project.yaml, before any other file"
+      note: "project.yaml is the central artifact from which the other files derive"
+  - has-profiles-key:
+      check: "The generated project.yaml contains a top-level `profiles:` key"
+  - no-keys-beyond-profiles-disabled:
+      check: "The generated project.yaml has no top-level keys other than `profiles:` and `disabled:` (no name, description, language, status, visibility, repo, or standards block)"
+      note: "The schema accepts exactly two top-level keys: profiles and disabled"
+  - selects-existing-profile:
+      check: "The `profiles:` list contains at least one profile that exists under profiles/ (base, public, cli, or allium)"
+  - does-not-ask-forbidden-metadata:
+      check: "The agent does NOT ask the user about project name, description, language, status, visibility, or per-standard parameters such as test framework or license SPDX"
+      note: "The schema does not support these; asking would violate the simplified interview"
+  - writes-a-standard-file:
+      check: "The agent writes at least one standard file (such as README.md, GOALS.md, or LICENSE) for the activated profiles"
+  - standard-files-after-project-yaml:
+      check: "Any standard file is written only after project.yaml has been written to disk"

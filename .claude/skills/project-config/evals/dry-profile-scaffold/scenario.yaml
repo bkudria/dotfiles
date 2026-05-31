@@ -1,0 +1,12 @@
+prompt: |
+  I want to create a new TypeScript CLI project called "taskflow". It's a task
+  automation tool. Use the base profile as a starting point. Generate the
+  project.yaml file.
+
+user:
+  max_turns: 4
+  persona: |
+    You asked the agent to generate a project.yaml for a new TypeScript CLI
+    project using the base profile. If the agent asks which profiles to enable,
+    say `base`. If it asks whether to disable any standards, say no. Answer only
+    what is asked; the task is done once it has generated the project.yaml.

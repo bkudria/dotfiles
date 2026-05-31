@@ -1,0 +1,35 @@
+context: |
+  The agent audited a sparse Ruby project (profiles: [base, public]) in the
+  working directory. Present: README.md (heading only), Gemfile, .gitignore,
+  spec/spec_helper.rb. Missing: LICENSE, CLAUDE.md, GOALS, CONTRIBUTING,
+  .rubocop.yml, CI config (and other governance files). Several REQUIRED
+  standards fail, so the gate trips and the suggested round is never collected.
+  The runner's --render output lists FAIL rows, a `X PASS, Y FAIL, Z SUGG` count
+  line, then a skipped-suggested line.
+checks:
+  - workflow-dispatched-for-required:
+      check: "The agent dispatches the verify.js verification workflow once for the required round"
+  - no-workflow-for-suggested:
+      check: "The agent does NOT dispatch verify.js a second time for suggested standards"
+      note: "Required FAILs gate out round 2, so the suggested verify.js fan-out never runs — this is the cost-saving behavior under test"
+  - has-fail-rows:
+      check: "The compliance table contains at least one FAIL row"
+  - license-fails:
+      check: "base/license appears as a FAIL row"
+  - claude-md-fails:
+      check: "base/claude-md appears as a FAIL row"
+  - goals-fails:
+      check: "base/goals appears as a FAIL row"
+  - contributing-fails:
+      check: "public/contributing appears as a FAIL row"
+  - skipped-suggested-line:
+      check: "A line of the form `N suggested standards skipped (required failures present)` appears, where N is a positive integer"
+      note: "This line is the observable signal that the gate fired and round 2 was intentionally not collected"
+  - no-lock-in-sentence:
+      check: "The output contains no sentence about enforcing standards going forward by adding to project.yaml"
+      note: "Lock-in only fires when the suggested round actually ran with zero FAIL and zero SUGG"
+  - no-required-yaml-snippet:
+      check: "The output contains no `required:` YAML snippet suggesting standards to lock in"
+  - remediation-items-target-fails:
+      check: "The remediation plan contains at least one fix entry, and every fix entry targets a standard that appears as a FAIL row"
+      note: "No suggested standards were collected, so there is nothing suggested to remediate; every plan item should cite a FAIL standard"

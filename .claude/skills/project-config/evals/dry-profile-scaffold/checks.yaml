@@ -1,0 +1,19 @@
+context: |
+  The user asked the project-config skill to generate a project.yaml for a new
+  TypeScript CLI project using the base profile. The new project.yaml schema
+  accepts exactly two top-level keys — profiles and (optional) disabled — with no
+  metadata fields and no per-standard parameters.
+checks:
+  - uses-plural-profiles-key:
+      check: "The generated project.yaml uses a top-level `profiles:` key (plural), not a singular `profile:` key"
+  - profiles-list-contains-base:
+      check: "The `profiles:` value is a list/array that contains `base` (e.g. `profiles: [base]` or a block-style `- base` list)"
+  - no-metadata-fields:
+      check: "The generated project.yaml contains no name, description, language, status, visibility, or repo keys"
+      note: "The schema rejects all metadata; standards inspect the project itself rather than reading declarations"
+  - no-standards-block:
+      check: "The generated project.yaml contains no `standards:` block"
+      note: "Standards are not configurable per-project; they live as self-contained YAMLs under profiles/"
+  - no-per-standard-parameters:
+      check: "The generated project.yaml contains no per-standard parameters such as tests.framework, tests.directory, or claude-md.sections"
+      note: "The architecture is intentionally language- and tool-agnostic — there are no parameterized standards"

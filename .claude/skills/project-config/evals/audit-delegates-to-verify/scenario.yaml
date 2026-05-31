@@ -1,0 +1,90 @@
+prompt: |
+  Audit this project against its standards. The project is the current working
+  directory; its project.yaml declares `profiles: [base]`. Run the full audit
+  and show the results.
+
+project:
+  git_init: true
+  files:
+    project.yaml: |
+      profiles:
+        - base
+
+      disabled:
+        base/tests-run: "Runtime-execution standard; this fixture has no installed toolchain to run, so it is out of scope here."
+        base/linter-run: "Runtime-execution standard; this fixture has no installed toolchain to run, so it is out of scope here."
+        base/coverage-run: "Runtime-execution standard; this fixture has no installed toolchain to run, so it is out of scope here."
+        base/commit-convention: "Commit-message enforcement is out of scope for this delegation fixture."
+    package.json: |
+      {
+        "name": "example-ts",
+        "version": "0.1.0",
+        "type": "module",
+        "engines": { "node": ">=20" },
+        "scripts": { "test": "vitest run", "lint": "eslint ." },
+        "devDependencies": { "eslint": "^9", "prettier": "^3", "vitest": "^2" }
+      }
+    package-lock.json: |
+      {
+        "name": "example-ts",
+        "version": "0.1.0",
+        "lockfileVersion": 3,
+        "requires": true,
+        "packages": {}
+      }
+    README.md: |
+      # example-ts
+
+      A small TypeScript project.
+
+      ## Installation
+
+      Install with your package manager.
+
+      ## Usage
+
+      `example-ts --help`
+    .gitignore: |
+      node_modules/
+      coverage/
+    LICENSE: |
+      MIT License
+
+      Copyright (c) 2026 Example Author
+
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the "Software"),
+      to deal in the Software without restriction.
+    CLAUDE.md: |
+      # example-ts
+
+      Guidance for working in this repository.
+    GOALS.md: |
+      # Goals
+
+      Why this project exists.
+    SPEC.md: |
+      # Specification
+
+      What this project does and how it behaves.
+    .prettierrc: |
+      { "singleQuote": false, "semi": true }
+    eslint.config.js: |
+      export default [{ rules: { "no-unused-vars": "error" } }];
+    vitest.config.ts: |
+      import { defineConfig } from "vitest/config";
+
+      export default defineConfig({
+        test: {
+          coverage: {
+            provider: "v8",
+            thresholds: { lines: 80, functions: 80, branches: 80 },
+          },
+        },
+      });
+    tests/example.test.ts: |
+      import { test, expect } from "vitest";
+
+      test("smoke", () => {
+        expect(true).toBe(true);
+      });

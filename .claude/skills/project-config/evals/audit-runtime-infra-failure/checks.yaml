@@ -1,0 +1,30 @@
+context: |
+  The agent audited a Python project (profiles: [base]) in the working
+  directory. Present: pyproject.toml (requires-python set), README.md, .gitignore,
+  LICENSE, CLAUDE.md, GOALS.md, SPEC.md. Deliberately absent: any test directory,
+  any linter config, any coverage configuration. Both the infrastructure
+  standards and the independent runtime-verification (*-run) standards therefore
+  fail. The runner's --render output lists FAIL rows with a Detail column.
+checks:
+  - base-tests-fails:
+      check: "base/tests appears as a FAIL row in the rendered table"
+      note: "No conventional test directory exists"
+  - base-linter-fails:
+      check: "base/linter appears as a FAIL row in the rendered table"
+      note: "No linter is configured"
+  - base-coverage-fails:
+      check: "base/coverage appears as a FAIL row in the rendered table"
+      note: "No coverage threshold is configured"
+  - tests-run-fails:
+      check: "base/tests-run appears as a FAIL row"
+      note: "tests-run is an independent required standard that always runs, separate from base/tests; both rows appear because both checks below assert FAIL"
+  - linter-run-fails:
+      check: "base/linter-run appears as a FAIL row"
+  - coverage-run-fails:
+      check: "base/coverage-run appears as a FAIL row"
+  - tests-run-detail-no-tool:
+      check: "The Detail cell for base/tests-run indicates that no runnable test tool was found (e.g. mentions there is nothing to run or no test command)"
+  - linter-run-detail-no-tool:
+      check: "The Detail cell for base/linter-run indicates that no runnable linter was found (e.g. mentions there is nothing to run or no linter command)"
+  - coverage-run-detail-no-tool:
+      check: "The Detail cell for base/coverage-run indicates that no runnable coverage tool was found (e.g. mentions there is nothing to run or no coverage command)"

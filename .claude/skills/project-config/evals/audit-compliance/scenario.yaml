@@ -1,0 +1,50 @@
+prompt: |
+  Audit this project's standards compliance. The project is the current working
+  directory; its project.yaml declares `profiles: [base, public]`. Run the full
+  audit and show the results.
+
+project:
+  git_init: true
+  files:
+    project.yaml: |
+      profiles:
+        - base
+        - public
+    README.md: |
+      # my-gem
+
+      A small Ruby gem for searching structured data.
+    LICENSE: |
+      MIT License
+
+      Copyright (c) 2026 Example Author
+
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the "Software"),
+      to deal in the Software without restriction, including without limitation
+      the rights to use, copy, modify, merge, publish, distribute, sublicense,
+      and/or sell copies of the Software.
+    Gemfile: |
+      source "https://rubygems.org"
+
+      gem "rspec"
+    .gitignore: |
+      /pkg/
+      /tmp/
+      *.gem
+    spec/spec_helper.rb: |
+      RSpec.configure do |config|
+        config.disable_monkey_patching!
+      end
+    .rubocop.yml: |
+      AllCops:
+        NewCops: enable
+    .github/workflows/test.yml: |
+      name: test
+      on: [push, pull_request]
+      jobs:
+        test:
+          runs-on: ubuntu-latest
+          steps:
+            - uses: actions/checkout@v4
+            - run: bundle exec rspec
