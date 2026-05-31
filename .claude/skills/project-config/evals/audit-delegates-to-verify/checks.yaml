@@ -1,0 +1,39 @@
+context: |
+  The agent audited a TypeScript project (profiles: [base]) in the working
+  directory. Its project.yaml disables the four required standards that cannot
+  resolve without an installed toolchain or commit history
+  (base/tests-run, base/linter-run, base/coverage-run, base/commit-convention);
+  every other required standard is satisfied by the fixture's files, so the
+  required round passes, the gate opens, and the suggested round also runs. The
+  per-standard verification fan-out is delegated to the workflows/verify.js
+  Workflow once per round; the deterministic run-audit.sh verbs run in the main
+  thread. The render output lists FAIL/SUGG rows then a `X PASS, Y FAIL, Z SUGG`
+  count line.
+checks:
+  - workflow-called-with-verify-js:
+      check: "The agent calls the Workflow tool with a scriptPath ending in `verify.js`"
+      note: "The fan-out lives in workflows/verify.js; the Workflow call is the delegation signal a vanilla agent has no way to produce"
+  - no-main-thread-per-standard-agent:
+      check: "The main agent makes no per-standard Agent (sub-agent) tool call to verify a standard"
+      note: "A main-thread Agent-per-standard dispatch would be the old prose-driven fan-out this skill removed; the real fan-out happens inside the workflow and never appears in this transcript"
+  - run-audit-collect-in-main-thread:
+      check: "A Bash call to scripts/run-audit.sh with the --collect verb appears in the main transcript (not inside a Workflow or Agent call)"
+  - run-audit-merge-in-main-thread:
+      check: "A Bash call to scripts/run-audit.sh with the --merge verb appears in the main transcript"
+  - run-audit-render-or-check-in-main-thread:
+      check: "A Bash call to scripts/run-audit.sh with the --render or --check verb appears in the main transcript"
+  - workflow-receives-ids-and-paths:
+      check: "Each verify.js Workflow dispatch includes the pending entries' standard ids and their prompt_path/response_path file paths for that round"
+      note: "Prompt content stays in the per-entry prompt_path files; the negative (no contents dumped) is covered by no-prompt-contents-dumped"
+  - no-prompt-contents-dumped:
+      check: "No Bash call or file-writing tool call dumps the contents of a prompt_path file to stdout or to a side file"
+  - render-table-three-columns:
+      check: "Output contains the runner's markdown table with Standard, Status, and Detail columns"
+  - render-count-line:
+      check: "Output contains a per-status count line of the form `X PASS, Y FAIL, Z SUGG`"
+  - required-round-no-fail:
+      check: "The render output contains no FAIL row for any required standard other than the four disabled ones (base/tests-run, base/linter-run, base/coverage-run, base/commit-convention)"
+      note: "A passing required round is the precondition that opens the gate so round 2 (suggested) runs and a second dispatch can occur"
+  - second-verify-js-dispatch-for-suggested:
+      check: "A second Workflow call to verify.js appears in the transcript, dispatching the suggested round's verification"
+      note: "Each round that runs is its own verify.js dispatch; the suggested round only runs because the required round passed"

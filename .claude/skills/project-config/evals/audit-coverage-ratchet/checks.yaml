@@ -1,0 +1,15 @@
+context: |
+  The agent audited a TypeScript project (profiles: [base]) in the working
+  directory. Its vitest.config.ts enables coverage reporting but configures NO
+  thresholds / minimum coverage requirement — there is no coverage ratchet.
+  base/coverage is a prompt-based standard whose verifier checks that a minimum
+  threshold is committed, not merely that coverage is enabled.
+checks:
+  - coverage-fails-without-ratchet:
+      check: "base/coverage appears as a FAIL row because coverage is configured but no minimum threshold / ratchet is set"
+      note: "Coverage being merely enabled is not sufficient; base/coverage is required and unmet when no threshold is committed"
+  - coverage-detail-explains-missing-ratchet:
+      check: "The base/coverage row's Detail states that a coverage ratchet or minimum threshold is missing"
+  - no-coverage-ratchet-project-yaml-field:
+      check: "The audit does not suggest adding a `coverage.ratchet:` field — or any other key nested under a standard's name — to project.yaml"
+      note: "The schema has no per-standard parameters; the ratchet expectation lives inside the standard YAML itself"

@@ -1,0 +1,27 @@
+context: |
+  The agent audited a Node CLI project (profiles: [base]) in the working
+  directory that satisfies every standard the base profile activates, including a
+  committed package-lock.json. The project.yaml disables the standards that
+  cannot resolve statically (the three *-run standards, base/commit-convention,
+  and base/code-quality), so there are zero FAIL and zero SUGG rows. base/lockfile
+  is a SUGG-style standard (required: false) whose check passes and is not in the
+  project's required list, so the audit emits a lock-in suggestion. The render
+  shows an empty FAIL/SUGG table, a count line ending `0 FAIL, 0 SUGG`, and the
+  lock-in block.
+checks:
+  - table-header-three-columns:
+      check: "Output contains a compliance table header row with the columns Standard, Status, and Detail"
+      note: "Render is verbatim even when all-pass; the table has no data rows but the header still appears"
+  - count-line-zero-fail-zero-sugg:
+      check: "Output contains a count line ending in `0 FAIL, 0 SUGG`"
+  - lock-in-line:
+      check: "Output contains a lock-in suggestion line — a sentence about enforcing the passing standards going forward by adding to project.yaml"
+      note: "Triggered by zero-FAIL, zero-SUGG with at least one PASSing SUGG-style standard not yet in required"
+  - lock-in-required-block-format:
+      check: "Below the lock-in line is a YAML block beginning with `required:` whose list items follow the `  - <profile>/<basename>` format"
+  - lock-in-lists-base-lockfile:
+      check: "`base/lockfile` appears as an entry in that lock-in `required:` block"
+      note: "base/lockfile is PASSing, declares required: false, and is not already in the project's required list, so it is eligible for lock-in"
+  - no-fix-plan:
+      check: "The output does NOT include a fix-plan / remediation section"
+      note: "audit.md step 4 emits a plan only when at least one FAIL or SUGG row exists"

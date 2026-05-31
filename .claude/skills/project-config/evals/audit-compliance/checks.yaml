@@ -1,0 +1,31 @@
+context: |
+  The agent audited a Ruby project (profiles: [base, public]) in the working
+  directory. Present files: README.md (heading only, no Installation/Usage),
+  LICENSE (MIT), Gemfile, .gitignore, spec/spec_helper.rb, .rubocop.yml,
+  .github/workflows/test.yml. Missing: CLAUDE.md, GOALS, CONTRIBUTING (and other
+  governance files). The runner's --render output lists only FAIL and SUGG rows
+  followed by a `X PASS, Y FAIL, Z SUGG` count line; PASS rows are intentionally
+  omitted. Several required standards fail, so the suggested round is gated out.
+checks:
+  - table-has-three-columns:
+      check: "Output contains a markdown table with exactly three columns named Standard, Status, and Detail"
+  - status-values-are-fail-or-sugg:
+      check: "Every row in that table has a Status value of exactly FAIL or SUGG — never WARN, MANUAL, SKIP, OK, DISABLED, Missing, or Yes/No"
+  - rows-are-profile-basename:
+      check: "Each table row's Standard column is a `<profile>/<basename>` id such as base/claude-md, never a bare basename like claude-md"
+  - claude-md-fails:
+      check: "base/claude-md appears as a FAIL row"
+  - goals-fails:
+      check: "base/goals appears as a FAIL row"
+  - contributing-fails:
+      check: "public/contributing appears as a FAIL row"
+  - readme-sections-row-present:
+      check: "A row labeled public/readme-sections appears with status FAIL or SUGG"
+      note: "base/readme (file exists with a heading) passes and is absent from the table; readme-sections is a distinct standard that fails because the README has no Installation/Usage section"
+  - count-line-format:
+      check: "After the table and a blank line, a single count line of the form `X PASS, Y FAIL, Z SUGG` appears"
+  - plan-items-single-line-imperative:
+      check: "Each item in the remediation plan below the count line is a single-line imperative instruction (e.g. 'Add CLAUDE.md to the project root')"
+  - plan-base-before-public:
+      check: "In the remediation plan, all base/ fixes are listed before any public/ fix"
+      note: "audit.md step 4 orders the plan by profile sequence, then intra-profile judgement"

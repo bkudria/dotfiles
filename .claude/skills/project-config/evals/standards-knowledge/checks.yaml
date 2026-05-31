@@ -1,0 +1,21 @@
+context: |
+  The user asked the project-config skill to explain what standards the `base`
+  profile activates and how the audit stays language-agnostic. The skill answers
+  from its own profiles/base/ standard YAMLs; it does not run an audit here.
+checks:
+  - names-all-base-standards:
+      check: "Output names the base-profile standards: readme, gitignore, license, tests, claude-md, goals, spec, linter, formatter, coverage, tests-run, linter-run, coverage-run, commit-convention, lockfile, runtime-version"
+      note: "Every YAML under profiles/base/ is a standard; this is the complete, authoritative list"
+  - no-language-key:
+      check: "Output states that project.yaml has no `language:` key"
+  - no-per-standard-tool-overrides:
+      check: "Output states that there are no per-standard tool overrides — standards are not parameterized per project"
+  - prompt-standards-delegate-to-subagent:
+      check: "Output states that prompt-based standards (e.g. base/lockfile, base/coverage-run, base/linter-run, base/tests-run) hand verification to a sub-agent rather than being resolved statically by the skill"
+  - subagent-detects-language-from-manifests:
+      check: "Output states that the sub-agent determines the project's language and the appropriate tool by inspecting manifest files at audit time"
+  - standards-attributed-to-yaml-files:
+      check: "Output attributes the standard definitions to per-standard YAML files under profiles/ (e.g. profiles/base/), not to a catalog file"
+      note: "The old standards-catalog.md was deleted in the re-architecture; its content now lives inside per-standard YAMLs"
+  - no-hardcoded-language-tool-mapping:
+      check: "Output does NOT claim the skill maintains a hard-coded mapping of languages to tools"
