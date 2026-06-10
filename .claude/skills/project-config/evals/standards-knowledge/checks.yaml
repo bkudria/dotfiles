@@ -1,0 +1,26 @@
+context: |
+  The user asked the project-config skill to explain what standards the `base`
+  profile activates and how the audit stays language-agnostic. The skill answers
+  from its own profiles/base/ standard YAMLs; it does not run an audit here.
+  These checks grade the substance of the answer (the architecture it must
+  convey), not exact phrasing — a free-form answer states the core facts in
+  varying words. How the skill actually works: run-audit.sh auto-detects the
+  language/manifest into a project_context block; prompt-based standards then
+  hand verification to a sub-agent, which picks the appropriate tool from the
+  project's manifest files. There is no language: key and no hardcoded
+  language-to-tool mapping.
+checks:
+  - names-all-base-standards:
+      check: "Output names the base-profile standards: readme, gitignore, license, tests, claude-md, goals, spec, linter, formatter, coverage, tests-run, linter-run, coverage-run, commit-convention, lockfile, runtime-version, code-quality"
+      note: "Every YAML under profiles/base/ is a standard; this is the complete, authoritative list (17 standards)"
+  - language-auto-detected-from-manifests:
+      check: "Output explains that the audit detects the project's language automatically from manifest files (e.g. pyproject.toml, package.json, Gemfile) rather than from a project.yaml declaration"
+  - prompt-standards-delegate-to-subagent:
+      check: "Output states that prompt-based (judgment) standards delegate their verification to a sub-agent rather than the skill resolving them statically"
+  - tool-determined-from-manifests:
+      check: "Output states that the appropriate tool is determined at verification time by inspecting the project's manifest/config files, rather than being hardcoded in the skill"
+  - no-hardcoded-language-tool-mapping:
+      check: "Output does NOT claim the skill maintains a hard-coded mapping of languages to tools"
+  - standards-attributed-to-yaml-files:
+      check: "Output attributes the standard definitions to per-standard YAML files under profiles/ (e.g. profiles/base/), not to a catalog file"
+      note: "The old standards-catalog.md was deleted in the re-architecture; its content now lives inside per-standard YAMLs"

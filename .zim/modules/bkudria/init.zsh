@@ -66,6 +66,12 @@ cdpath=($HOME/code)
 zle -N llm-cmdcomp
 bindkey '^[\t' llm-cmdcomp
 
+# push-line on Ctrl-S. Ctrl-S is the terminal's XOFF flow-control key by
+# default, so disable editor flow control for the keypress to reach zle.
+unsetopt flow_control
+bindkey -r '^[q' '^[Q' '^Q'
+bindkey '^S' push-line
+
 # Homebrew
 # HOMEBREW_COMMAND_NOT_FOUND_HANDLER="$(brew --repository)/Library/Homebrew/command-not-found/handler.sh"
 # if [ -f "$HOMEBREW_COMMAND_NOT_FOUND_HANDLER" ]; then

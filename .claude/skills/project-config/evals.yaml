@@ -1,0 +1,49 @@
+version: "1"
+min_pass_rate: 1.0
+repeats: 1
+max_budget_usd: 20.0
+
+# Shared scuttlerun base config for every scenario under evals/.
+#
+# The audit delegates per-standard verification to a background Workflow
+# (workflows/verify.js), which fans out one haiku verifier per pending standard.
+# Exercising an audit end-to-end therefore needs:
+#   - additional_tools: [Workflow]  — not in scuttlerun's default tool set; the
+#     deterministic run-audit.sh verbs run via Bash (a default tool), but the
+#     verification fan-out is a Workflow dispatch.
+#   - sandbox.enabled: false        — run-audit.sh shells out to yq/jq and the
+#     workflow's verifiers Read/Write response files on the real filesystem.
+#   - project.skills: [.]           — mounts this skill so the agent can invoke
+#     it; craboodle rewrites "." to the staged skill dir at run time.
+# Fixture projects are materialised per-scenario via project.files; the agent's
+# cwd holds only the fixture (the skill is mounted separately), so a fixture can
+# sit at cwd root and the prompt audits ".".
+#
+# user.max_turns is generous because audit scenarios span two background
+# Workflow round-trips: the synthetic user must stay patient across both waits
+# (each audit scenario's persona says so) rather than ending the session early.
+# standards-knowledge overrides this down to a single shot.
+scenarios:
+  base:
+    model: claude-sonnet-4-5
+    additional_tools:
+      - Workflow
+    timeout: 600
+    max_budget_usd: 4.0
+    sandbox:
+      enabled: false
+    project:
+      skills:
+        - .
+    user:
+      oracle_model: claude-haiku-4-5
+      max_turns: 20
+      persona: |
+        You asked the agent to audit this project's standards compliance. The
+        audit delegates per-standard verification to a background workflow that
+        takes a minute or two, and it can run two rounds (required, then
+        suggested). Each time the agent says it has dispatched verification and
+        is waiting, be patient: reply briefly, e.g. "Sounds good, I'll wait."
+        Do NOT end the conversation while it is waiting, and do NOT ask it to
+        audit a different way. The task is done only once the agent presents the
+        final compliance table and the PASS/FAIL/SUGG counts.

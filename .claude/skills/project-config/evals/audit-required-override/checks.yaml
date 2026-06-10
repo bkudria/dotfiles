@@ -1,0 +1,16 @@
+context: |
+  The agent audited a Node CLI project (profiles: [base]) whose project.yaml adds
+  `required: [base/lockfile]`. The project has package.json, README (with
+  Installation and Usage), LICENSE, .gitignore, CLAUDE.md, GOALS.md, SPEC.md,
+  vitest.config.ts (coverage threshold set), and a tests/ directory — but NO
+  committed lockfile. base/lockfile is intrinsically a suggested standard
+  (required: false); the project's required: override upgrades it to FAIL.
+checks:
+  - lockfile-fail-not-sugg:
+      check: "base/lockfile is listed with FAIL status in the compliance table, not SUGG, even though the standard YAML declares required: false"
+      note: "The project.yaml `required: [base/lockfile]` list upgrades this standard's severity from SUGG to FAIL for this project"
+  - audit-states-failing:
+      check: "The output explicitly indicates the audit does not pass (e.g. a failing verdict, or a statement that --check reports failure)"
+      note: "Because base/lockfile is treated as required for this project, the audit must not present as passing"
+  - remediation-section-present:
+      check: "The output includes a remediation / fix-plan section — a labeled heading or a list of corrective actions"

@@ -1,0 +1,73 @@
+prompt: |
+  Audit this project against its standards. The project is the current working
+  directory; its project.yaml declares `profiles: [base]`. Run the audit and
+  show the results.
+
+project:
+  git_init: true
+  files:
+    project.yaml: |
+      profiles:
+        - base
+    package.json: |
+      {
+        "name": "example-ts",
+        "version": "0.1.0",
+        "type": "module",
+        "engines": { "node": ">=20" },
+        "scripts": { "test": "vitest run", "lint": "eslint ." }
+      }
+    README.md: |
+      # example-ts
+
+      A small TypeScript project.
+
+      ## Installation
+
+      Install with your package manager.
+
+      ## Usage
+
+      `example-ts --help`
+    .gitignore: |
+      node_modules/
+      coverage/
+    LICENSE: |
+      MIT License
+
+      Copyright (c) 2026 Example Author
+
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the "Software"),
+      to deal in the Software without restriction.
+    CLAUDE.md: |
+      # example-ts
+
+      Guidance for working in this repository.
+    GOALS.md: |
+      # Goals
+
+      Why this project exists.
+    SPEC.md: |
+      # Specification
+
+      What this project does.
+    eslint.config.js: |
+      export default [{ rules: {} }];
+    vitest.config.ts: |
+      import { defineConfig } from "vitest/config";
+
+      export default defineConfig({
+        test: {
+          coverage: {
+            provider: "v8",
+            reporter: ["text"],
+          },
+        },
+      });
+    tests/example.test.ts: |
+      import { test, expect } from "vitest";
+
+      test("smoke", () => {
+        expect(true).toBe(true);
+      });

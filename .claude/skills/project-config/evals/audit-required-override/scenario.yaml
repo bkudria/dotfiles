@@ -1,0 +1,70 @@
+prompt: |
+  Audit this project against its standards. The project is the current working
+  directory. Run the audit and show the results.
+
+project:
+  git_init: true
+  files:
+    project.yaml: |
+      profiles:
+        - base
+
+      required:
+        - base/lockfile
+    package.json: |
+      {
+        "name": "my-cli",
+        "version": "0.1.0",
+        "type": "module",
+        "engines": { "node": ">=20" },
+        "scripts": { "test": "vitest run" }
+      }
+    README.md: |
+      # my-cli
+
+      A small command-line tool.
+
+      ## Installation
+
+      Run it with your package manager.
+
+      ## Usage
+
+      `my-cli --help`
+    LICENSE: |
+      MIT License
+
+      Copyright (c) 2026 Example Author
+
+      Permission is hereby granted, free of charge, to any person obtaining a
+      copy of this software and associated documentation files (the "Software"),
+      to deal in the Software without restriction.
+    .gitignore: |
+      node_modules/
+      coverage/
+    CLAUDE.md: |
+      # my-cli
+
+      Guidance for working in this repository.
+    GOALS.md: |
+      # Goals
+
+      Why this project exists.
+    SPEC.md: |
+      # Specification
+
+      What this project does.
+    vitest.config.ts: |
+      import { defineConfig } from "vitest/config";
+
+      export default defineConfig({
+        test: {
+          coverage: { provider: "v8", thresholds: { lines: 80 } },
+        },
+      });
+    tests/cli.test.ts: |
+      import { test, expect } from "vitest";
+
+      test("smoke", () => {
+        expect(1 + 1).toBe(2);
+      });

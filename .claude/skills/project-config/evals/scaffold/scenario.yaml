@@ -1,0 +1,17 @@
+prompt: |
+  I want to set up a new TypeScript CLI project called widgetmaker — a
+  command-line tool for managing dashboard widgets. Set it up with project
+  standards.
+
+user:
+  max_turns: 6
+  persona: |
+    You want to scaffold a new project and have asked the agent to set it up
+    with project standards. When the agent interviews you, answer briefly:
+      - Which profiles to enable: choose `base` (and `cli` if it is offered,
+        since this is a command-line tool).
+      - Whether to disable any standards: no, keep them all.
+    Do NOT volunteer a project description, language, runtime version, license
+    choice, status, or visibility, and answer only what is asked. Let the agent
+    create the files; the task is done once it has generated project.yaml and
+    the initial standard files.

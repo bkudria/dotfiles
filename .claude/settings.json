@@ -152,9 +152,10 @@
   "preferredNotifChannel": "iterm2_with_bell",
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
   "teammateMode": "auto",
-  "terminalProgressBarEnabled": false,
+  "terminalProgressBarEnabled": true,
   "theme": "auto",
-  "verbose": true,
+  "verbose": false,
   "voiceEnabled": true
 }
