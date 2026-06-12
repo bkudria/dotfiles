@@ -26,14 +26,17 @@ less() {
     local bat_theme=gruvbox-$mode
     local glow_style=$HOME/.config/glow/gruvbox-$mode.json
 
-    if (( $# == 0 )); then
+    if (($# == 0)); then
         command bat --theme=$bat_theme
         return
     fi
 
     local f
     for f in "$@"; do
-        [[ ${f:l} == *.md ]] || { command bat --theme=$bat_theme "$@"; return; }
+        [[ ${f:l} == *.md ]] || {
+            command bat --theme=$bat_theme "$@"
+            return
+        }
     done
     command glow -s "$glow_style" "$@"
 }
