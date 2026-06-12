@@ -131,7 +131,9 @@
     "triage@bkudria-cc-plugins": true,
     "allium@juxt-plugins": true,
     "datadog@chime-claude-plugins": true,
-    "editing-confluence-pages@chime-claude-plugins": true
+    "editing-confluence-pages@chime-claude-plugins": true,
+    "claudecraft@bkudria-cc-plugins": true,
+    "projects@bkudria-cc-plugins": true
   },
   "extraKnownMarketplaces": {
     "bkudria-cc-plugins": {
