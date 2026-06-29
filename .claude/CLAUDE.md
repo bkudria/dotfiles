@@ -4,6 +4,12 @@
 - Treat the phrase "interview me" (or close variants like "interview me about") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this phrase appears, lean heavily toward asking questions before acting.
 - Keep ephemeral/local references out of persisted artifacts (commits, branch names, PR/issue bodies, code comments, docs). This covers task IDs, plan phases/step numbers, subagent IDs or names, and callbacks to prior turns/sessions. External tracker IDs (JIRA/Linear/GH issue #) are fine, and the rule only applies to artifacts — chat with the user is unaffected.
 
+## Code comments
+
+- Comments document only the *current* state of the code — what it does and why, as it stands now. Keep them evergreen: leave out anything not relevant to the present code (e.g. the prod measurement process that justified a value, transient investigation notes).
+- Don't narrate history, future plans, or trajectory, especially what commit messages and PR descriptions already cover.
+- This is the default; document or comment specific things whenever the user asks.
+
 ## TDD Gate
 
 **Before writing any implementation plan or production code** in a project that has tests (spec/, test/, tests/, __tests__/, or similar), you MUST load the `testing-strategy` skill. No exceptions.
