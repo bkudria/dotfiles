@@ -22,3 +22,4 @@ GPATH
 **/.claude/settings.local.json
 _aux/
 .retrogator.yaml
+.worktrees/
