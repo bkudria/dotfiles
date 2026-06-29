@@ -48,7 +48,20 @@
       "Bash(gh pr review:*)",
       "Bash(gh issue view:*)",
       "Bash(gh issue list:*)",
-      "WebFetch(domain:docs.anthropic.com)"
+      "WebFetch(domain:docs.anthropic.com)",
+      "mcp__chrome-devtools__list_pages",
+      "mcp__chrome-devtools__close_page",
+      "mcp__chrome-devtools__select_page",
+      "mcp__chrome-devtools__take_screenshot",
+      "mcp__chrome-devtools__take_snapshot",
+      "mcp__chrome-devtools__wait_for",
+      "mcp__chrome-devtools__emulate",
+      "mcp__chrome-devtools__list_network_requests",
+      "mcp__chrome-devtools__get_network_request",
+      "mcp__chrome-devtools__list_console_messages",
+      "mcp__chrome-devtools__performance_start_trace",
+      "mcp__chrome-devtools__performance_stop_trace",
+      "mcp__chrome-devtools__performance_analyze_insight"
     ],
     "deny": [
       "Read(**/.env*)",
@@ -122,18 +135,15 @@
     "refreshInterval": 1
   },
   "enabledPlugins": {
-    "security-guidance@claude-plugins-official": true,
-    "claude-md-management@claude-plugins-official": true,
-    "claude-code-setup@claude-plugins-official": true,
-    "typescript-lsp@claude-plugins-official": true,
-    "ruby-lsp@claude-plugins-official": true,
-    "plugin-dev@claude-plugins-official": false,
-    "triage@bkudria-cc-plugins": true,
     "allium@juxt-plugins": true,
-    "datadog@chime-claude-plugins": true,
-    "editing-confluence-pages@chime-claude-plugins": true,
+    "claude-code-setup@claude-plugins-official": true,
+    "claude-md-management@claude-plugins-official": true,
     "claudecraft@bkudria-cc-plugins": true,
-    "projects@bkudria-cc-plugins": true
+    "plugin-dev@claude-plugins-official": false,
+    "projects@bkudria-cc-plugins": true,
+    "ruby-lsp@claude-plugins-official": true,
+    "security-guidance@claude-plugins-official": true,
+    "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
     "bkudria-cc-plugins": {
@@ -159,6 +169,7 @@
   "teammateMode": "auto",
   "terminalProgressBarEnabled": true,
   "theme": "auto",
+  "tui": "fullscreen",
   "verbose": false,
   "voiceEnabled": true
 }
