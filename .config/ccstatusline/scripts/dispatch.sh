@@ -14,4 +14,4 @@ else
   config="$HOME/.config/ccstatusline/settings.json"
 fi
 
-printf '%s' "$input" | bunx ccstatusline --config "$config"
+printf '%s' "$input" | ccstatusline --config "$config"
