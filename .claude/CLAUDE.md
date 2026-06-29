@@ -6,7 +6,8 @@
 
 ## Code comments
 
-- Comments document only the *current* state of the code — what it does and why, as it stands now. Keep them evergreen: leave out anything not relevant to the present code (e.g. the prod measurement process that justified a value, transient investigation notes).
+- Use comments sparingly and keep them concise. A comment earns its place by adding what the code can't carry on its own — a non-obvious *why*, a constraint, a gotcha — not by restating what's evident from reading the code.
+- Comments document only the *current* state of the code, as it stands now — including the why behind it. Keep them evergreen: leave out anything not relevant to the present code (e.g. the prod measurement process that justified a value, transient investigation notes).
 - Don't narrate history, future plans, or trajectory, especially what commit messages and PR descriptions already cover.
 - This is the default; document or comment specific things whenever the user asks.
 
