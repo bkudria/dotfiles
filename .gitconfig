@@ -1,9 +1,6 @@
 [user]
 	name = Benjamin Kudria
 	email = ben@kudria.net
-[author]
-	name = Benjamin Kudria
-	email = ben@kudria.net
 [github]
 	user = bkudria
 [core]
@@ -46,8 +43,6 @@
 	autocorrect = prompt
 [git-up "bundler"]
 	check = true
-[include]
-	path = ~/.gitconfigs/chime.gitconfig
 [magit]
 	hideCampaign = true
 [magithub]
@@ -95,3 +90,14 @@
 	diffFilter = delta --color-only
 [delta]
 	navigate = true
+
+# Identity routing by remote URL (git >= 2.36 "hasconfig"). Last match wins.
+# Repos with no matching remote fall back to the [user] default above.
+[includeIf "hasconfig:remote.*.url:git@github.com:bkudria/**"]
+	path = ~/.gitconfigs/personal.gitconfig
+[includeIf "hasconfig:remote.*.url:https://github.com/bkudria/**"]
+	path = ~/.gitconfigs/personal.gitconfig
+
+# Machine-local overrides (untracked; absent on some machines).
+[include]
+	path = ~/.gitconfigs/work.gitconfig
