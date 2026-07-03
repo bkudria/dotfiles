@@ -159,9 +159,7 @@
       }
     }
   },
-  "alwaysThinkingEnabled": true,
   "effortLevel": "xhigh",
-  "model": "claude-fable-5[1m]",
   "preferredNotifChannel": "iterm2_with_bell",
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
