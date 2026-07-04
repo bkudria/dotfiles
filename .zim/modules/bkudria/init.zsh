@@ -17,7 +17,7 @@ export VISUAL='emacs-client-frame'
 # export TSC_WATCHFILE=UseFsEventsWithFallbackDynamicPolling
 
 ## Claude Code
-export ANTHROPIC_MODEL="claude-opus-4-8"
+export ANTHROPIC_MODEL="claude-fable-5"
 
 # Aliases - only the unique ones not covered by other modules
 less() {

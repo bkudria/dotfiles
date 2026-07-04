@@ -128,6 +128,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
+  "model": "claude-fable-5[1m]",
   "statusLine": {
     "type": "command",
     "command": "~/.config/ccstatusline/scripts/dispatch.sh",
@@ -160,14 +161,14 @@
     }
   },
   "effortLevel": "xhigh",
-  "preferredNotifChannel": "iterm2_with_bell",
-  "skipAutoPermissionPrompt": true,
+  "tui": "fullscreen",
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
-  "teammateMode": "auto",
-  "terminalProgressBarEnabled": true,
   "theme": "auto",
-  "tui": "fullscreen",
   "verbose": false,
+  "preferredNotifChannel": "iterm2_with_bell",
+  "terminalProgressBarEnabled": true,
+  "teammateMode": "auto",
+  "skipAutoPermissionPrompt": true,
   "voiceEnabled": true
 }
