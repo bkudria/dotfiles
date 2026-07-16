@@ -6,9 +6,12 @@
 
 ## Code comments
 
-- Use comments sparingly and keep them concise. A comment earns its place by adding what the code can't carry on its own — a non-obvious *why*, a constraint, a gotcha — not by restating what's evident from reading the code.
-- Comments document only the *current* state of the code, as it stands now — including the why behind it. Keep them evergreen: leave out anything not relevant to the present code (e.g. the prod measurement process that justified a value, transient investigation notes).
-- Don't narrate history, future plans, or trajectory, especially what commit messages and PR descriptions already cover.
+Comments are a last resort: make the code self-describing first — a precise name, clear structure — and comment only what naming and structure genuinely can't carry.
+
+- When a small, well-named unit still seems to need an explanatory comment, treat that as a signal it may be doing too much — consider decomposing it rather than explaining it.
+- When you do comment, keep it concise and focused on what reading the code won't reveal — a non-obvious *why*, a constraint, a gotcha — never restating the evident. Don't make comments a blanket convention across sibling units (a header on every action or handler): the noise is its own cost, and it destroys the signal a needed comment would otherwise give.
+- Keep comments evergreen and cohesive: document only the *current* state and the why behind it, and when the code changes rewrite the whole comment rather than appending to it. Leave out what no longer bears on the present code (e.g. the measurement process that justified a value, transient investigation notes).
+- Don't narrate history, future plans, or trajectory — commit messages and PR descriptions already cover that.
 - This is the default; document or comment specific things whenever the user asks.
 
 ## TDD Gate
