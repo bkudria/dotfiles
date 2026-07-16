@@ -10,8 +10,9 @@ Comments are a last resort: make the code self-describing first — a precise na
 
 - When a small, well-named unit still seems to need an explanatory comment, treat that as a signal it may be doing too much — consider decomposing it rather than explaining it.
 - When you do comment, keep it concise and focused on what reading the code won't reveal — a non-obvious *why*, a constraint, a gotcha — never restating the evident. Don't make comments a blanket convention across sibling units (a header on every function or class): the noise is its own cost, and it destroys the signal a needed comment would otherwise give.
+- Only state what you've verified. A comment's claims — a domain assumption, an invariant, a downstream dependency, whether a monitor or flag exists — must be checked against the code, not paraphrased from a PR description or your mental model, and must describe what exists now, not what's planned. An inaccurate comment is worse than none.
 - Keep comments evergreen and cohesive: document only the *current* state and the why behind it, and when the code changes rewrite the whole comment rather than appending to it. Leave out what no longer bears on the present code (e.g. the measurement process that justified a value, transient investigation notes).
-- Don't narrate history, future plans, or trajectory — commit messages and PR descriptions already cover that.
+- Don't narrate history, future plans, or trajectory — nor transitional scaffolding: parity with a system being removed, migration or cutover rationale. Frame the *why* durably, in terms that outlive planned changes. Commit messages and PR descriptions cover the rest.
 - This is the default; document or comment specific things whenever the user asks.
 
 ## TDD Gate
