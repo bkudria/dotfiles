@@ -161,14 +161,14 @@
     }
   },
   "effortLevel": "xhigh",
-  "tui": "fullscreen",
+  "preferredNotifChannel": "iterm2_with_bell",
+  "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
-  "theme": "auto",
-  "verbose": false,
-  "preferredNotifChannel": "iterm2_with_bell",
-  "terminalProgressBarEnabled": true,
   "teammateMode": "auto",
-  "skipAutoPermissionPrompt": true,
+  "terminalProgressBarEnabled": true,
+  "theme": "auto",
+  "tui": "fullscreen",
+  "verbose": false,
   "voiceEnabled": true
 }
