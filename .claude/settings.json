@@ -10,7 +10,6 @@
   },
   "permissions": {
     "allow": [
-      "Write(~/.claude/skills/*/evals/**)",
       "Edit(~/.claude/skills/*/evals/**)",
       "Bash(ls:*)",
       "Bash(cat:*)",
