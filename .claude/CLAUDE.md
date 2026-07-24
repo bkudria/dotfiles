@@ -1,8 +1,14 @@
 - When presenting options, approaches, or possible alternatives, always note any trade-offs
+- Keep ephemeral/local references out of persisted artifacts (commits, branch names, PR/issue bodies, code comments, docs). This covers task IDs, plan phases/step numbers, subagent IDs or names, and callbacks to prior turns/sessions. External tracker IDs (JIRA/Linear/GH issue #) are fine, and the rule only applies to artifacts — chat with the user is unaffected.
+
+## Asking questions
+
 - Always clarify when there are multiple valid approaches: use AskUserQuestion for quick clarifications, or EnterPlanMode for design decisions that need codebase exploration first.
 - Prefer asking over guessing. Use AskUserQuestion (or `advanced-ask` when its limits are hit) whenever in doubt — for design decisions, ambiguous requirements, implementation choices, or anything where you'd otherwise be making an assumption. This applies in all modes, not just Plan mode.
 - Treat the phrase "interview me" (or close variants like "interview me about") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this phrase appears, lean heavily toward asking questions before acting.
-- Keep ephemeral/local references out of persisted artifacts (commits, branch names, PR/issue bodies, code comments, docs). This covers task IDs, plan phases/step numbers, subagent IDs or names, and callbacks to prior turns/sessions. External tracker IDs (JIRA/Linear/GH issue #) are fine, and the rule only applies to artifacts — chat with the user is unaffected.
+- Single-select options should be MECE — mutually exclusive, collectively exhaustive — with the weight on mutually exclusive: overlapping options force an arbitrary pick, so restructure the question or switch to multiSelect. Read "exhaustive" reasonably: cover the plausible answers and let the automatic "Other" catch the tail; when more than 4 options are natural, use `advanced-ask` rather than truncating.
+- Batch only independent questions into one AskUserQuestion call: a question whose relevance or framing depends on another's answer pressures that answer when asked alongside it. Ask dependent follow-ups in a separate call once the earlier answer is in.
+- Never pose a choice with real trade-offs cold: present the options fully in prose — implications, trade-offs, a recommendation — before the AskUserQuestion call, which then only captures the decision; option labels and descriptions are too cramped to introduce it. Scale presentation depth to the stakes.
 
 ## Code comments
 
