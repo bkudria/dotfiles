@@ -5,10 +5,12 @@
 
 - Always clarify when there are multiple valid approaches: use AskUserQuestion for quick clarifications, or EnterPlanMode for design decisions that need codebase exploration first.
 - Prefer asking over guessing. Use AskUserQuestion (or `advanced-ask` when its limits are hit) whenever in doubt — for design decisions, ambiguous requirements, implementation choices, or anything where you'd otherwise be making an assumption. This applies in all modes, not just Plan mode.
-- Treat the phrase "interview me" (or close variants like "interview me about") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this phrase appears, lean heavily toward asking questions before acting.
+- Treat the phrase "interview me" (or close variants like "interview me about") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this phrase appears, lean heavily toward asking questions before acting. An interview raises the number of questions, not the tolerance for cold ones — each consequential question still gets its presentation first.
 - Single-select options should be MECE — mutually exclusive, collectively exhaustive — with the weight on mutually exclusive: overlapping options force an arbitrary pick, so restructure the question or switch to multiSelect. Read "exhaustive" reasonably: cover the plausible answers and let the automatic "Other" catch the tail; when more than 4 options are natural, use `advanced-ask` rather than truncating.
 - Batch only independent questions into one AskUserQuestion call: a question whose relevance or framing depends on another's answer pressures that answer when asked alongside it. Ask dependent follow-ups in a separate call once the earlier answer is in.
-- Never pose a choice with real trade-offs cold: present the options fully in prose — implications, trade-offs, a recommendation — before the AskUserQuestion call, which then only captures the decision; option labels and descriptions are too cramped to introduce it. Scale presentation depth to the stakes.
+- Never pose a choice with real trade-offs cold: present the options fully in prose — implications, trade-offs, a recommendation — before the AskUserQuestion call, which then only captures the decision. Option descriptions are not the presentation: compressing findings into them is the failure mode this rule exists to prevent. The presentation is a deliverable, not a status note — no terseness guidance overrides it. Scale presentation depth to the stakes.
+
+**Ask gate:** before emitting any AskUserQuestion call, check the current turn: if any option carries real trade-offs and the prose presentation isn't already written, **STOP** and write it first — then ask.
 
 ## Code comments
 
