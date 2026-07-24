@@ -143,6 +143,7 @@
     "projects@bkudria-cc-plugins": true,
     "ruby-lsp@claude-plugins-official": true,
     "security-guidance@claude-plugins-official": true,
+    "triage@bkudria-cc-plugins": true,
     "typescript-lsp@claude-plugins-official": true
   },
   "extraKnownMarketplaces": {
@@ -150,7 +151,8 @@
       "source": {
         "source": "directory",
         "path": "/opt/me/code/cc-plugins"
-      }
+      },
+      "autoUpdate": true
     },
     "juxt-plugins": {
       "source": {
