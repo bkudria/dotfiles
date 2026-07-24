@@ -1,3 +1,4 @@
+.allium-loop/
 .coffee
 coffeelint.json
 node_modules
