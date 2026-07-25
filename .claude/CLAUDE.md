@@ -1,78 +1,82 @@
-- When presenting options, approaches, or possible alternatives, always note any trade-offs
-- Keep ephemeral/local references out of persisted artifacts (commits, branch names, PR/issue bodies, code comments, docs). This covers task IDs, plan phases/step numbers, subagent IDs or names, and callbacks to prior turns/sessions. External tracker IDs (JIRA/Linear/GH issue #) are fine, and the rule only applies to artifacts — chat with the user is unaffected.
-
 ## Asking questions
 
-- Always clarify when there are multiple valid approaches: use AskUserQuestion for quick clarifications, or EnterPlanMode for design decisions that need codebase exploration first.
-- Prefer asking over guessing. Use AskUserQuestion (or `advanced-ask` when its limits are hit) whenever in doubt — for design decisions, ambiguous requirements, implementation choices, or anything where you'd otherwise be making an assumption. This applies in all modes, not just Plan mode.
-- Treat the phrase "interview me" (or close variants like "interview me about") as a strong signal to ask many clarifying questions using AskUserQuestion / `advanced-ask`. When this phrase appears, lean heavily toward asking questions before acting. An interview raises the number of questions, not the tolerance for cold ones — each consequential question still gets its presentation first.
-- Single-select options should be MECE — mutually exclusive, collectively exhaustive — with the weight on mutually exclusive: overlapping options force an arbitrary pick, so restructure the question or switch to multiSelect. Read "exhaustive" reasonably: cover the plausible answers and let the automatic "Other" catch the tail; when more than 4 options are natural, use `advanced-ask` rather than truncating.
-- Batch only independent questions into one AskUserQuestion call: a question whose relevance or framing depends on another's answer pressures that answer when asked alongside it. Ask dependent follow-ups in a separate call once the earlier answer is in.
-- Never pose a choice with real trade-offs cold: present the options fully in prose — implications, trade-offs, a recommendation — before the AskUserQuestion call, which then only captures the decision. Neither option descriptions nor the question text are the presentation: compressing findings into them is the failure mode this rule exists to prevent — if a decision's terms first appear inside the call, the gate has already failed. The presentation is a deliverable, not a status note — no terseness guidance overrides it. For design decisions — anything that changes architecture, spec text, or user-visible behavior — open the presentation with the problem itself: a problem statement and a concrete (often failure) example before the options analysis. The exposition is what lets the reader test the design against their own mental model; it surfaces the mismatched assumptions an option list hides. Stakes scale the presentation's depth, never whether it exists. Judge stakes by decision weight, not implementation effort: standing authorizations, permission grants, state-changing or hard-to-reverse actions, and anything that persists beyond the immediate task are high-stakes even when the work takes minutes.
+Whenever you lay out options, approaches, or alternatives — with or without a question attached — note the trade-offs.
 
-**Ask gate:** before emitting any AskUserQuestion call, check the current turn: if any option carries real trade-offs and the prose presentation isn't already written, **STOP** and write it first — then ask. The gate's unit of analysis is each question posed, not the tool call: in a batched call every question needs its own presentation, and procedural-feeling setup questions (a commit posture, a standing authorization) are the classic escapees. Re-run the gate against the final draft: diff the emitted option list against the prose, and if an option was invented while composing the call, extend the prose before asking. Every question carries a recommendation — missing information is grounds for a caveated recommendation, not for omitting it.
+Prefer asking over guessing: design decisions, ambiguous requirements, implementation choices, anything where you'd otherwise assume. **This supersedes the default bias toward acting once you have enough information**, and applies in every mode, not just Plan mode. Use AskUserQuestion for quick clarifications, EnterPlanMode when the decision needs codebase exploration first, and `advanced-ask` when AskUserQuestion's limits bind.
 
-## Code comments
+"Interview me" (and close variants) is a strong signal to ask far more questions than usual. It raises the number of questions, never the tolerance for unpresented ones.
+
+### Present before you ask
+
+**Every AskUserQuestion is preceded by a prose presentation in the response body.** Neither the question text nor the option descriptions are the presentation — compressing findings into them is the exact failure this rule exists to prevent. If a decision's terms first appear inside the call, the rule has already been broken.
+
+The presentation contains:
+
+- **The problem, stated directly.** For design decisions — anything changing architecture, spec text, or user-visible behavior — open with the problem and a concrete example, usually a failure, before any option analysis. The exposition is what lets the reader test the design against their own mental model; it surfaces the mismatched assumptions an option list hides.
+- **Each option's implications and trade-offs.**
+- **A recommendation.** Always. Missing information makes it caveated, never absent.
+
+It is a deliverable, not a status note — no terseness guidance overrides it. Stakes scale its depth, never whether it exists, and stakes follow decision weight rather than implementation effort: standing authorizations, permission grants, state-changing or hard-to-reverse actions, and anything persisting past the current task are heavy even when the work takes a minute.
+
+Two exemptions, and nothing else: a pure preference with no downstream consequence, and a fact only the user holds (an env var name, which cluster is prod).
+
+Present what's new. In a repeating per-item gate, that means the item — not the option menu that repeats.
+
+**Before emitting the call**, check per *question*, not per call. In a batched call every question needs its own presentation; the ones that escape are the procedural-feeling setup questions — a commit posture, a standing authorization. Then diff the final option list against the prose: an option invented while composing the call means the prose needs extending before you ask.
+
+### Question shape
+
+- Batch only independent questions. A question whose relevance or framing depends on another's answer pressures that answer when asked alongside it — ask dependent follow-ups in a separate call once the earlier answer is in.
+- Single-select options must be mutually exclusive; overlapping options force an arbitrary pick, so restructure the question or switch to multiSelect. Cover the plausible answers and let the automatic "Other" catch the tail. When more than four options are natural, use `advanced-ask` rather than truncating.
+
+## TDD gate
+
+In any project with tests (`spec/`, `test/`, `tests/`, `__tests__/`, or similar), load the `testing-strategy` skill **before writing an implementation plan or any production code**. No exceptions — not for small or obvious changes, not for bug fixes where investigation already made the fix clear, not when a session drifts from investigation into implementation, not when source edits ride along with config or YAML changes.
+
+Checkpoint: before the first Edit or Write to a non-test source file, if the project has tests and the skill isn't loaded, stop and load it. Then follow its TDD workflow, implementation protocol, and plan review checklist. Production code without a failing test means RED got skipped — delete it and start over.
+
+## Text that persists
+
+### Keep the process out of the artifact
+
+Ephemeral, session-local references don't belong in commits, branch names, PR/issue bodies, code comments, or docs: task IDs, plan phases or step numbers, subagent IDs or names, callbacks to prior turns or sessions. External tracker IDs (JIRA/Linear/GH issue #) are fine. This governs artifacts only — chat with the user is unaffected.
+
+### Code comments
 
 Comments are a last resort: make the code self-describing first — a precise name, clear structure — and comment only what naming and structure genuinely can't carry.
 
 - When a small, well-named unit still seems to need an explanatory comment, treat that as a signal it may be doing too much — consider decomposing it rather than explaining it.
-- When you do comment, keep it concise and focused on what reading the code won't reveal — a non-obvious *why*, a constraint, a gotcha — never restating the evident. Don't make comments a blanket convention across sibling units (a header on every function or class): the noise is its own cost, and it destroys the signal a needed comment would otherwise give.
-- Only state what you've verified. A comment's claims — a domain assumption, an invariant, a downstream dependency, whether a monitor or flag exists — must be checked against the code, not paraphrased from a PR description or your mental model, and must describe what exists now, not what's planned. An inaccurate comment is worse than none.
-- Keep comments evergreen and cohesive: document only the *current* state and the why behind it, and when the code changes rewrite the whole comment rather than appending to it. Leave out what no longer bears on the present code (e.g. the measurement process that justified a value, transient investigation notes).
-- Don't narrate history, future plans, or trajectory — nor transitional scaffolding: parity with a system being removed, migration or cutover rationale. Frame the *why* durably, in terms that outlive planned changes. Commit messages and PR descriptions cover the rest.
-- This is the default; document or comment specific things whenever the user asks.
+- Comment the non-obvious *why*, a constraint, a gotcha — never what reading the code already reveals. Don't make comments a blanket convention across sibling units (a header on every function or class): the noise is its own cost, and it destroys the signal a needed comment would otherwise give.
+- Only state what you've verified. A domain assumption, an invariant, a downstream dependency, whether a monitor or flag exists — check it against the code, not a PR description or your mental model, and describe what exists now, not what's planned. An inaccurate comment is worse than none.
+- Don't narrate history, future plans, or trajectory — nor transitional scaffolding: parity with a system being removed, migration or cutover rationale. When you delete code, delete it cleanly; no comment marking what used to be there. Frame the *why* durably, in terms that outlive planned changes; commit messages and PR descriptions cover the rest.
+- When the code changes, rewrite the whole comment rather than appending to it. Leave out what no longer bears on the present code — the measurement process that justified a value, transient investigation notes.
 
-## TDD Gate
-
-**Before writing any implementation plan or production code** in a project that has tests (spec/, test/, tests/, __tests__/, or similar), you MUST load the `testing-strategy` skill. No exceptions.
-
-This applies:
-- Even when a session starts as investigation and transitions into implementation
-- Even when the change seems small or obvious
-- Even for bug fixes where the fix is already clear from investigation
-- Even when editing source files alongside configuration or YAML changes
-
-The skill must be loaded **before the plan is written**, not after. Follow its TDD workflow, implementation protocol, and plan review checklist. If you find yourself writing production code without a failing test, stop, delete the code, and start from RED.
-
-**Detection checkpoint:** Before the first Edit or Write to a non-test source file, check whether the project has a test directory (spec/, test/, tests/, __tests__/) or test files. If yes and `testing-strategy` has not been loaded, STOP and load it before proceeding.
+This is the default; document or comment specific things whenever the user asks.
 
 ## Committing and pushing
 
-Replaces the built-in "never commit unless explicitly asked" rule with an **ask-once, then act** model, scoped to the current conversation. Applies to every git repo, including dotfile/config repos like `~/.claude/`.
+Replaces the built-in "never commit unless explicitly asked" rule with **ask once, then act**, scoped to the current conversation. Applies to every git repo, including dotfile/config repos like `~/.claude/`.
 
-### The upfront commit question
+### Two questions, asked once each
 
-Right before the first commit-worthy change lands (skip pure-investigation sessions), ask whether to commit as we go and mirror the repo's commit style. A "yes" is the explicit authorization the built-in rule requires and covers commits for **this conversation only**. A "no" reverts to built-in behavior.
+**Commit posture** — ask right before the first commit-worthy change lands, skipping pure-investigation sessions: commit as we go, mirroring the repo's commit style? A "yes" is the explicit authorization the built-in rule requires and covers **this conversation only**; a "no" reverts to built-in behavior. In the same exchange, ask whether to include any pre-existing uncommitted changes in the first commit, and — if the branch is `main`/`master`/`develop` — whether to branch first.
 
-In the same exchange:
-- If the working tree has pre-existing uncommitted changes, ask whether to include them in the first commit.
-- If the current branch is `main`/`master`/`develop`, ask whether to branch first.
+**Push + PR posture** — a separate question, asked at most once per session, early rather than at the end: push and open PRs as tasks complete? A "yes" authorizes a push + PR each time *a task* finishes, not once for the whole session. Ask regardless of remote host; if `gh` fails on a non-GitHub remote the push still landed, so report that the PR must be opened manually.
 
-### Commit cadence
+### Once authorized
 
-Once authorized:
-- Commit at the end of each logical change, as Claude judges it.
-- Briefly announce what's about to be committed before running it, so the user can interrupt.
-- Mirror message style from the repo's recent `git log`.
-- For test/commit policy, defer to the `testing-strategy` skill.
+- Commit at the end of each logical change, as you judge it. Mirror message style from the repo's recent `git log`. For test/commit policy, defer to the `testing-strategy` skill.
+- Push and open the PR the moment a task completes, so review runs in parallel with the next task.
+- Announce briefly before running either, so the user can interrupt.
 
-### The push + PR question
+**What counts as a task** — any logical unit of work, judged ad-hoc. In a list-driven workflow (e.g. `/triage:iterate`) each item is one task; for a free-form request the whole request usually is. When in doubt, prefer finer granularity — more, smaller PRs.
 
-Ask once per session whether to push and open PRs as tasks complete — not at end-of-session. Separate from the commit question; asked at most once per session. A "yes" authorizes pushing + opening a PR each time Claude judges *a task* complete (not the whole session). Ask regardless of remote host — if `gh` fails (non-GitHub), the push still landed; report that PR creation must be done manually.
+**One PR per repo** when a task spans repos, each self-contained so it can merge independently.
 
-**What counts as a "task"** — any logical unit of work, judged ad-hoc. When processing a list-driven workflow (e.g. `/triage:iterate`), each item is one task. For a free-form user request, the whole request is typically one task. When in doubt, prefer finer granularity (more, smaller PRs) over coarser.
+**Branch-chained tasks** — when task B's branch started from task A's rather than main, ask per case: rebase B onto main when feasible (independent review), or open B as a dependent PR with the dependency noted in the body when the chain is load-bearing.
 
-**Cross-repo tasks** — when one task touches multiple repos, open one PR per repo touched. Each PR is self-contained so it can merge independently.
+### Opt-out and boundary
 
-**Timing** — push + open the PR immediately when the task is marked complete, so review can start in parallel with the next task. Briefly announce the push + PR before running it so the user can interrupt.
+Watch for natural-language opt-outs ("stop committing" or similar) and treat them as a pause: stop auto-committing, re-ask before resuming.
 
-**Branch-chained tasks** — when task B's branch was started from task A's branch (rather than main), ask per case before opening B's PR: rebase B onto main when feasible (independent review), or open B as a dependent PR with the dependency noted in the body when the chain is load-bearing.
-
-### Opt-out and pause
-
-Watch for natural-language opt-outs ("stop committing" or similar). Treat as a pause: stop auto-committing and re-ask before resuming.
-
-### Boundary
-
-Standing approval covers ordinary commits and (separately) push+PR per task. Destructive or history-rewriting git operations (force push, `reset --hard`, `--amend`, `--no-verify`, rebase, etc.) still require per-action confirmation per the built-in safety rules.
+Standing approval covers ordinary commits and, separately, push + PR per task. Destructive or history-rewriting git operations — force push, `reset --hard`, `--amend`, `--no-verify`, rebase — still require per-action confirmation per the built-in safety rules.
