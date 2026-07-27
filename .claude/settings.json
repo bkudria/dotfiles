@@ -127,7 +127,7 @@
     "defaultMode": "auto",
     "disableBypassPermissionsMode": "disable"
   },
-  "model": "claude-fable-5[1m]",
+  "model": "opus[1m]",
   "statusLine": {
     "type": "command",
     "command": "~/.config/ccstatusline/scripts/dispatch.sh",
@@ -166,7 +166,7 @@
   "skipAutoPermissionPrompt": true,
   "skipDangerousModePermissionPrompt": true,
   "skipWorkflowUsageWarning": true,
-  "teammateMode": "auto",
+  "teammateMode": "in-process",
   "terminalProgressBarEnabled": true,
   "theme": "auto",
   "tui": "fullscreen",
